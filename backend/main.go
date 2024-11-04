@@ -1,0 +1,35 @@
+// main.go
+package main
+
+import (
+	"log"
+
+	"github.com/pdhoang91/blog/config"
+	"github.com/pdhoang91/blog/controllers"
+	"github.com/pdhoang91/blog/database"
+	"github.com/pdhoang91/blog/router"
+)
+
+func main() {
+	// Khởi tạo cấu hình
+	err := config.Init()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Kết nối cơ sở dữ liệu, thực hiện migration và thiết lập các callback cho Elasticsearch
+	database.InitializeDatabase()
+	log.Println("Connected to database and set up Elasticsearch hooks")
+	// Khởi tạo controller
+	c := controllers.NewController()
+	log.Println("Initialized controller:", c)
+
+	//search.BulkIndex(db)
+
+	// Thiết lập router và chạy server
+	r := router.SetupRouter()
+	err = r.Run(":81")
+	if err != nil {
+		log.Fatal(err)
+	}
+}
