@@ -18,6 +18,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Sao chép mã nguồn
+# Sao chép mã nguồn
 COPY . .
 
 # Build ứng dụng
