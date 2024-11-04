@@ -98,7 +98,10 @@ func GoogleCallbackHandler(c *gin.Context) {
 
 // LoginHandler handles user login
 func LoginHandler(c *gin.Context) {
-	var input models.User
+	var input struct {
+		Email    string `json:"email" binding:"required"`
+		Password string `json:"password" binding:"required"`
+	}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 		return
@@ -126,7 +129,10 @@ func LoginHandler(c *gin.Context) {
 
 // RegisterHandler handles user registration
 func RegisterHandler(c *gin.Context) {
-	var input models.User
+	var input struct {
+		Email    string `json:"email" binding:"required,email"`
+		Password string `json:"password" binding:"required"`
+	}
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
 		return
@@ -137,7 +143,6 @@ func RegisterHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error hashing password"})
 		return
 	}
-	input.Password = string(hashedPassword)
 
 	// Generate verification token
 	token, err := utils.GenerateVerificationToken()
@@ -145,21 +150,39 @@ func RegisterHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating verification token"})
 		return
 	}
-	input.VerificationToken = token
 
-	if err := database.DB.Create(&input).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error creating user"})
-		return
+	// Kiểm tra xem người dùng đã tồn tại trong cơ sở dữ liệu hay chưa
+	var user models.User
+	if err := database.DB.Where("email = ?", input.Email).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			// Người dùng chưa tồn tại, tạo mới
+			newUser := models.User{
+				Email:             input.Email,
+				Password:          string(hashedPassword),
+				VerificationToken: token,
+				Username:          "@" + strings.Split(input.Email, "@")[0],
+				Name:              strings.Split(input.Email, "@")[0],
+				AvatarURL:         "https://www.w3schools.com/w3images/avatar2.png",
+			}
+			if err := database.DB.Create(&newUser).Error; err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create user"})
+				return
+			}
+			user = newUser
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not check user"})
+			return
+		}
 	}
 
 	// Send verification email
-	if err := utils.SendVerificationEmail(input.Email, token); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error sending verification email"})
-		return
-	}
+	//if err := utils.SendVerificationEmail(user.Email, token); err != nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "Error sending verification email"})
+	//	return
+	//}
 
-	// Generate JWT token (optional: only after verification)
-	tokenString, err := middleware.GenerateJWT(input)
+	// Optionally, return a JWT token for immediate login
+	tokenString, err := middleware.GenerateJWT(user)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating token"})
 		return

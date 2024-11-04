@@ -47,3 +47,6 @@ next-env.d.ts
 /dataSources.local.xml
 
 .idea/
+frontend/.next/
+.idea/sonarlint/
+frontend/node_modules

@@ -21,7 +21,7 @@ type User struct {
 	Email                  string    `json:"email"`                                           // Email của người dùng
 	Name                   string    `json:"name"`                                            // Tên của người dùng
 	Username               string    `json:"username"`                                        // Username Tên của người dùng
-	Password               string    `gorm:"-" json:"-"`                                      // Loại bỏ trường Password khỏi JSON
+	Password               string    `json:"-"`                                               // Loại bỏ trường Password khỏi JSON
 	GoogleID               string    `json:"google_id"`                                       // ID từ Google
 	AvatarURL              string    `json:"avatar_url"`                                      // URL avatar của người dùng
 	Phone                  string    `json:"phone"`                                           // Số điện thoại
