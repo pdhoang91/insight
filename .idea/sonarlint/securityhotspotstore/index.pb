@@ -13,3 +13,6 @@ B
 backend/Dockerfile,1/2/1299d064ef40647d5147370c3665f2bb07ec76d8
 F
 frontend/config/api.js,1/0/101bf1cfab19b246965f306d4235d5c6929b50f5
+:
+
+.gitignore,a/5/a5cc2925ca8258af241be7e5b0381edf30266302
