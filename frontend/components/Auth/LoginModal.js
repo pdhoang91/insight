@@ -54,14 +54,14 @@ const LoginModal = ({ isOpen, onClose }) => {
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full py-3 rounded-lg text-gray-800"
+            className="w-full py-3 p-3 rounded-lg text-gray-800"
           />
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full py-3 rounded-lg text-gray-800"
+            className="w-full py-3 p-3 rounded-lg text-gray-800"
           />
           <button
             onClick={isSignUp ? handleSignUp : handleLogin}
