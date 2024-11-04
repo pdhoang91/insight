@@ -1,19 +1,29 @@
+// // components/Post/ReadingList.js
 // components/Post/ReadingList.js
 import React from 'react';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
 import PostItemSmall from './PostItemSmall';
 import { getReadingList } from '../../services/bookmarkService';
-import ViewMoreButton from '../../components/Utils/ViewMoreButton';
+import {ViewMoreButton} from '../../components/Utils/ViewMoreButton';
+import {useUser} from '../../context/UserContext';
 
-const fetcher = async () => {
+const fetchReadingList = async () => {
+  // Adjust parameters as needed
   const data = await getReadingList(1, 3);
   return data;
 };
 
 const ReadingList = () => {
-  const { data, error } = useSWR('/api/bookmarks', fetcher);
+  const { user } = useUser();
   const router = useRouter();
+
+  // Early return if there's no user
+  if (!user) {
+    return <div className="text-gray-600">Đăng nhập để xem danh sách đọc.</div>;
+  }
+
+  const { data, error } = useSWR('/api/bookmarks', fetchReadingList);
 
   if (error) {
     return <div className="text-red-500">Không thể tải danh sách đọc.</div>;
@@ -39,10 +49,11 @@ const ReadingList = () => {
         <PostItemSmall key={post.id} post={post} />
       ))}
       {totalCount > posts.length && (
-         <ViewMoreButton onClick={handleSeeMore} />
+        <ViewMoreButton onClick={handleSeeMore} />
       )}
     </div>
   );
 };
 
 export default ReadingList;
+

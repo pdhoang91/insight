@@ -2,45 +2,40 @@
 import React, { useEffect, useState } from 'react';
 import { getTabs, getUserTabs } from '../../services/tabService';
 import { useRouter } from 'next/router'; // Nếu bạn dùng Next.js
-import { FaSpinner } from "react-icons/fa6";
 import { IoIosAdd } from "react-icons/io";
 
 const TabSwitcher = ({ activeTab, toggleTab, user }) => {
   const [extraTabs, setExtraTabs] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isError, setIsError] = useState(false);
   const router = useRouter(); // Nếu dùng Next.js
 
   useEffect(() => {
-    const fetchTabs = async () => {
-      try {
-        //const tabs = await getTabs();
-        const tabs = await getUserTabs();
-        console.log("tabs", tabs);
-        setExtraTabs(tabs);
-        //setIsLoading(false);
-      } catch (error) {
-        setIsError(true);
-        setIsLoading(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
 
-    fetchTabs();
+    if (user) {
+      console.log("useruser", user)
+      const fetchTabs = async () => {
+        try {
+          //const tabs = await getTabs();
+          const tabs = await getUserTabs();
+          console.log("tabs", tabs);
+          setExtraTabs(tabs);
+        } catch (error) {
+          setIsError(true);
+        }
+      };
+  
+      fetchTabs();
+    }
   }, []);
 
   const handleIconClick = () => {
     router.push('/suggestion');
-    // Nếu dùng React Router:
-    // history.push('/me/following');
   };
 
   const handleTabClick = (tabName) => {
     toggleTab(tabName);
   };
 
-  if (isLoading) return <div className="text-center">Loading tabs...</div>;
   if (isError) return <div className="text-center text-red-500">Error loading tabs.</div>;
 
   return (
