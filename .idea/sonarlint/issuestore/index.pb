@@ -26,3 +26,7 @@ Q
 .env,3/c/3c84dcdc6bbe3d7817c49dcdc327b926fea1808a
 L
 backend/database/database.go,1/f/1f53acaccb8babc42c7250c60a8493c554d3e44e
+F
+backend/wait-for-it.sh,c/f/cfcde70d7d7f47ae1377ab7a4dfc7a50eb5e9e93
+E
+backend/entrypoint.sh,c/c/cc459a66355c90090f61d84cc6fae22a4bd48112
