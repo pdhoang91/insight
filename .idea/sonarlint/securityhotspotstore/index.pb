@@ -20,3 +20,9 @@ H
 backend/search/search.go,e/8/e80f1c8fbca8956bfd0f2ed4a5e5b1ae9a486f4b
 Q
 !backend/controllers/controller.go,4/4/44a5cc9506a1af273e848e80a83ae3b0dec627ab
+<
+.env.example,d/4/d4dae00d11854b35292c2b8a30515a9a0aa2d871
+4
+.env,3/c/3c84dcdc6bbe3d7817c49dcdc327b926fea1808a
+L
+backend/database/database.go,1/f/1f53acaccb8babc42c7250c60a8493c554d3e44e

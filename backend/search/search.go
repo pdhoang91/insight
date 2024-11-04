@@ -47,15 +47,15 @@ func InitElasticsearch(url string) *elastic.Client {
 	}
 
 	// Tạo mapping nếu chưa tồn tại
-	if err := CreatePostsIndexIfNotExists(); err != nil {
-		log.Fatalf("Failed to create posts index: %v", err)
-	}
-	if err := CreateTagsIndexIfNotExists(); err != nil {
-		log.Fatalf("Failed to create tags index: %v", err)
-	}
-	if err := CreateCategoriesIndexIfNotExists(); err != nil {
-		log.Fatalf("Failed to create categories index: %v", err)
-	}
+	//if err := CreatePostsIndexIfNotExists(); err != nil {
+	//	log.Fatalf("Failed to create posts index: %v", err)
+	//}
+	//if err := CreateTagsIndexIfNotExists(); err != nil {
+	//	log.Fatalf("Failed to create tags index: %v", err)
+	//}
+	//if err := CreateCategoriesIndexIfNotExists(); err != nil {
+	//	log.Fatalf("Failed to create categories index: %v", err)
+	//}
 
 	log.Println("Elasticsearch initialized successfully.")
 	return Client
