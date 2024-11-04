@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
@@ -13,10 +12,6 @@ import (
 var GoogleOauthConfig *oauth2.Config
 
 func Init() error {
-	if err := godotenv.Load(); err != nil {
-		return fmt.Errorf("error loading .env file: %v", err)
-	}
-
 	GoogleOauthConfig = &oauth2.Config{
 		//RedirectURL:  os.Getenv("GOOGLE_REDIRECT_URL"),  // Change to your redirect URL
 		RedirectURL:  "http://localhost:81/auth/google/callback", // Change to your redirect URL
