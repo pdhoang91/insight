@@ -14,6 +14,7 @@ import useBookmark from '../../hooks/useBookmark';
 import { useComments } from '../../hooks/useComments';
 import ShareMenu from '../Utils/ShareMenu';
 import TimeAgo from '../Utils/TimeAgo';
+import { BASE_FE_URL } from '../config/api';
 
 const PostItem = ({ post }) => {
   if (!post) {
@@ -66,7 +67,8 @@ const PostItem = ({ post }) => {
     setCommentsOpen(false);
   };
 
-  const shareUrl = `http://localhost:3000/p/${post.title_name}`;
+  //const shareUrl = `http://localhost:3000/p/${post.title_name}`;
+  const shareUrl = `${BASE_FE_URL}/p/${post.title_name}`;
 
   const handleShare = () => {
     setShareMenuOpen((prev) => !prev);
