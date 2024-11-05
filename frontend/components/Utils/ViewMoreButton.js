@@ -18,7 +18,7 @@
 //components/Utils/ViewMoreButton.js
 import React from 'react';
 
-const ViewMoreButton = ({ onClick, className = '', children = 'see more' }) => {
+export const ViewMoreButton = ({ onClick, className = '', children = 'see more' }) => {
   return (
     <button
       onClick={onClick}

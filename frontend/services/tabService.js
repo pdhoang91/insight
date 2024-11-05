@@ -31,28 +31,6 @@ export const getUserTabs = async () => {
     }
   };
 
-// Thêm tab (follow)
-// export const addTab = async (tabName, tabType) => {
-//     try {
-//       const response = await axiosPrivateInstance.post('/api/tabs/add', { name: tabName, type: tabType });
-//       return response.data;
-//     } catch (error) {
-//       console.error(`Error adding tab ${tabName}:`, error);
-//       throw error;
-//     }
-//   };
-  
-//   // Xóa tab (unfollow)
-//   export const removeTab = async (tabName, tabType) => {
-//     try {
-//       const response = await axiosPrivateInstance.post('/api/tabs/remove', { name: tabName, type: tabType });
-//       return response.data;
-//     } catch (error) {
-//       console.error(`Error removing tab ${tabName}:`, error);
-//       throw error;
-//     }
-//   };
-
   // Thêm tab (follow category)
 export const addCategoryFollow = async (categoryID) => {
   try {

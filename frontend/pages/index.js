@@ -1,5 +1,5 @@
 // pages/Home.js
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useUser } from '../context/UserContext';
 import PostList from '../components/Post/PostList';
 import Sidebar from '../components/Shared/Sidebar';
@@ -21,9 +21,50 @@ const Home = () => {
     isReachingEnd,
   } = useInfinitePosts(activeTab, user);
 
+   // Refs cho các container cuộn
+   const mainContentRef = useRef(null);
+   const sidebarRightRef = useRef(null);
+
   useEffect(() => {
     console.log("Current Tab:", activeTab);
   }, [activeTab, posts, totalCount, isLoading, isError]);
+
+   // Hàm đồng bộ hóa cuộn
+   const syncScroll = (sourceRef, targetRef) => {
+    if (!sourceRef.current || !targetRef.current) return;
+  
+    const source = sourceRef.current;
+    const target = targetRef.current;
+  
+    // Lắng nghe sự kiện cuộn trên nguồn
+    source.addEventListener('scroll', () => {
+      const scrollTop = source.scrollTop;
+      const maxScrollSource = source.scrollHeight - source.clientHeight;
+      const maxScrollTarget = target.scrollHeight - target.clientHeight;
+  
+      // Nếu nguồn không thể cuộn thêm (đã ở cuối), không làm gì cả
+      if (scrollTop >= maxScrollSource) {
+        return;
+      }
+  
+      // Tính tỷ lệ cuộn
+      const scrollRatio = scrollTop / maxScrollSource;
+  
+      // Tính vị trí cuộn mới cho mục tiêu
+      const targetScrollTop = scrollRatio * maxScrollTarget;
+  
+      // Nếu mục tiêu có thể cuộn đến vị trí mới, cập nhật
+      if (targetScrollTop <= maxScrollTarget && targetScrollTop >= 0) {
+        target.scrollTop = targetScrollTop;
+      }
+    });
+  };
+  
+
+  useEffect(() => {
+    syncScroll(mainContentRef, sidebarRightRef);
+    syncScroll(sidebarRightRef, mainContentRef);
+  }, [posts]);
 
   return (
     <div className="flex flex-col lg:flex-row min-h-screen">
@@ -48,7 +89,7 @@ const Home = () => {
       </main>
 
       {/* Sidebar Right */}
-      <aside className="w-full lg:w-3/12 p-4 sticky top-4 h-fit hidden xl:block">
+      <aside className="w-full lg:w-3/12 p-4 border-l sticky top-4 h-fit hidden xl:block">
         <SidebarRight />
       </aside>
     </div>

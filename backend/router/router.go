@@ -2,6 +2,7 @@
 package router
 
 import (
+	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -15,9 +16,9 @@ func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
 	r.Static("/uploads", "./uploads") // Serve the uploads directory
+	allowOrigins := os.Getenv("BASE_FE_URL")
 	config := cors.Config{
-		//AllowOrigins:     []string{"http://localhost:3000"}, // Thay đổi tùy vào frontend
-		AllowOrigins:     []string{"http://202.92.6.77:3000"}, // Thay đổi tùy vào frontend
+		AllowOrigins:     []string{allowOrigins, "http://localhost:3000", "http://202.92.6.77:3000"}, // Thay đổi tùy vào frontend
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
