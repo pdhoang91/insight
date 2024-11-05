@@ -1,6 +1,6 @@
 // // components/Auth/LoginModal.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { loginWithEmailAndPassword, registerUser, loginWithGoogle } from '../../services/authService';
 import { useLoginModal } from '../../hooks/useLoginModal';
 
@@ -10,7 +10,24 @@ const LoginModal = ({ isOpen, onClose }) => {
   const [isSignUp, setIsSignUp] = useState(false); // Toggle between login and register
   useLoginModal(isOpen, onClose);
 
+
+  useEffect(() => {
+    if (isOpen) {
+      // Khóa cuộn của trang khi modal mở
+      document.body.style.overflow = 'hidden';
+    } else {
+      // Mở lại cuộn của trang khi modal đóng
+      document.body.style.overflow = 'auto';
+    }
+
+    // Dọn dẹp khi component bị unmount
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
+
 
   const handleLogin = async () => {
     try {
