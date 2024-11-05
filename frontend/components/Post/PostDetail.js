@@ -10,7 +10,7 @@ import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapPost } from '../../services/activityService';
 import useBookmark from '../../hooks/useBookmark';
 import {useComments} from '../../hooks/useComments'; // Import useComments hook
-import { BASE_FE_URL } from '../config/api';
+import { BASE_FE_URL } from '../../config/api';
 
 const PostDetail = ({ post }) => {
   // Kiểm tra xem post có tồn tại không
