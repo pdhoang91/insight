@@ -14,7 +14,7 @@ import useBookmark from '../../hooks/useBookmark';
 import { useComments } from '../../hooks/useComments';
 import ShareMenu from '../Utils/ShareMenu';
 import TimeAgo from '../Utils/TimeAgo';
-import { BASE_FE_URL } from '../config/api';
+import { BASE_FE_URL } from '../../config/api';
 
 const PostItem = ({ post }) => {
   if (!post) {
