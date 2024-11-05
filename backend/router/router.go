@@ -16,11 +16,9 @@ func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
 	r.Static("/uploads", "./uploads") // Serve the uploads directory
-	//AllowOrigins := os.Getenv("ALLOW_ORIGINS")
+	allowOrigins := os.Getenv("BASE_FE_URL")
 	config := cors.Config{
-		AllowOrigins: []string{os.Getenv("ALLOW_ORIGINS")}, // Thay đổi tùy vào frontend
-		//AllowOrigins: []string{"http://localhost:3000"}, // Thay đổi tùy vào frontend
-		//AllowOrigins:     []string{"http://202.92.6.77:3000"}, // Thay đổi tùy vào frontend
+		AllowOrigins:     []string{allowOrigins, "http://localhost:3000", "http://202.92.6.77:3000"}, // Thay đổi tùy vào frontend
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
