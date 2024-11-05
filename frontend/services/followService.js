@@ -35,7 +35,7 @@ export const fetchSuggestedProfiles = async (page = 1, limit = 10) => {
 // Lấy các writers phổ biến nhất
 export const getAvailableWriters = async () => {
   try {
-    const response = await axiosPublicInstance.get('/follow/writers');
+    const response = await axiosPublicInstance.get('/api/follow/writers');
     console.log("response1", response)
     return response.data.data; // Giả sử trả về mảng các writers
   } catch (error) {
@@ -47,7 +47,7 @@ export const getAvailableWriters = async () => {
 // Lấy các topics phổ biến nhất
 export const getAvailableTopics = async () => {
   try {
-    const response = await axiosPublicInstance.get('/follow/topics');
+    const response = await axiosPublicInstance.get('/api/follow/topics');
     console.log("response2", response)
     return response.data.data; // Giả sử trả về mảng các topics
   } catch (error) {

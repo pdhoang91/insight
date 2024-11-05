@@ -3,7 +3,7 @@ import axiosInstance from '../utils/axiosPrivateInstance';
 import axiosPublicInstance from '../utils/axiosPublicInstance';
 
 export const getPosts = async (page = 1, limit = 10) => {
-  const response = await axiosPublicInstance.get(`/posts?page=${page}&limit=${limit}`);
+  const response = await axiosPublicInstance.get(`/api/posts?page=${page}&limit=${limit}`);
   const data = response.data;
   if (
     !data ||
@@ -40,7 +40,7 @@ export const updatePost = async (id, postData) => {
 };
 
 export const getPostById = async (id) => {
-  const response = await axiosPublicInstance.get(`/posts/${id}`);
+  const response = await axiosPublicInstance.get(`/api/posts/${id}`);
   //console.log('getPostById: response', response);
   const data = response.data;
   return data.data;

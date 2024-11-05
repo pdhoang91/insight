@@ -35,7 +35,7 @@ export const clapReply = async (replyId) => {
 
 // Lấy số lượng clap cho reply
 export const getClapsCount = async (type, id) => {
-  const response = await axiosPublicInstance.get(`/claps`, {
+  const response = await axiosPublicInstance.get(`/api/claps`, {
     params: { type, id }  // Sử dụng params để truyền dữ liệu
   });
   return response.data.clap_count;
