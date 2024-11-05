@@ -187,7 +187,7 @@ func SetupRouter() *gin.Engine {
 	r.Use(middleware.LoggerMiddleware())
 
 	// Route API chính
-	api := r.Group("/api")
+	api := r.Group("")
 	{
 		// Auth routes
 		api.POST("/auth/login", controllers.LoginHandler)
