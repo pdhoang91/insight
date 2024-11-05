@@ -11,6 +11,7 @@ import (
 )
 
 func main() {
+
 	// Khởi tạo cấu hình
 	err := config.Init()
 	if err != nil {

@@ -123,7 +123,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
     ports:
-      - "5433:5432" # Cổng này chỉ để truy cập từ host, không cần thiết cho kết nối giữa các container
+      - "5433:5432" # Chỉ để truy cập từ host
     volumes:
       - db-data:/var/lib/postgresql/data
     networks:
@@ -169,10 +169,10 @@ services:
     container_name: nginx
     ports:
       - "80:80"
-      - "443:443" # Nếu bạn định sử dụng SSL, giữ port này
+      - "443:443" # Nếu bạn sử dụng SSL
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
-      - ./nginx/certs:/etc/nginx/certs # Thư mục chứa chứng chỉ SSL (nếu có)
+      - ./nginx/certs:/etc/nginx/certs # Chứa chứng chỉ SSL
     depends_on:
       - frontend
       - app
@@ -185,4 +185,5 @@ networks:
 
 volumes:
   db-data:
+
 

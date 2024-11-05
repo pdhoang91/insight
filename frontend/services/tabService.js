@@ -4,7 +4,7 @@ import axiosPrivateInstance from '../utils/axiosPrivateInstance';
 
 export const getTabs = async () => {
   try {
-    const response = await axiosPublicInstance.get('/api/tabs');
+    const response = await axiosPublicInstance.get('/tabs');
     const data = response.data;
     console.log("data", data)
     if (!data || !Array.isArray(data.tabs)) {

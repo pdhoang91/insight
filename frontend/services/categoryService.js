@@ -3,7 +3,7 @@ import axiosPublicInstance from '../utils/axiosPublicInstance';
 
 export const getCategories = async (page = 1, limit = 10) => {
   try {
-    const response = await axiosPublicInstance.get(`/api/categories?page=${page}&limit=${limit}`);
+    const response = await axiosPublicInstance.get(`/categories?page=${page}&limit=${limit}`);
     const data = response.data;
 
     // Kiểm tra định dạng dữ liệu trả về
@@ -28,7 +28,7 @@ export const getCategories = async (page = 1, limit = 10) => {
 
 export const getTopCategories = async (page = 1, limit = 10) => {
   try {
-    const response = await axiosPublicInstance.get(`/api/categories_top?page=${page}&limit=${limit}`);
+    const response = await axiosPublicInstance.get(`/categories_top?page=${page}&limit=${limit}`);
     const data = response.data;
 
     // Kiểm tra định dạng dữ liệu trả về
@@ -55,7 +55,7 @@ export const getTopCategories = async (page = 1, limit = 10) => {
 export const getPostsByCategory = async (categoryName, page = 1, limit = 10) => {
   try {
     const response = await axiosPublicInstance.get(
-      `/api/categories/${encodeURIComponent(categoryName)}/posts?page=${page}&limit=${limit}`
+      `/categories/${encodeURIComponent(categoryName)}/posts?page=${page}&limit=${limit}`
     );
     const data = response.data;
 
