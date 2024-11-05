@@ -12,7 +12,7 @@ import axiosPublicInstance from '../utils/axiosPublicInstance';
 
   export const loginWithEmailAndPassword = async (email, password) => {
     try {
-      const response = await axiosPublicInstance.post(`/auth/login`, { email, password });
+      const response = await axiosPublicInstance.post(`/api/auth/login`, { email, password });
       //response.data.token; // Sử dụng login từ UserContext
       localStorage.setItem('token', response.data.token);
     } catch (error) {
@@ -23,7 +23,7 @@ import axiosPublicInstance from '../utils/axiosPublicInstance';
 
   export const registerUser = async (email, password) => {
     try {
-      const response = await axiosPublicInstance.post(`/auth/register`, { email, password });
+      const response = await axiosPublicInstance.post(`/api/auth/register`, { email, password });
       //response.data.token; // Sử dụng login từ UserContext
       localStorage.setItem('token', response.data.token);
     } catch (error) {
@@ -38,7 +38,7 @@ import axiosPublicInstance from '../utils/axiosPublicInstance';
 
 
 export const loginWithGoogle = () => {
-  window.location.href = `${BASE_API_URL}/auth/google`;
+  window.location.href = `${BASE_API_URL}/api/auth/google`;
 
   //window.location.href = axiosPrivateInstance.get`/auth/google`;
 };

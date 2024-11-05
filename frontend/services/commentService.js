@@ -3,7 +3,7 @@ import axiosPrivateInstance from '../utils/axiosPrivateInstance';
 import axiosPublicInstance from '../utils/axiosPublicInstance';
 
 export const getCommentsForPost = async (postId, page = 1, limit = 10) => {
-    const response = await axiosPublicInstance.get(`/posts/${postId}/comments?page=${page}&limit=${limit}`);
+    const response = await axiosPublicInstance.get(`/api/posts/${postId}/comments?page=${page}&limit=${limit}`);
     const { data, total_count, total_comment_reply } = response.data;
  
     return {
