@@ -217,7 +217,8 @@ func SetupRouter() *gin.Engine {
 		api.DELETE("/tag/:tag_id/posts/:post_id", controllers.RemoveTagFromPost)
 
 		// Routes cho UserActivity
-		api.GET("/users/:user_id/activities", controllers.GetUserActivities)
+		//api.GET("/users/:user_id/activities", controllers.GetUserActivities)
+		//api.GET("/activities/users/:user_id", controllers.GetUserActivities)
 
 		// Utils
 		api.GET("/claps", controllers.GetClapsCount)
@@ -229,7 +230,7 @@ func SetupRouter() *gin.Engine {
 		api.GET("/search/tags", controllers.SearchPostsBasic)
 		api.GET("/autocomplete/posts", controllers.AutocompleteHandler)
 
-		api.GET("/tabs", controllers.GetTabs)
+		//api.GET("/tabs", controllers.GetTabs)
 		api.GET("/follow/writers", controllers.GetTopWriters)
 		api.GET("/follow/topics", controllers.GetTopTopics)
 
