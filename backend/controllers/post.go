@@ -192,7 +192,8 @@ func CreatePost(c *gin.Context) {
 	// Đảm bảo tính duy nhất của title_name
 	existingPost := models.Post{}
 	if err := database.DB.Where("title_name = ?", slug).First(&existingPost).Error; err == nil {
-		slug = fmt.Sprintf("%s-%s", slug, uuid.NewV4().String())
+		uniquePrefix := utils.GetUniquePrefix()
+		slug = fmt.Sprintf("%s-%s", slug, uniquePrefix)
 	}
 
 	//modifiedTitle := strings.ReplaceAll(input.Title, " ", "_")
