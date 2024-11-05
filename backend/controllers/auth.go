@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -91,7 +92,8 @@ func GoogleCallbackHandler(c *gin.Context) {
 		return
 	}
 
-	frontendURL := fmt.Sprintf("http://localhost:3000/#token=%s", tokenString)
+	baseFeURL := os.Getenv("BASE_FE_URL")
+	frontendURL := fmt.Sprintf("%s/#token=%s", baseFeURL, tokenString)
 	fmt.Println("frontendURL", frontendURL)
 	c.Redirect(http.StatusTemporaryRedirect, frontendURL)
 }
@@ -245,8 +247,9 @@ func RequestPasswordReset(c *gin.Context) {
 		return
 	}
 
+	baseFeURL := os.Getenv("BASE_FE_URL")
 	// Send reset email
-	resetURL := fmt.Sprintf("http://localhost:3000/password-reset?token=%s", token)
+	resetURL := fmt.Sprintf("%s/password-reset?token=%s", baseFeURL, token)
 	if err := utils.SendPasswordResetEmail(user.Email, resetURL); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send reset email"})
 		return

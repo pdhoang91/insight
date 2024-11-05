@@ -51,5 +51,5 @@ func UploadImage(c *gin.Context) {
 	imageURL := c.Request.Host + "/uploads/" + prefix + "_" + safeFilename
 
 	// Return the image URL as response
-	c.JSON(http.StatusOK, gin.H{"url": "http://" + imageURL})
+	c.JSON(http.StatusOK, gin.H{"url": "https://" + imageURL})
 }
