@@ -16,7 +16,7 @@ const RecommendedTopicsSection = () => {
   };
 
   return (
-    <div className="p-4 rounded-lg shadow">
+    <div className="p-4">
       <h2 className="text-xl font-semibold mb-4">Đề Xuất</h2>
       <div className="flex flex-wrap gap-2">
         {recommendedTopics.map((topic) => (

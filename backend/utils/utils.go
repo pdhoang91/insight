@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"strconv"
 
@@ -53,4 +55,12 @@ func GetPagingParams(c *gin.Context) (PagingParams, error) {
 		Page:  page,
 		Limit: limit,
 	}, nil
+}
+
+func GetUniquePrefix() string {
+	// Generate a unique prefix for the filename
+	b := make([]byte, 4) // Equals 8 characters
+	rand.Read(b)
+	prefix := hex.EncodeToString(b)
+	return prefix
 }
