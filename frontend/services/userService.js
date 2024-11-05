@@ -22,7 +22,7 @@ export const getUserPosts = async (userId) => {
 // Fetches public profile info for a user by username
 export const fetchUserProfile = async (username) => {
   try {
-    const response = await axiosPublicInstance.get(`/api/public/${username}/profile`);
+    const response = await axiosPublicInstance.get(`/public/${username}/profile`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching profile for ${username}:`, error);
@@ -32,7 +32,7 @@ export const fetchUserProfile = async (username) => {
 
 export const fetchUserPosts = async (username, page = 1, limit = 10) => {
   try {
-    const response = await axiosPublicInstance.get(`/api/public/${username}/posts`, {
+    const response = await axiosPublicInstance.get(`/public/${username}/posts`, {
       params: { page, limit },
     });
     const data = response.data;

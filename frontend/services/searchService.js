@@ -3,7 +3,7 @@ import axiosPublicInstance from '../utils/axiosPublicInstance';
 
 export const fetchStories = async (query, page = 1, limit = 10) => {
   try {
-    const response = await axiosPublicInstance.get(`/api/search/posts`, {
+    const response = await axiosPublicInstance.get(`/search/posts`, {
       params: { q: query, page, limit },
     });
 
@@ -23,7 +23,7 @@ export const fetchStories = async (query, page = 1, limit = 10) => {
 };
 export const fetchPeople = async (query, page = 1, limit = 10) => {
   try {
-    const response = await axiosPublicInstance.get(`/api/search/people`, {
+    const response = await axiosPublicInstance.get(`/search/people`, {
       params: { q: query, page, limit },
     });
 

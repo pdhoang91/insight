@@ -3,7 +3,7 @@ import axiosInstance from '../utils/axiosPrivateInstance';
 import axiosPublicInstance from '../utils/axiosPublicInstance';
 
 export const getPosts = async (page = 1, limit = 10) => {
-  const response = await axiosPublicInstance.get(`/api/posts?page=${page}&limit=${limit}`);
+  const response = await axiosPublicInstance.get(`/posts?page=${page}&limit=${limit}`);
   const data = response.data;
   if (
     !data ||
@@ -103,7 +103,7 @@ export const checkHasClapped = async (postId) => {
 };
 
 export const getLatestPosts = async (limit) => {
-  const response = await axiosPublicInstance.get(`/api/posts?limit=${limit}`);
+  const response = await axiosPublicInstance.get(`/posts?limit=${limit}`);
   const data = response.data;
 
   return data.data;
@@ -114,7 +114,7 @@ export const uploadImage = async (file) => {
   const formData = new FormData();
   formData.append('image', file);
 
-  const response = await axiosPublicInstance.post('/api/images/upload', formData, {
+  const response = await axiosPublicInstance.post('/images/upload', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },

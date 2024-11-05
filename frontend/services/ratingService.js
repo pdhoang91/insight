@@ -14,7 +14,7 @@ export const submitRating = async (postId, ratingValue) => {
 
 // Lấy điểm trung bình của bài viết
 export const getAverageRating = async (postId) => {
-  const response = await axiosPublicInstance.get(`/api/posts/${postId}/ratings`);
+  const response = await axiosPublicInstance.get(`/posts/${postId}/ratings`);
   const data = response.data;
 
   return data.average_rating;
