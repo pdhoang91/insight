@@ -74,7 +74,7 @@ const Home = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="w-full lg:w-8/12 p-4">
+      <main className="w-full lg:w-8/12 p-4" ref={mainContentRef}>
         {/* Tab Switcher */}
         <TabSwitcher activeTab={activeTab} toggleTab={toggleTab} user={user} />
 
@@ -89,7 +89,7 @@ const Home = () => {
       </main>
 
       {/* Sidebar Right */}
-      <aside className="w-full lg:w-3/12 p-4 border-l sticky top-4 h-fit hidden xl:block">
+      <aside className="w-full lg:w-3/12 p-4 border-l sticky top-4 h-fit hidden xl:block" ref={sidebarRightRef}>
         <SidebarRight />
       </aside>
     </div>
