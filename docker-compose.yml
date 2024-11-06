@@ -13,8 +13,10 @@ services:
     depends_on:
       - frontend
       - app
+      - image-service
     networks:
       - app-network
+
   app:
     container_name: application
     build:
@@ -28,6 +30,7 @@ services:
     depends_on:
       - db
       - elasticsearch
+      - image-service
     environment:
       - DB_HOST=db
       - DB_PORT=5432
@@ -43,6 +46,17 @@ services:
       - BASE_FE_URL=${BASE_FE_URL}
       - BASE_BE_URL=${BASE_BE_URL}
 
+    networks:
+      - app-network
+
+  image-service:
+    container_name: image_service
+    build:
+      context: ./image-service
+    expose:
+      - "82"
+    volumes:
+      - ./image-service/uploads:/app/uploads  # Mount thư mục uploads của image-service
     networks:
       - app-network
 
@@ -87,6 +101,7 @@ services:
       - app-network
 
   frontend:
+    container_name: frontend
     build:
       context: ./frontend
     # ports:
@@ -98,6 +113,7 @@ services:
     depends_on:
       - db
       - elasticsearch
+      - image-service
 
 networks:
   app-network:
@@ -106,7 +122,3 @@ networks:
 volumes:
   db-data:
   es-data:
-
-
-
-

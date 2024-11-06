@@ -83,8 +83,7 @@ func SetupRouter() *gin.Engine {
 	r.GET("/public/:username/bookmarks", controllers.GetPublicUserBookmarks)
 
 	// Images
-	r.POST("/images/upload", controllers.UploadImage)
-	r.POST("/images/upload/v2", controllers.UploadImageV2)
+	//r.POST("/images/upload", controllers.UploadImage)
 
 	// API routes
 	api := r.Group("/api")
