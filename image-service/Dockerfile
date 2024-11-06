@@ -1,35 +1,29 @@
-# Stage 1: Build stage
-FROM golang:1.22 as builder
+# Sử dụng Go image với Alpine làm base
+FROM golang:1.22-alpine
 
-# Set working directory
+# Cài đặt các thư viện cần thiết
+RUN apk --no-cache add git build-base libwebp-dev
+
+# Thiết lập thư mục làm việc
 WORKDIR /app
 
-# Copy go.mod and go.sum
+# Sao chép go.mod và go.sum
 COPY go.mod go.sum ./
 
-# Download dependencies
+# Tải các module
 RUN go mod download
 
-# Copy the source code
+# Sao chép mã nguồn
 COPY . .
 
-# Build the application
+# Build ứng dụng
 RUN go build -o image-service .
 
-# Stage 2: Final stage with Alpine
-FROM alpine:latest
-
-# Cài đặt các thư viện cần thiết cho Alpine
-RUN apk --no-cache add ca-certificates libwebp
-
-# Copy the binary from builder stage
-COPY --from=builder /app/image-service /image-service
-
-# Create uploads directory
+# Tạo thư mục uploads
 RUN mkdir -p /uploads
 
-# Expose port
+# Expose cổng
 EXPOSE 82
 
-# Run the application
-CMD ["/image-service"]
+# Chạy ứng dụng
+CMD ["./image-service"]
