@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { BASE_API_URL } from '../config/api';
 
-const axiosPrivateInstance = axios.create({
+export const axiosPrivateInstance = axios.create({
   baseURL: BASE_API_URL,
 });
 

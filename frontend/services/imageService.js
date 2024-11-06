@@ -1,12 +1,12 @@
 // services/postService.js
-import axiosPublicInstance from '../utils/axiosPublicInstance';
+import axiosPublicInstanceSimple from '../utils/axiosPublicInstance';
 
 export const uploadImage = async (file) => {
 
     const formData = new FormData();
     formData.append('image', file);
   
-    const response = await axiosPublicInstance.post('/images/upload/v2', formData, {
+    const response = await axiosPublicInstanceSimple.post('/images/upload/v2', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
