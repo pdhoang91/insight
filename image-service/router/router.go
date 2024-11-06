@@ -10,11 +10,11 @@ func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
 	// Serve the uploads directory
-	r.Static("/uploads", "./uploads")
+	r.Static("/images/uploads", "./images/uploads")
 
 	// Routes for image upload
 	//r.POST("/upload", controllers.UploadImage)
-	r.POST("/upload/v2", controllers.UploadImageV2)
+	r.POST("/images/upload/v2", controllers.UploadImageV2)
 
 	// Optional: Route for getting images if cần
 	// r.GET("/images/:imageName", controllers.GetImage)
