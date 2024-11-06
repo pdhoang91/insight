@@ -84,6 +84,9 @@
 # volumes:
 #   db-data:
 
+
+
+
 version: '3.7'
 
 services:
@@ -91,7 +94,6 @@ services:
     container_name: application
     build:
       context: ./backend
-    # Loại bỏ port mapping để Nginx quản lý lưu lượng truy cập
     # ports:
     #   - "81:81"
     depends_on:
@@ -111,6 +113,7 @@ services:
       - BASE_API_URL=${BASE_API_URL}
       - BASE_FE_URL=${BASE_FE_URL}
       - BASE_BE_URL=${BASE_BE_URL}
+
     networks:
       - app-network
 
@@ -123,7 +126,7 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
     ports:
-      - "5433:5432" # Chỉ để truy cập từ host
+      - "5433:5432" # Cổng này chỉ để truy cập từ host, không cần thiết cho kết nối giữa các container
     volumes:
       - db-data:/var/lib/postgresql/data
     networks:
@@ -137,6 +140,8 @@ services:
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
     ports:
       - "9200:9200"
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
     networks:
       - app-network
 
@@ -155,7 +160,6 @@ services:
   frontend:
     build:
       context: ./frontend
-    # Loại bỏ port mapping để Nginx quản lý lưu lượng truy cập
     # ports:
     #   - "3000:3000"
     networks:
@@ -163,21 +167,35 @@ services:
     depends_on:
       - db
       - elasticsearch
-
   nginx:
     image: nginx:latest
     container_name: nginx
+    depends_on:
+      - app
+      - frontend
+      - certbot
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - ./uploads:/var/www/uploads
     ports:
       - "80:80"
-      - "443:443" # Nếu bạn sử dụng SSL
-    volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d
-      - ./nginx/certs:/etc/nginx/certs # Chứa chứng chỉ SSL
-    depends_on:
-      - frontend
-      - app
+      - "443:443"
     networks:
       - app-network
+
+  certbot:
+    image: certbot/certbot
+    container_name: certbot
+    volumes:
+      - certbot-etc:/etc/letsencrypt
+      - certbot-var:/var/lib/letsencrypt
+      - ./uploads:/var/www/uploads
+    depends_on:
+      - nginx
+    command: certonly --webroot --webroot-path=/var/www/uploads --agree-tos --no-eff-email --email your-email@example.com -d insight.io.vn
+
 
 networks:
   app-network:
@@ -185,5 +203,10 @@ networks:
 
 volumes:
   db-data:
+  certbot-etc:
+  certbot-var:
+  es-data:
+
+
 
 
