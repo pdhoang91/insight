@@ -84,6 +84,7 @@ func SetupRouter() *gin.Engine {
 
 	// Images
 	r.POST("/images/upload", controllers.UploadImage)
+	r.POST("/images/upload/v2", controllers.UploadImageV2)
 
 	// API routes
 	api := r.Group("/api")
