@@ -1,6 +1,6 @@
 // hooks/useImage.js
 import { useCallback } from 'react';
-import { uploadImage } from '../services/postService'; // Ensure you have an imageService that handles uploads
+import { uploadImage } from '../services/imageService'; // Ensure you have an imageService that handles uploads
 
 export const useImage = () => {
   const handleImageUpload = useCallback(async (file) => {

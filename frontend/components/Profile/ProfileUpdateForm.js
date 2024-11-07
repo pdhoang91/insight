@@ -3,7 +3,7 @@
 import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { FaUpload } from 'react-icons/fa'; // Import icon upload
-import { uploadImage } from '../../services/postService'; // Điều chỉnh đường dẫn nếu cần
+import { uploadImage } from '../../services/imageService'; // Điều chỉnh đường dẫn nếu cần
 
 const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
   const [name, setName] = useState(userProfile.name || '');
