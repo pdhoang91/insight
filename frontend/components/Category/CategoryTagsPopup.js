@@ -1,5 +1,4 @@
-// // components/CategoryTagsPopup.js
-// src/components/CategoryTagsPopup.js
+// components/Category/CategoryTagsPopup.js
 import React, { useState, useEffect } from 'react';
 import { FaTimes, FaCheck, FaTag, FaFolderOpen } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -7,29 +6,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) => {
   const [categories, setCategories] = useState('');
   const [tags, setTags] = useState('');
-
-  // Khóa cuộn của trang khi modal mở và mở lại khi đóng
-  useEffect(() => {
-    if (categories || tags) { // Giả sử modal mở khi có categories hoặc tags, bạn có thể điều chỉnh điều kiện này tùy theo logic của bạn
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'auto';
-    }
-
-    // Dọn dẹp khi component bị unmount hoặc khi modal đóng
-    return () => {
-      document.body.style.overflow = 'auto';
-    };
-  }, [categories, tags]);
-
-  // Hàm xử lý khi nhấn nút "Đăng Ngay"
-  const handlePublishClick = () => {
-    if (!categories.trim() && !tags.trim()) {
-      alert('Vui lòng nhập ít nhất một category hoặc tag.');
-      return;
-    }
-    onPublish(categories, tags);
-  };
 
   return (
     <AnimatePresence>
@@ -115,7 +91,7 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
               <div className="flex justify-end space-x-2 mt-4">
                 <button
                   type="button"
-                  onClick={handlePublishClick}
+                  onClick={() => onPublish(categories, tags)}
                   className="flex items-center bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors focus:outline-none focus:ring-2 focus:ring-green-400"
                   aria-label="Đăng Ngay"
                 >
@@ -150,4 +126,3 @@ const getLimitedContent = (content, maxLength) => {
 };
 
 export default CategoryTagsPopup;
-

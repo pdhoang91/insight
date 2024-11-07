@@ -1,17 +1,20 @@
 // pages/write.js
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { useUser } from '../context/UserContext';
 import CategoryTagsPopup from '../components/Category/CategoryTagsPopup';
 import PostForm from '../components/Post/PostForm';
 import { createPost } from '../services/postService';
+import { usePostContext } from '../context/PostContext'; // Import hook
 
 const Write = () => {
   const router = useRouter();
   const { user, setModalOpen, loading } = useUser();
+  const { setHandlePublish, setHandleUpdate } = usePostContext(); // Sử dụng setter từ Context
+
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [imageTitle, setImageTitle] = useState(null); // Thêm state cho imageTitle
+  const [imageTitle, setImageTitle] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
@@ -27,16 +30,7 @@ const Write = () => {
     }
   }, [router.asPath, router]);
 
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   if (!user) {
-  //     setModalOpen(true);
-  //     return;
-  //   }
-  //   setShowPopup(true);
-  // };
-
-  const handlePublish = async (categories, tags) => {
+  const publishFunction = useCallback(async (categories, tags) => {
     if (!user) {
       setModalOpen(true);
       return;
@@ -45,20 +39,28 @@ const Write = () => {
       const res = await createPost({
         title,
         content,
-        image_title: imageTitle, // Bao gồm imageTitle trong dữ liệu gửi lên server
+        image_title: imageTitle,
         author_id: user.id,
         author: user.name,
-        categories: categories
-          ? categories.split(',').map((cat) => cat.trim())
-          : [],
-        tags: tags ? tags.split(',').map((tag) => tag.trim()) : [],
+        categories: categories ? categories.split(',').map(cat => cat.trim()) : [],
+        tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
       });
+      alert('Bài viết đã được tạo thành công!');
       router.push(`/p/${res.data.title_name}`);
     } catch (error) {
       console.error('Failed to create post:', error);
       alert('Failed to create post.');
     }
-  };
+  }, [user, title, content, imageTitle, router]);
+
+  // Thiết lập handlePublish trong Context khi trang mount
+  useEffect(() => {
+    setHandlePublish(() => publishFunction);
+    setHandleUpdate(null); // Đảm bảo handleUpdate không được thiết lập trên trang write
+    return () => {
+      setHandlePublish(null);
+    };
+  }, [publishFunction, setHandlePublish, setHandleUpdate]);
 
   if (loading) {
     return <div className="container mx-auto p-4">Loading...</div>;
@@ -76,16 +78,16 @@ const Write = () => {
           setTitle={setTitle}
           content={content}
           setContent={setContent}
-          imageTitle={imageTitle} // Truyền imageTitle
-          setImageTitle={setImageTitle} // Truyền setImageTitle
+          imageTitle={imageTitle}
+          setImageTitle={setImageTitle}
         />
 
         {showPopup && (
           <CategoryTagsPopup
             title={title}
             content={content}
-            imageTitle={imageTitle} // Truyền imageTitle để hiển thị trong preview
-            onPublish={handlePublish}
+            imageTitle={imageTitle}
+            onPublish={publishFunction}
             onCancel={() => setShowPopup(false)}
           />
         )}
@@ -95,5 +97,3 @@ const Write = () => {
 };
 
 export default Write;
-
-

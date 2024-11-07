@@ -13,7 +13,7 @@ import (
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 	// Đăng ký endpoint /metrics
-	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
+	r.GET("/images/metrics", gin.WrapH(promhttp.Handler()))
 
 	config := cors.Config{
 		//AllowOrigins:     []string{allowOrigins, "http://localhost:3000", "http://202.92.6.77:3000"}, // Thay đổi tùy vào frontend
