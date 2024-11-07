@@ -8,7 +8,7 @@ import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import TextStyle from '@tiptap/extension-text-style';
 import Underline from '@tiptap/extension-underline';
-import ImageUpload from './ImageUploadExtension';
+//import ImageUpload from './ImageUploadExtension';
 import { uploadImage } from '../../services/imageService';
 import { FaBold, FaItalic, FaUnderline, FaStrikethrough, FaQuoteRight, FaLink, FaImage, FaUpload } from 'react-icons/fa';
 
@@ -36,7 +36,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       Underline,
       Link.configure({ openOnClick: false }),
       Image,
-      ImageUpload,
+      //ImageUpload,
     ],
     content: content,
     onUpdate: ({ editor }) => {
