@@ -183,6 +183,7 @@ networks:
 volumes:
   db-data:
   es-data:
+  grafana-data:
 
 
 
