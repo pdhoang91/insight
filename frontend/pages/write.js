@@ -27,14 +27,14 @@ const Write = () => {
     }
   }, [router.asPath, router]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!user) {
-      setModalOpen(true);
-      return;
-    }
-    setShowPopup(true);
-  };
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   if (!user) {
+  //     setModalOpen(true);
+  //     return;
+  //   }
+  //   setShowPopup(true);
+  // };
 
   const handlePublish = async (categories, tags) => {
     if (!user) {
