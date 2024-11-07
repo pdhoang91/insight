@@ -95,7 +95,7 @@ func UploadImageV2(c *gin.Context) {
 
 	safeFilename := strings.ReplaceAll(file.Filename, " ", "_")
 	filename := strings.TrimSuffix(safeFilename, filepath.Ext(safeFilename)) + ".webp"
-	uploadDir := "uploads"
+	uploadDir := "images/uploads"
 
 	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể tạo thư mục uploads"})
