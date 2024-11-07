@@ -1,5 +1,3 @@
-// // // export default PostForm;
-// export default PostForm;
 // components/Post/PostForm.js
 import React, { useEffect, useState, useMemo } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
@@ -8,7 +6,6 @@ import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import TextStyle from '@tiptap/extension-text-style';
 import Underline from '@tiptap/extension-underline';
-//import ImageUpload from './ImageUploadExtension';
 import { uploadImage } from '../../services/imageService';
 import { FaBold, FaItalic, FaUnderline, FaStrikethrough, FaQuoteRight, FaLink, FaImage, FaUpload } from 'react-icons/fa';
 
@@ -24,7 +21,7 @@ const ToolbarButton = ({ icon: Icon, onClick, isActive, tooltip, disabled }) => 
   </button>
 );
 
-const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTitle }) => { // Nhận imageTitle và setImageTitle từ props
+const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTitle }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [isContentEmpty, setIsContentEmpty] = useState(true);
   const [isUploadingTitle, setIsUploadingTitle] = useState(false);
@@ -36,7 +33,6 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       Underline,
       Link.configure({ openOnClick: false }),
       Image,
-      //ImageUpload,
     ],
     content: content,
     onUpdate: ({ editor }) => {
@@ -45,6 +41,13 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       setIsContentEmpty(html.trim() === '');
     },
   });
+
+  // Thêm useEffect để cập nhật nội dung khi prop content thay đổi
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content || '');
+    }
+  }, [content, editor]);
 
   const handleImageUpload = () => {
     const input = document.createElement('input');
@@ -79,7 +82,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       setIsUploadingTitle(true);
       try {
         const uploadedUrl = await uploadImage(file);
-        setImageTitle(uploadedUrl); // Cập nhật imageTitle thông qua setImageTitle từ props
+        setImageTitle(uploadedUrl);
       } catch (error) {
         console.error("Error uploading image title", error);
       } finally {
@@ -208,4 +211,3 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
 };
 
 export default PostForm;
-

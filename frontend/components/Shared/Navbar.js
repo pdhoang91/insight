@@ -4,6 +4,7 @@ import Link from 'next/link';
 import axios from 'axios';
 import { useUser } from '../../context/UserContext';
 import { useRouter } from 'next/router';
+import { usePostContext } from '../../context/PostContext'; // Import hook
 
 const Navbar = () => {
   const { user, setUser, setModalOpen, loading } = useUser();
@@ -12,6 +13,7 @@ const Navbar = () => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { handlePublish, handleUpdate } = usePostContext(); // Sử dụng hook để lấy hàm
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -55,7 +57,22 @@ const Navbar = () => {
   const handleSubmitPostClick = () => {
     if (loading) return;
     if (user) {
-      router.push('/write#submit');
+      // Kiểm tra xem đang có handlePublish hoặc handleUpdate không
+      if (handlePublish) {
+        // Trong trang write, mở popup để publish
+        router.push('/write#submit');
+      } else if (handleUpdate) {
+        // Trong trang edit, mở popup để update
+        const { id } = router.query;
+        if (id) {
+          router.push(`/edit/${id}#submit`);
+        } else {
+          alert('Không tìm thấy ID bài viết để cập nhật.');
+        }
+      } else {
+        // Không phải trang write hoặc edit, thông báo lỗi hoặc làm gì đó
+        alert('Không thể gửi bài viết từ trang này.');
+      }
     } else {
       setModalOpen(true);
     }
@@ -70,6 +87,7 @@ const Navbar = () => {
   };
 
   const isCreatePostPage = router.pathname === '/write';
+  const isEditPostPage = router.pathname.startsWith('/edit/');
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen((prev) => !prev);
@@ -163,10 +181,10 @@ const Navbar = () => {
             </svg>
           </button>
         </form>
-        {isCreatePostPage ? (
+        {(isCreatePostPage || isEditPostPage) ? (
           <span
             onClick={handleSubmitPostClick}
-            className="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
+            className="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors cursor-pointer"
           >
             Publish
           </span>
@@ -174,7 +192,7 @@ const Navbar = () => {
           <span
             type="button"
             onClick={handleCreatePostClick}
-            className="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors"
+            className="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors cursor-pointer"
           >
             Write
           </span>
@@ -190,7 +208,7 @@ const Navbar = () => {
             />
             {dropdownOpen && (
               <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg z-50">
-                 <button
+                <button
                   onClick={handleViewProfile}
                   className="block w-full text-left px-4 py-2 text-gray-800 hover:bg-gray-200"
                 >
@@ -214,12 +232,9 @@ const Navbar = () => {
           </button>
         )}
 
-        
       </div>
     </nav>
   );
 };
 
 export default Navbar;
-
-

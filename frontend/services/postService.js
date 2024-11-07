@@ -35,7 +35,7 @@ export const submitPost = async (postData) => {
 };
 
 export const updatePost = async (id, postData) => {
-  const response = await axiosInstance.put(`/api/posts/${id}`, postData);
+  const response = await axiosInstance.put(`/api/posts/${postData.id}`, postData);
   return response.data;
 };
 

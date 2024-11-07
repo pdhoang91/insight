@@ -14,7 +14,6 @@ import (
 
 	"github.com/pdhoang91/blog/database"
 	"github.com/pdhoang91/blog/models"
-	"github.com/pdhoang91/blog/search"
 	"github.com/pdhoang91/blog/utils"
 
 	"github.com/gin-gonic/gin"
@@ -284,9 +283,33 @@ func CreatePost(c *gin.Context) {
 
 // UpdatePost cập nhật thông tin một bài viết
 func UpdatePost(c *gin.Context) {
+	//id := c.Param("id")
+
 	id := c.Param("id")
+	//var post models.Post
+
+	// Chuyển đổi id sang uuid.UUID
+	postID, err := uuid.FromString(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid UUID format"})
+		return
+	}
+
+	var input struct {
+		Title      string   `json:"title" binding:"required"`
+		ImageTitle string   `json:"image_title" binding:"required"`
+		Content    string   `json:"content" binding:"required"`
+		Categories []string `json:"categories" binding:"required"`
+		Tags       []string `json:"tags"`
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
 	var post models.Post
-	if err := database.DB.Preload("Categories").Preload("Tags").First(&post, id).Error; err != nil {
+	if err := database.DB.Preload("Categories").Preload("Tags").First(&post, postID).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Post not found"})
 		return
 	}
@@ -303,25 +326,34 @@ func UpdatePost(c *gin.Context) {
 		return
 	}
 
-	var input struct {
-		Title      string   `json:"title"`
-		Content    string   `json:"content"`
-		Categories []string `json:"categories"`
-		Tags       []string `json:"tags"`
+	// Xóa các thẻ HTML trong Content
+	re := regexp.MustCompile(`<[^>]*>`)
+	cleanContent := re.ReplaceAllString(input.Content, "")
+
+	// Tách các từ và lấy 20 từ đầu tiên
+	words := strings.Fields(cleanContent)
+	if len(words) > 20 {
+		cleanContent = strings.Join(words[:20], " ") + "..."
 	}
 
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+	// Tạo slug từ tiêu đề bài viết
+	slug := strings.ToLower(input.Title)
+	slug = strings.ReplaceAll(slug, " ", "-")
+	slug = regexp.MustCompile(`[^a-zA-Z0-9-]+`).ReplaceAllString(slug, "")
+
+	// Đảm bảo tính duy nhất của title_name
+	existingPost := models.Post{}
+	if err := database.DB.Where("title_name = ?", slug).First(&existingPost).Error; err == nil {
+		uniquePrefix := utils.GetUniquePrefix()
+		slug = fmt.Sprintf("%s-%s", slug, uniquePrefix)
 	}
 
 	// Cập nhật bài viết
-	if input.Title != "" {
-		post.Title = input.Title
-	}
-	if input.Content != "" {
-		//post.Content = input.Content
-	}
+
+	post.Title = slug
+	post.Content = input.Content
+	post.PreviewContent = cleanContent
+	post.ImageTitle = input.ImageTitle
 
 	if err := database.DB.Save(&post).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update post"})
@@ -379,10 +411,10 @@ func UpdatePost(c *gin.Context) {
 	}
 
 	// Cập nhật Elasticsearch
-	if err := search.IndexPost(post); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to index post", "details": err.Error()})
-		return
-	}
+	//if err := search.IndexPost(post); err != nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to index post", "details": err.Error()})
+	//	return
+	//}
 
 	c.JSON(http.StatusOK, gin.H{"data": post})
 }
