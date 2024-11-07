@@ -1,5 +1,5 @@
 // services/postService.js
-import axiosPublicInstanceSimple from '../utils/axiosPublicInstance';
+import {axiosPublicInstanceSimple} from '../utils/axiosPublicInstance';
 
 export const uploadImage = async (file) => {
 
