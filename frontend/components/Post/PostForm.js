@@ -23,8 +23,8 @@ const ToolbarButton = ({ icon: Icon, onClick, isActive, tooltip, disabled }) => 
 
 const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTitle }) => {
   const [isUploading, setIsUploading] = useState(false);
-  const [isContentEmpty, setIsContentEmpty] = useState(true);
   const [isUploadingTitle, setIsUploadingTitle] = useState(false);
+  const [isContentEmpty, setIsContentEmpty] = useState(!content || content.trim() === '');
 
   const editor = useEditor({
     extensions: [
@@ -34,7 +34,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       Link.configure({ openOnClick: false }),
       Image,
     ],
-    content: content,
+    content: content || '',
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
       setContent(html);
@@ -42,10 +42,14 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
     },
   });
 
-  // Thêm useEffect để cập nhật nội dung khi prop content thay đổi
+  // Cập nhật nội dung khi prop `content` thay đổi
   useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
-      editor.commands.setContent(content || '');
+    if (editor) {
+      const currentContent = editor.getHTML();
+      if (content !== currentContent) {
+        editor.commands.setContent(content || '');
+        setIsContentEmpty(!content || content.trim() === '');
+      }
     }
   }, [content, editor]);
 
@@ -198,6 +202,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         {editor ? (
           <>
             <EditorContent editor={editor} />
+            {/* Placeholder */}
             {isContentEmpty && (
               <p className="absolute text-gray-500 italic top-4 left-4 pointer-events-none">nội dung bài viết...</p>
             )}
