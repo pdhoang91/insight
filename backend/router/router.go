@@ -21,7 +21,7 @@ func SetupRouter() *gin.Engine {
 	fmt.Println("allowOrigins", allowOrigins)
 	config := cors.Config{
 		//AllowOrigins:     []string{allowOrigins, "http://localhost:3000", "http://202.92.6.77:3000"}, // Thay đổi tùy vào frontend
-		AllowOrigins:     []string{"http://202.92.6.77:3000"},
+		AllowOrigins:     []string{"http://202.92.6.77:3000", "http://localhost:3000", "https://insight.io.vn"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},

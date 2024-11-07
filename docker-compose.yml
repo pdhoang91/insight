@@ -56,7 +56,7 @@ services:
     expose:
       - "82"
     volumes:
-      - ./image-service/uploads:/app/uploads  # Mount thư mục uploads của image-service
+      - ./image-service/uploads:/app/images/uploads  # Mount thư mục uploads của image-service
     networks:
       - app-network
 
@@ -122,3 +122,131 @@ networks:
 volumes:
   db-data:
   es-data:
+
+
+# version: '3.7'
+
+# services:
+#   # nginx:
+#   #   image: nginx:latest
+#   #   container_name: nginx_proxy
+#   #   ports:
+#   #     - "80:80"        # Cổng chính để truy cập từ host
+#   #     - "443:443"      # Nếu bạn muốn sử dụng HTTPS
+#   #   volumes:
+#   #     - ./nginx/conf.d:/etc/nginx/conf.d  # Thư mục chứa cấu hình Nginx
+#   #     - ./nginx/certs:/etc/nginx/certs    # Thư mục chứa chứng chỉ SSL (nếu sử dụng HTTPS)
+#   #   depends_on:
+#   #     - frontend
+#   #     - app
+#   #     - image-service
+#   #   networks:
+#   #     - app-network
+
+#   app:
+#     container_name: application
+#     build:
+#       context: ./backend
+#     ports:
+#       - "81:81"
+#     # expose:                           # Sử dụng `expose` thay vì `ports`
+#     #   - "81"
+#     volumes:
+#       - ./backend/uploads:/app/uploads  # Mount thư mục uploads của backend
+#     depends_on:
+#       - db
+#       - elasticsearch
+#       - image-service
+#     environment:
+#       - DB_HOST=db
+#       - DB_PORT=5432
+#       - DB_USER=postgres
+#       - DB_PASSWORD=postgres
+#       - DB_NAME=postgres
+#       - ELASTICSEARCH_HOST=http://elasticsearch:9200
+#       - JWT_SECRET=${JWT_SECRET}
+#       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+#       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+#       - GOOGLE_REDIRECT_URL=${GOOGLE_REDIRECT_URL}
+#       - BASE_API_URL=${BASE_API_URL}
+#       - BASE_FE_URL=${BASE_FE_URL}
+#       - BASE_BE_URL=${BASE_BE_URL}
+
+#     networks:
+#       - app-network
+
+#   image-service:
+#     container_name: image_service
+#     build:
+#       context: ./image-service
+#     ports:
+#       - "82:82"
+# #    expose:
+# #      - "82"
+#     volumes:
+#       - ./image-service/uploads:/app/images/uploads  # Mount thư mục uploads của image-service
+#     networks:
+#       - app-network
+
+#   db:
+#     image: postgres:13
+#     container_name: database
+#     restart: always
+#     environment:
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: postgres
+#       POSTGRES_DB: postgres
+#     ports:
+#       - "5433:5432" # Cổng này chỉ để truy cập từ host, không cần thiết cho kết nối giữa các container
+#     volumes:
+#       - db-data:/var/lib/postgresql/data
+#     networks:
+#       - app-network
+
+#   elasticsearch:
+#     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
+#     container_name: elasticsearch
+#     environment:
+#       - discovery.type=single-node
+#       - ES_JAVA_OPTS=-Xms512m -Xmx512m
+#     ports:
+#       - "9200:9200"
+#     volumes:
+#       - es-data:/usr/share/elasticsearch/data
+#     networks:
+#       - app-network
+
+#   kibana:
+#     image: docker.elastic.co/kibana/kibana:7.17.10
+#     container_name: kibana
+#     environment:
+#       - ELASTICSEARCH_HOST=http://elasticsearch:9200
+#     ports:
+#       - "5601:5601"
+#     depends_on:
+#       - elasticsearch
+#     networks:
+#       - app-network
+
+#   frontend:
+#     container_name: frontend
+#     build:
+#       context: ./frontend
+#     ports:
+#       - "3000:3000"
+#     # expose:
+#     #   - "3000"
+#     networks:
+#       - app-network
+#     depends_on:
+#       - db
+#       - elasticsearch
+#       - image-service
+
+# networks:
+#   app-network:
+#     driver: bridge
+
+# volumes:
+#   db-data:
+#   es-data:
