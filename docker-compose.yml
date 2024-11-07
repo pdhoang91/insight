@@ -115,6 +115,67 @@ services:
       - elasticsearch
       - image-service
 
+  # Thêm Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - app-network
+
+  # Thêm Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3001:3000"  # Port 3001 trên host sẽ ánh xạ tới port 3000 của Grafana
+    volumes:
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin  # Đặt mật khẩu admin cho Grafana
+    depends_on:
+      - prometheus
+    networks:
+      - app-network
+
+  # Sửa đổi Exporter cho PostgreSQL
+  postgres-exporter:
+    image: prometheuscommunity/postgres-exporter:latest
+    container_name: postgres_exporter
+    environment:
+      - DATA_SOURCE_NAME=postgresql://postgres:postgres@db:5432/postgres?sslmode=disable
+    ports:
+      - "9187:9187"
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  # Thêm Elasticsearch Exporter
+  elasticsearch-exporter:
+    image: justwatch/elasticsearch_exporter:latest
+    container_name: elasticsearch_exporter
+    ports:
+      - "9114:9114"
+    environment:
+      - DATA_SOURCE_NAME=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - app-network
+
+  # Thêm Node Exporter để giám sát tài nguyên hệ thống (Tùy chọn nhưng hữu ích)
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node_exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
@@ -124,33 +185,19 @@ volumes:
   es-data:
 
 
+
+
+
+
 # version: '3.7'
 
 # services:
-#   # nginx:
-#   #   image: nginx:latest
-#   #   container_name: nginx_proxy
-#   #   ports:
-#   #     - "80:80"        # Cổng chính để truy cập từ host
-#   #     - "443:443"      # Nếu bạn muốn sử dụng HTTPS
-#   #   volumes:
-#   #     - ./nginx/conf.d:/etc/nginx/conf.d  # Thư mục chứa cấu hình Nginx
-#   #     - ./nginx/certs:/etc/nginx/certs    # Thư mục chứa chứng chỉ SSL (nếu sử dụng HTTPS)
-#   #   depends_on:
-#   #     - frontend
-#   #     - app
-#   #     - image-service
-#   #   networks:
-#   #     - app-network
-
 #   app:
 #     container_name: application
 #     build:
 #       context: ./backend
 #     ports:
 #       - "81:81"
-#     # expose:                           # Sử dụng `expose` thay vì `ports`
-#     #   - "81"
 #     volumes:
 #       - ./backend/uploads:/app/uploads  # Mount thư mục uploads của backend
 #     depends_on:
@@ -181,10 +228,11 @@ volumes:
 #       context: ./image-service
 #     ports:
 #       - "82:82"
-# #    expose:
-# #      - "82"
 #     volumes:
 #       - ./image-service/uploads:/app/images/uploads  # Mount thư mục uploads của image-service
+#     depends_on:
+#       - db
+#       - elasticsearch
 #     networks:
 #       - app-network
 
@@ -234,14 +282,73 @@ volumes:
 #       context: ./frontend
 #     ports:
 #       - "3000:3000"
-#     # expose:
-#     #   - "3000"
-#     networks:
-#       - app-network
 #     depends_on:
 #       - db
 #       - elasticsearch
 #       - image-service
+#     networks:
+#       - app-network
+
+#   # Thêm Prometheus
+#   prometheus:
+#     image: prom/prometheus:latest
+#     container_name: prometheus
+#     volumes:
+#       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+#     ports:
+#       - "9090:9090"
+#     networks:
+#       - app-network
+
+#   # Thêm Grafana
+#   grafana:
+#     image: grafana/grafana:latest
+#     container_name: grafana
+#     ports:
+#       - "3001:3000"  # Port 3001 trên host sẽ ánh xạ tới port 3000 của Grafana
+#     volumes:
+#       - grafana-data:/var/lib/grafana
+#     environment:
+#       - GF_SECURITY_ADMIN_PASSWORD=admin  # Đặt mật khẩu admin cho Grafana
+#     depends_on:
+#       - prometheus
+#     networks:
+#       - app-network
+
+#   # Sửa đổi Exporter cho PostgreSQL
+#   postgres-exporter:
+#     image: prometheuscommunity/postgres-exporter:latest
+#     container_name: postgres_exporter
+#     environment:
+#       - DATA_SOURCE_NAME=postgresql://postgres:postgres@db:5432/postgres?sslmode=disable
+#     ports:
+#       - "9187:9187"
+#     depends_on:
+#       - db
+#     networks:
+#       - app-network
+
+#   # Thêm Elasticsearch Exporter
+#   elasticsearch-exporter:
+#     image: justwatch/elasticsearch_exporter:latest
+#     container_name: elasticsearch_exporter
+#     ports:
+#       - "9114:9114"
+#     environment:
+#       - DATA_SOURCE_NAME=http://elasticsearch:9200
+#     depends_on:
+#       - elasticsearch
+#     networks:
+#       - app-network
+
+#   # Thêm Node Exporter để giám sát tài nguyên hệ thống (Tùy chọn nhưng hữu ích)
+#   node-exporter:
+#     image: prom/node-exporter:latest
+#     container_name: node_exporter
+#     ports:
+#       - "9100:9100"
+#     networks:
+#       - app-network
 
 # networks:
 #   app-network:
@@ -250,3 +357,5 @@ volumes:
 # volumes:
 #   db-data:
 #   es-data:
+#   grafana-data:
+
