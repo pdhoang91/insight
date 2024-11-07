@@ -51,3 +51,4 @@ frontend/.next/
 .idea/sonarlint/
 frontend/node_modules
 nginx/certs/
+.idea/sonarlint
