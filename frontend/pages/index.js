@@ -26,7 +26,6 @@ const Home = () => {
    const sidebarRightRef = useRef(null);
 
   useEffect(() => {
-    console.log("Current Tab:", activeTab);
   }, [activeTab, posts, totalCount, isLoading, isError]);
 
    // Hàm đồng bộ hóa cuộn

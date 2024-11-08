@@ -44,7 +44,6 @@ const EditPost = () => {
     }
 
     try {
-        console.log("post", post)
       const res = await updatePost(id, {
         id: post.id,
         title,

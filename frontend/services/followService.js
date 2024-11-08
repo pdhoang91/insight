@@ -36,7 +36,6 @@ export const fetchSuggestedProfiles = async (page = 1, limit = 10) => {
 export const getAvailableWriters = async () => {
   try {
     const response = await axiosPublicInstance.get('/follow/writers');
-    console.log("response1", response)
     return response.data.data; // Giả sử trả về mảng các writers
   } catch (error) {
     console.error('Error fetching writers:', error);
@@ -48,7 +47,6 @@ export const getAvailableWriters = async () => {
 export const getAvailableTopics = async () => {
   try {
     const response = await axiosPublicInstance.get('/follow/topics');
-    console.log("response2", response)
     return response.data.data; // Giả sử trả về mảng các topics
   } catch (error) {
     console.error('Error fetching topics:', error);

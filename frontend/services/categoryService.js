@@ -68,9 +68,6 @@ export const getPostsByCategory = async (categoryName, page = 1, limit = 10) => 
       throw new Error('Invalid response format for getPostsByCategory');
     }
 
-    //console.log('posts:', data.data);
-    //console.log('totalCount:', data.total_count);
-
     return {
       posts: data.data,
       totalCount: data.total_count,

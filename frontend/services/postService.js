@@ -47,7 +47,6 @@ export const deletePost = async (postId) => {
 
 export const getPostById = async (id) => {
   const response = await axiosPublicInstance.get(`/api/posts/${id}`);
-  //console.log('getPostById: response', response);
   const data = response.data;
   return data.data;
 };
@@ -55,7 +54,6 @@ export const getPostById = async (id) => {
 
 export const getPostByName = async (name) => {
   const response = await axiosPublicInstance.get(`/p/${name}`);
-  //console.log('getPostById: response', response);
   const data = response.data;
   return data.data;
 };

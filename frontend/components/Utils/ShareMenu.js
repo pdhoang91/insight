@@ -5,10 +5,6 @@ import { FiCopy } from 'react-icons/fi';
 import useShare from '../../hooks/useShare';
 
 const ShareMenu = ({ shareUrl, title, onClose }) => {
-
-  console.log("shareUrl", shareUrl)
-  console.log("title", title)
-
   const { copyLink, shareOnTwitter, shareOnFacebook, shareOnLinkedIn, shareStatus } = useShare();
 
   const handleCopyLink = () => {

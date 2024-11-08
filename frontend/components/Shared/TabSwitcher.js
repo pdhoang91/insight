@@ -12,12 +12,10 @@ const TabSwitcher = ({ activeTab, toggleTab, user }) => {
   useEffect(() => {
 
     if (user) {
-      //console.log("useruser", user)
       const fetchTabs = async () => {
         try {
           //const tabs = await getTabs();
           const tabs = await getUserTabs();
-          console.log("tabs", tabs);
           setExtraTabs(tabs);
         } catch (error) {
           setIsError(true);
