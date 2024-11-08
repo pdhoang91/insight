@@ -9,6 +9,8 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
+	"github.com/pdhoang91/lib/log"
+
 	"github.com/pdhoang91/blog/controllers"
 	"github.com/pdhoang91/blog/middleware"
 )
@@ -31,7 +33,8 @@ func SetupRouter() *gin.Engine {
 
 	r.Use(cors.New(config))
 	// Đăng ký LoggerMiddleware
-	r.Use(middleware.LoggerMiddleware())
+	//r.Use(middleware.LoggerMiddleware())
+	r.Use(log.LoggerMiddleware())
 
 	// Auth routes
 	r.POST("/auth/login", controllers.LoginHandler)
