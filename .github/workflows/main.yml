@@ -15,6 +15,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: Debug Environment Variables
+        run: |
+          echo "SERVER_IP=${{ secrets.SERVER_IP }}"
+          echo "SERVER_USER=${{ secrets.SERVER_USER }}"
+          echo "SERVER_PORT=${{ secrets.SERVER_PORT }}"
+          echo "DEPLOY_PATH=${{ secrets.DEPLOY_PATH }}"
+
+      - name: Test SSH Connection
+        run: |
+          ssh -o StrictHostKeyChecking=no -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "echo 'SSH Connection Successful'"
+
+
+
       # Bước 2: Thiết lập SSH Agent và thêm Private Key
       - name: Setup SSH
         uses: webfactory/ssh-agent@v0.7.0
@@ -29,7 +42,7 @@ jobs:
           SERVER_PORT: ${{ secrets.SERVER_PORT }}
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
-          ssh -o StrictHostKeyChecking=no -p $SERVER_PORT $SERVER_USER@$SERVER_IP << EOF
+          ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP -p $SERVER_PORT << EOF
             # Di chuyển đến thư mục triển khai
             cd $DEPLOY_PATH
 
