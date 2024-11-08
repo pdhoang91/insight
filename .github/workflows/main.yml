@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main  # Hoặc nhánh bạn muốn theo dõi
-      - dev
+      - dev  # Hoặc nhánh bạn muốn theo dõi
 
 jobs:
   deploy:
@@ -15,23 +15,31 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Bước 2: Cài đặt SSH Client và sshpass
-      - name: Install SSH and sshpass
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y sshpass
+      # Bước 2: Thiết lập SSH Agent và thêm Private Key
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # Bước 3: Copy mã nguồn lên server sử dụng `sshpass` và `scp`
-      - name: Copy project files to server
-        run: |
-          sshpass -p "${{ secrets.SERVER_PASSWORD }}" scp -o StrictHostKeyChecking=no -P ${{ secrets.SERVER_PORT }} -r ./ ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }}:${{ secrets.DEPLOY_PATH }}
-
-      # Bước 4: Kết nối SSH và chạy Docker Compose
+      # Bước 3: Deploy to Server
       - name: Deploy to Server
+        env:
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
         run: |
-          sshpass -p "${{ secrets.SERVER_PASSWORD }}" ssh -o StrictHostKeyChecking=no -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
-            cd ${{ secrets.DEPLOY_PATH }}
+          ssh -o StrictHostKeyChecking=no -p $SERVER_PORT $SERVER_USER@$SERVER_IP << EOF
+            # Di chuyển đến thư mục triển khai
+            cd $DEPLOY_PATH
+
+            # Pull mã nguồn từ repository
+            git pull origin main
+
+            # Chạy Docker Compose
             docker-compose pull
             docker-compose up -d --build
+
+            # Dọn dẹp các container, image không sử dụng
             docker system prune -f
           EOF
