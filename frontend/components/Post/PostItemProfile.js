@@ -175,14 +175,14 @@ const PostItemProfile = ({ post, isOwner }) => {
               {isOwner && (
                 <>
                   <Link href={`/edit/${post.title_name}`} className="flex items-center text-gray-600 hover:text-blue-500 transition-colors" aria-label="Edit post">
-                    <FaEdit className="mr-1" /> Edit
+                    <FaEdit className="mr-1" />
                   </Link>
                   <button
                     onClick={handleDelete}
                     className="flex items-center text-gray-600 hover:text-red-500 transition-colors"
                     aria-label="Delete post"
                   >
-                    <FaTrash className="mr-1" /> Delete
+                    <FaTrash className="mr-1" />
                   </button>
                 </>
               )}
