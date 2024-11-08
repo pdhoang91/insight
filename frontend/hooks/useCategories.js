@@ -7,8 +7,6 @@ export const useCategories = (page = 1, limit = 10) => {
     revalidateOnMount: true,
   });
 
-  //console.log('useCategories data:', data); // Debugging
-
   return {
     categories: data ? data.categories : [],
     totalCount: data ? data.totalCount : 0,
@@ -21,8 +19,6 @@ export const useTopCategories = (page = 1, limit = 10) => {
   const { data, error } = useSWR('/categories_top', () => getTopCategories(page, limit), {
     revalidateOnMount: true,
   });
-
-  //console.log('useCategories data:', data); // Debugging
 
   return {
     categories: data ? data.categories : [],
@@ -37,8 +33,6 @@ export const useCategoriesWithPosts = (categoryName, page = 1, limit = 10) => {
     `/categories/${encodeURIComponent(categoryName)}/posts?page=${page}&limit=${limit}`,
     () => getPostsByCategory(categoryName, page, limit)
   );
-
-  //console.log('useCategoriesWithPosts data:', data); // Debugging
 
   return {
     posts: data ? data.posts : [],

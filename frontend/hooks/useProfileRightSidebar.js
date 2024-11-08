@@ -18,9 +18,7 @@ const useProfileRightSidebar = (currentUser, viewedUsername) => {
   useEffect(() => {
     const getMoreProfiles = async () => {
       try {
-        //console.log('Fetching suggested profiles...');
         const data = await fetchSuggestedProfiles(1, 10);
-        //console.log('Suggested Profiles:', data);
         setMoreProfiles(data.data || []);
       } catch (err) {
         setError('Failed to load suggested profiles.');
@@ -32,7 +30,6 @@ const useProfileRightSidebar = (currentUser, viewedUsername) => {
     if (currentUser) {
       getMoreProfiles();
     } else {
-      console.log('currentUser is null or undefined');
     }
   }, [currentUser, viewedUsername]);
 
@@ -41,11 +38,9 @@ const useProfileRightSidebar = (currentUser, viewedUsername) => {
     const checkFollowStatusForUsers = async () => {
       try {
         const combinedUsers = [...moreProfiles];
-        console.log('Checking follow status for users:', combinedUsers);
         const status = {};
         for (const user of combinedUsers) {
           const res = await checkFollowingStatus(user.id);
-          console.log(`User ID: ${user.id}, isFollowing: ${res.isFollowing}`);
           status[user.id] = res.isFollowing;
         }
         setFollowStatus(status);

@@ -30,10 +30,6 @@ const Suggestion = () => {
           getAvailableTopics(),
         ]);
 
-        console.log("tabs", tabs)
-        console.log("writers", writers)
-        console.log("topics", topics)
-
         setUserTabs(tabs);
 
         // Cập nhật writers với trạng thái isFollowing

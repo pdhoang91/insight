@@ -9,7 +9,6 @@ export const useInfinitePostByCategory = (name) => {
   const fetcher = async (page, limit) => {
     try {
       const data = await getPostsByCategory(name, page, limit);
-      //console.log('Fetched Data:', data);
       return { posts: data.posts, totalCount: data.totalCount };
     } catch (error) {
       console.error(`Error fetching posts for category "${name}":`, error);
@@ -32,10 +31,6 @@ export const useInfinitePostByCategory = (name) => {
   );
 
   // Logging để kiểm tra dữ liệu
-  // console.log('useInfinitePosts data:', data);
-  // console.log('useInfinitePosts error:', error);
-  // console.log('useInfinitePosts size:', size);
-
   // Các trạng thái loading và error
   const isLoadingInitialData = !data && !error;
   const isLoadingMore =
@@ -54,11 +49,6 @@ export const useInfinitePostByCategory = (name) => {
         .filter((post, index, self) => self.findIndex(p => p.id === post.id) === index)
     : [];
   const totalCount = data && data.length > 0 ? data[0].totalCount : 0;
-
-  // Logging thêm
-  console.log('Combined posts:', posts);
-  console.log('Total count:', totalCount);
-  console.log('Is reaching end:', isReachingEnd);
 
   return {
     posts,

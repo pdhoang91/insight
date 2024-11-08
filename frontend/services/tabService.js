@@ -6,7 +6,6 @@ export const getTabs = async () => {
   try {
     const response = await axiosPublicInstance.get('/tabs');
     const data = response.data;
-    console.log("data", data)
     if (!data || !Array.isArray(data.tabs)) {
       throw new Error('Invalid response format for getTabs');
     }
@@ -22,7 +21,6 @@ export const getUserTabs = async () => {
     try {
       const response = await axiosPrivateInstance.get('/api/tabs');
       const data = response.data
-      console.log("getUserTabs", data)
       //return data?data.tabs:[]; // Giả sử trả về một mảng các tabs
       return data && Array.isArray(data.tabs) ? data.tabs : []; // Trả về mảng rỗng nếu data.tabs không tồn tại hoặc không phải là mảng
     } catch (error) {

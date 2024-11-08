@@ -20,11 +20,6 @@ export const useInfiniteScroll = (fetcher, pageSize = 10) => {
     ([page, limit]) => fetcher(page, limit)
   );
 
-  // Logging để kiểm tra dữ liệu
-  console.log('useInfiniteScroll data:', data);
-  console.log('useInfiniteScroll error:', error);
-  console.log('useInfiniteScroll size:', size);
-
   // Các trạng thái loading và error
   const isLoadingInitialData = !data && !error;
   const isLoadingMore =
@@ -38,11 +33,6 @@ export const useInfiniteScroll = (fetcher, pageSize = 10) => {
   // Kết hợp tất cả các trang thành một mảng duy nhất
   const items = data ? data.flat() : [];
   const totalCount = items.length;
-
-  // Logging thêm
-  console.log('Combined items:', items);
-  console.log('Total count:', totalCount);
-  console.log('Is reaching end:', isReachingEnd);
 
   return {
     items,
