@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main  # Hoặc nhánh bạn muốn theo dõi
-      - dev  # Hoặc nhánh bạn muốn theo dõi
+      - dev
 
 jobs:
   deploy:
@@ -15,9 +15,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Bước 2: Cài đặt SSH và Gọi Các Lệnh SSH
-      - name: Install SSH Client
-        run: sudo apt-get update && sudo apt-get install -y sshpass
+      # Bước 2: Cài đặt SSH Client và sshpass
+      - name: Install SSH and sshpass
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass
 
       # Bước 3: Copy mã nguồn lên server sử dụng `sshpass` và `scp`
       - name: Copy project files to server
@@ -29,7 +31,7 @@ jobs:
         run: |
           sshpass -p "${{ secrets.SERVER_PASSWORD }}" ssh -o StrictHostKeyChecking=no -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} << 'EOF'
             cd ${{ secrets.DEPLOY_PATH }}
-            docker-compose pull  # Kéo các image mới nếu sử dụng image từ registry
+            docker-compose pull
             docker-compose up -d --build
-            docker system prune -f  # Dọn dẹp các container, image không sử dụng
+            docker system prune -f
           EOF
