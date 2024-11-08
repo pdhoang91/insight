@@ -1,21 +1,19 @@
 // components/Profile/UserPostList.js
 import React from 'react';
 //import UserPostItem from './UserPostItem';
-import PostItem from '../Post/PostItem';
+import UserPostList from './UserPostList';
 
 
-const UserPostList = ({ posts }) => {
+const UserPostsSection = ({ posts, isOwner }) => {
   if (!Array.isArray(posts)) {
     return <div>No posts available.</div>;
   }
 
   return (
-    <div className="space-y-4">
-      {posts.map((post) => (
-        <PostItem key={post.id} post={post} />
-      ))}
-    </div>
+      <div>
+        <UserPostList posts={posts} isOwner={isOwner} />
+      </div>
   );
 };
 
-export default UserPostList;
+export default UserPostsSection;

@@ -132,10 +132,6 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       content,
       // Các trường khác nếu có
     };
-
-    // Gửi dữ liệu lên server
-    // Ví dụ: postService.createPost(postData).then(...).catch(...);
-    console.log("Post Data:", postData);
   };
 
   return (

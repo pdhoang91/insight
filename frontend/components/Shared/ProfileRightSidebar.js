@@ -5,7 +5,6 @@ import useProfileRightSidebar from '../../hooks/useProfileRightSidebar';
 import Notification from './Notification';
 
 const ProfileRightSidebar = ({ currentUser, viewedUsername }) => {
-  //console.log('ProfileRightSidebar rendered with currentUser:', currentUser, 'and viewedUsername:', viewedUsername);
   
   const {
     moreProfiles,

@@ -1,4 +1,4 @@
-// // pages/[username].js
+// pages/[username].js
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useUser } from '../context/UserContext';
@@ -10,21 +10,20 @@ import ProfileUpdateForm from '../components/Profile/ProfileUpdateForm';
 import UserPostsSection from '../components/Profile/UserPostsSection';
 import ReadingListSection from '../components/Profile/ReadingListSection';
 import Sidebar from '../components/Shared/Sidebar';
-import ProfileRightSidebar from '../components/Shared/ProfileRightSidebar';
+//import ProfileRightSidebar from '../components/Shared/ProfileRightSidebar';
 import { motion } from 'framer-motion';
-import { mutate as globalMutate } from 'swr'; // Import mutate từ SWR nếu cần
+//import { mutate as globalMutate } from 'swr';
 
 const UserProfilePage = () => {
   const router = useRouter();
   const { username } = router.query;
-  const { user: loggedUser, loading: loadingUser, mutate: mutateUser } = useUser(); // Import mutate từ useUser
-  const { activeTab, navigateToTab, setActiveTab } = useTabNavigation(); // Thêm setActiveTab nếu có hỗ trợ trong hook
+  const { user: loggedUser, loading: loadingUser, mutate: mutateUser } = useUser();
+  const { activeTab, navigateToTab, setActiveTab } = useTabNavigation();
   const [isOwner, setIsOwner] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     if (loggedUser && username) {
-      //const trimmedUsername = username.startsWith('@') ? username.slice(1) : username;
       setIsOwner(loggedUser.username === username);
     } else {
       setIsOwner(false);
@@ -60,12 +59,9 @@ const UserProfilePage = () => {
     try {
       await updateProfile(profileData);
       setShowPopup(false);
-      // Sử dụng mutate để cập nhật dữ liệu người dùng trong cache
       if (mutateUser) {
-        await mutateUser(); // Revalidate user data
+        await mutateUser();
       }
-      // Hoặc sử dụng mutate từ SWR nếu cần
-      // await globalMutate('/api/user'); // Điều chỉnh đường dẫn API theo cấu trúc của bạn
     } catch (err) {
       console.error("Failed to update profile:", err);
       alert("Cập nhật hồ sơ thất bại. Vui lòng thử lại.");
@@ -80,8 +76,6 @@ const UserProfilePage = () => {
 
   if (loading || loadingUser) return <div className="container mx-auto p-4">Loading...</div>;
   if (error) return <div className="container mx-auto p-4 text-red-500">{error}</div>;
-
-  //const viewedUsername = username;
 
   return (
     <div className="flex flex-col lg:flex-row">
@@ -128,7 +122,7 @@ const UserProfilePage = () => {
           exit={{ opacity: 0, x: -50 }}
           transition={{ duration: 0.3 }}
         >
-          {activeTab === (isOwner ? 'YourPosts' : 'UserPosts') && <UserPostsSection posts={posts || []} />}
+          {activeTab === (isOwner ? 'YourPosts' : 'UserPosts') && <UserPostsSection posts={posts || []} isOwner={isOwner} />}
           {activeTab === (isOwner ? 'YourReading' : 'Bookmarks') && <ReadingListSection bookmarks={bookmarks} />}
         </motion.div>
 
@@ -149,4 +143,3 @@ const UserProfilePage = () => {
 };
 
 export default UserProfilePage;
-
