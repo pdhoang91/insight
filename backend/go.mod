@@ -9,7 +9,6 @@ require (
 	github.com/gin-gonic/gin v1.10.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/olivere/elastic/v7 v7.0.32
-	github.com/pdhoang91/lib v0.0.0-00010101000000-000000000000
 	github.com/prometheus/client_golang v1.20.5
 	github.com/satori/go.uuid v1.2.0
 	golang.org/x/crypto v0.28.0
@@ -65,5 +64,3 @@ require (
 	google.golang.org/protobuf v1.35.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
-
-replace github.com/pdhoang91/lib => ../lib
