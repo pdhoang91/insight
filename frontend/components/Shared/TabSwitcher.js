@@ -12,7 +12,7 @@ const TabSwitcher = ({ activeTab, toggleTab, user }) => {
   useEffect(() => {
 
     if (user) {
-      console.log("useruser", user)
+      //console.log("useruser", user)
       const fetchTabs = async () => {
         try {
           //const tabs = await getTabs();

@@ -39,6 +39,12 @@ export const updatePost = async (id, postData) => {
   return response.data;
 };
 
+// Hàm xóa bài viết
+export const deletePost = async (postId) => {
+  const response = await axiosInstance.delete(`/api/posts/${postId}`);
+  return response.data;
+};
+
 export const getPostById = async (id) => {
   const response = await axiosPublicInstance.get(`/api/posts/${id}`);
   //console.log('getPostById: response', response);

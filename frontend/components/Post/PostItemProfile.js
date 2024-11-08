@@ -1,7 +1,7 @@
-// components/Post/PostItem.js
+// components/Post/PostItemProfile.js
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { FaEye, FaShareAlt, FaRegBookmark, FaBookmark } from 'react-icons/fa';
+import { FaEye, FaShareAlt, FaRegBookmark, FaBookmark, FaEdit, FaTrash } from 'react-icons/fa';
 import { FaHandsClapping, FaRegComments } from "react-icons/fa6";
 import CommentsPopup from '../Comment/CommentsPopup';
 import Rating from './Rating';
@@ -15,8 +15,10 @@ import { useComments } from '../../hooks/useComments';
 import ShareMenu from '../Utils/ShareMenu';
 import TimeAgo from '../Utils/TimeAgo';
 import { BASE_FE_URL } from '../../config/api';
+import { useRouter } from 'next/router';
+import { deletePost } from '../../services/postService'; // Hàm API xóa bài viết
 
-const PostItem = ({ post }) => {
+const PostItemProfile = ({ post, isOwner }) => {
   if (!post) {
     return <div>Đang tải bài viết...</div>;
   }
@@ -27,6 +29,7 @@ const PostItem = ({ post }) => {
   const [isCommentsOpen, setCommentsOpen] = useState(false);
   const [isShareMenuOpen, setShareMenuOpen] = useState(false);
   const shareMenuRef = useRef();
+  const router = useRouter();
 
   const { comments, totalCommentReply, totalCount, isLoading, isError, mutate } = useComments(post.id, true, 1, 10);
 
@@ -48,7 +51,6 @@ const PostItem = ({ post }) => {
       return;
     }
     try {
-      //mutateClaps((current) => current + 1, false);
       await clapPost(post.id);
       mutateClaps();
     } catch (error) {
@@ -66,17 +68,29 @@ const PostItem = ({ post }) => {
     setCommentsOpen(false);
   };
 
-  //const shareUrl = `http://localhost:3000/p/${post.title_name}`;
   const shareUrl = `${BASE_FE_URL}/p/${post.title_name}`;
 
   const handleShare = () => {
     setShareMenuOpen((prev) => !prev);
   };
 
+  // Hàm xử lý xóa bài viết
+  const handleDelete = async () => {
+    const confirmDelete = confirm('Bạn có chắc chắn muốn xóa bài viết này không?');
+    if (!confirmDelete) return;
+
+    try {
+      await deletePost(post.id);
+      alert('Bài viết đã được xóa thành công!');
+      router.reload(); // Reload trang để cập nhật danh sách bài viết
+    } catch (error) {
+      console.error('Failed to delete post:', error);
+      alert('Đã xảy ra lỗi khi xóa bài viết. Vui lòng thử lại sau.');
+    }
+  };
+
   return (
-    <div
-      className="rounded-lg p-6 mb-6 bg-white transition-shadow duration-300"
-    >
+    <div className="rounded-lg p-6 mb-6 bg-white transition-shadow duration-300">
       <div className="flex flex-col md:flex-row">
         {/* Post Section */}
         <div className="w-full md:w-2/3 pr-0 md:pr-4">
@@ -84,11 +98,10 @@ const PostItem = ({ post }) => {
           <AuthorInfo author={post.user} />
 
           {/* Post Title */}
-          <Link href={`/p/${post.title_name}`}>
-          <h5 className="text-lg text-gray-800 hover:text-blue-600 transition-colors duration-200 line-clamp-2">
-          {post.title}
-          </h5>
-           
+          <Link href={`/p/${post.title_name}`} className="block">
+            <h5 className="text-lg text-gray-800 hover:text-blue-600 transition-colors duration-200 line-clamp-2">
+              {post.title}
+            </h5>
           </Link>
 
           {/* Post Preview Content */}
@@ -157,6 +170,22 @@ const PostItem = ({ post }) => {
                   />
                 )}
               </div>
+
+              {/* Nút Edit và Delete - Chỉ hiển thị nếu là chủ sở hữu */}
+              {isOwner && (
+                <>
+                  <Link href={`/edit/${post.title_name}`} className="flex items-center text-gray-600 hover:text-blue-500 transition-colors" aria-label="Edit post">
+                    <FaEdit className="mr-1" /> Edit
+                  </Link>
+                  <button
+                    onClick={handleDelete}
+                    className="flex items-center text-gray-600 hover:text-red-500 transition-colors"
+                    aria-label="Delete post"
+                  >
+                    <FaTrash className="mr-1" /> Delete
+                  </button>
+                </>
+              )}
             </div>
           </div>
 
@@ -173,7 +202,7 @@ const PostItem = ({ post }) => {
         <div className="w-full md:w-1/3 mt-4 md:mt-0">
           {post.image_title && (
             <div className="p-4">
-              <Link href={`/p/${post.title_name}`}>
+              <Link href={`/p/${post.title_name}`} className="block">
                 <img
                   src={post.image_title}
                   alt={post.title}
@@ -188,4 +217,4 @@ const PostItem = ({ post }) => {
   );
 };
 
-export default PostItem;
+export default PostItemProfile;
