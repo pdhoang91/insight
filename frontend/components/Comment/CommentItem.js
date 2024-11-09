@@ -54,7 +54,8 @@ const CommentItem = ({ comment, postId, mutate }) => {
     try {
       await addReply(commentID, content, user.id);
       mutate();
-      setShowReplyForm(false);
+      //setShowReplyForm(false);
+      //setShowReplyForm(false);
     } catch (err) {
       console.error('Failed to add reply:', err);
       alert('Gửi trả lời thất bại. Vui lòng thử lại.');
@@ -90,9 +91,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
       <div className="flex items-center space-x-6 mt-2">
       <button
         onClick={handleClap}
-        className={`flex items-center text-sm font-medium focus:outline-none transition-colors ${
-          hasClapped ? 'text-red-500' : 'text-gray-600 hover:text-red-500'
-        }`}
+        className={`flex items-center text-sm font-medium focus:outline-none transition-colors text-gray-600 hover:text-red-500`}
         aria-label="Clap for this comment"
       >
         {hasClapped ? <FaHandsClapping className="mr-1" /> : <FaHandsClapping className="mr-1" />}
@@ -121,14 +120,17 @@ const CommentItem = ({ comment, postId, mutate }) => {
             transition={{ duration: 0.3 }}
           >
             <AddCommentForm onAddComment={(content) => handleReply(content, comment.id)} parentId={comment.id} />
+            <ReplyList replies={comment.replies} commentId={comment.id} mutate={mutate} />
           </motion.div>
+
+
         )}
       </AnimatePresence>
 
       {/* Replies List */}
-      {showReplyForm && (
+      {/* {showReplyForm && (
         <ReplyList replies={comment.replies} commentId={comment.id} mutate={mutate} />
-      )}
+      )} */}
     </motion.li>
   );
 };
