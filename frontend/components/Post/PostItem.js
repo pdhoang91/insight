@@ -1,8 +1,8 @@
 // components/Post/PostItem.js
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { FaEye, FaShareAlt, FaRegBookmark, FaBookmark } from 'react-icons/fa';
-import { FaHandsClapping, FaRegComments } from "react-icons/fa6";
+import { FaEye, FaShareAlt, FaRegBookmark, FaBookmark, FaComment } from 'react-icons/fa';
+import { FaHandsClapping } from "react-icons/fa6";
 import CommentsPopup from '../Comment/CommentsPopup';
 import Rating from './Rating';
 import TextUtils from '../Utils/TextUtils';
@@ -117,7 +117,7 @@ const PostItem = ({ post }) => {
                 className="flex items-center text-gray-600 hover:text-blue-500 transition-colors"
                 aria-label="View comments"
               >
-                <FaRegComments className="mr-1" /> {totalCommentReply}
+                <FaComment className="mr-1" /> {totalCommentReply}
               </button>
 
               {/* Số lượng View */}

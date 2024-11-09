@@ -3,6 +3,7 @@ import React from 'react';
 import Mention from './Mention';
 import AuthorInfo from '../Auth/AuthorInfo';
 import { AiFillHeart } from 'react-icons/ai';
+import { FaEye, FaShareAlt, FaRegBookmark, FaBookmark, FaComment } from 'react-icons/fa';
 import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapReply } from '../../services/activityService';
 import { useUser } from '../../context/UserContext';
