@@ -17,6 +17,7 @@ import TimeAgo from '../Utils/TimeAgo';
 import { BASE_FE_URL } from '../../config/api';
 import { useRouter } from 'next/router';
 import { deletePost } from '../../services/postService'; // Hàm API xóa bài viết
+import { FaComment } from 'react-icons/fa';
 
 const PostItemProfile = ({ post, isOwner }) => {
   if (!post) {
@@ -130,7 +131,7 @@ const PostItemProfile = ({ post, isOwner }) => {
                 className="flex items-center text-gray-600 hover:text-blue-500 transition-colors"
                 aria-label="View comments"
               >
-                <FaRegComments className="mr-1" /> {totalCommentReply}
+                <FaComment className="mr-1" /> {totalCommentReply}
               </button>
 
               {/* Số lượng View */}
