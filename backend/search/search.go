@@ -46,11 +46,11 @@ func InitElasticsearch(url string) *elastic.Client {
 		log.Fatalf("Failed to create Elasticsearch client after 5 attempts: %v", err)
 	}
 
-	err = RecreatePostsIndex()
-	if err != nil {
-		log.Fatalf("Failed to RecreatePostsIndex: %v", err)
-		return nil
-	}
+	//err = RecreatePostsIndex()
+	//if err != nil {
+	//	log.Fatalf("Failed to RecreatePostsIndex: %v", err)
+	//	return nil
+	//}
 
 	// Tạo mapping nếu chưa tồn tại
 	if err := CreatePostsIndexIfNotExists(); err != nil {
