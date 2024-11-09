@@ -449,7 +449,6 @@ func UpdatePost(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": post})
 }
 
-// DeletePost xóa một bài viết. Chỉ chủ sở hữu bài viết mới có thể xóa.
 func DeletePost(c *gin.Context) {
 	// Lấy ID từ tham số URL
 	id := c.Param("id")
@@ -514,6 +513,51 @@ func DeletePost(c *gin.Context) {
 		}
 	}
 
+	// Xóa Bookmarks liên quan đến bài viết
+	if err := tx.Where("post_id = ?", postID).Delete(&models.Bookmark{}).Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete bookmarks"})
+		return
+	}
+
+	// Xóa UserActivity liên quan đến bài viết
+	if err := tx.Where("post_id = ?", postID).Delete(&models.UserActivity{}).Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user activities"})
+		return
+	}
+
+	// Xóa Rating liên quan đến bài viết
+	if err := tx.Where("post_id = ?", postID).Delete(&models.Rating{}).Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete ratings"})
+		return
+	}
+
+	// Tìm và xóa tất cả các bình luận liên quan đến bài viết
+	var comments []models.Comment
+	if err := tx.Where("post_id = ?", postID).Find(&comments).Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch comments"})
+		return
+	}
+
+	for _, comment := range comments {
+		// Xóa tất cả các phản hồi liên quan đến bình luận
+		if err := tx.Where("comment_id = ?", comment.ID).Delete(&models.Reply{}).Error; err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete replies"})
+			return
+		}
+
+		// Xóa bình luận
+		if err := tx.Delete(&comment).Error; err != nil {
+			tx.Rollback()
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete comment"})
+			return
+		}
+	}
+
 	// Xóa bài viết chính
 	if err := tx.Delete(&post).Error; err != nil {
 		tx.Rollback()
@@ -528,7 +572,7 @@ func DeletePost(c *gin.Context) {
 	}
 
 	// Trả về phản hồi thành công
-	c.JSON(http.StatusOK, gin.H{"message": "Post deleted successfully"})
+	c.JSON(http.StatusOK, gin.H{"message": "Post and related data deleted successfully"})
 }
 
 func GetPostsByCategory(c *gin.Context) {
