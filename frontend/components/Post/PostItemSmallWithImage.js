@@ -18,11 +18,10 @@ const PostItemSmallWithImage = ({ post }) => {
         <Link href={`/p/${post.title_name}`} className="text-lg font-semibold text-gray-800 hover:underline">
           {post.title}
         </Link>
-        <TimeAgo timestamp={post.created_at} />
-        
         <p className="text-gray-600 text-sm line-clamp-2">
           <TextUtils html={post.preview_content} maxLength={100} />
         </p>
+        <TimeAgo timestamp={post.created_at} />
       </div>
       
       {/* Image Section */}

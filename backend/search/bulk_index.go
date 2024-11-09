@@ -1,60 +1,61 @@
 package search
 
 import (
+	"context"
+	"fmt"
 	"log"
 
-	"gorm.io/gorm"
+	"github.com/olivere/elastic/v7"
 
 	"github.com/pdhoang91/blog/models"
 )
 
-func BulkIndex(db *gorm.DB) error {
-	// Thực hiện batch indexing
-	log.Println("Starting batch indexing of existing data...")
+func BulkIndexPosts(posts []models.SearchPost) error {
+	ctx := context.Background()
+	bulkRequest := Client.Bulk()
 
-	// Index Posts
-	var posts []models.Post
-	if err := db.Preload("Tags").Preload("Categories").Find(&posts).Error; err != nil {
-		log.Fatalf("Failed to fetch posts for batch indexing: %v", err)
-	}
-	if len(posts) > 0 {
-		if err := BulkIndexPosts(posts); err != nil {
-			log.Fatalf("Failed to bulk index posts: %v", err)
+	for _, post := range posts {
+		doc := map[string]interface{}{
+			"id":              post.ID.String(),
+			"title":           post.Title,
+			"title_name":      post.TitleName,
+			"preview_content": post.PreviewContent,
+			"content":         post.Content,
+			"tags":            post.Tags,
+			"categories":      post.Categories,
+			"user_id":         post.UserID.String(),
+			"created_at":      post.CreatedAt,
+			"claps":           post.ClapCount,
+			"views":           post.Views,
+			"comments_count":  post.CommentsCount,
+			"average_rating":  post.AverageRating,
 		}
-		log.Printf("Successfully bulk indexed %d posts", len(posts))
-	} else {
-		log.Println("No posts found for bulk indexing.")
+
+		req := elastic.NewBulkIndexRequest().
+			Index("posts").
+			Id(post.ID.String()).
+			Doc(doc)
+
+		bulkRequest = bulkRequest.Add(req)
 	}
 
-	// Index Tags
-	var tags []models.Tag
-	if err := db.Find(&tags).Error; err != nil {
-		log.Fatalf("Failed to fetch tags for batch indexing: %v", err)
+	// Thực hiện bulk request
+	bulkResponse, err := bulkRequest.Do(ctx)
+	if err != nil {
+		return err
 	}
-	if len(tags) > 0 {
-		if err := BulkIndexTags(tags); err != nil {
-			log.Fatalf("Failed to bulk index tags: %v", err)
+
+	// Kiểm tra lỗi trong bulk response
+	if bulkResponse.Errors {
+		for _, item := range bulkResponse.Items {
+			for _, resp := range item {
+				if resp.Error != nil {
+					log.Printf("Failed to index post ID %s: %s", resp.Id, resp.Error.Reason)
+				}
+			}
 		}
-		log.Printf("Successfully bulk indexed %d tags", len(tags))
-	} else {
-		log.Println("No tags found for bulk indexing.")
+		return fmt.Errorf("bulk indexing encountered errors")
 	}
-
-	// Index Categories
-	var categories []models.Category
-	if err := db.Find(&categories).Error; err != nil {
-		log.Fatalf("Failed to fetch categories for batch indexing: %v", err)
-	}
-	if len(categories) > 0 {
-		if err := BulkIndexCategories(categories); err != nil {
-			log.Fatalf("Failed to bulk index categories: %v", err)
-		}
-		log.Printf("Successfully bulk indexed %d categories", len(categories))
-	} else {
-		log.Println("No categories found for bulk indexing.")
-	}
-
-	log.Println("Batch indexing completed successfully.")
 
 	return nil
 }

@@ -8,7 +8,6 @@ import (
 
 	"github.com/pdhoang91/blog/database"
 	"github.com/pdhoang91/blog/models"
-	"github.com/pdhoang91/blog/search"
 )
 
 func GetCategories(c *gin.Context) {
@@ -122,11 +121,11 @@ func CreateCategory(c *gin.Context) {
 	}
 
 	// Indexing tag vào Elasticsearch
-	err := search.IndexCategory(category)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to index category"})
-		return
-	}
+	//err := search.IndexCategory(category)
+	//if err != nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to index category"})
+	//	return
+	//}
 
 	c.JSON(http.StatusOK, gin.H{"data": category})
 }
