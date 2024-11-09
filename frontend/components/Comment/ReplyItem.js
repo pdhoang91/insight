@@ -55,7 +55,7 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
 
       {/* Timestamp */}
       {/* <p className="text-sm text-gray-500 mt-1">{new Date(reply.created_at).toLocaleString()}</p> */}
-      <TimeAgo timestamp={reply.created_at} />
+      {/* <TimeAgo timestamp={reply.created_at} /> */}
 
       {/* Actions */}
       <div className="flex items-center mt-2 space-x-4">
@@ -70,6 +70,7 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
         >
           <AiFillHeart className="mr-1" /> {clapsCountDisplay(clapsCount, clapsLoading)}
         </button>
+        <TimeAgo timestamp={reply.created_at} />
       </div>
     </li>
   );
