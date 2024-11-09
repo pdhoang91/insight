@@ -2,7 +2,7 @@
 import React from 'react';
 import { useUser } from '../../context/UserContext';
 import { FaHandsClapping, FaRegComments } from "react-icons/fa6";
-import { FaEye, FaShareAlt, FaRegBookmark, FaBookmark, FaCommentDots } from 'react-icons/fa';
+import { FaEye, FaShareAlt, FaRegBookmark, FaBookmark, FaCommentDots, FaComment } from 'react-icons/fa';
 import CommentsPopup from '../Comment/CommentsPopup';
 import Rating from './Rating';
 import AuthorInfo from '../Auth/AuthorInfo';
@@ -106,7 +106,7 @@ const PostDetail = ({ post }) => {
 
         {/* Comments */}
         <button onClick={toggleCommentPopup} className="flex items-center">
-          <FaRegComments className="mr-1" /> {totalCommentReply}
+          <FaComment className="mr-1" /> {totalCommentReply}
         </button>
 
         {/* Views */}
