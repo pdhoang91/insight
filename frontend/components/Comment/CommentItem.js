@@ -12,6 +12,8 @@ import { addReply } from '../../services/commentService';
 import { clapComment } from '../../services/activityService';
 import TimeAgo from '../Utils/TimeAgo';
 import { motion, AnimatePresence } from 'framer-motion';
+import { FaHandsClapping } from "react-icons/fa6";
+import { FaComment } from 'react-icons/fa';
 
 const CommentItem = ({ comment, postId, mutate }) => {
   const [showReplyForm, setShowReplyForm] = useState(false);
@@ -73,17 +75,40 @@ const CommentItem = ({ comment, postId, mutate }) => {
       <CommentContent content={comment.content} />
 
       {/* Timestamp */}
-      <TimeAgo timestamp={comment.created_at} />
+      {/* <TimeAgo timestamp={comment.created_at} /> */}
 
       {/* Actions */}
-      <CommentActions
+      {/* <CommentActions
         handleClap={handleClap}
         clapsCount={clapsCount}
         hasClapped={hasClapped}
         handleToggleReply={handleToggleReply}
         repliesCount={repliesCount}
         showReplyForm={showReplyForm}
-      />
+      /> */}
+
+      <div className="flex items-center space-x-6 mt-2">
+      <button
+        onClick={handleClap}
+        className={`flex items-center text-sm font-medium focus:outline-none transition-colors ${
+          hasClapped ? 'text-red-500' : 'text-gray-600 hover:text-red-500'
+        }`}
+        aria-label="Clap for this comment"
+      >
+        {hasClapped ? <FaHandsClapping className="mr-1" /> : <FaHandsClapping className="mr-1" />}
+        {clapsCount}
+      </button>
+
+      {/* Reply Button */}
+      <button
+        onClick={handleToggleReply}
+        className="flex items-center text-sm text-gray-600 hover:text-blue-500 focus:outline-none transition-colors"
+        aria-label="Reply to this comment"
+      >
+        <FaComment className="mr-1" /> {repliesCount}
+      </button>
+      <TimeAgo timestamp={comment.created_at} />
+    </div>
 
       {/* Reply Form with Animation */}
       <AnimatePresence>
