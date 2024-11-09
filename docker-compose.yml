@@ -54,7 +54,7 @@ services:
     expose:
       - "82"
     volumes:
-      - ./image-service/uploads:/app/images/uploads  # Mount thư mục uploads của image-service
+      - ./image-service/images:/app/images/uploads  # Mount thư mục uploads của image-service
     depends_on:
       - db
       - elasticsearch
