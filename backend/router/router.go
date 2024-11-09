@@ -67,11 +67,12 @@ func SetupRouter() *gin.Engine {
 	r.GET("/claps", controllers.GetClapsCount)
 	r.GET("/topics/recommended", controllers.GetRecommendedTopics)
 	r.GET("/search/v2/posts", controllers.SearchPostsHandler)
-	r.GET("/search/posts", controllers.SearchPostsBasic)
+	r.GET("/search/posts", controllers.SearchPostsHandler)
+	//r.GET("/search/posts", controllers.SearchPostsBasic)
 	r.GET("/search/people", controllers.SearchUsers)
 	r.GET("/search/categories", controllers.SearchPostsBasic)
 	r.GET("/search/tags", controllers.SearchPostsBasic)
-	r.GET("/autocomplete/posts", controllers.AutocompleteHandler)
+	//r.GET("/autocomplete/posts", controllers.AutocompleteHandler)
 
 	r.GET("/tabs", controllers.GetTabs)
 	r.GET("/follow/writers", controllers.GetTopWriters)
@@ -143,7 +144,7 @@ func SetupRouter() *gin.Engine {
 	{
 		admin.GET("/users", controllers.AdminGetUsers)
 		admin.DELETE("/users/:id", controllers.AdminDeleteUser)
-		admin.POST("/bulk_index", controllers.BulkIndexHandler)
+		//admin.POST("/bulk_index", controllers.BulkIndexHandler)
 	}
 
 	return r

@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/pdhoang91/blog/database"
 	"github.com/pdhoang91/blog/models"
+	"github.com/pdhoang91/blog/search"
 	"github.com/pdhoang91/blog/utils"
 
 	"github.com/gin-gonic/gin"
@@ -97,6 +99,7 @@ func GetPostByID(c *gin.Context) {
 		},
 	})
 }
+
 func GetPostByName(c *gin.Context) {
 	titleName := c.Param("title_name")
 	var post models.Post
@@ -119,21 +122,21 @@ func GetPostByName(c *gin.Context) {
 	database.DB.Model(&post).UpdateColumn("views", gorm.Expr("views + ?", 1))
 
 	// Kiểm tra xem người dùng đã "clap" bài viết chưa
-	userIDInterface, exists := c.Get("userID")
-	var hasClapped bool
-	if exists {
-		var activity models.UserActivity
-		err := database.DB.Where("user_id = ? AND post_id = ? AND action_type = ?", userIDInterface, post.ID, "clap_post").First(&activity).Error
-		if err == nil {
-			hasClapped = true
-		}
-	}
+	//userIDInterface, exists := c.Get("userID")
+	//var hasClapped bool
+	//if exists {
+	//	var activity models.UserActivity
+	//	err := database.DB.Where("user_id = ? AND post_id = ? AND action_type = ?", userIDInterface, post.ID, "clap_post").First(&activity).Error
+	//	if err == nil {
+	//		hasClapped = true
+	//	}
+	//}
 
 	// Trả về dữ liệu JSON cho client
 	c.JSON(http.StatusOK, gin.H{
 		"data": map[string]interface{}{
-			"post":        post,
-			"has_clapped": hasClapped,
+			"post": post,
+			//"has_clapped": hasClapped,
 		},
 	})
 }
@@ -156,129 +159,191 @@ func CreatePost(c *gin.Context) {
 		Tags       []string `json:"tags"`
 	}
 
+	// Bind JSON input
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
+	// Get user ID from context
 	userID, err := utils.GetUserIDFromContext(c)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
+	// Fetch user from DB
 	var user models.User
 	if err := database.DB.First(&user, userID).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid AuthorID: User not found"})
 		return
 	}
 
-	// Xóa các thẻ HTML trong Content
+	// Clean HTML tags from Content
 	re := regexp.MustCompile(`<[^>]*>`)
 	cleanContent := re.ReplaceAllString(input.Content, "")
 
-	// Tách các từ và lấy 20 từ đầu tiên
+	// Extract first 20 words for PreviewContent
 	words := strings.Fields(cleanContent)
 	if len(words) > 20 {
 		cleanContent = strings.Join(words[:20], " ") + "..."
 	}
 
-	// Tạo slug từ tiêu đề bài viết
+	// Create slug from Title
 	slug := strings.ToLower(input.Title)
 	slug = strings.ReplaceAll(slug, " ", "-")
 	slug = regexp.MustCompile(`[^a-zA-Z0-9-]+`).ReplaceAllString(slug, "")
 
-	// Đảm bảo tính duy nhất của title_name
+	// Ensure unique title_name
 	existingPost := models.Post{}
 	if err := database.DB.Where("title_name = ?", slug).First(&existingPost).Error; err == nil {
 		uniquePrefix := utils.GetUniquePrefix()
 		slug = fmt.Sprintf("%s-%s", slug, uniquePrefix)
 	}
 
-	//modifiedTitle := strings.ReplaceAll(input.Title, " ", "_")
-	//titleName := fmt.Sprintf("%s_%s", modifiedTitle, uuid.NewV4().String())
-	// Tạo bài viết mới
+	// Start GORM transaction
+	tx := database.DB.Begin()
+	if tx.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to start transaction"})
+		return
+	}
+
+	// Create new Post
 	post := models.Post{
 		Title:          input.Title,
-		TitleName:      slug, // Sử dụng slug làm title_name
+		TitleName:      slug, // Use slug as title_name
 		ImageTitle:     input.ImageTitle,
-		PreviewContent: cleanContent, // Sử dụng cleanContent cho PreviewContent
+		PreviewContent: cleanContent, // Use cleanContent for PreviewContent
 		UserID:         user.ID,
 		ClapCount:      0,
 	}
 
-	// Lưu bài viết để có Post.ID
-	if err := database.DB.Create(&post).Error; err != nil {
+	// Save Post
+	if err := tx.Create(&post).Error; err != nil {
+		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create post"})
 		return
 	}
 
-	// Tạo nội dung bài viết mới với PostID
+	// Create PostContent
 	postContent := models.PostContent{
-		PostID:    post.ID,       // Gán PostID từ bài viết mới
-		Content:   input.Content, // Lưu nội dung bài viết
+		PostID:    post.ID,       // Assign PostID from the new Post
+		Content:   input.Content, // Save the full content
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
 
-	// Lưu nội dung bài viết
-	if err := database.DB.Create(&postContent).Error; err != nil {
+	// Save PostContent
+	if err := tx.Create(&postContent).Error; err != nil {
+		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create post content"})
 		return
 	}
 
-	// Xử lý Categories
+	// Handle Categories
 	for _, catName := range input.Categories {
 		catName = capitalizeFirstLetter(catName)
 		var category models.Category
-		if err := database.DB.Where("name = ?", catName).First(&category).Error; err != nil {
+		if err := tx.Where("name = ?", catName).First(&category).Error; err != nil {
 			if err == gorm.ErrRecordNotFound {
 				category = models.Category{Name: catName}
-				if err := database.DB.Create(&category).Error; err != nil {
+				if err := tx.Create(&category).Error; err != nil {
+					tx.Rollback()
 					c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create category"})
 					return
 				}
 			} else {
+				tx.Rollback()
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch category"})
 				return
 			}
 		}
 
-		if err := database.DB.Model(&post).Association("Categories").Append(&category); err != nil {
+		if err := tx.Model(&post).Association("Categories").Append(&category); err != nil {
+			tx.Rollback()
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add category to post"})
 			return
 		}
 	}
 
-	// Xử lý Tags
+	// Handle Tags
 	for _, tagName := range input.Tags {
 		var tag models.Tag
-		if err := database.DB.Where("name = ?", tagName).First(&tag).Error; err != nil {
+		if err := tx.Where("name = ?", tagName).First(&tag).Error; err != nil {
 			if err == gorm.ErrRecordNotFound {
 				tag = models.Tag{Name: tagName}
-				if err := database.DB.Create(&tag).Error; err != nil {
+				if err := tx.Create(&tag).Error; err != nil {
+					tx.Rollback()
 					c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create tag"})
 					return
 				}
 			} else {
+				tx.Rollback()
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch tag"})
 				return
 			}
 		}
 
-		if err := database.DB.Model(&post).Association("Tags").Append(&tag); err != nil {
+		if err := tx.Model(&post).Association("Tags").Append(&tag); err != nil {
+			tx.Rollback()
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add tag to post"})
 			return
 		}
 	}
 
-	// Indexing với Elasticsearch
-	//if err := search.IndexPost(post); err != nil {
-	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to index post", "details": err.Error()})
-	//	return
-	//}
+	// Chuyển đổi Post và PostContent sang SearchPost
+	searchPost := models.SearchPost{
+		ID:             post.ID,
+		Title:          post.Title,
+		TitleName:      post.TitleName,
+		PreviewContent: post.PreviewContent,
+		Content:        postContent.Content,
+		Tags:           extractTagNames(post.Tags),
+		Categories:     extractCategoryNames(post.Categories),
+		UserID:         post.UserID,
+		CreatedAt:      post.CreatedAt,
+		ClapCount:      post.ClapCount,
+		Views:          post.Views,
+		CommentsCount:  post.CommentsCount,
+		AverageRating:  post.AverageRating,
+	}
+
+	// Commit transaction
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to commit transaction"})
+		return
+	}
+
+	// Indexing với Elasticsearch (bất đồng bộ để không làm chậm phản hồi)
+	//go func(sp models.SearchPost) {
+	//	if err := search.IndexPost(sp); err != nil {
+	//		log.Printf("Failed to index post ID %s: %v", sp.ID, err)
+	//	}
+	//}(searchPost)
+	if err := search.IndexPost(searchPost); err != nil {
+		log.Printf("Failed to index post ID %s: %v", searchPost.ID, err)
+	}
 
 	c.JSON(http.StatusOK, gin.H{"data": post})
+}
+
+// extractTagNames lấy tên các tag từ slice Tag
+func extractTagNames(tags []models.Tag) []string {
+	names := make([]string, len(tags))
+	for i, tag := range tags {
+		names[i] = tag.Name
+	}
+	return names
+}
+
+// extractCategoryNames lấy tên các category từ slice Category
+func extractCategoryNames(categories []models.Category) []string {
+	names := make([]string, len(categories))
+	for i, cat := range categories {
+		names[i] = cat.Name
+	}
+	return names
 }
 
 func UpdatePost(c *gin.Context) {

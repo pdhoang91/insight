@@ -8,7 +8,6 @@ import (
 
 	"github.com/pdhoang91/blog/database"
 	"github.com/pdhoang91/blog/models"
-	"github.com/pdhoang91/blog/search"
 )
 
 // CreateTag tạo thẻ mới.
@@ -30,11 +29,11 @@ func CreateTag(c *gin.Context) {
 	}
 
 	// Indexing tag vào Elasticsearch
-	err := search.IndexTag(tag)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to index tag"})
-		return
-	}
+	//err := search.IndexTag(tag)
+	//if err != nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to index tag"})
+	//	return
+	//}
 
 	c.JSON(http.StatusOK, gin.H{"data": tag})
 }
@@ -73,10 +72,10 @@ func AddTagToPost(c *gin.Context) {
 	}
 
 	// Cập nhật lại bài viết trong Elasticsearch để phản ánh việc thêm tag
-	if err := search.IndexPost(post); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to index post after adding tag"})
-		return
-	}
+	//if err := search.IndexPost(post); err != nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to index post after adding tag"})
+	//	return
+	//}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Tag added to post successfully"})
 }
@@ -104,10 +103,10 @@ func RemoveTagFromPost(c *gin.Context) {
 	}
 
 	// Cập nhật lại bài viết trong Elasticsearch để phản ánh việc xóa tag
-	if err := search.IndexPost(post); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to index post after removing tag"})
-		return
-	}
+	//if err := search.IndexPost(post); err != nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to index post after removing tag"})
+	//	return
+	//}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Tag removed from post successfully"})
 }

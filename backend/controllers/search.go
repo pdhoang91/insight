@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 
 	"github.com/pdhoang91/blog/database"
 	"github.com/pdhoang91/blog/models"
@@ -65,13 +66,6 @@ func SearchPostsBasic(c *gin.Context) {
 // SearchPostsHandler xử lý yêu cầu tìm kiếm bài viết với pagination
 func SearchPostsHandler(c *gin.Context) {
 	query := c.Query("q")
-	category := c.Query("category")
-	tags := c.QueryArray("tags")
-	//fuzzy := c.DefaultQuery("fuzzy", "false") == "true"
-	fuzzy := true
-	//autocomplete := c.DefaultQuery("autocomplete", "false") == "true"
-	autocomplete := true
-
 	// Lấy tham số pagination
 	pageStr := c.DefaultQuery("page", "1")
 	limitStr := c.DefaultQuery("limit", "10")
@@ -89,49 +83,50 @@ func SearchPostsHandler(c *gin.Context) {
 	}
 
 	// Thực hiện tìm kiếm với pagination
-	posts, total, err := search.SearchPosts(query, category, tags, fuzzy, autocomplete, page, limit)
+	data, total, err := search.SearchPosts(query, page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Search failed", "details": err.Error()})
 		return
 	}
 
-	totalPages := (total + limit - 1) / limit
+	// Nếu không có dữ liệu, trả về ngay lập tức
+	if len(data) == 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"data":        data,
+			"total_count": total,
+		})
+		return
+	}
+
+	var userID []uuid.UUID
+	for _, v := range data {
+		userID = append(userID, v.UserID)
+	}
+
+	var users []models.User
+	result := database.DB.
+		Where("id IN ?", userID).
+		Order("created_at DESC").
+		Find(&users)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+		return
+	}
+
+	// Khởi tạo mapUser để tránh lỗi khi thêm phần tử
+	mapUser := make(map[uuid.UUID]models.User)
+	for _, v := range users {
+		mapUser[v.ID] = v
+	}
+
+	for k, v := range data {
+		if val, ok := mapUser[v.UserID]; ok {
+			data[k].User = val
+		}
+	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"data": posts,
-		"pagination": gin.H{
-			"total":      total,
-			"page":       page,
-			"limit":      limit,
-			"totalPages": totalPages,
-		},
-	})
-}
-
-// AutocompleteHandler cung cấp gợi ý cho autocomplete
-func AutocompleteHandler(c *gin.Context) {
-	query := c.Query("q")
-	if query == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Query parameter 'q' is required"})
-		return
-	}
-
-	// Tìm kiếm thẻ
-	tags, err := search.SuggestTags(query)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get tag suggestions"})
-		return
-	}
-
-	// Tìm kiếm danh mục
-	categories, err := search.SuggestCategories(query)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get category suggestions"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"tags":       tags,
-		"categories": categories,
+		"data":        data,
+		"total_count": total,
 	})
 }
