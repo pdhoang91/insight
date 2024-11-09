@@ -10,16 +10,27 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 // Danh sách các MIME type được phép
 var allowedMimeTypes = map[string]bool{
-	"image/jpeg": true,
-	"image/png":  true,
-	"image/gif":  true,
-	"image/webp": true,
+	"image/jpeg":      true,
+	"image/png":       true,
+	"image/gif":       true,
+	"image/webp":      true,
+	"image/bmp":       true, // Thêm định dạng BMP
+	"image/tiff":      true, // Thêm định dạng TIFF
+	"application/pdf": true, // Thêm định dạng PDF
+}
+
+// Danh sách các loại hình ảnh được phép
+var allowedTypes = map[string]bool{
+	"avatar":  true,
+	"content": true,
+	"title":   true,
 }
 
 // Kiểm tra MIME type của tệp
@@ -49,82 +60,27 @@ func generatePrefix() (string, error) {
 	return hex.EncodeToString(b), nil
 }
 
-// // UploadImageV2 .. Image upload handler (Giảm kích thước và chuyển đổi sang WebP)
-// func UploadImageV2(c *gin.Context) {
-// 	const maxUploadSize = 10 << 20 // 10 MB
-// 	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, maxUploadSize)
-// 	if err := c.Request.ParseMultipartForm(maxUploadSize); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "File quá lớn"})
-// 		return
-// 	}
-
-// 	file, err := c.FormFile("image")
-// 	if err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Không có ảnh được tải lên"})
-// 		return
-// 	}
-
-// 	if !isAllowedMimeType(file) {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Định dạng ảnh không được hỗ trợ"})
-// 		return
-// 	}
-
-// 	src, err := file.Open()
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể mở tệp ảnh"})
-// 		return
-// 	}
-// 	defer src.Close()
-
-// 	img, _, err := image.Decode(src)
-// 	if err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Định dạng ảnh không hợp lệ"})
-// 		return
-// 	}
-
-// 	maxWidth, maxHeight := 800, 800
-// 	img = resize.Thumbnail(uint(maxWidth), uint(maxHeight), img, resize.Lanczos3)
-
-// 	prefix, err := generatePrefix()
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể tạo tên tệp duy nhất"})
-// 		return
-// 	}
-
-// 	safeFilename := strings.ReplaceAll(file.Filename, " ", "_")
-// 	filename := strings.TrimSuffix(safeFilename, filepath.Ext(safeFilename)) + ".webp"
-// 	uploadDir := "images/uploads"
-
-// 	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể tạo thư mục uploads"})
-// 		return
-// 	}
-
-// 	filePath := filepath.Join(uploadDir, prefix+"_"+filename)
-// 	dst, err := os.Create(filePath)
-// 	if err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể lưu ảnh WebP"})
-// 		return
-// 	}
-// 	defer dst.Close()
-
-// 	if err := webp.Encode(dst, img, &webp.Options{Lossless: true}); err != nil {
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể chuyển đổi ảnh sang WebP"})
-// 		return
-// 	}
-
-// 	imageURL := "https://" + c.Request.Host + "/images/uploads/" + prefix + "_" + filename
-// 	c.JSON(http.StatusOK, gin.H{"url": imageURL})
-// }
-
 // UploadImageV2 .. Image upload handler (Giảm kích thước và chuyển đổi sang WebP)
-// UploadImage .. Image upload handler (Không xử lý thêm)
 func UploadImageV2(c *gin.Context) {
 	// Giới hạn kích thước upload
 	const maxUploadSize = 10 << 20 // 10 MB
 	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, maxUploadSize)
 	if err := c.Request.ParseMultipartForm(maxUploadSize); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "File quá lớn"})
+		return
+	}
+
+	// Lấy tham số "type" từ form data
+	//c.Param("id")
+	imageType := c.Param("type")
+	if imageType == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Thiếu tham số 'type'"})
+		return
+	}
+
+	// Kiểm tra giá trị của tham số "type"
+	if !allowedTypes[imageType] {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Giá trị 'type' không hợp lệ"})
 		return
 	}
 
@@ -137,12 +93,15 @@ func UploadImageV2(c *gin.Context) {
 
 	// Kiểm tra MIME type
 	if !isAllowedMimeType(file) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Định dạng ảnh không được hỗ trợ"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Định dạng ảnh hoặc tệp không được hỗ trợ"})
 		return
 	}
 
-	// Tạo thư mục uploads nếu chưa tồn tại
-	uploadDir := "images/uploads"
+	// Lấy ngày hiện tại để tạo thư mục con
+	currentDate := time.Now().Format("2006-01-02") // Định dạng YYYY-MM-DD
+	uploadDir := filepath.Join("images", "uploads", currentDate, imageType)
+
+	// Tạo thư mục nếu chưa tồn tại
 	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể tạo thư mục uploads"})
 		return
@@ -165,13 +124,13 @@ func UploadImageV2(c *gin.Context) {
 
 	// Lưu tệp vào thư mục uploads
 	if err := c.SaveUploadedFile(file, filePath); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể lưu ảnh"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể lưu ảnh hoặc tệp"})
 		return
 	}
 
 	// Tạo URL cho ảnh đã tải lên
-	imageURL := "https://" + c.Request.Host + "/images/uploads/" + prefix + "_" + safeFilename
-	//imageURL := "http://" + c.Request.Host + "/images/uploads/" + prefix + "_" + safeFilename
+	imageURL := "https://" + c.Request.Host + "/images/uploads/" + currentDate + "/" + imageType + "/" + prefix + "_" + safeFilename
+	//imageURL := "http://" + c.Request.Host + "/images/uploads/" + currentDate + "/" + imageType + "/" + prefix + "_" + safeFilename
 
 	fmt.Println("imageURL", imageURL)
 	// Trả về URL của ảnh

@@ -5,7 +5,7 @@ import { uploadImage } from '../services/imageService'; // Ensure you have an im
 export const useImage = () => {
   const handleImageUpload = useCallback(async (file) => {
     // Call the API to upload the image
-    const response = await uploadImage(file);
+    const response = await uploadImage(file, type);
     return response.url; // Assuming your API returns the URL in this format
   }, []);
 

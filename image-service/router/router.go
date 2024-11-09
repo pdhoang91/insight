@@ -28,11 +28,11 @@ func SetupRouter() *gin.Engine {
 	r.Use(cors.New(config))
 
 	// Serve the uploads directory
-	r.Static("/images/uploads", "./images/uploads")
+	r.Static("/images/uploads", "./images/uploads/.")
 
 	// Routes for image upload
 	//r.POST("/upload", controllers.UploadImage)
-	r.POST("/images/upload/v2", controllers.UploadImageV2)
+	r.POST("/images/upload/v2/:type", controllers.UploadImageV2)
 
 	// Optional: Route for getting images if cần
 	// r.GET("/images/:imageName", controllers.GetImage)

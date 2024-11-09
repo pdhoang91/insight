@@ -64,7 +64,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       if (!file) return;
       setIsUploading(true);
       try {
-        const imageUrl = await uploadImage(file);
+        const imageUrl = await uploadImage(file, "content");
         editor.chain().focus().setImage({ src: imageUrl }).run();
       } catch (error) {
         console.error("Error uploading image", error);
@@ -85,7 +85,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       if (!file) return;
       setIsUploadingTitle(true);
       try {
-        const uploadedUrl = await uploadImage(file);
+        const uploadedUrl = await uploadImage(file,"title");
         setImageTitle(uploadedUrl);
       } catch (error) {
         console.error("Error uploading image title", error);

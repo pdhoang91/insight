@@ -30,7 +30,7 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
 
     setIsUploading(true);
     try {
-      const imageUrl = await uploadImage(file);
+      const imageUrl = await uploadImage(file,"avatar");
       setAvatarUrl(imageUrl);
     } catch (error) {
       console.error("Failed to upload avatar:", error);
