@@ -13,8 +13,8 @@ const ReplyList = ({ replies, commentId, mutate }) => {
   // }
 
   return (
-    <ul className="space-y-4 mt-4 ml-8">
-      {replies.map((reply) => (
+    <ul className="space-y-4">
+      {[...replies].reverse().map((reply) => (
         <ReplyItem key={reply.id} reply={reply} commentId={commentId} mutate={mutate} />
       ))}
     </ul>

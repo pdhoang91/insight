@@ -14,12 +14,15 @@ export const useClapsCount = (type, id) => {
     console.error('Unexpected claps count format:', data);
   }
 
+
+
   let clapsCount = 0;
   if (typeof data === 'number') {
     clapsCount = data;
   } else if (typeof data === 'object' && typeof data.clap_count === 'number') {
     clapsCount = data.clap_count;
   }
+  //console.log("clapsCount", clapsCount)
 
   return {
     clapsCount,

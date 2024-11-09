@@ -8,6 +8,7 @@ import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapReply } from '../../services/activityService';
 import { useUser } from '../../context/UserContext';
 import TimeAgo from '../Utils/TimeAgo';
+import { FaHandsClapping } from "react-icons/fa6";
 
 const ReplyItem = ({ reply, commentId, mutate }) => {
   const { user } = useUser();
@@ -62,13 +63,11 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
         {/* Clap Button */}
         <button
           onClick={handleClap}
-          className={`flex items-center text-sm font-medium ${
-            hasClapped ? 'text-red-500' : 'text-gray-600 hover:text-red-500'
-          } transition-colors`}
+          className={`flex items-center text-sm font-medium text-gray-600 hover:text-red-500 transition-colors`}
           disabled={clapsLoading}
           aria-label="Clap for this reply"
         >
-          <AiFillHeart className="mr-1" /> {clapsCountDisplay(clapsCount, clapsLoading)}
+          <FaHandsClapping className="mr-1" /> {clapsCountDisplay(clapsCount, clapsLoading)}
         </button>
         <TimeAgo timestamp={reply.created_at} />
       </div>
