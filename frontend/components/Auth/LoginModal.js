@@ -1,22 +1,24 @@
-// // components/Auth/LoginModal.js
+// components/Auth/LoginModal.js
 
 import React, { useState, useEffect } from 'react';
 import { loginWithEmailAndPassword, registerUser, loginWithGoogle } from '../../services/authService';
+import { getUserProfile } from '../../services/userService';
 import { useLoginModal } from '../../hooks/useLoginModal';
+import { useUser } from '../../context/UserContext';
 
 const LoginModal = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isSignUp, setIsSignUp] = useState(false); // Toggle between login and register
+  const [isSignUp, setIsSignUp] = useState(false); // Toggle giữa đăng nhập và đăng ký
+  const { setUser } = useUser(); // Lấy setUser từ UserContext
   useLoginModal(isOpen, onClose);
-
 
   useEffect(() => {
     if (isOpen) {
-      // Khóa cuộn của trang khi modal mở
+      // Khóa cuộn khi modal mở
       document.body.style.overflow = 'hidden';
     } else {
-      // Mở lại cuộn của trang khi modal đóng
+      // Mở lại cuộn khi modal đóng
       document.body.style.overflow = 'auto';
     }
 
@@ -28,22 +30,28 @@ const LoginModal = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-
   const handleLogin = async () => {
     try {
       await loginWithEmailAndPassword(email, password);
-      onClose();
+      const userData = await getUserProfile(); // Lấy thông tin người dùng
+      setUser(userData); // Cập nhật trạng thái người dùng trong UserContext
+      onClose(); // Đóng modal
     } catch (error) {
       console.error('Login failed:', error);
+      alert('Đăng nhập thất bại. Vui lòng kiểm tra thông tin và thử lại.');
     }
   };
 
   const handleSignUp = async () => {
     try {
       await registerUser(email, password);
-      setIsSignUp(false); // After registration, switch to login mode
+      const userData = await getUserProfile(); // Lấy thông tin người dùng sau khi đăng ký
+      setUser(userData); // Cập nhật trạng thái người dùng trong UserContext
+      setIsSignUp(false); // Chuyển sang chế độ đăng nhập sau khi đăng ký
+      alert('Đăng ký thành công! Bạn đã được đăng nhập.');
     } catch (error) {
       console.error('Sign up failed:', error);
+      alert('Đăng ký thất bại. Vui lòng kiểm tra thông tin và thử lại.');
     }
   };
 
@@ -111,4 +119,3 @@ const LoginModal = ({ isOpen, onClose }) => {
 };
 
 export default LoginModal;
-

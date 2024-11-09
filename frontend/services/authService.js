@@ -6,9 +6,22 @@
 import { BASE_API_URL } from '../config/api';
 //import { useUser } from '../context/UserContext';
 import axiosPublicInstance from '../utils/axiosPublicInstance';
+import axiosPrivateInstance from '../utils/axiosPrivateInstance';
 
 
   //const { login } = useUser();
+
+  export const getCurrentUser = async () => {
+    // try {
+    //   const response = await axiosPublicInstance.get('/auth/me');
+    //   return response.data.user;
+    // } catch (error) {
+    //   console.error('Fetching current user failed:', error);
+    //   throw error;
+    // }
+    const response = await axiosPrivateInstance.get('/api/me');
+    return response.data;
+  };
 
   export const loginWithEmailAndPassword = async (email, password) => {
     try {
