@@ -49,7 +49,6 @@ const useProfile = () => {
       const updatedProfile = await updateUserProfileService(user.id, profileData);
       setProfile(updatedProfile);
       setUser(updatedProfile); // Cập nhật user trong context nếu cần
-      alert('Profile updated successfully!');
     } catch (err) {
       console.error('Failed to update profile:', err);
       alert('Failed to update profile.');
