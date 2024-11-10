@@ -153,9 +153,9 @@ func capitalizeFirstLetter(s string) string {
 func CreatePost(c *gin.Context) {
 	var input struct {
 		Title      string   `json:"title" binding:"required"`
-		ImageTitle string   `json:"image_title" binding:"required"`
+		ImageTitle string   `json:"image_title"`
 		Content    string   `json:"content" binding:"required"`
-		Categories []string `json:"categories" binding:"required"`
+		Categories []string `json:"categories"`
 		Tags       []string `json:"tags"`
 	}
 
@@ -167,7 +167,7 @@ func CreatePost(c *gin.Context) {
 
 	// Set default image if imageTitle is empty
 	if input.ImageTitle == "" {
-		input.ImageTitle = "default_image.png" // Đường dẫn tới ảnh mặc định của bạn
+		input.ImageTitle = "https://www.w3schools.com/w3images/avatar2.png" // Đường dẫn tới ảnh mặc định của bạn
 	}
 
 	// Get user ID from context
@@ -365,9 +365,9 @@ func UpdatePost(c *gin.Context) {
 	// Bind dữ liệu JSON vào cấu trúc input
 	var input struct {
 		Title      string   `json:"title" binding:"required"`
-		ImageTitle string   `json:"image_title" binding:"required"`
+		ImageTitle string   `json:"image_title"`
 		Content    string   `json:"content" binding:"required"`
-		Categories []string `json:"categories" binding:"required"`
+		Categories []string `json:"categories"`
 		Tags       []string `json:"tags"`
 	}
 
@@ -378,7 +378,7 @@ func UpdatePost(c *gin.Context) {
 
 	// Set default image if imageTitle is empty
 	if input.ImageTitle == "" {
-		input.ImageTitle = "default_image.png" // Đường dẫn tới ảnh mặc định của bạn
+		input.ImageTitle = "https://www.w3schools.com/w3images/avatar2.png" // Đường dẫn tới ảnh mặc định của bạn
 	}
 
 	// Lấy bài viết từ DB với preloaded Categories và Tags
