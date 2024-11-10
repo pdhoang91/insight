@@ -14,7 +14,9 @@ import { motion } from 'framer-motion';
 const UserProfilePage = () => {
   const router = useRouter();
   const { username } = router.query;
-  const { user: loggedUser, loading: loadingUser, setUser, setModalOpen } = useUser(); // Sửa lại destructuring
+  const { user: loggedUser, loading: loadingUser, mutate: mutateUser } = useUser();
+
+  //const { user: loggedUser, loading: loadingUser, setUser, setModalOpen } = useUser(); // Sửa lại destructuring
   // Đã loại bỏ mutateUser vì không có trong UserContext
 
   const [activeTab, setActiveTab] = useState('');
@@ -60,6 +62,10 @@ const UserProfilePage = () => {
     try {
       await updateProfile(profileData);
       setShowPopup(false);
+      if (mutateUser) {
+        await mutateUser();
+      }
+
       // Không cần gọi mutateUser vì không có trong UserContext
       // setUser đã được gọi trong updateProfile
     } catch (err) {
