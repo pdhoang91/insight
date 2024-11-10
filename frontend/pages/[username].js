@@ -4,24 +4,23 @@ import { useRouter } from 'next/router';
 import { useUser } from '../context/UserContext';
 import usePublicProfile from '../hooks/usePublicProfile';
 import useProfile from '../hooks/useProfile';
-import useTabNavigation from '../hooks/useTabNavigation';
 import ProfileHeader from '../components/Profile/ProfileHeader';
 import ProfileUpdateForm from '../components/Profile/ProfileUpdateForm';
 import UserPostsSection from '../components/Profile/UserPostsSection';
 import ReadingListSection from '../components/Profile/ReadingListSection';
 import Sidebar from '../components/Shared/Sidebar';
-//import ProfileRightSidebar from '../components/Shared/ProfileRightSidebar';
 import { motion } from 'framer-motion';
-//import { mutate as globalMutate } from 'swr';
 
 const UserProfilePage = () => {
   const router = useRouter();
   const { username } = router.query;
   const { user: loggedUser, loading: loadingUser, mutate: mutateUser } = useUser();
-  const { activeTab, navigateToTab, setActiveTab } = useTabNavigation();
+  
+  const [activeTab, setActiveTab] = useState('');
   const [isOwner, setIsOwner] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
 
+  // Xác định xem người dùng hiện tại có phải là chủ sở hữu trang hay không
   useEffect(() => {
     if (loggedUser && username) {
       setIsOwner(loggedUser.username === username);
@@ -30,11 +29,12 @@ const UserProfilePage = () => {
     }
   }, [loggedUser, username]);
 
+  // Đặt activeTab dựa trên việc người dùng có phải là chủ sở hữu hay không
   useEffect(() => {
     if (isOwner) {
-      navigateToTab('YourPosts');
+      setActiveTab('YourPosts');
     } else {
-      navigateToTab('UserPosts');
+      setActiveTab('UserPosts');
     }
   }, [isOwner]);
 
@@ -77,6 +77,12 @@ const UserProfilePage = () => {
   if (loading || loadingUser) return <div className="container mx-auto p-4">Loading...</div>;
   if (error) return <div className="container mx-auto p-4 text-red-500">{error}</div>;
 
+  // Hàm xử lý khi nhấp vào tab
+  const handleTabClick = (tab) => {
+    console.log(`Click vào tab: ${tab}`);
+    setActiveTab(tab);
+  };
+
   return (
     <div className="flex flex-col lg:flex-row">
       <div className="lg:w-1/12 p-4 h-screen sticky top-0 overflow-auto hidden lg:block">
@@ -93,26 +99,31 @@ const UserProfilePage = () => {
         />
 
         <div className="flex space-x-4 my-4 border-b">
+          {/* Tab Đầu Tiên: Luôn Hiển Thị */}
           <button
-            onClick={() => navigateToTab(isOwner ? 'YourPosts' : 'UserPosts')}
+            onClick={() => handleTabClick(isOwner ? 'YourPosts' : 'UserPosts')}
             className={`p-2 transition-colors ${
               activeTab === (isOwner ? 'YourPosts' : 'UserPosts')
-                ? 'text-blue-500 border-b-2 border-blue-500'
+                ? 'text-blue-500 border-blue-500'
                 : 'text-gray-600 hover:text-blue-400'
             }`}
           >
             {isOwner ? 'Your Posts' : "User's Posts"}
           </button>
-          <button
-            onClick={() => navigateToTab(isOwner ? 'YourReading' : 'Bookmarks')}
-            className={`p-2 transition-colors ${
-              activeTab === (isOwner ? 'YourReading' : 'Bookmarks')
-                ? 'text-blue-500 border-b-2 border-blue-500'
-                : 'text-gray-600 hover:text-blue-400'
-            }`}
-          >
-            {isOwner ? 'Your Reading' : 'Bookmarked'}
-          </button>
+
+          {/* Tab Thứ Hai: Chỉ Hiển Thị Khi isOwner */}
+          {isOwner && (
+            <button
+              onClick={() => handleTabClick('YourReading')}
+              className={`p-2 transition-colors ${
+                activeTab === 'YourReading'
+                  ? 'text-blue-500 border-blue-500'
+                  : 'text-gray-600 hover:text-blue-400'
+              }`}
+            >
+              Your Reading
+            </button>
+          )}
         </div>
 
         <motion.div
@@ -122,8 +133,16 @@ const UserProfilePage = () => {
           exit={{ opacity: 0, x: -50 }}
           transition={{ duration: 0.3 }}
         >
-          {activeTab === (isOwner ? 'YourPosts' : 'UserPosts') && <UserPostsSection posts={posts || []} isOwner={isOwner} />}
-          {activeTab === (isOwner ? 'YourReading' : 'Bookmarks') && <ReadingListSection bookmarks={bookmarks} />}
+          {/* Hiển Thị Nội Dung Tùy Thuộc Vào activeTab */}
+          {activeTab === 'YourPosts' && isOwner && (
+            <UserPostsSection posts={posts || []} isOwner={isOwner} />
+          )}
+          {activeTab === 'UserPosts' && !isOwner && (
+            <UserPostsSection posts={posts || []} isOwner={isOwner} />
+          )}
+          {activeTab === 'YourReading' && isOwner && (
+            <ReadingListSection bookmarks={bookmarks} />
+          )}
         </motion.div>
 
         {isOwner && showPopup && (
