@@ -284,3 +284,40 @@ func GetPublicUserBookmarks(c *gin.Context) {
 		"total_count": total,
 	})
 }
+
+// GetPublicUserFollow returns a paginated list of users that the given user is following
+func GetPublicUserFollow(c *gin.Context) {
+	username := c.Param("username")
+	page, limit := getPaginationParams(c)
+
+	var user models.User
+	if err := database.DB.Where("username = ?", username).First(&user).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+		return
+	}
+
+	// Initialize followingUsers as an empty slice
+	followingUsers := make([]models.User, 0)
+
+	// Query to get the users that the current user is following, using LIMIT and OFFSET
+	err := database.DB.Debug().
+		Table("users AS u").
+		Joins("JOIN follows ON follows.following_id = u.id").
+		Where("follows.follower_id = ?", user.ID).
+		Select("u.*").
+		Order("follows.created_at DESC").
+		Limit(limit).
+		Offset((page - 1) * limit).
+		Find(&followingUsers).Error
+
+	// Check for errors in the query
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve following users"})
+		return
+	}
+
+	// Return the list of following users
+	c.JSON(http.StatusOK, gin.H{
+		"data": followingUsers,
+	})
+}

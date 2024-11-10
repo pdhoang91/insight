@@ -65,6 +65,30 @@ export const fetchSuggestedProfiles = async (page = 1, limit = 10) => {
   }
 };
 
+// Lấy các người dùng đã folow
+export const fetchUserFolow = async (username, page = 1, limit = 10) => {
+  try {
+    const response = await axiosPublicInstance.get(`/public/${username}/follow`, {
+      params: { page, limit },
+    });
+
+    console.log("response", response)
+    const data = response.data;
+
+    // if (!data || !Array.isArray(data) || typeof data.total_count !== 'number') {
+    //   throw new Error('Invalid response format for fetchUserFolow');
+    // }
+
+    return {
+      peoples: data.data,
+      totalCount: data.total_count,
+    };
+  } catch (error) {
+    console.error(`Error fetching user folow for user "${username}":`, error);
+    throw error;
+  }
+};
+
 // Kiểm tra trạng thái theo dõi của người dùng hiện tại đối với một user cụ thể
 export const checkFollowingStatus = async (userId) => {
   try {
