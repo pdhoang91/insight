@@ -165,6 +165,11 @@ func CreatePost(c *gin.Context) {
 		return
 	}
 
+	// Set default image if imageTitle is empty
+	if input.ImageTitle == "" {
+		input.ImageTitle = "default_image.png" // Đường dẫn tới ảnh mặc định của bạn
+	}
+
 	// Get user ID from context
 	userID, err := utils.GetUserIDFromContext(c)
 	if err != nil {
@@ -369,6 +374,11 @@ func UpdatePost(c *gin.Context) {
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
+	}
+
+	// Set default image if imageTitle is empty
+	if input.ImageTitle == "" {
+		input.ImageTitle = "default_image.png" // Đường dẫn tới ảnh mặc định của bạn
 	}
 
 	// Lấy bài viết từ DB với preloaded Categories và Tags
