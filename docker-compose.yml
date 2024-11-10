@@ -58,6 +58,8 @@ services:
     depends_on:
       - db
       - elasticsearch
+    environment:
+      - BASE_BE_URL=${BASE_BE_URL}
     networks:
       - app-network
 

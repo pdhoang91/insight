@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 	"strconv"
 	"strings"
@@ -167,7 +168,8 @@ func CreatePost(c *gin.Context) {
 
 	// Set default image if imageTitle is empty
 	if input.ImageTitle == "" {
-		input.ImageTitle = "https://www.w3schools.com/w3images/avatar2.png" // Đường dẫn tới ảnh mặc định của bạn
+		var beURL = os.Getenv("BASE_BE_URL")
+		input.ImageTitle = beURL + "/images/insight.jpg" // Đường dẫn tới ảnh mặc định của bạn
 	}
 
 	// Get user ID from context
@@ -378,7 +380,8 @@ func UpdatePost(c *gin.Context) {
 
 	// Set default image if imageTitle is empty
 	if input.ImageTitle == "" {
-		input.ImageTitle = "https://www.w3schools.com/w3images/avatar2.png" // Đường dẫn tới ảnh mặc định của bạn
+		var beURL = os.Getenv("BASE_BE_URL")
+		input.ImageTitle = beURL + "/images/insight.jpg" // Đường dẫn tới ảnh mặc định của bạn
 	}
 
 	// Lấy bài viết từ DB với preloaded Categories và Tags
