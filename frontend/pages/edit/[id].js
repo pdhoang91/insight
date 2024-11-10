@@ -1,18 +1,18 @@
 // pages/edit/[id].js
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/router';
 import { useUser } from '../../context/UserContext';
 import CategoryTagsPopup from '../../components/Category/CategoryTagsPopup';
 import PostForm from '../../components/Post/PostForm';
-import { getPostById, updatePost } from '../../services/postService';
+import { updatePost } from '../../services/postService';
 import { usePostName } from '../../hooks/usePost';
-import { usePostContext } from '../../context/PostContext'; // Import hook
+import { usePostContext } from '../../context/PostContext';
 
 const EditPost = () => {
   const router = useRouter();
   const { id } = router.query;
   const { user, setModalOpen, loading } = useUser();
-  const { setHandleUpdate, setHandlePublish } = usePostContext(); // Sử dụng setter từ Context
+  const { setHandleUpdate, setHandlePublish } = usePostContext();
 
   const { post, isLoading, isError } = usePostName(id);
 
@@ -21,7 +21,7 @@ const EditPost = () => {
   const [imageTitle, setImageTitle] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
 
-  const isRouterReady = router.isReady;
+  const isInitialLoad = useRef(true); // Thêm useRef để theo dõi lần tải đầu tiên
 
   useEffect(() => {
     if (!loading && !user) {
@@ -30,10 +30,11 @@ const EditPost = () => {
   }, [loading, user, setModalOpen]);
 
   useEffect(() => {
-    if (post) {
+    if (post && isInitialLoad.current) { // Chỉ đặt lại trạng thái lần đầu tiên
       setTitle(post.title || '');
       setContent(post.content || '');
       setImageTitle(post.image_title || null);
+      isInitialLoad.current = false; // Đánh dấu đã tải xong
     }
   }, [post]);
 
@@ -45,14 +46,14 @@ const EditPost = () => {
 
     try {
       const res = await updatePost(id, {
-        id: post.id,
+        id:post.id, // Sử dụng id thay vì post.id
         title,
         content,
         image_title: imageTitle,
         categories: categories ? categories.split(',').map(cat => cat.trim()) : [],
         tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
       });
-      alert('Bài viết đã được cập nhật thành công!');
+      //alert('Bài viết đã được cập nhật thành công!');
       router.push(`/p/${res.data.title_name}`);
     } catch (error) {
       console.error('Failed to update post:', error);
@@ -76,7 +77,7 @@ const EditPost = () => {
     }
   }, [router.asPath, router, id]);
 
-  if (!isRouterReady || isLoading) return <div>Loading...</div>;
+  if (!router.isReady || isLoading) return <div>Loading...</div>;
   if (isError) return <div>Failed to load post.</div>;
   if (!user) return null;
 
