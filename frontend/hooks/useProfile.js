@@ -47,8 +47,9 @@ const useProfile = () => {
   const updateProfile = async (profileData) => {
     try {
       const updatedProfile = await updateUserProfileService(user.id, profileData);
-      setProfile(updatedProfile);
-      setUser(updatedProfile); // Cập nhật user trong context nếu cần
+      setProfile(updatedProfile.data);
+      setUser(updatedProfile.data); // Cập nhật user trong context
+      //alert('Profile updated successfully!');
     } catch (err) {
       console.error('Failed to update profile:', err);
       alert('Failed to update profile.');
@@ -67,4 +68,3 @@ const useProfile = () => {
 };
 
 export default useProfile;
-

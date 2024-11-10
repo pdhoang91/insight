@@ -14,8 +14,9 @@ import { motion } from 'framer-motion';
 const UserProfilePage = () => {
   const router = useRouter();
   const { username } = router.query;
-  const { user: loggedUser, loading: loadingUser, mutate: mutateUser } = useUser();
-  
+  const { user: loggedUser, loading: loadingUser, setUser, setModalOpen } = useUser(); // Sửa lại destructuring
+  // Đã loại bỏ mutateUser vì không có trong UserContext
+
   const [activeTab, setActiveTab] = useState('');
   const [isOwner, setIsOwner] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
@@ -59,9 +60,8 @@ const UserProfilePage = () => {
     try {
       await updateProfile(profileData);
       setShowPopup(false);
-      if (mutateUser) {
-        await mutateUser();
-      }
+      // Không cần gọi mutateUser vì không có trong UserContext
+      // setUser đã được gọi trong updateProfile
     } catch (err) {
       console.error("Failed to update profile:", err);
       alert("Cập nhật hồ sơ thất bại. Vui lòng thử lại.");
@@ -79,7 +79,6 @@ const UserProfilePage = () => {
 
   // Hàm xử lý khi nhấp vào tab
   const handleTabClick = (tab) => {
-    console.log(`Click vào tab: ${tab}`);
     setActiveTab(tab);
   };
 

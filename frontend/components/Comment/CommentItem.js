@@ -20,8 +20,6 @@ const CommentItem = ({ comment, postId, mutate }) => {
   const { clapsCount, loading: clapsLoading, hasClapped, mutate: mutateClaps } = useClapsCount('comment', comment.id);
   const { user } = useUser();
   const repliesCount = comment.replies ? comment.replies.length : 0;
-  console.log("repliesCount", repliesCount)
-  console.log("comment", comment)
 
   const handleClap = async () => {
     if (!user) {

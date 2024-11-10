@@ -43,6 +43,7 @@ const Navbar = () => {
   };
 
   const handleViewProfile = () => {
+
     setDropdownOpen(false);
     router.push(`/${user.username}`);
   };
@@ -198,8 +199,14 @@ const Navbar = () => {
 
         {user ? (
           <div ref={dropdownRef} className="relative">
-            <img
+            {/* <img
               src={user.avatar_url || '/default-avatar.png'}
+              alt="User Avatar"
+              className="w-8 h-8 rounded-full cursor-pointer"
+              onClick={handleAvatarClick}
+            /> */}
+            <img
+              src={`${user.avatar_url || '/default-avatar.png'}?t=${new Date().getTime()}`} // Thêm tham số timestamp để tránh cache
               alt="User Avatar"
               className="w-8 h-8 rounded-full cursor-pointer"
               onClick={handleAvatarClick}
