@@ -37,7 +37,7 @@ const CommentList = ({ comments, postId, mutate }) => {
   }
 
   if (comments.length === 0) {
-    return <p className="text-gray-600">Chưa có bình luận nào. Hãy là người đầu tiên!</p>;
+    return <p className="text-gray-600"></p>;
   }
 
   return (
