@@ -45,7 +45,7 @@ const Write = () => {
         categories: categories ? categories.split(',').map(cat => cat.trim()) : [],
         tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
       });
-      alert('Bài viết đã được tạo thành công!');
+      //alert('Bài viết đã được tạo thành công!');
       router.push(`/p/${res.data.title_name}`);
     } catch (error) {
       console.error('Failed to create post:', error);
