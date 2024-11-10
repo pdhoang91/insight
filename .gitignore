@@ -54,5 +54,6 @@ nginx/certs/
 .idea/sonarlint
 image-service/uploads/
 image-service/images/uploads/
-image-service/images/.
+image-service/images/
+image-service/images/*
 
