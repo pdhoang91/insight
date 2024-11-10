@@ -13,7 +13,7 @@ const ProfileHeader = ({ avatarUrl, name, phone, dob, onUpdate }) => {
     >
       <div className="relative">
         <img
-          src={avatarUrl || '/default-avatar.png'}
+          src={`${avatarUrl || '/default-avatar.png'}?t=${new Date().getTime()}`} // Thêm timestamp để tránh cache
           alt="Avatar"
           className="w-32 h-32 rounded-full mr-4 object-cover"
         />
