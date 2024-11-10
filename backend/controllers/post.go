@@ -169,7 +169,7 @@ func CreatePost(c *gin.Context) {
 	// Set default image if imageTitle is empty
 	if input.ImageTitle == "" {
 		var beURL = os.Getenv("BASE_BE_URL")
-		input.ImageTitle = beURL + "/images/insight.jpg" // Đường dẫn tới ảnh mặc định của bạn
+		input.ImageTitle = beURL + "/images/uploads/insight.jpg" // Đường dẫn tới ảnh mặc định của bạn
 	}
 
 	// Get user ID from context
@@ -381,7 +381,7 @@ func UpdatePost(c *gin.Context) {
 	// Set default image if imageTitle is empty
 	if input.ImageTitle == "" {
 		var beURL = os.Getenv("BASE_BE_URL")
-		input.ImageTitle = beURL + "/images/insight.jpg" // Đường dẫn tới ảnh mặc định của bạn
+		input.ImageTitle = beURL + "/images/uploads/insight.jpg" // Đường dẫn tới ảnh mặc định của bạn
 	}
 
 	// Lấy bài viết từ DB với preloaded Categories và Tags
