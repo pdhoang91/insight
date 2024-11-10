@@ -82,6 +82,7 @@ func SetupRouter() *gin.Engine {
 	r.GET("/public/:username/profile", controllers.GetPublicUserProfile)
 	r.GET("/public/:username/posts", controllers.GetPublicUserPosts)
 	r.GET("/public/:username/bookmarks", controllers.GetPublicUserBookmarks)
+	r.GET("/public/:username/follow", controllers.GetPublicUserFollow)
 
 	// Images
 	//r.POST("/images/upload", controllers.UploadImage)

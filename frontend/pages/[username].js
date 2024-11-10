@@ -8,6 +8,7 @@ import ProfileHeader from '../components/Profile/ProfileHeader';
 import ProfileUpdateForm from '../components/Profile/ProfileUpdateForm';
 import UserPostsSection from '../components/Profile/UserPostsSection';
 import ReadingListSection from '../components/Profile/ReadingListSection';
+import FolowPeopleSestion from '../components/Profile/FolowPeopleSestion';
 import Sidebar from '../components/Shared/Sidebar';
 import { motion } from 'framer-motion';
 
@@ -44,6 +45,7 @@ const UserProfilePage = () => {
   const {
     profile: publicProfile,
     posts: publicPosts,
+    folows: folows,
     bookmarks: publicBookmarks,
     loading: loadingPublic,
     error: publicError,
@@ -57,6 +59,8 @@ const UserProfilePage = () => {
     error: ownerError,
     updateProfile,
   } = useProfile();
+
+  //const { data, isLoading, isError } = useSearch(query);
 
   const handleUpdateProfile = async (profileData) => {
     try {
@@ -76,6 +80,7 @@ const UserProfilePage = () => {
 
   const profile = isOwner ? ownerProfile : publicProfile;
   const posts = isOwner ? ownerPosts : publicPosts;
+  //const folows = isOwner ? folows : folows;
   const bookmarks = isOwner ? ownerReadingList : publicBookmarks;
   const loading = isOwner ? loadingOwner : loadingPublic;
   const error = isOwner ? ownerError : publicError;
@@ -129,6 +134,18 @@ const UserProfilePage = () => {
               Your Reading
             </button>
           )}
+
+          {/* Tab Thứ 3: Luôn Hiển Thị */}
+          <button
+            onClick={() => handleTabClick(isOwner ? 'Your Folow' : 'Folow')}
+            className={`p-2 transition-colors ${
+              activeTab === (isOwner ? 'Your Folow' : 'Folow')
+                ? 'text-blue-500 border-blue-500'
+                : 'text-gray-600 hover:text-blue-400'
+            }`}
+          >
+            {isOwner ? 'Your Folow' : "Folow"}
+          </button>
         </div>
 
         <motion.div
@@ -147,6 +164,12 @@ const UserProfilePage = () => {
           )}
           {activeTab === 'YourReading' && isOwner && (
             <ReadingListSection bookmarks={bookmarks} />
+          )}
+          {activeTab === 'Your Folow' && (
+            <FolowPeopleSestion peoples={folows}/>
+          )}
+          {activeTab === 'Folow' && (
+            <FolowPeopleSestion peoples={folows}/>
           )}
         </motion.div>
 
