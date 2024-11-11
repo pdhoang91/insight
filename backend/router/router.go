@@ -66,12 +66,12 @@ func SetupRouter() *gin.Engine {
 	// Utils
 	r.GET("/claps", controllers.GetClapsCount)
 	r.GET("/topics/recommended", controllers.GetRecommendedTopics)
-	r.GET("/search/v2/posts", controllers.SearchPostsHandler)
+	//r.GET("/search/v2/posts", controllers.SearchPostsHandler)
 	r.GET("/search/posts", controllers.SearchPostsHandler)
 	//r.GET("/search/posts", controllers.SearchPostsBasic)
 	r.GET("/search/people", controllers.SearchUsers)
-	r.GET("/search/categories", controllers.SearchPostsBasic)
-	r.GET("/search/tags", controllers.SearchPostsBasic)
+	//r.GET("/search/categories", controllers.SearchPostsBasic)
+	//r.GET("/search/tags", controllers.SearchPostsBasic)
 	//r.GET("/autocomplete/posts", controllers.AutocompleteHandler)
 
 	r.GET("/tabs", controllers.GetTabs)

@@ -10,13 +10,10 @@ import (
 	"github.com/pdhoang91/blog/config"
 	controllers "github.com/pdhoang91/blog/controller"
 	"github.com/pdhoang91/blog/database"
-	"github.com/pdhoang91/blog/external/search_api"
 	"github.com/pdhoang91/blog/router"
 )
 
 func main() {
-
-	// Khởi tạo cấu hình
 	err := config.Init()
 	if err != nil {
 		log.Fatal(err)
@@ -28,9 +25,7 @@ func main() {
 	// Khởi tạo controller
 	c := controllers.NewController()
 	log.Println("Initialized controller:", c)
-	search_api.New()
-
-	//search.BulkIndex(db)
+	//search_api.New()
 
 	// Thiết lập router và chạy server
 	r := router.SetupRouter()
