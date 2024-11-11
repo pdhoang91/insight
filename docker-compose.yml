@@ -16,6 +16,11 @@ services:
       - image-service
     networks:
       - app-network
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: docker.nginx_proxy
 
   app:
     container_name: application
@@ -44,9 +49,13 @@ services:
       - BASE_API_URL=${BASE_API_URL}
       - BASE_FE_URL=${BASE_FE_URL}
       - BASE_BE_URL=${BASE_BE_URL}
-
     networks:
       - app-network
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: docker.application
 
   image-service:
     container_name: image_service
@@ -63,6 +72,11 @@ services:
       - BASE_BE_URL=${BASE_BE_URL}
     networks:
       - app-network
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: docker.image_service
 
   search-service:
     container_name: search_service
@@ -85,6 +99,11 @@ services:
       - BASE_BE_URL=${BASE_BE_URL}
     networks:
       - app-network
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: fluentd:24224
+        tag: docker.search_service
 
   db:
     image: postgres:13
@@ -100,6 +119,11 @@ services:
       - db-data:/var/lib/postgresql/data
     networks:
       - app-network
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: fluentd:24224
+        tag: docker.database
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
@@ -113,6 +137,11 @@ services:
       - es-data:/usr/share/elasticsearch/data
     networks:
       - app-network
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: fluentd:24224
+        tag: docker.elasticsearch
 
   kibana:
     image: docker.elastic.co/kibana/kibana:7.17.10
@@ -123,6 +152,23 @@ services:
       - "5601:5601"
     depends_on:
       - elasticsearch
+    networks:
+      - app-network
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: fluentd:24224
+        tag: docker.kibana
+  # Thêm Fluentd
+  fluentd:
+    image: fluent/fluentd:latest
+    container_name: fluentd
+    ports:
+      - "24224:24224"       # Port mặc định cho Fluentd
+      - "24224:24224/udp"   # Port UDP cho Fluentd
+    volumes:
+      - ./fluentd/conf:/fluentd/etc    # Thư mục cấu hình Fluentd
+      - ./logs:/fluentd/log            # Thư mục lưu trữ log
     networks:
       - app-network
 
@@ -140,6 +186,11 @@ services:
       - image-service
     networks:
       - app-network
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: fluentd:24224
+        tag: docker.frontend
 
   # Thêm Prometheus
   prometheus:
@@ -156,6 +207,11 @@ services:
       - '--web.external-url=https://insight.io.vn/prometheus/'
     networks:
       - app-network
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: fluentd:24224
+        tag: docker.prometheus
 
   # Thêm Grafana
   grafana:
@@ -173,6 +229,11 @@ services:
       - prometheus
     networks:
       - app-network
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: fluentd:24224
+        tag: docker.grafana
 
   # Sửa đổi Exporter cho PostgreSQL
   postgres-exporter:
@@ -188,6 +249,11 @@ services:
       - db
     networks:
       - app-network
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: fluentd:24224
+        tag: docker.postgres_exporter
 
   # Thêm Elasticsearch Exporter
   elasticsearch-exporter:
@@ -203,6 +269,11 @@ services:
       - elasticsearch
     networks:
       - app-network
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: fluentd:24224
+        tag: docker.elasticsearch_exporter
 
   # Thêm Node Exporter để giám sát tài nguyên hệ thống (Tùy chọn nhưng hữu ích)
   node-exporter:
@@ -212,6 +283,11 @@ services:
       - "9100:9100"  # Bạn có thể loại bỏ dòng này nếu không muốn expose trực tiếp
     networks:
       - app-network
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: fluentd:24224
+        tag: docker.node_exporter
 
   # Thêm Nginx Prometheus Exporter
   nginx-exporter:
@@ -227,6 +303,11 @@ services:
       - nginx
     networks:
       - app-network
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: fluentd:24224
+        tag: docker.nginx_exporter
 
 networks:
   app-network:
