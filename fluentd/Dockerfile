@@ -7,14 +7,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Cài đặt Fluentd
-RUN gem install fluentd -v "~>1.14" --no-document
+# Tạo người dùng fluentd
+RUN adduser --system --group fluentd
 
-# Cài đặt plugin Elasticsearch cho Fluentd
-RUN fluent-gem install fluent-plugin-elasticsearch
+# Cài đặt Fluentd
+RUN gem install fluentd -v "~>1.17.1" --no-document
+
+# Cài đặt plugin Elasticsearch và Oj cho Fluentd
+RUN fluent-gem install fluent-plugin-elasticsearch oj
 
 # Tạo các thư mục cần thiết
 RUN mkdir -p /fluentd/etc /fluentd/log /fluentd/buffer
+
+# Đặt quyền sở hữu cho Fluentd
+RUN chown -R fluentd:fluentd /fluentd/log /fluentd/buffer
 
 # Copy cấu hình Fluentd
 COPY conf /fluentd/etc
