@@ -19,7 +19,7 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: fluentd:24224
+        fluentd-address: localhost:24224
         tag: docker.nginx_proxy
 
   app:
@@ -54,7 +54,7 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: fluentd:24224
+        fluentd-address: localhost:24224
         tag: docker.application
 
   image-service:
@@ -75,7 +75,7 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: fluentd:24224
+        fluentd-address: localhost:24224
         tag: docker.image_service
 
   search-service:
@@ -102,7 +102,7 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: fluentd:24224
+        fluentd-address: localhost:24224
         tag: docker.search_service
 
   db:
@@ -122,7 +122,7 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: fluentd:24224
+        fluentd-address: localhost:24224
         tag: docker.database
 
   elasticsearch:
@@ -140,7 +140,7 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: fluentd:24224
+        fluentd-address: localhost:24224
         tag: docker.elasticsearch
 
   kibana:
@@ -157,7 +157,7 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: fluentd:24224
+        fluentd-address: localhost:24224
         tag: docker.kibana
   # Thêm Fluentd
   fluentd:
@@ -189,7 +189,7 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: fluentd:24224
+        fluentd-address: localhost:24224
         tag: docker.frontend
 
   # Thêm Prometheus
@@ -210,7 +210,7 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: fluentd:24224
+        fluentd-address: localhost:24224
         tag: docker.prometheus
 
   # Thêm Grafana
@@ -232,7 +232,7 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: fluentd:24224
+        fluentd-address: localhost:24224
         tag: docker.grafana
 
   # Sửa đổi Exporter cho PostgreSQL
@@ -252,7 +252,7 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: fluentd:24224
+        fluentd-address: localhost:24224
         tag: docker.postgres_exporter
 
   # Thêm Elasticsearch Exporter
@@ -272,7 +272,7 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: fluentd:24224
+        fluentd-address: localhost:24224
         tag: docker.elasticsearch_exporter
 
   # Thêm Node Exporter để giám sát tài nguyên hệ thống (Tùy chọn nhưng hữu ích)
@@ -286,7 +286,7 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: fluentd:24224
+        fluentd-address: localhost:24224
         tag: docker.node_exporter
 
   # Thêm Nginx Prometheus Exporter
@@ -306,7 +306,7 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: fluentd:24224
+        fluentd-address: localhost:24224
         tag: docker.nginx_exporter
 
 networks:
