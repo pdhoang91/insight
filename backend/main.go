@@ -8,7 +8,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/pdhoang91/blog/config"
-	controllers "github.com/pdhoang91/blog/controller"
 	"github.com/pdhoang91/blog/database"
 	"github.com/pdhoang91/blog/router"
 )
@@ -23,8 +22,8 @@ func main() {
 	database.InitializeDatabase()
 	log.Println("Connected to database and set up Elasticsearch hooks")
 	// Khởi tạo controller
-	c := controllers.NewController()
-	log.Println("Initialized controller:", c)
+	//c := controllers.NewController()
+	//log.Println("Initialized controller:", c)
 	//search_api.New()
 
 	// Thiết lập router và chạy server

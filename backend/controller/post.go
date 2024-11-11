@@ -2,7 +2,6 @@ package controller
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -16,7 +15,6 @@ import (
 
 	"github.com/pdhoang91/blog/database"
 	"github.com/pdhoang91/blog/models"
-	"github.com/pdhoang91/blog/search"
 	"github.com/pdhoang91/blog/utils"
 
 	"github.com/gin-gonic/gin"
@@ -299,21 +297,21 @@ func CreatePost(c *gin.Context) {
 	}
 
 	// Chuyển đổi Post và PostContent sang SearchPost
-	searchPost := models.SearchPost{
-		ID:             post.ID,
-		Title:          post.Title,
-		TitleName:      post.TitleName,
-		PreviewContent: post.PreviewContent,
-		Content:        postContent.Content,
-		Tags:           extractTagNames(post.Tags),
-		Categories:     extractCategoryNames(post.Categories),
-		UserID:         post.UserID,
-		CreatedAt:      post.CreatedAt,
-		ClapCount:      post.ClapCount,
-		Views:          post.Views,
-		CommentsCount:  post.CommentsCount,
-		AverageRating:  post.AverageRating,
-	}
+	// searchPost := models.SearchPost{
+	// 	ID:             post.ID,
+	// 	Title:          post.Title,
+	// 	TitleName:      post.TitleName,
+	// 	PreviewContent: post.PreviewContent,
+	// 	Content:        postContent.Content,
+	// 	Tags:           extractTagNames(post.Tags),
+	// 	Categories:     extractCategoryNames(post.Categories),
+	// 	UserID:         post.UserID,
+	// 	CreatedAt:      post.CreatedAt,
+	// 	ClapCount:      post.ClapCount,
+	// 	Views:          post.Views,
+	// 	CommentsCount:  post.CommentsCount,
+	// 	AverageRating:  post.AverageRating,
+	// }
 
 	// Commit transaction
 	if err := tx.Commit().Error; err != nil {
@@ -323,11 +321,11 @@ func CreatePost(c *gin.Context) {
 	}
 
 	// Indexing với Elasticsearch (bất đồng bộ để không làm chậm phản hồi)
-	go func(sp models.SearchPost) {
-		if err := search.IndexPost(sp); err != nil {
-			log.Printf("Failed to index post ID %s: %v", sp.ID, err)
-		}
-	}(searchPost)
+	// go func(sp models.SearchPost) {
+	// 	if err := search.IndexPost(sp); err != nil {
+	// 		log.Printf("Failed to index post ID %s: %v", sp.ID, err)
+	// 	}
+	// }(searchPost)
 	//if err := search.IndexPost(searchPost); err != nil {
 	//	log.Printf("Failed to index post ID %s: %v", searchPost.ID, err)
 	//}
@@ -518,21 +516,21 @@ func UpdatePost(c *gin.Context) {
 	}
 
 	// Chuyển đổi Post và PostContent sang SearchPost
-	searchPost := models.SearchPost{
-		ID:             post.ID,
-		Title:          post.Title,
-		TitleName:      post.TitleName,
-		PreviewContent: post.PreviewContent,
-		Content:        postContent.Content,
-		Tags:           extractTagNames(post.Tags),
-		Categories:     extractCategoryNames(post.Categories),
-		UserID:         post.UserID,
-		CreatedAt:      post.CreatedAt,
-		ClapCount:      post.ClapCount,
-		Views:          post.Views,
-		CommentsCount:  post.CommentsCount,
-		AverageRating:  post.AverageRating,
-	}
+	// searchPost := models.SearchPost{
+	// 	ID:             post.ID,
+	// 	Title:          post.Title,
+	// 	TitleName:      post.TitleName,
+	// 	PreviewContent: post.PreviewContent,
+	// 	Content:        postContent.Content,
+	// 	Tags:           extractTagNames(post.Tags),
+	// 	Categories:     extractCategoryNames(post.Categories),
+	// 	UserID:         post.UserID,
+	// 	CreatedAt:      post.CreatedAt,
+	// 	ClapCount:      post.ClapCount,
+	// 	Views:          post.Views,
+	// 	CommentsCount:  post.CommentsCount,
+	// 	AverageRating:  post.AverageRating,
+	// }
 
 	// (Tùy Chọn) Cập Nhật Elasticsearch
 	// if err := search.IndexPost(post); err != nil {
@@ -541,11 +539,11 @@ func UpdatePost(c *gin.Context) {
 	// }
 
 	// Indexing với Elasticsearch (bất đồng bộ để không làm chậm phản hồi)
-	go func(sp models.SearchPost) {
-		if err := search.IndexPost(sp); err != nil {
-			log.Printf("Failed to index post ID %s: %v", sp.ID, err)
-		}
-	}(searchPost)
+	// go func(sp models.SearchPost) {
+	// 	if err := search.IndexPost(sp); err != nil {
+	// 		log.Printf("Failed to index post ID %s: %v", sp.ID, err)
+	// 	}
+	// }(searchPost)
 
 	// Trả về bài viết đã được cập nhật
 	c.JSON(http.StatusOK, gin.H{"data": post})
@@ -673,11 +671,11 @@ func DeletePost(c *gin.Context) {
 		return
 	}
 
-	go func(postID uuid.UUID) {
-		if err := search.DeletePostFromIndex(postID); err != nil {
-			log.Printf("Failed to DeletePostFromIndex postID %s: %v", postID, err)
-		}
-	}(postID)
+	// go func(postID uuid.UUID) {
+	// 	if err := search.DeletePostFromIndex(postID); err != nil {
+	// 		log.Printf("Failed to DeletePostFromIndex postID %s: %v", postID, err)
+	// 	}
+	// }(postID)
 
 	// Trả về phản hồi thành công
 	c.JSON(http.StatusOK, gin.H{"message": "Post and related data deleted successfully"})
