@@ -118,14 +118,14 @@ const Suggestion = () => {
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
-    <div className="flex flex-col md:flex-row">
+    <div className="flex flex-col lg:flex-row min-h-screen">
       {/* Sidebar Left */}
-      <aside className="lg:w-1/12 p-4 sticky top-4 h-fit">
+      <aside className="w-full lg:w-1/12 p-4 sticky top-4 h-fit hidden lg:block">
         <Sidebar />
       </aside>
 
       {/* Main Content */}
-      <main className="lg:w-8/12 p-4">
+      <main className="w-full lg:w-8/12 p-4">
         {/* Tab Switcher */}
         <div className="flex space-x-4 mb-6 pb-2">
           <button
@@ -209,7 +209,7 @@ const Suggestion = () => {
       </main>
 
       {/* Sidebar Right */}
-      <aside className="lg:w-3/12 p-4 sticky top-4 h-fit">
+      <aside className="w-full lg:w-3/12 p-4 border-l sticky top-4 h-fit hidden xl:block">
         <SidebarRight />
       </aside>
     </div>
