@@ -1,38 +1,38 @@
-global:
-  scrape_interval: 15s  # Tần suất thu thập dữ liệu
+# global:
+#   scrape_interval: 15s  # Tần suất thu thập dữ liệu
 
-scrape_configs:
-  - job_name: 'prometheus'
-    static_configs:
-      - targets: ['prometheus:9090']
+# scrape_configs:
+#   - job_name: 'prometheus'
+#     static_configs:
+#       - targets: ['prometheus:9090']
 
-  - job_name: 'postgres_exporter'
-    static_configs:
-      - targets: ['postgres_exporter:9187']
+#   - job_name: 'postgres_exporter'
+#     static_configs:
+#       - targets: ['postgres_exporter:9187']
 
-  - job_name: 'elasticsearch_exporter'
-    static_configs:
-      - targets: ['elasticsearch_exporter:9114']
+#   - job_name: 'elasticsearch_exporter'
+#     static_configs:
+#       - targets: ['elasticsearch_exporter:9114']
 
-  - job_name: 'nginx_exporter'
-    static_configs:
-      - targets: ['nginx_exporter:9113']
+#   - job_name: 'nginx_exporter'
+#     static_configs:
+#       - targets: ['nginx_exporter:9113']
 
-  - job_name: 'app'
-    metrics_path: '/metrics'
-    static_configs:
-      - targets: ['app:81']
+#   - job_name: 'app'
+#     metrics_path: '/metrics'
+#     static_configs:
+#       - targets: ['app:81']
 
-  - job_name: 'frontend'
-    metrics_path: '/metrics'
-    static_configs:
-      - targets: ['frontend:3000']
+#   - job_name: 'frontend'
+#     metrics_path: '/metrics'
+#     static_configs:
+#       - targets: ['frontend:3000']
 
-  - job_name: 'image_service'
-    metrics_path: '/metrics'
-    static_configs:
-      - targets: ['image-service:82']
+#   - job_name: 'image_service'
+#     metrics_path: '/metrics'
+#     static_configs:
+#       - targets: ['image-service:82']
 
-  - job_name: 'node_exporter'
-    static_configs:
-      - targets: ['node-exporter:9100']
+#   - job_name: 'node_exporter'
+#     static_configs:
+#       - targets: ['node-exporter:9100']
