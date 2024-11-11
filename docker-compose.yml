@@ -1,4 +1,3 @@
-# version: '3.7'
 
 services:
   nginx:
@@ -17,11 +16,6 @@ services:
       - fluentd
     networks:
       - app-network
-    logging:
-      driver: "fluentd"
-      options:
-        fluentd-address: localhost:24224
-        tag: docker.nginx_proxy
 
   app:
     container_name: application
@@ -124,11 +118,6 @@ services:
       - db-data:/var/lib/postgresql/data
     networks:
       - app-network
-    logging:
-      driver: "fluentd"
-      options:
-        fluentd-address: localhost:24224
-        tag: docker.database
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
@@ -144,12 +133,25 @@ services:
       - es-data:/usr/share/elasticsearch/data
     networks:
       - app-network
-    logging:
-      driver: "fluentd"
-      options:
-        fluentd-address: localhost:24224
-        tag: docker.elasticsearch
 
+  # kibana:
+  #   image: docker.elastic.co/kibana/kibana:7.17.10
+  #   container_name: kibana
+  #   environment:
+  #     - ELASTICSEARCH_HOST=http://elasticsearch:9200
+  #   ports:
+  #     - "5601:5601"
+  #   depends_on:
+  #     - elasticsearch
+  #     - fluentd
+  #   networks:
+  #     - app-network
+  #   logging:
+  #     driver: "fluentd"
+  #     options:
+  #       fluentd-address: localhost:24224
+  #       tag: docker.kibana
+  # Thêm Fluentd
   fluentd:
     image: fluent/fluentd:v1.14-debian-1
     container_name: fluentd
@@ -158,11 +160,11 @@ services:
       - "24224:24224/udp"   # Port UDP cho Fluentd
     volumes:
       - ./fluentd/conf:/fluentd/etc    # Thư mục cấu hình Fluentd
-      - ./fluentd/logs:/fluentd/log            # Thư mục lưu trữ log
+      - ./logs:/fluentd/log            # Thư mục lưu trữ log
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "localhost:24224"]
+      test: ["CMD", "curl", "-f", "http://localhost:24224"]
       interval: 30s
       timeout: 10s
       retries: 5
@@ -179,17 +181,3 @@ services:
       - fluentd
     networks:
       - app-network
-    logging:
-      driver: "fluentd"
-      options:
-        fluentd-address: localhost:24224
-        tag: docker.frontend
-
-networks:
-  app-network:
-    driver: bridge
-
-volumes:
-  db-data:
-  es-data:
-  grafana-data:
