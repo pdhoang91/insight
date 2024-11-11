@@ -9,7 +9,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
-	"github.com/pdhoang91/blog/controllers"
+	controllers "github.com/pdhoang91/blog/controller"
 	"github.com/pdhoang91/blog/middleware"
 )
 

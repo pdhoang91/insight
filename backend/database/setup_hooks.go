@@ -2,12 +2,7 @@
 package database
 
 import (
-	"log"
-
 	"gorm.io/gorm"
-
-	"github.com/pdhoang91/blog/models"
-	"github.com/pdhoang91/blog/search"
 )
 
 // SetupElasticsearchHooks thiết lập các callback để index dữ liệu vào Elasticsearch.
@@ -67,51 +62,51 @@ func SetupElasticsearchHooks(database *gorm.DB) {
 }
 
 // Hàm hỗ trợ để index một Post
-func indexPost(post *models.Post) {
-	// Chuyển đổi Post sang SearchPost
-	searchPost := models.SearchPost{
-		ID:             post.ID,
-		Title:          post.Title,
-		TitleName:      post.TitleName,
-		PreviewContent: post.PreviewContent,
-		Content:        post.Content, // Nếu muốn bao gồm Content từ PostContent, đảm bảo đã được load
-		Tags:           extractTagNames(post.Tags),
-		Categories:     extractCategoryNames(post.Categories),
-		UserID:         post.UserID,
-		CreatedAt:      post.CreatedAt,
-		ClapCount:      post.ClapCount,
-		Views:          post.Views,
-		CommentsCount:  post.CommentsCount,
-		AverageRating:  post.AverageRating,
-	}
+//func indexPost(post *models.Post) {
+//	// Chuyển đổi Post sang SearchPost
+//	searchPost := models.SearchPost{
+//		ID:             post.ID,
+//		Title:          post.Title,
+//		TitleName:      post.TitleName,
+//		PreviewContent: post.PreviewContent,
+//		Content:        post.Content, // Nếu muốn bao gồm Content từ PostContent, đảm bảo đã được load
+//		Tags:           extractTagNames(post.Tags),
+//		Categories:     extractCategoryNames(post.Categories),
+//		UserID:         post.UserID,
+//		CreatedAt:      post.CreatedAt,
+//		ClapCount:      post.ClapCount,
+//		Views:          post.Views,
+//		CommentsCount:  post.CommentsCount,
+//		AverageRating:  post.AverageRating,
+//	}
+//
+//	// Nếu bạn muốn bao gồm Content từ PostContent, hãy chắc chắn rằng Post đã preload PostContent
+//	if post.PostContent.Content != "" {
+//		searchPost.Content = post.PostContent.Content
+//	}
+//
+//	// Index vào Elasticsearch
+//	if err := search.IndexPost(searchPost); err != nil {
+//		log.Printf("Failed to index post after create/update: %v", err)
+//	} else {
+//		log.Printf("Successfully indexed post ID %s after create/update", post.ID)
+//	}
+//}
 
-	// Nếu bạn muốn bao gồm Content từ PostContent, hãy chắc chắn rằng Post đã preload PostContent
-	if post.PostContent.Content != "" {
-		searchPost.Content = post.PostContent.Content
-	}
-
-	// Index vào Elasticsearch
-	if err := search.IndexPost(searchPost); err != nil {
-		log.Printf("Failed to index post after create/update: %v", err)
-	} else {
-		log.Printf("Successfully indexed post ID %s after create/update", post.ID)
-	}
-}
-
-// Hàm hỗ trợ để lấy tên tags
-func extractTagNames(tags []models.Tag) []string {
-	names := make([]string, len(tags))
-	for i, tag := range tags {
-		names[i] = tag.Name
-	}
-	return names
-}
-
-// Hàm hỗ trợ để lấy tên categories
-func extractCategoryNames(categories []models.Category) []string {
-	names := make([]string, len(categories))
-	for i, cat := range categories {
-		names[i] = cat.Name
-	}
-	return names
-}
+//// Hàm hỗ trợ để lấy tên tags
+//func extractTagNames(tags []models.Tag) []string {
+//	names := make([]string, len(tags))
+//	for i, tag := range tags {
+//		names[i] = tag.Name
+//	}
+//	return names
+//}
+//
+//// Hàm hỗ trợ để lấy tên categories
+//func extractCategoryNames(categories []models.Category) []string {
+//	names := make([]string, len(categories))
+//	for i, cat := range categories {
+//		names[i] = cat.Name
+//	}
+//	return names
+//}

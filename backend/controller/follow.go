@@ -1,5 +1,5 @@
 // controllers/follơ.go
-package controllers
+package controller
 
 import (
 	"fmt"

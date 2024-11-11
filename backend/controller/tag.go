@@ -1,5 +1,5 @@
 // controllers/tag.go
-package controllers
+package controller
 
 import (
 	"net/http"

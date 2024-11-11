@@ -63,6 +63,28 @@ services:
     networks:
       - app-network
 
+  search-service:
+    container_name: search_service
+    build:
+      context: ./search-service
+    expose:
+      - "82"
+    # volumes:
+    #   - ./search-service/images:/app/images/uploads  # Mount thư mục uploads của image-service
+    depends_on:
+      - db
+      # - elasticsearch
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=postgres
+      - ELASTICSEARCH_HOST=http://elasticsearch:9200
+      - BASE_BE_URL=${BASE_BE_URL}
+    networks:
+      - app-network
+
   db:
     image: postgres:13
     container_name: database
