@@ -1,5 +1,5 @@
 // controllers/bookmark.go
-package controllers
+package controller
 
 import (
 	"net/http"

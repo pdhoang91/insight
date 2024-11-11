@@ -1,5 +1,5 @@
 // controllers/bulk_index.go
-package controllers
+package controller
 
 //// BulkIndexHandler thực hiện bulk indexing tất cả các bài viết hiện có vào Elasticsearch.
 //func BulkIndexHandler(c *gin.Context) {

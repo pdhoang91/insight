@@ -7,8 +7,6 @@ import (
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-
-	"github.com/pdhoang91/blog/models"
 )
 
 var DB *gorm.DB
@@ -35,38 +33,38 @@ func ConnectDatabase() *gorm.DB {
 }
 
 // AutoMigrate migrates the database schema for the defined models.
-func AutoMigrate(database *gorm.DB) {
+// func AutoMigrate(database *gorm.DB) {
 
-	// Tạo extension uuid-ossp nếu nó chưa tồn tại
-	if err := database.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`).Error; err != nil {
-		log.Fatal("Failed to create uuid-ossp extension!", err)
-	}
+// 	// Tạo extension uuid-ossp nếu nó chưa tồn tại
+// 	if err := database.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`).Error; err != nil {
+// 		log.Fatal("Failed to create uuid-ossp extension!", err)
+// 	}
 
-	err := database.AutoMigrate(
-		&models.Post{},
-		&models.PostContent{},
-		&models.Comment{},
-		&models.Category{},
-		&models.Rating{},
-		&models.User{},
-		&models.PostCategory{},
-		&models.Follow{},
-		&models.Bookmark{},
-		&models.UserActivity{},
-		&models.Reply{},
-		&models.PostTag{},
-		&models.Tag{},
-		&models.Tab{},
-	)
-	if err != nil {
-		log.Fatal("Failed to migrate tables in database!", err)
-	}
-}
+// 	err := database.AutoMigrate(
+// 		&models.Post{},
+// 		&models.PostContent{},
+// 		&models.Comment{},
+// 		&models.Category{},
+// 		&models.Rating{},
+// 		&models.User{},
+// 		&models.PostCategory{},
+// 		&models.Follow{},
+// 		&models.Bookmark{},
+// 		&models.UserActivity{},
+// 		&models.Reply{},
+// 		&models.PostTag{},
+// 		&models.Tag{},
+// 		&models.Tab{},
+// 	)
+// 	if err != nil {
+// 		log.Fatal("Failed to migrate tables in database!", err)
+// 	}
+// }
 
 // InitializeDatabase initializes the database connection, migration, and hooks.
 func InitializeDatabase() *gorm.DB {
 	db := ConnectDatabase()
-	AutoMigrate(db)
+	//AutoMigrate(db)
 	//SetupElasticsearchHooks(db)
 	return db
 }

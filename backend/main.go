@@ -8,8 +8,9 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/pdhoang91/blog/config"
-	"github.com/pdhoang91/blog/controllers"
+	controllers "github.com/pdhoang91/blog/controller"
 	"github.com/pdhoang91/blog/database"
+	"github.com/pdhoang91/blog/external/search_api"
 	"github.com/pdhoang91/blog/router"
 )
 
@@ -27,6 +28,7 @@ func main() {
 	// Khởi tạo controller
 	c := controllers.NewController()
 	log.Println("Initialized controller:", c)
+	search_api.New()
 
 	//search.BulkIndex(db)
 

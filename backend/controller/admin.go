@@ -1,12 +1,13 @@
 // controllers/admin.go
 
-package controllers
+package controller
 
 import (
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+
 	"github.com/pdhoang91/blog/database"
 	"github.com/pdhoang91/blog/models"
 )
