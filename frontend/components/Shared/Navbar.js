@@ -97,7 +97,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="flex justify-between items-center p-4 sticky top-0 z-50">
+    <nav className="flex justify-between items-center p-4 sticky top-0 z-10">
       {/* Left Section: Logo and Search */}
       <div className="flex items-center space-x-6">
         <Link href="/" passHref className="text-2xl font-bold text-gray-800">
@@ -212,7 +212,7 @@ const Navbar = () => {
               onClick={handleAvatarClick}
             />
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg z-50">
+              <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg z-10">
                 <button
                   onClick={handleViewProfile}
                   className="block w-full text-left px-2 py-2 text-gray-800 hover:bg-gray-200"
