@@ -161,7 +161,7 @@ services:
         tag: docker.kibana
   # Thêm Fluentd
   fluentd:
-    image: fluent/fluentd:latest
+    image: fluent/fluentd:v1.14-debian-1
     container_name: fluentd
     ports:
       - "24224:24224"       # Port mặc định cho Fluentd
