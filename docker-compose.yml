@@ -122,8 +122,6 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
     container_name: elasticsearch
-    depends_on:
-      - fluentd
     environment:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
@@ -154,6 +152,8 @@ services:
       context: ./fluentd
       dockerfile: Dockerfile
     container_name: fluentd
+    depends_on:
+      - elasticsearch
     ports:
       - "24224:24224"       # Port mặc định cho Fluentd
       - "24224:24224/udp"   # Port UDP cho Fluentd
