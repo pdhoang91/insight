@@ -14,6 +14,7 @@ services:
       - frontend
       - app
       - image-service
+      - fluentd
     networks:
       - app-network
     logging:
@@ -34,6 +35,7 @@ services:
       - db
       - elasticsearch
       - image-service
+      - fluentd
     environment:
       - DB_HOST=db
       - DB_PORT=5432
@@ -67,7 +69,7 @@ services:
       - ./image-service/images:/app/images/uploads  # Mount thư mục uploads của image-service
     depends_on:
       - db
-      - elasticsearch
+      - fluentd
     environment:
       - BASE_BE_URL=${BASE_BE_URL}
     networks:
@@ -88,6 +90,7 @@ services:
     #   - ./search-service/images:/app/images/uploads  # Mount thư mục uploads của image-service
     depends_on:
       - db
+      - fluentd
       # - elasticsearch
     environment:
       - DB_HOST=db
@@ -109,6 +112,8 @@ services:
     image: postgres:13
     container_name: database
     restart: always
+    depends_on:
+      - fluentd
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -128,6 +133,8 @@ services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
     container_name: elasticsearch
+    depends_on:
+      - fluentd
     environment:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
@@ -152,6 +159,7 @@ services:
       - "5601:5601"
     depends_on:
       - elasticsearch
+      - fluentd
     networks:
       - app-network
     logging:
@@ -171,6 +179,11 @@ services:
       - ./logs:/fluentd/log            # Thư mục lưu trữ log
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:24224"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   frontend:
     container_name: frontend
@@ -181,9 +194,7 @@ services:
     ports:
       - "3000:3000"  # Bạn có thể giữ hoặc loại bỏ dòng này nếu muốn frontend chỉ truy cập thông qua Nginx
     depends_on:
-      - db
-      - elasticsearch
-      - image-service
+      - fluentd
     networks:
       - app-network
     logging:
@@ -195,6 +206,8 @@ services:
   # Thêm Prometheus
   prometheus:
     image: prom/prometheus:latest
+    depends_on:
+      - fluentd
     container_name: prometheus
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
@@ -227,6 +240,7 @@ services:
       - GF_SERVER_ROOT_URL=https://insight.io.vn/grafana/
     depends_on:
       - prometheus
+      - fluentd
     networks:
       - app-network
     logging:
@@ -247,6 +261,7 @@ services:
       - "9187:9187"  # Bạn có thể loại bỏ dòng này nếu không muốn expose trực tiếp
     depends_on:
       - db
+      - fluentd
     networks:
       - app-network
     logging:
@@ -267,6 +282,7 @@ services:
       - "9114:9114"  # Bạn có thể loại bỏ dòng này nếu không muốn expose trực tiếp
     depends_on:
       - elasticsearch
+      - fluentd
     networks:
       - app-network
     logging:
@@ -279,6 +295,8 @@ services:
   node-exporter:
     image: prom/node-exporter:latest
     container_name: node_exporter
+    depends_on:
+      - fluentd
     ports:
       - "9100:9100"  # Bạn có thể loại bỏ dòng này nếu không muốn expose trực tiếp
     networks:
@@ -301,6 +319,7 @@ services:
       - "9113:9113"  # Bạn có thể loại bỏ dòng này nếu không muốn expose trực tiếp
     depends_on:
       - nginx
+      - fluentd
     networks:
       - app-network
     logging:
