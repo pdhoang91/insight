@@ -157,6 +157,7 @@ services:
     volumes:
       - ./fluentd/conf:/fluentd/etc    # Thư mục cấu hình Fluentd
       - ./fluentd/logs:/fluentd/log    # Thư mục lưu trữ log
+      - ./fluentd/buffer:/fluentd/buffer # Thư mục buffer
     networks:
       - app-network
     healthcheck:
