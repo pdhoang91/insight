@@ -134,23 +134,19 @@ services:
     networks:
       - app-network
 
-  # kibana:
-  #   image: docker.elastic.co/kibana/kibana:7.17.10
-  #   container_name: kibana
-  #   environment:
-  #     - ELASTICSEARCH_HOST=http://elasticsearch:9200
-  #   ports:
-  #     - "5601:5601"
-  #   depends_on:
-  #     - elasticsearch
-  #     - fluentd
-  #   networks:
-  #     - app-network
-  #   logging:
-  #     driver: "fluentd"
-  #     options:
-  #       fluentd-address: localhost:24224
-  #       tag: docker.kibana
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.10
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOST=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+      - fluentd
+    networks:
+      - app-network
+
   # Thêm Fluentd
   fluentd:
     image: fluent/fluentd:v1.14-debian-1
@@ -160,7 +156,7 @@ services:
       - "24224:24224/udp"   # Port UDP cho Fluentd
     volumes:
       - ./fluentd/conf:/fluentd/etc    # Thư mục cấu hình Fluentd
-      - ./logs:/fluentd/log            # Thư mục lưu trữ log
+      - ./fluentd/logs:/fluentd/log    # Thư mục lưu trữ log
     networks:
       - app-network
     healthcheck:
@@ -181,3 +177,11 @@ services:
       - fluentd
     networks:
       - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  db-data:
+  es-data:
