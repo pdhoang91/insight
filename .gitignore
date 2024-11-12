@@ -58,4 +58,5 @@ image-service/images/
 image-service/images/*
 # logs
 # logs/*
-
+fluentd/logs
+fluentd/logs/*
