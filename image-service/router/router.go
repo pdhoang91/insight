@@ -8,6 +8,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"github.com/pdhoang91/image-service/controllers"
+	"github.com/pdhoang91/image-service/middleware"
 )
 
 func SetupRouter() *gin.Engine {
@@ -25,10 +26,12 @@ func SetupRouter() *gin.Engine {
 		MaxAge:           12 * time.Hour,
 	}
 
-	r.Use(cors.New(config))
-
 	// Serve the uploads directory
 	r.Static("/images/uploads", "./images/uploads/.")
+
+	r.Use(cors.New(config))
+	//r.Use(middleware.LoggerMiddleware())
+	r.Use(middleware.AuthMiddleware())
 
 	// Routes for image upload
 	//r.POST("/upload", controllers.UploadImage)
