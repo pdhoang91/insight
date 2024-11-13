@@ -18,7 +18,7 @@ html,
 body {
   padding: 0;
   margin: 0;
-  font-family: 'Sohne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: 'Georgia', 'serif', 'Sohne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   line-height: 1.6;
   color: #333;
   overflow-x: hidden; /* Prevent horizontal overflow globally */
@@ -26,7 +26,7 @@ body {
 
 /* Styles for Headings */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Sohne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: 'Georgia', 'serif', 'Sohne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   font-weight: bold;
   margin-top: 1.5em;
   margin-bottom: 0.5em;
@@ -224,12 +224,12 @@ main {
 
 /* Specific adjustments if needed */
 @media (min-width: 1024px) {
-  .lg:flex-row {
+  .lg\:flex-row {
     flex-direction: row;
   }
 
   /* Ensure sidebars do not cause overflow */
-  /* aside.lg:w-2/12 {
+  /* aside.lg\:w-2/12 {
     max-width: 16.666667%;
   } */
 
