@@ -463,9 +463,10 @@ func UpdatePost(c *gin.Context) {
 	}
 
 	// Tạo slug từ tiêu đề bài viết
-	slug := strings.ToLower(input.Title)
-	slug = strings.ReplaceAll(slug, " ", "-")
-	slug = regexp.MustCompile(`[^a-zA-Z0-9-]+`).ReplaceAllString(slug, "")
+	// slug := strings.ToLower(input.Title)
+	// slug = strings.ReplaceAll(slug, " ", "-")
+	// slug = regexp.MustCompile(`[^a-zA-Z0-9-]+`).ReplaceAllString(slug, "")
+	slug := createSlug(input.Title)
 
 	// Đảm bảo tính duy nhất của title_name, loại trừ bài viết hiện tại
 	existingPost := models.Post{}
