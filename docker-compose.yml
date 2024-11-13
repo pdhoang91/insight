@@ -50,7 +50,7 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: localhost:24224
+        fluentd-address: fluentd:24224
         tag: docker.application
 
   image-service:
@@ -71,7 +71,7 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: localhost:24224
+        fluentd-address: fluentd:24224
         tag: docker.image_service
 
   search-service:
@@ -99,7 +99,7 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: localhost:24224
+        fluentd-address: fluentd:24224
         tag: docker.search_service
 
   db:
@@ -131,6 +131,11 @@ services:
       - es-data:/usr/share/elasticsearch/data
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
   kibana:
     image: docker.elastic.co/kibana/kibana:7.17.10
@@ -153,7 +158,8 @@ services:
       dockerfile: Dockerfile
     container_name: fluentd
     depends_on:
-      - elasticsearch
+      elasticsearch:
+        condition: service_healthy
     ports:
       - "24224:24224"       # Port mặc định cho Fluentd
       - "24224:24224/udp"   # Port UDP cho Fluentd
