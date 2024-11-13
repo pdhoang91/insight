@@ -50,7 +50,7 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: fluentd:24224
+        fluentd-address: localhost:24224
         tag: docker.application
 
   image-service:
@@ -71,7 +71,7 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: fluentd:24224
+        fluentd-address: localhost:24224
         tag: docker.image_service
 
   search-service:
@@ -99,7 +99,7 @@ services:
     logging:
       driver: "fluentd"
       options:
-        fluentd-address: fluentd:24224
+        fluentd-address: localhost:24224
         tag: docker.search_service
 
   db:
@@ -165,6 +165,8 @@ services:
     ports:
       - "24224:24224"       # Port mặc định cho Fluentd
       - "24224:24224/udp"   # Port UDP cho Fluentd
+    expose:
+      - "24224"
     volumes:
       - ./fluentd/conf:/fluentd/etc    # Thư mục cấu hình Fluentd
       - ./fluentd/logs:/fluentd/log    # Thư mục lưu trữ log
