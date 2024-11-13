@@ -1,3 +1,4 @@
+#fluentd/Dockerfile
 FROM ruby:3.0
 
 # Cài đặt Fluentd và các phụ thuộc
