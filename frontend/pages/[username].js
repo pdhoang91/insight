@@ -114,7 +114,7 @@ const UserProfilePage = () => {
             onClick={() => handleTabClick(isOwner ? 'YourPosts' : 'UserPosts')}
             className={`p-2 transition-colors ${
               activeTab === (isOwner ? 'YourPosts' : 'UserPosts')
-                ? 'text-blue-500 border-blue-500'
+                ? 'border-b-2 border-gray-200 text-blue-500 border-blue-500'
                 : 'text-gray-600 hover:text-blue-400'
             }`}
           >
@@ -127,7 +127,7 @@ const UserProfilePage = () => {
               onClick={() => handleTabClick('YourReading')}
               className={`p-2 transition-colors ${
                 activeTab === 'YourReading'
-                  ? 'text-blue-500 border-blue-500'
+                  ? 'border-b-2 border-gray-200 text-blue-500 border-blue-500'
                   : 'text-gray-600 hover:text-blue-400'
               }`}
             >
@@ -140,7 +140,7 @@ const UserProfilePage = () => {
             onClick={() => handleTabClick(isOwner ? 'Your Folow' : 'Folow')}
             className={`p-2 transition-colors ${
               activeTab === (isOwner ? 'Your Folow' : 'Folow')
-                ? 'text-blue-500 border-blue-500'
+                ? 'border-b-2 border-gray-200 text-blue-500 border-blue-500'
                 : 'text-gray-600 hover:text-blue-400'
             }`}
           >
