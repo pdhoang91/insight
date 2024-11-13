@@ -17,6 +17,32 @@ const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { handlePublish, handleUpdate } = usePostContext(); // Sử dụng hook để lấy hàm
 
+  const [showNavbar, setShowNavbar] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+  const handleScroll = () => {
+    const currentScrollY = window.scrollY;
+
+    if (currentScrollY > lastScrollY && currentScrollY > 100) {
+      // Scrolling down and scrolled more than 100px
+      setShowNavbar(false);
+    } else {
+      // Scrolling up
+      setShowNavbar(true);
+    }
+
+    setLastScrollY(currentScrollY);
+  };
+
+  window.addEventListener('scroll', handleScroll);
+
+  return () => {
+    window.removeEventListener('scroll', handleScroll);
+  };
+}, [lastScrollY]);
+
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -97,8 +123,14 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="flex justify-between items-center p-4 sticky top-0 z-10">
+    // <nav className="flex justify-between items-center p-4 fixed top-0 z-10 w-full bg-white">
+    <nav
+    className={`fixed top-0 w-full border-b border-gray-300 z-10 bg-white transition-transform duration-300 ${
+      showNavbar ? 'translate-y-0' : '-translate-y-full'
+    }`}
+  >
       {/* Left Section: Logo and Search */}
+      <div className="flex justify-between items-center p-4">
       <div className="flex items-center space-x-6">
         <Link href="/" passHref className="text-2xl font-bold text-gray-800">
           Insight
@@ -237,19 +269,10 @@ const Navbar = () => {
             Sign In
           </button>
         )}
-
+       </div>
       </div>
     </nav>
   );
 };
 
 export default Navbar;
-
-
-{/* <span
-type="button"
-onClick={handleCreatePostClick}
-className="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors cursor-pointer"
->
-Write
-</span> */}
