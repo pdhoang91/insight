@@ -225,7 +225,7 @@ export const PostDetail = ({ post }) => {
   return (
     <div className="flex flex-col">
       {/* Image Section */}
-      {post.categories?.length > 0 && (
+      {/* {post.categories?.length > 0 && (
         <img
           src={
             typeof post.categories[0] === 'string'
@@ -235,7 +235,7 @@ export const PostDetail = ({ post }) => {
           alt={post.title}
           className="w-full h-64 sm:h-80 md:h-96 object-cover rounded mb-4"
         />
-      )}
+      )} */}
 
       {/* Title Section */}
       <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-gray-800">{post.title}</h1>
@@ -285,7 +285,7 @@ export const PostDetail = ({ post }) => {
       </div>
 
       {/* Post Content */}
-      <div className="prose max-w-none mb-8">
+      <div className="prose lg:prose-xl max-w-none mb-8">
         <div
           className="post-content"
           dangerouslySetInnerHTML={{ __html: post.content }}

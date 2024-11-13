@@ -1,133 +1,125 @@
 /* styles/globals.css */
-/* Nhúng font Sohne từ Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Sohne:wght@400;700&display=swap');
-/* Nhúng các kiểu theme từ file themes.css */
-@tailwind base; /* Khởi tạo các kiểu cơ bản của Tailwind CSS */
-@tailwind components; /* Nhúng các thành phần từ Tailwind CSS */
-@tailwind utilities; /* Nhúng các tiện ích từ Tailwind CSS */
 
-/* Thiết lập kiểu cho html và body */
+/* Import Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Sohne:wght@400;700&display=swap');
+
+/* Tailwind CSS Base, Components, and Utilities */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* To ensure all elements use border-box sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Global Styles for HTML and Body */
 html,
 body {
-  padding: 0; /* Xóa padding mặc định */
-  margin: 0; /* Xóa margin mặc định */
-  font-family: 'Sohne', 'Helvetica Neue', Helvetica, Arial, sans-serif; /* Đặt font chữ cho toàn bộ trang */
+  padding: 0;
+  margin: 0;
+  font-family: 'Sohne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  overflow-x: hidden; /* Prevent horizontal overflow globally */
 }
 
-/* Các kiểu chữ khác cho các phần tử tiêu đề */
+/* Styles for Headings */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Sohne', 'Helvetica Neue', Helvetica, Arial, sans-serif; /* Đặt font chữ cho các tiêu đề */
+  font-family: 'Sohne', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-weight: bold;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  word-break: break-word; /* Prevent long words from causing overflow */
 }
 
-.post-content strong {
-  /* font-weight: bold; */
-  /* Thiết lập chữ in đậm cho các thẻ strong trong nội dung bài viết */
+/* Styles for Paragraphs */
+p {
+  margin: 0.5em 0;
+  word-break: break-word; /* Prevent long words from causing overflow */
 }
 
-/* styles/globals.css */
-.post-content {
-  overflow-y: auto; /* Hiện thanh cuộn dọc khi nội dung vượt quá khung */
-  
-  /* padding: 10px; Padding cho khung nội dung */
+/* Border Utilities */
+.border {
+  border: 1px solid #eaeaea;
 }
 
-/* styles/globals.css */
-.custom-button {
-  background-color: #1da1f2; /* Màu nền cho nút */
-  color: inherit; /* Giữ màu chữ mặc định của văn bản */
-  border: none; /* Không có viền cho nút */
-  padding: 8px 16px; /* Padding cho nút để tạo không gian bên trong */
-  border-radius: 4px; /* Bo tròn góc của nút */
-  cursor: pointer; /* Hiển thị con trỏ khi di chuột qua nút */
-  transition: background-color 0.3s; /* Hiệu ứng chuyển màu nền khi hover */
+.border-b {
+  border-bottom: 1px solid #eaeaea;
 }
 
-.custom-button:hover {
-  background-color: #1a8cc6; /* Màu nền của nút khi di chuột qua */
-}
-
-/* globals.css */
+/* Background and Text Color Utilities */
 .bg-primary-color {
-  background-color: #1a202c; /* Màu nền chính cho các thành phần */
+  background-color: #1a202c;
 }
 
 .text-primary-color {
-  color: #ffffff; /* Màu chữ chính */
+  color: #ffffff;
 }
 
 .bg-secondary-color {
-  background-color: #2d3748; /* Màu nền cho các nút phụ */
+  background-color: #2d3748;
 }
 
 .text-gray-800 {
-  color: #2d3748; /* Màu chữ xám tối */
+  color: #2d3748;
 }
 
-.hover\:bg-gray-200:hover {
-  background-color: #edf2f7; /* Màu nền cho thành phần khi hover */
-}
-
-.cursor-pointer {
-  cursor: pointer; /* Hiển thị con trỏ khi di chuột qua thành phần */
-}
-
-.z-10 {
-  z-index: 10; /* Thiết lập thứ tự hiển thị cho các thành phần */
-}
-
-.shadow-lg {
-  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); /* Thiết lập bóng cho thành phần */
-}
-
-.rounded-md {
-  border-radius: 0.375rem; /* Bo tròn các góc cho thành phần */
-}
-
-/* Thiết lập kiểu cho body */
-body {
-  font-family: 'Georgia', serif; /* Sử dụng font chữ serif giống OmniQuest */
-  line-height: 1.6; /* Thiết lập chiều cao dòng cho dễ đọc */
-  color: #333; /* Màu chữ tối */
-}
-
-/* Các kiểu cho tiêu đề */
-h1, h2, h3 {
-  font-weight: bold; /* Thiết lập chữ in đậm cho các tiêu đề */
-  margin-top: 1.5em; /* Khoảng cách trên cho tiêu đề */
-  margin-bottom: 0.5em; /* Khoảng cách dưới cho tiêu đề */
-}
-
-/* Thiết lập kiểu cho đoạn văn */
-p {
-  margin: 0.5em 0; /* Khoảng cách trên và dưới cho đoạn văn */
-}
-
-/* Thiết lập viền cho thành phần */
-.border {
-  border: 1px solid #eaeaea; /* Viền mỏng, màu xám nhạt */
-}
-
-/* Viền dưới cho thành phần */
-.border-b {
-  border-bottom: 1px solid #eaeaea; /* Viền dưới với màu xám nhạt */
-}
-
-/* Màu nền xám nhạt */
 .bg-gray-100 {
-  background-color: #f7f7f7; /* Màu nền xám nhạt cho các thành phần */
+  background-color: #f7f7f7;
 }
 
-/* Trong file CSS của bạn */
+/* Hover Effects */
+.hover\:bg-gray-200:hover {
+  background-color: #edf2f7;
+}
+
+/* Cursor Pointer */
+.cursor-pointer {
+  cursor: pointer;
+}
+
+/* Z-Index Utility */
+.z-10 {
+  z-index: 10;
+}
+
+/* Shadow Utility */
+.shadow-lg {
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Rounded Corners */
+.rounded-md {
+  border-radius: 0.375rem;
+}
+
+/* Custom Button Styles */
+.custom-button {
+  background-color: #1da1f2;
+  color: inherit;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.custom-button:hover {
+  background-color: #1a8cc6;
+}
+
+/* Utility Classes */
 .max-height {
-  max-height: 800px; /* Thay đổi giá trị này theo nhu cầu của bạn */
-  overflow-y: auto; /* Hiển thị thanh cuộn khi nội dung vượt quá chiều cao tối đa */
+  max-height: 800px;
+  overflow-y: auto;
 }
 
 .center-parent {
   text-align: center;
 }
 
-
+/* Mentions Styles */
 .mentions {
   display: flex;
   flex-direction: column;
@@ -139,17 +131,123 @@ p {
   border-radius: 4px;
 }
 
-/* Loại bỏ viền và outline từ lớp ProseMirror */
+/* ProseMirror Customizations */
 .ProseMirror {
-  border: none !important; /* Loại bỏ viền */
-  outline: none !important; /* Loại bỏ outline khi focus */
-  /* Nếu bạn muốn thêm các kiểu tùy chỉnh khác, ví dụ: */
-  /* background-color: #f9f9f9; */
-  /* padding: 1rem; */
+  border: none !important;
+  outline: none !important;
 }
 
-/* Tùy chỉnh thêm nếu cần */
 .ProseMirror:focus {
   border: none !important;
   outline: none !important;
+}
+
+/* Post Content Styles */
+.post-content {
+  /* Ensure post-content takes full width */
+  width: 100%;
+}
+
+/* Images */
+.post-content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Code Blocks and Tables */
+.post-content pre,
+.post-content code,
+.post-content table,
+.post-content iframe,
+.post-content embed,
+.post-content object {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Code Blocks Specific */
+.post-content pre {
+  white-space: pre-wrap; /* Allow wrapping in code blocks */
+  word-break: break-word; /* Break long words */
+}
+
+/* Inline Code */
+.post-content code {
+  white-space: pre-wrap; /* Allow wrapping in inline code */
+  word-break: break-word; /* Break long words */
+}
+
+/* Tables */
+.post-content table {
+  width: 100%;
+  table-layout: auto;
+}
+
+/* Links */
+.post-content a {
+  word-break: break-word;
+  /* Optional: You can add more link styles here */
+}
+
+/* Ensure all headings within post-content can break words */
+.post-content h1, 
+.post-content h2, 
+.post-content h3, 
+.post-content h4, 
+.post-content h5, 
+.post-content h6 {
+  word-break: break-word;
+}
+
+/* Responsive Images in Sidebar (if any) */
+aside img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Additional Customizations */
+
+/* Ensure no horizontal scrollbar appears due to flex containers */
+.flex {
+  flex-wrap: wrap;
+}
+
+/* Ensure main content does not exceed available space */
+main {
+  overflow-x: hidden;
+}
+
+/* Specific adjustments if needed */
+@media (min-width: 1024px) {
+  .lg:flex-row {
+    flex-direction: row;
+  }
+
+  /* Ensure sidebars do not cause overflow */
+  /* aside.lg:w-2/12 {
+    max-width: 16.666667%;
+  } */
+
+  main.flex-1 {
+    max-width: 66.666667%;
+  }
+}
+
+/* Prevent images or other elements from causing overflow in smaller screens */
+@media (max-width: 1023px) {
+  .post-content img,
+  .post-content pre,
+  .post-content code,
+  .post-content table,
+  .post-content iframe,
+  .post-content embed,
+  .post-content object {
+    max-width: 100%;
+    overflow-x: auto;
+  }
 }
