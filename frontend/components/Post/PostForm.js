@@ -7,13 +7,27 @@ import Link from '@tiptap/extension-link';
 import TextStyle from '@tiptap/extension-text-style';
 import Underline from '@tiptap/extension-underline';
 import { uploadImage } from '../../services/imageService';
-import { FaBold, FaItalic, FaUnderline, FaStrikethrough, FaQuoteRight, FaLink, FaImage, FaUpload } from 'react-icons/fa';
+import {
+  FaBold,
+  FaItalic,
+  FaUnderline,
+  FaStrikethrough,
+  FaQuoteRight,
+  FaLink,
+  FaImage,
+  FaUpload,
+  FaEraser, // Thêm icon xóa định dạng
+  FaEye,
+  FaEyeSlash, // Thêm icon xem trước
+} from 'react-icons/fa';
 
 const ToolbarButton = ({ icon: Icon, onClick, isActive, tooltip, disabled }) => (
   <button
     onClick={onClick}
     disabled={disabled}
-    className={`p-2 rounded hover:bg-blue-100 focus:outline-none ${isActive ? 'bg-blue-500 text-white' : 'text-gray-700'} ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+    className={`p-2 rounded hover:bg-blue-100 focus:outline-none ${
+      isActive ? 'bg-blue-500 text-white' : 'text-gray-700'
+    } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
     aria-label={tooltip}
     title={tooltip}
   >
@@ -25,6 +39,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
   const [isUploading, setIsUploading] = useState(false);
   const [isUploadingTitle, setIsUploadingTitle] = useState(false);
   const [isContentEmpty, setIsContentEmpty] = useState(!content || content.trim() === '');
+  const [isPreview, setIsPreview] = useState(false); // Thêm state cho chế độ xem trước
 
   const editor = useEditor({
     extensions: [
@@ -64,10 +79,10 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       if (!file) return;
       setIsUploading(true);
       try {
-        const imageUrl = await uploadImage(file, "content");
+        const imageUrl = await uploadImage(file, 'content');
         editor.chain().focus().setImage({ src: imageUrl }).run();
       } catch (error) {
-        console.error("Error uploading image", error);
+        console.error('Error uploading image', error);
       } finally {
         setIsUploading(false);
       }
@@ -85,10 +100,10 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       if (!file) return;
       setIsUploadingTitle(true);
       try {
-        const uploadedUrl = await uploadImage(file,"title");
+        const uploadedUrl = await uploadImage(file, 'title');
         setImageTitle(uploadedUrl);
       } catch (error) {
-        console.error("Error uploading image title", error);
+        console.error('Error uploading image title', error);
       } finally {
         setIsUploadingTitle(false);
       }
@@ -114,14 +129,28 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         tooltip: 'Chèn liên kết',
       },
       { icon: FaImage, action: handleImageUpload, isActive: false, tooltip: 'Chèn hình ảnh' },
+      // Thêm nút xóa định dạng
+      {
+        icon: FaEraser,
+        action: () => editor.chain().focus().clearNodes().unsetAllMarks().run(),
+        isActive: false,
+        tooltip: 'Xóa định dạng',
+      },
+      // Thêm nút chuyển đổi chế độ xem trước
+      {
+        icon: isPreview ? FaEyeSlash : FaEye,
+        action: () => setIsPreview((prev) => !prev),
+        isActive: false,
+        tooltip: isPreview ? 'Thoát chế độ xem trước' : 'Chế độ xem trước',
+      },
     ];
-  }, [editor]);
+  }, [editor, isPreview]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
     // Kiểm tra các trường bắt buộc
     if (!title.trim() || isContentEmpty) {
-      alert("Vui lòng nhập đầy đủ tiêu đề và nội dung bài viết.");
+      alert('Vui lòng nhập đầy đủ tiêu đề và nội dung bài viết.');
       return;
     }
 
@@ -132,6 +161,8 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       content,
       // Các trường khác nếu có
     };
+
+    // Xử lý submit bài viết ở đây
   };
 
   return (
@@ -156,7 +187,12 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
             title="Tải lên ảnh tiêu đề"
           >
             {isUploadingTitle ? (
-              <svg className="animate-spin h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <svg
+                className="animate-spin h-5 w-5 text-blue-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
                 <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                 <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
               </svg>
@@ -172,9 +208,9 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       {/* Toolbar */}
       <div className="mb-4">
         <div className="flex items-center justify-center space-x-2 p-2">
-          {menuBar.map((item) => (
+          {menuBar.map((item, index) => (
             <ToolbarButton
-              key={item.tooltip}
+              key={index}
               icon={item.icon}
               onClick={item.action}
               isActive={item.isActive ? item.isActive() : false}
@@ -189,7 +225,12 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       <div className="mb-4 p-4 min-h-[300px] relative">
         {isUploading && (
           <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50">
-            <svg className="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg
+              className="animate-spin h-8 w-8 text-blue-500"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
             </svg>
@@ -197,10 +238,24 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         )}
         {editor ? (
           <>
-            <EditorContent editor={editor} />
-            {/* Placeholder */}
-            {isContentEmpty && (
-              <p className="absolute text-gray-500 italic top-4 left-4 pointer-events-none">nội dung bài viết...</p>
+            {isPreview ? (
+              // Chế độ xem trước
+              // <div dangerouslySetInnerHTML={{ __html: content }} />
+              <div className="prose lg:prose-xl max-w-none mb-8">
+              <div
+                className="post-content"
+                dangerouslySetInnerHTML={{ __html: content }}
+              />
+            </div>
+            ) : (
+              // Chế độ chỉnh sửa
+              <>
+                <EditorContent editor={editor} />
+                {/* Placeholder */}
+                {isContentEmpty && (
+                  <p className="absolute text-gray-500 italic top-4 left-4 pointer-events-none">nội dung bài viết...</p>
+                )}
+              </>
             )}
           </>
         ) : (

@@ -251,3 +251,20 @@ main {
     overflow-x: auto;
   }
 }
+
+
+/* Styles cho blockquote */
+.ProseMirror blockquote {
+  border-left: 3px solid #ddd;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 10px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Styles cho link */
+.ProseMirror a {
+  color: #06c;
+  text-decoration: underline;
+}
