@@ -23,7 +23,7 @@ RUN mkdir -p /fluentd/etc /fluentd/log /fluentd/buffer
 RUN chown -R fluentd:fluentd /fluentd/log /fluentd/buffer
 
 # Copy cấu hình Fluentd
-COPY conf /fluentd/conf
+COPY conf /fluentd/etc
 
 # Đặt biến môi trường cho Fluentd
 ENV FLUENTD_CONF=fluent.conf
@@ -35,4 +35,4 @@ WORKDIR /fluentd
 EXPOSE 24224 24224/udp
 
 # Chạy Fluentd khi container khởi động
-CMD ["fluentd", "-c", "fluentd/conf/fluent.conf", "-v"]
+CMD ["fluentd", "-c", "/fluentd/etc/fluent.conf", "--dry-run"]
