@@ -35,4 +35,4 @@ WORKDIR /fluentd
 EXPOSE 24224 24224/udp
 
 # Chạy Fluentd khi container khởi động
-CMD ["fluentd", "-c", "/fluentd/etc/fluent.conf", "--dry-run"]
+CMD ["fluentd", "-c", "/fluentd/etc/fluent.conf", "-v"]
