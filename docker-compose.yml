@@ -79,7 +79,7 @@ services:
     build:
       context: ./search-service
     expose:
-      - "82"
+      - "83"
     # volumes:
     #   - ./search-service/images:/app/images/uploads  # Mount thư mục uploads của image-service
     depends_on:
