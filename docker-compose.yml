@@ -144,7 +144,7 @@ services:
     container_name: kibana
     environment:
       - ELASTICSEARCH_HOST=http://elasticsearch:9200
-      - SERVER_BASEPATH=/kibana
+      - SERVER_BASEPATH=http://localhost:5601/kibana
       - SERVER_REWRITEBASEPATH=true
     ports:
       - "5601:5601"
