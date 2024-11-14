@@ -181,12 +181,12 @@ const TabSwitcher = ({ activeTab, toggleTab, user }) => {
       {showLeftArrow && (
         <button
           onClick={() => scrollTabs('left')}
-          className="absolute left-0 z-10 flex items-center justify-center w-8 h-8 self-center transition-opacity duration-300"
+          className="absolute left-0 z-10 items-center justify-center w-8 h-8 self-center transition-opacity duration-300"
         >
           <IoIosArrowBack size={20} className="-translate-y-1"/>
         </button>
       )}
-      {/* <div  className="overflow-x-auto "> */}
+      <div  className="overflow-x-auto ">
 
       {/* Container cuộn các tab */}
       <div
@@ -237,7 +237,7 @@ const TabSwitcher = ({ activeTab, toggleTab, user }) => {
             {tab.name}
           </button>
         ))}
-      {/* </div> */}
+       </div>
       </div>
 
 
@@ -245,7 +245,7 @@ const TabSwitcher = ({ activeTab, toggleTab, user }) => {
       {showRightArrow && (
         <button
           onClick={() => scrollTabs('right')}
-          className="absolute right-0 z-10 flex items-center justify-center w-8 h-8 self-center transition-opacity duration-300"
+          className="absolute right-0 z-10 items-center justify-center w-8 h-8 self-center transition-opacity duration-300"
         >
           <IoIosArrowForward size={20} className="-translate-y-1" />
         </button>
