@@ -210,6 +210,11 @@ services:
       - prometheus
     networks:
       - app-network
+    environment:
+    - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s:%(http_port)s/grafana/
+    - GF_SERVER_SERVE_FROM_SUB_PATH=true
+    volumes:
+    - grafana-data:/var/lib/grafana  # Đảm bảo dữ liệu Grafana được lưu trữ
 
   node-exporter:
     image: prom/node-exporter:latest
@@ -227,3 +232,4 @@ networks:
 volumes:
   db-data:
   es-data:
+  grafana-data:
