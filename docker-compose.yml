@@ -211,10 +211,12 @@ services:
     networks:
       - app-network
     environment:
-    - GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s:%(http_port)s/grafana/
-    - GF_SERVER_SERVE_FROM_SUB_PATH=true
+      - GF_SERVER_ROOT_URL=https://apiinsight.site/grafana/
+      - GF_SERVER_SERVE_FROM_SUB_PATH=true
+      - GF_SECURITY_ADMIN_PASSWORD=your_secure_password  # Đặt mật khẩu admin an toàn
     volumes:
     - grafana-data:/var/lib/grafana  # Đảm bảo dữ liệu Grafana được lưu trữ
+    restart: unless-stopped
 
   node-exporter:
     image: prom/node-exporter:latest
