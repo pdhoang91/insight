@@ -60,3 +60,4 @@ image-service/images/*
 # logs/*
 fluentd/logs
 fluentd/logs/*
+fluentd/buffer/*
