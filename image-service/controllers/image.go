@@ -43,7 +43,7 @@ func isAllowedMimeType(fileHeader *multipart.FileHeader) bool {
 	}
 	defer file.Close()
 
-	buffer := make([]byte, 512)
+	buffer := make([]byte, 999)
 	_, err = file.Read(buffer)
 	if err != nil && err != io.EOF {
 		return false
