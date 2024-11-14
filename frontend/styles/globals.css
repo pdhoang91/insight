@@ -214,7 +214,7 @@ aside img {
 
 /* Ensure no horizontal scrollbar appears due to flex containers */
 .flex {
-  flex-wrap: wrap;
+  /* flex-wrap: wrap; */
 }
 
 /* Ensure main content does not exceed available space */
@@ -267,4 +267,19 @@ main {
 .ProseMirror a {
   color: #06c;
   text-decoration: underline;
+}
+
+
+/* styles/globals.css hoặc file CSS tương ứng */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 0px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 1px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background-color: rgba(0, 0, 0, 0.05);
 }
