@@ -211,7 +211,7 @@ services:
     networks:
       - app-network
     environment:
-      - GF_SERVER_ROOT_URL=https://apiinsight.site/grafana/
+      - GF_SERVER_ROOT_URL=https://apiinsight.site/
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
       - GF_SECURITY_ADMIN_PASSWORD=admin  # Đặt mật khẩu admin an toàn
     volumes:
