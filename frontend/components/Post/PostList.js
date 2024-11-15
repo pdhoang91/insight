@@ -15,8 +15,8 @@ const PostList = ({ posts, isLoading, isError, setSize, isReachingEnd }) => {
     }
   };
 
-  if (isError) return <div className="text-red-500">Không thể tải bài viết</div>;
-  if (isLoading && posts.length === 0) return <div>Đang tải...</div>;
+  //if (isError) return <div className="text-red-500">Không thể tải bài viết</div>;
+  //if (isLoading && posts.length === 0) return <div>Đang tải...</div>;
 
   return (
     <InfiniteScroll

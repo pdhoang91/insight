@@ -43,7 +43,7 @@ func isAllowedMimeType(fileHeader *multipart.FileHeader) bool {
 	}
 	defer file.Close()
 
-	buffer := make([]byte, 999)
+	buffer := make([]byte, maxUploadSize)
 	_, err = file.Read(buffer)
 	if err != nil && err != io.EOF {
 		return false
