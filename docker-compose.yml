@@ -45,6 +45,7 @@ services:
       - BASE_API_URL=${BASE_API_URL}
       - BASE_FE_URL=${BASE_FE_URL}
       - BASE_BE_URL=${BASE_BE_URL}
+      - LOG_LEVEL=DEBUG
     networks:
       - app-network
     logging:
@@ -66,6 +67,7 @@ services:
       - fluentd
     environment:
       - BASE_BE_URL=${BASE_BE_URL}
+      - LOG_LEVEL=DEBUG
     networks:
       - app-network
     logging:
@@ -94,6 +96,10 @@ services:
       - DB_NAME=postgres
       - ELASTICSEARCH_HOST=http://elasticsearch:9200
       - BASE_BE_URL=${BASE_BE_URL}
+      - logger.level=debug
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - LOG_LEVEL=DEBUG
     networks:
       - app-network
     logging:
@@ -214,6 +220,7 @@ services:
       - GF_SERVER_ROOT_URL=https://apiinsight.site/grafana/
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
       - GF_SECURITY_ADMIN_PASSWORD=admin  # Đặt mật khẩu admin an toàn
+      - GF_LOG_LEVEL=debug
     volumes:
     - grafana-data:/var/lib/grafana  # Đảm bảo dữ liệu Grafana được lưu trữ
     restart: unless-stopped

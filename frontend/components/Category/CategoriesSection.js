@@ -23,8 +23,8 @@ const CategoriesSection = () => {
     router.push(`/category`);
   };
 
-  if (isError) return <div className="text-red-500">Không thể tải danh mục</div>;
-  if (isLoading) return <div>Đang tải...</div>;
+  // if (isError) return <div className="text-red-500">Không thể tải danh mục</div>;
+  // if (isLoading) return <div>Đang tải...</div>;
 
   return (
     <div className="p-4">
