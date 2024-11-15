@@ -213,7 +213,7 @@ services:
     environment:
       - GF_SERVER_ROOT_URL=https://apiinsight.site/grafana/
       - GF_SERVER_SERVE_FROM_SUB_PATH=true
-      - GF_SECURITY_ADMIN_PASSWORD=your_secure_password  # Đặt mật khẩu admin an toàn
+      - GF_SECURITY_ADMIN_PASSWORD=admin  # Đặt mật khẩu admin an toàn
     volumes:
     - grafana-data:/var/lib/grafana  # Đảm bảo dữ liệu Grafana được lưu trữ
     restart: unless-stopped
