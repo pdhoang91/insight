@@ -61,3 +61,4 @@ image-service/images/*
 fluentd/logs
 fluentd/logs/*
 fluentd/buffer/*
+.vscode/*
