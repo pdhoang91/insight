@@ -1,7 +1,9 @@
 package controller
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -14,6 +16,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/pdhoang91/blog/database"
+	"github.com/pdhoang91/blog/external/search_api"
 	"github.com/pdhoang91/blog/models"
 	"github.com/pdhoang91/blog/utils"
 
@@ -213,9 +216,9 @@ func CreatePost(c *gin.Context) {
 		return
 	}
 
-	// Set default image if imageTitle is empty
+	// Set default image if ImageTitle is empty
 	if input.ImageTitle == "" {
-		var beURL = os.Getenv("BASE_BE_URL")
+		beURL := os.Getenv("BASE_BE_URL")
 		input.ImageTitle = beURL + "/images/uploads/insight.jpg" // Đường dẫn tới ảnh mặc định của bạn
 	}
 
@@ -244,9 +247,6 @@ func CreatePost(c *gin.Context) {
 	}
 
 	// Create slug from Title
-	// slug := strings.ToLower(input.Title)
-	// slug = strings.ReplaceAll(slug, " ", "-")
-	// slug = regexp.MustCompile(`[^a-zA-Z0-9-]+`).ReplaceAllString(slug, "")
 	slug := createSlug(input.Title)
 
 	// Ensure unique title_name
@@ -346,23 +346,6 @@ func CreatePost(c *gin.Context) {
 		}
 	}
 
-	// Chuyển đổi Post và PostContent sang SearchPost
-	// searchPost := models.SearchPost{
-	// 	ID:             post.ID,
-	// 	Title:          post.Title,
-	// 	TitleName:      post.TitleName,
-	// 	PreviewContent: post.PreviewContent,
-	// 	Content:        postContent.Content,
-	// 	Tags:           extractTagNames(post.Tags),
-	// 	Categories:     extractCategoryNames(post.Categories),
-	// 	UserID:         post.UserID,
-	// 	CreatedAt:      post.CreatedAt,
-	// 	ClapCount:      post.ClapCount,
-	// 	Views:          post.Views,
-	// 	CommentsCount:  post.CommentsCount,
-	// 	AverageRating:  post.AverageRating,
-	// }
-
 	// Commit transaction
 	if err := tx.Commit().Error; err != nil {
 		tx.Rollback()
@@ -370,15 +353,31 @@ func CreatePost(c *gin.Context) {
 		return
 	}
 
+	// Chuyển đổi Post và PostContent sang SearchPost
+	searchPost := models.SearchPost{
+		ID:             post.ID,
+		Title:          post.Title,
+		TitleName:      post.TitleName,
+		PreviewContent: post.PreviewContent,
+		Content:        postContent.Content,
+		Tags:           extractTagNames(post.Tags),
+		Categories:     extractCategoryNames(post.Categories),
+		UserID:         post.UserID,
+		CreatedAt:      post.CreatedAt,
+		ClapCount:      post.ClapCount,
+		Views:          post.Views,
+		CommentsCount:  post.CommentsCount,
+		AverageRating:  post.AverageRating,
+	}
+
+	client := search_api.New()
+
 	// Indexing với Elasticsearch (bất đồng bộ để không làm chậm phản hồi)
-	// go func(sp models.SearchPost) {
-	// 	if err := search.IndexPost(sp); err != nil {
-	// 		log.Printf("Failed to index post ID %s: %v", sp.ID, err)
-	// 	}
-	// }(searchPost)
-	//if err := search.IndexPost(searchPost); err != nil {
-	//	log.Printf("Failed to index post ID %s: %v", searchPost.ID, err)
-	//}
+	go func(sp models.SearchPost) {
+		if err := client.IndexPost(context.Background(), sp); err != nil {
+			log.Printf("Failed to index post ID %s: %v", sp.ID, err)
+		}
+	}(searchPost)
 
 	c.JSON(http.StatusOK, gin.H{"data": post})
 }
@@ -566,35 +565,37 @@ func UpdatePost(c *gin.Context) {
 		}
 	}
 
-	// Chuyển đổi Post và PostContent sang SearchPost
-	// searchPost := models.SearchPost{
-	// 	ID:             post.ID,
-	// 	Title:          post.Title,
-	// 	TitleName:      post.TitleName,
-	// 	PreviewContent: post.PreviewContent,
-	// 	Content:        postContent.Content,
-	// 	Tags:           extractTagNames(post.Tags),
-	// 	Categories:     extractCategoryNames(post.Categories),
-	// 	UserID:         post.UserID,
-	// 	CreatedAt:      post.CreatedAt,
-	// 	ClapCount:      post.ClapCount,
-	// 	Views:          post.Views,
-	// 	CommentsCount:  post.CommentsCount,
-	// 	AverageRating:  post.AverageRating,
+	//Chuyển đổi Post và PostContent sang SearchPost
+	searchPost := models.SearchPost{
+		ID:             post.ID,
+		Title:          post.Title,
+		TitleName:      post.TitleName,
+		PreviewContent: post.PreviewContent,
+		Content:        postContent.Content,
+		Tags:           extractTagNames(post.Tags),
+		Categories:     extractCategoryNames(post.Categories),
+		UserID:         post.UserID,
+		CreatedAt:      post.CreatedAt,
+		ClapCount:      post.ClapCount,
+		Views:          post.Views,
+		CommentsCount:  post.CommentsCount,
+		AverageRating:  post.AverageRating,
+	}
+
+	client := search_api.New()
+
+	//(Tùy Chọn) Cập Nhật Elasticsearch
+	// if err := client.IndexPost(post); err != nil {
+	// 	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to index post", "details": err.Error()})
+	// 	return
 	// }
 
-	// (Tùy Chọn) Cập Nhật Elasticsearch
-	// if err := search.IndexPost(post); err != nil {
-	//     c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to index post", "details": err.Error()})
-	//     return
-	// }
-
-	// Indexing với Elasticsearch (bất đồng bộ để không làm chậm phản hồi)
-	// go func(sp models.SearchPost) {
-	// 	if err := search.IndexPost(sp); err != nil {
-	// 		log.Printf("Failed to index post ID %s: %v", sp.ID, err)
-	// 	}
-	// }(searchPost)
+	//Indexing với Elasticsearch (bất đồng bộ để không làm chậm phản hồi)
+	go func(sp models.SearchPost) {
+		if err := client.IndexPost(context.Background(), sp); err != nil {
+			log.Printf("Failed to index post ID %s: %v", sp.ID, err)
+		}
+	}(searchPost)
 
 	// Trả về bài viết đã được cập nhật
 	c.JSON(http.StatusOK, gin.H{"data": post})
@@ -722,11 +723,13 @@ func DeletePost(c *gin.Context) {
 		return
 	}
 
-	// go func(postID uuid.UUID) {
-	// 	if err := search.DeletePostFromIndex(postID); err != nil {
-	// 		log.Printf("Failed to DeletePostFromIndex postID %s: %v", postID, err)
-	// 	}
-	// }(postID)
+	client := search_api.New()
+
+	go func(postID uuid.UUID) {
+		if err := client.DeletePostFromIndex(context.Background(), postID); err != nil {
+			log.Printf("Failed to DeletePostFromIndex postID %s: %v", postID, err)
+		}
+	}(postID)
 
 	// Trả về phản hồi thành công
 	c.JSON(http.StatusOK, gin.H{"message": "Post and related data deleted successfully"})

@@ -2,9 +2,10 @@
 package controller
 
 import (
-	"encoding/json"
+	"context"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
@@ -65,7 +66,98 @@ import (
 //	})
 //}
 
-// SearchPostsHandler xử lý yêu cầu tìm kiếm bài viết với pagination
+// // SearchPostsHandler xử lý yêu cầu tìm kiếm bài viết với pagination
+// func SearchPostsHandler(c *gin.Context) {
+// 	query := c.Query("q")
+// 	// Lấy tham số pagination
+// 	pageStr := c.DefaultQuery("page", "1")
+// 	limitStr := c.DefaultQuery("limit", "10")
+
+// 	page, err := strconv.Atoi(pageStr)
+// 	if err != nil || page < 1 {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid 'page' parameter"})
+// 		return
+// 	}
+
+// 	limit, err := strconv.Atoi(limitStr)
+// 	if err != nil || limit < 1 {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid 'limit' parameter"})
+// 		return
+// 	}
+
+// 	client := search_api.New()
+
+// 	// Context với timeout
+// 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+// 	defer cancel()
+
+// 	// Thực hiện tìm kiếm với pagination
+// 	responseData, _, err := client.SearchPost(ctx, query, page, limit)
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Search failed", "details": err.Error()})
+// 		return
+// 	}
+
+// 	// Khởi tạo cấu trúc để unmarshal dữ liệu
+// 	var searchResponse struct {
+// 		Data       []models.SearchPost `json:"data"`
+// 		TotalCount int                 `json:"total_count"`
+// 	}
+
+// 	// Giải mã JSON vào cấu trúc
+// 	err = json.Unmarshal(responseData, &searchResponse)
+// 	if err != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal response data", "details": err.Error()})
+// 		return
+// 	}
+
+// 	// Nếu không có dữ liệu, trả về ngay lập tức
+// 	if len(searchResponse.Data) == 0 {
+// 		c.JSON(http.StatusOK, gin.H{
+// 			"data":        searchResponse.Data,
+// 			"total_count": searchResponse.TotalCount,
+// 		})
+// 		return
+// 	}
+
+// 	// Lấy danh sách userID từ dữ liệu bài viết
+// 	var userID []uuid.UUID
+// 	for _, v := range searchResponse.Data {
+// 		userID = append(userID, v.UserID)
+// 	}
+
+// 	// Truy vấn thông tin người dùng từ database
+// 	var users []models.User
+// 	result := database.DB.
+// 		Where("id IN ?", userID).
+// 		Order("created_at DESC").
+// 		Find(&users)
+// 	if result.Error != nil {
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+// 		return
+// 	}
+
+// 	// Tạo mapUser để ánh xạ userID với thông tin người dùng
+// 	mapUser := make(map[uuid.UUID]models.User)
+// 	for _, v := range users {
+// 		mapUser[v.ID] = v
+// 	}
+
+// 	// Cập nhật thông tin người dùng trong dữ liệu bài viết
+// 	for k, v := range searchResponse.Data {
+// 		if val, ok := mapUser[v.UserID]; ok {
+// 			searchResponse.Data[k].User = val
+// 		}
+// 	}
+
+// 	// Trả về kết quả JSON
+// 	c.JSON(http.StatusOK, gin.H{
+// 		"data":        searchResponse.Data,
+// 		"total_count": searchResponse.TotalCount,
+// 	})
+// }
+
+// controllers/search.go
 func SearchPostsHandler(c *gin.Context) {
 	query := c.Query("q")
 	// Lấy tham số pagination
@@ -84,38 +176,31 @@ func SearchPostsHandler(c *gin.Context) {
 		return
 	}
 
+	client := search_api.New()
+
+	// Context với timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+
 	// Thực hiện tìm kiếm với pagination
-	responseData, _, err := search_api.SearchPost(query, page, limit)
+	data, total, err := client.SearchPost(ctx, query, page, limit)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Search failed", "details": err.Error()})
 		return
 	}
 
-	// Khởi tạo cấu trúc để unmarshal dữ liệu
-	var searchResponse struct {
-		Data       []models.SearchPost `json:"data"`
-		TotalCount int                 `json:"total_count"`
-	}
-
-	// Giải mã JSON vào cấu trúc
-	err = json.Unmarshal(responseData, &searchResponse)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to unmarshal response data", "details": err.Error()})
-		return
-	}
-
 	// Nếu không có dữ liệu, trả về ngay lập tức
-	if len(searchResponse.Data) == 0 {
+	if len(data) == 0 {
 		c.JSON(http.StatusOK, gin.H{
-			"data":        searchResponse.Data,
-			"total_count": searchResponse.TotalCount,
+			"data":        data,
+			"total_count": total,
 		})
 		return
 	}
 
 	// Lấy danh sách userID từ dữ liệu bài viết
 	var userID []uuid.UUID
-	for _, v := range searchResponse.Data {
+	for _, v := range data {
 		userID = append(userID, v.UserID)
 	}
 
@@ -137,16 +222,16 @@ func SearchPostsHandler(c *gin.Context) {
 	}
 
 	// Cập nhật thông tin người dùng trong dữ liệu bài viết
-	for k, v := range searchResponse.Data {
+	for k, v := range data {
 		if val, ok := mapUser[v.UserID]; ok {
-			searchResponse.Data[k].User = val
+			data[k].User = val
 		}
 	}
 
 	// Trả về kết quả JSON
 	c.JSON(http.StatusOK, gin.H{
-		"data":        searchResponse.Data,
-		"total_count": searchResponse.TotalCount,
+		"data":        data,
+		"total_count": total,
 	})
 }
 
