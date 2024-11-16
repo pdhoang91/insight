@@ -12,15 +12,13 @@ import (
 	"strings"
 	"time"
 
-	uuid "github.com/satori/go.uuid"
-	"gorm.io/gorm"
-
+	"github.com/gin-gonic/gin"
 	"github.com/pdhoang91/blog/database"
-	"github.com/pdhoang91/blog/external/search_api"
+	"github.com/pdhoang91/blog/external/search"
 	"github.com/pdhoang91/blog/models"
 	"github.com/pdhoang91/blog/utils"
-
-	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 // GetPosts lấy danh sách các bài viết với phân trang
@@ -370,7 +368,7 @@ func CreatePost(c *gin.Context) {
 		AverageRating:  post.AverageRating,
 	}
 
-	client := search_api.New()
+	client := search.New()
 
 	// Indexing với Elasticsearch (bất đồng bộ để không làm chậm phản hồi)
 	go func(sp models.SearchPost) {
@@ -582,7 +580,7 @@ func UpdatePost(c *gin.Context) {
 		AverageRating:  post.AverageRating,
 	}
 
-	client := search_api.New()
+	client := search.New()
 
 	//(Tùy Chọn) Cập Nhật Elasticsearch
 	// if err := client.IndexPost(post); err != nil {
@@ -723,7 +721,7 @@ func DeletePost(c *gin.Context) {
 		return
 	}
 
-	client := search_api.New()
+	client := search.New()
 
 	go func(postID uuid.UUID) {
 		if err := client.DeletePostFromIndex(context.Background(), postID); err != nil {
