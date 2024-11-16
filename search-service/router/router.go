@@ -1,4 +1,4 @@
-// package router
+// router/router.go
 package router
 
 import (
@@ -18,7 +18,6 @@ func SetupRouter() *gin.Engine {
 	allowOrigins := os.Getenv("BASE_FE_URL")
 	fmt.Println("allowOrigins", allowOrigins)
 	config := cors.Config{
-		//AllowOrigins:     []string{allowOrigins, "http://localhost:3000", "http://202.92.6.77:3000"}, // Thay đổi tùy vào frontend
 		AllowOrigins:     []string{"http://202.92.6.77:3000", "http://localhost:3000", "https://insight.io.vn"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
@@ -29,9 +28,14 @@ func SetupRouter() *gin.Engine {
 
 	r.Use(cors.New(config))
 	// Đăng ký LoggerMiddleware
-	//r.Use(middleware.LoggerMiddleware())
+	// r.Use(middleware.LoggerMiddleware())
 
+	// Các route hiện tại
 	r.GET("/search/posts", controller.SearchPostsHandler)
+
+	// Thêm các route mới cho IndexPost và DeletePostFromIndex
+	r.POST("/search/posts/index", controller.IndexPostHandler)
+	r.DELETE("/search/posts/:id", controller.DeletePostHandler)
 
 	return r
 }

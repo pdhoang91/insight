@@ -79,3 +79,44 @@ func SearchPostsHandler(c *gin.Context) {
 		"total_count": total,
 	})
 }
+
+// IndexPostHandler xử lý yêu cầu chỉ định một bài viết vào Elasticsearch
+func IndexPostHandler(c *gin.Context) {
+	var post models.SearchPost
+	if err := c.ShouldBindJSON(&post); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload", "details": err.Error()})
+		return
+	}
+
+	// Kiểm tra ID hợp lệ
+	if post.ID == uuid.Nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid post ID"})
+		return
+	}
+
+	// Thực hiện chỉ định vào Elasticsearch
+	if err := service.IndexPost(post); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to index post", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Post indexed successfully"})
+}
+
+// DeletePostHandler xử lý yêu cầu xóa một bài viết khỏi Elasticsearch
+func DeletePostHandler(c *gin.Context) {
+	idParam := c.Param("id")
+	postID, err := uuid.FromString(idParam)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid post ID"})
+		return
+	}
+
+	// Thực hiện xóa khỏi Elasticsearch
+	if err := service.DeletePostFromIndex(postID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete post from index", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Post deleted from index successfully"})
+}
