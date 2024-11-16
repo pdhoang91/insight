@@ -1,5 +1,5 @@
 // search_api/search_client.go
-package search_api
+package search
 
 import (
 	"context"
