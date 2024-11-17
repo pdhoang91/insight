@@ -110,7 +110,9 @@ func LoginHandler(c *gin.Context) {
 		return
 	}
 
-	authClient := client.NewAuthClient("http://localhost:84")
+	//url := fmt.Sprintf("%s/auth/login", c.BaseURL)
+
+	authClient := client.New()
 	// Đăng nhập
 	token, err := authClient.Login(context.Background(), input.Email, input.Password)
 	if err != nil {
@@ -148,7 +150,7 @@ func RegisterHandler(c *gin.Context) {
 		return
 	}
 
-	authClient := client.NewAuthClient("http://localhost:84")
+	authClient := client.New()
 	token, err := authClient.Register(context.Background(), input.Email, input.Password)
 	if err != nil {
 		log.Fatal("Register failed:", err)
