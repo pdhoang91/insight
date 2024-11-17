@@ -73,7 +73,7 @@ const Home = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="w-full lg:w-8/12 p-10" ref={mainContentRef}>
+      <main className="w-full lg:w-8/12" ref={mainContentRef}>
         {/* Tab Switcher */}
         <TabSwitcher activeTab={activeTab} toggleTab={toggleTab} user={user} />
 

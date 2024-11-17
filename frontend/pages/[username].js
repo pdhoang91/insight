@@ -85,8 +85,8 @@ const UserProfilePage = () => {
   const loading = isOwner ? loadingOwner : loadingPublic;
   const error = isOwner ? ownerError : publicError;
 
-  if (loading || loadingUser) return <div className="container mx-auto p-4">Loading...</div>;
-  if (error) return <div className="container mx-auto p-4 text-red-500">{error}</div>;
+  if (loading || loadingUser) return <div className="container mx-auto">Loading...</div>;
+  if (error) return <div className="container mx-auto text-red-500">{error}</div>;
 
   // Hàm xử lý khi nhấp vào tab
   const handleTabClick = (tab) => {

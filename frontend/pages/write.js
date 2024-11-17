@@ -63,7 +63,7 @@ const Write = () => {
   }, [publishFunction, setHandlePublish, setHandleUpdate]);
 
   if (loading) {
-    return <div className="container mx-auto p-4">Loading...</div>;
+    return <div className="container mx-auto">Loading...</div>;
   }
 
   if (!user) {
