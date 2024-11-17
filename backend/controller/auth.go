@@ -18,6 +18,7 @@ import (
 
 	"github.com/pdhoang91/blog/config"
 	"github.com/pdhoang91/blog/database"
+	client "github.com/pdhoang91/blog/external/auth"
 	"github.com/pdhoang91/blog/middleware"
 	"github.com/pdhoang91/blog/models"
 	"github.com/pdhoang91/blog/utils"
@@ -109,23 +110,30 @@ func LoginHandler(c *gin.Context) {
 		return
 	}
 
-	var user models.User
-	if err := database.DB.Where("email = ?", input.Email).First(&user).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
-		return
-	}
-
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
-		return
-	}
-
-	// Generate JWT token and send it back
-	token, err := middleware.GenerateJWT(user)
+	authClient := client.NewAuthClient("http://localhost:84")
+	// Đăng nhập
+	token, err := authClient.Login(context.Background(), input.Email, input.Password)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating token"})
-		return
+		log.Fatal("Login failed:", err)
 	}
+
+	//var user models.User
+	//if err := database.DB.Where("email = ?", input.Email).First(&user).Error; err != nil {
+	//	c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+	//	return
+	//}
+	//
+	//if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password)); err != nil {
+	//	c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+	//	return
+	//}
+	//
+	//// Generate JWT token and send it back
+	//token, err := middleware.GenerateJWT(user)
+	//if err != nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating token"})
+	//	return
+	//}
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
@@ -140,42 +148,48 @@ func RegisterHandler(c *gin.Context) {
 		return
 	}
 
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), 10)
+	authClient := client.NewAuthClient("http://localhost:84")
+	token, err := authClient.Register(context.Background(), input.Email, input.Password)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error hashing password"})
-		return
+		log.Fatal("Register failed:", err)
 	}
 
-	// Generate verification token
-	token, err := utils.GenerateVerificationToken()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating verification token"})
-		return
-	}
+	//hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.Password), 10)
+	//if err != nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "Error hashing password"})
+	//	return
+	//}
+	//
+	//// Generate verification token
+	//token, err := utils.GenerateVerificationToken()
+	//if err != nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating verification token"})
+	//	return
+	//}
 
 	// Kiểm tra xem người dùng đã tồn tại trong cơ sở dữ liệu hay chưa
-	var user models.User
-	if err := database.DB.Where("email = ?", input.Email).First(&user).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			// Người dùng chưa tồn tại, tạo mới
-			newUser := models.User{
-				Email:             input.Email,
-				Password:          string(hashedPassword),
-				VerificationToken: token,
-				Username:          "@" + strings.Split(input.Email, "@")[0],
-				Name:              strings.Split(input.Email, "@")[0],
-				AvatarURL:         "https://www.w3schools.com/w3images/avatar2.png",
-			}
-			if err := database.DB.Create(&newUser).Error; err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create user"})
-				return
-			}
-			user = newUser
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not check user"})
-			return
-		}
-	}
+	//var user models.User
+	//if err := database.DB.Where("email = ?", input.Email).First(&user).Error; err != nil {
+	//	if err == gorm.ErrRecordNotFound {
+	//		// Người dùng chưa tồn tại, tạo mới
+	//		newUser := models.User{
+	//			Email:             input.Email,
+	//			Password:          string(hashedPassword),
+	//			VerificationToken: token,
+	//			Username:          "@" + strings.Split(input.Email, "@")[0],
+	//			Name:              strings.Split(input.Email, "@")[0],
+	//			AvatarURL:         "https://www.w3schools.com/w3images/avatar2.png",
+	//		}
+	//		if err := database.DB.Create(&newUser).Error; err != nil {
+	//			c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create user"})
+	//			return
+	//		}
+	//		user = newUser
+	//	} else {
+	//		c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not check user"})
+	//		return
+	//	}
+	//}
 
 	// Send verification email
 	//if err := utils.SendVerificationEmail(user.Email, token); err != nil {
@@ -183,13 +197,13 @@ func RegisterHandler(c *gin.Context) {
 	//	return
 	//}
 
-	// Optionally, return a JWT token for immediate login
-	tokenString, err := middleware.GenerateJWT(user)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating token"})
-		return
-	}
-	c.JSON(http.StatusOK, gin.H{"token": tokenString, "message": "Registration successful. Please verify your email."})
+	//// Optionally, return a JWT token for immediate login
+	//tokenString, err := middleware.GenerateJWT(user)
+	//if err != nil {
+	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating token"})
+	//	return
+	//}
+	c.JSON(http.StatusOK, gin.H{"token": token, "message": "Registration successful. Please verify your email."})
 }
 
 func VerifyEmail(c *gin.Context) {
