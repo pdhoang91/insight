@@ -23,6 +23,8 @@ services:
       context: ./backend
     expose:                           # Sử dụng `expose` thay vì `ports`
       - "81"
+    ports:
+      - "81"
     volumes:
       - ./backend/uploads:/app/uploads  # Mount thư mục uploads của backend
     depends_on:
@@ -54,11 +56,48 @@ services:
         fluentd-address: localhost:24224
         tag: docker.application
 
+  auth-service:
+    container_name: auth_service
+    build:
+      context: ./auth-service
+    expose:                           # Sử dụng `expose` thay vì `ports`
+      - "84"
+    ports:
+      - "84"
+    depends_on:
+      - db
+      - fluentd
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=postgres
+      - ELASTICSEARCH_HOST=http://elasticsearch:9200
+      - JWT_SECRET=${JWT_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_REDIRECT_URL=${GOOGLE_REDIRECT_URL}
+      - BASE_SEARCH_API_URL=${BASE_SEARCH_API_URL}
+      - BASE_API_URL=${BASE_API_URL}
+      - BASE_FE_URL=${BASE_FE_URL}
+      - BASE_BE_URL=${BASE_BE_URL}
+      - LOG_LEVEL=DEBUG
+    networks:
+      - app-network
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: docker.auth_service
+
   image-service:
     container_name: image_service
     build:
       context: ./image-service
     expose:
+      - "82"
+    ports:
       - "82"
     volumes:
       - ./image-service/images:/app/images/uploads  # Mount thư mục uploads của image-service
@@ -81,6 +120,8 @@ services:
     build:
       context: ./search-service
     expose:
+      - "83"
+    ports:
       - "83"
     # volumes:
     #   - ./search-service/images:/app/images/uploads  # Mount thư mục uploads của image-service
