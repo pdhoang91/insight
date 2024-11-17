@@ -176,7 +176,7 @@ const TabSwitcher = ({ activeTab, toggleTab, user }) => {
   if (isError) return <div className="text-center text-red-500">Error loading tabs.</div>;
 
   return (
-    <div className="relative flex items-center mb-6 pb-2">
+    <div className="relative flex items-center mb-6 p-6 pb-2">
       {/* Nút mũi tên trái */}
       {showLeftArrow && (
         <button
