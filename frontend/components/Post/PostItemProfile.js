@@ -91,7 +91,7 @@ const PostItemProfile = ({ post, isOwner }) => {
   };
 
   return (
-    <div className="rounded-lg p-6 mb-6 bg-white transition-shadow duration-300">
+    <div className="rounded-lg mb-6 bg-white transition-shadow duration-300">
       <div className="flex flex-col md:flex-row">
         {/* Post Section */}
         <div className="w-full md:w-2/3 pr-0 md:pr-4">

@@ -75,7 +75,7 @@ const PostItem = ({ post }) => {
 
   return (
     <div
-      className="rounded-lg p-6 mb-6 bg-white transition-shadow duration-300"
+      className="rounded-lg p-3 mb-6 bg-white transition-shadow duration-300"
     >
       <div className="flex flex-col md:flex-row">
         {/* Post Section */}
