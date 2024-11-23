@@ -17,6 +17,23 @@ services:
     networks:
       - app-network
 
+  db:
+    image: postgres:13
+    container_name: database
+    restart: always
+    depends_on:
+      - fluentd
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5433:5432" # Cổng này chỉ để truy cập từ host, không cần thiết cho kết nối giữa các container
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
   app:
     container_name: application
     build:
@@ -56,41 +73,6 @@ services:
       options:
         fluentd-address: localhost:24224
         tag: docker.application
-
-  auth-service:
-    container_name: auth_service
-    build:
-      context: ./backend/auth-service
-    expose:                           # Sử dụng `expose` thay vì `ports`
-      - "84"
-    ports:
-      - "84"
-    depends_on:
-      - db
-      - fluentd
-    environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_NAME=postgres
-      - ELASTICSEARCH_HOST=http://elasticsearch:9200
-      - JWT_SECRET=${JWT_SECRET}
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - GOOGLE_REDIRECT_URL=${GOOGLE_REDIRECT_URL}
-      - BASE_SEARCH_API_URL=${BASE_SEARCH_API_URL}
-      - BASE_API_URL=${BASE_API_URL}
-      - BASE_FE_URL=${BASE_FE_URL}
-      - BASE_BE_URL=${BASE_BE_URL}
-      - LOG_LEVEL=DEBUG
-    networks:
-      - app-network
-    logging:
-      driver: "fluentd"
-      options:
-        fluentd-address: localhost:24224
-        tag: docker.auth_service
 
   image-service:
     container_name: image_service
@@ -150,20 +132,55 @@ services:
         fluentd-address: localhost:24224
         tag: docker.search_service
 
-  db:
-    image: postgres:13
-    container_name: database
-    restart: always
+  auth-service:
+    container_name: auth_service
+    build:
+      context: ./backend/auth-service
+    expose:                           # Sử dụng `expose` thay vì `ports`
+      - "84"
+    ports:
+      - "84"
     depends_on:
+      - db
       - fluentd
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=postgres
+      - ELASTICSEARCH_HOST=http://elasticsearch:9200
+      - JWT_SECRET=${JWT_SECRET}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_REDIRECT_URL=${GOOGLE_REDIRECT_URL}
+      - BASE_SEARCH_API_URL=${BASE_SEARCH_API_URL}
+      - BASE_API_URL=${BASE_API_URL}
+      - BASE_FE_URL=${BASE_FE_URL}
+      - BASE_BE_URL=${BASE_BE_URL}
+      - LOG_LEVEL=DEBUG
+    networks:
+      - app-network
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: docker.auth_service
+
+  news-fast:
+    build:
+      context: ./backend/news-fast
+    container_name: news_fast
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=postgres
     ports:
-      - "5433:5432" # Cổng này chỉ để truy cập từ host, không cần thiết cho kết nối giữa các container
-    volumes:
-      - db-data:/var/lib/postgresql/data
+      - "85:85"
+    depends_on:
+      - db
     networks:
       - app-network
 
