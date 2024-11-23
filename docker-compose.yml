@@ -250,8 +250,8 @@ services:
       - "3000"
     ports:
       - "3000:3000"  # Bạn có thể giữ hoặc loại bỏ dòng này nếu muốn frontend chỉ truy cập thông qua Nginx
-    depends_on:
-      - fluentd
+    # depends_on:
+    #   - fluentd
     networks:
       - app-network
 
