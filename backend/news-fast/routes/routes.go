@@ -17,7 +17,7 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 	sourceController := &controllers.SourceController{DB: db}
 
 	// 5. Create API Group
-	api := r.Group("/api85")
+	api := r.Group("/api")
 	{
 		// Category routes
 		api.POST("/categories", categoryController.CreateCategory)
