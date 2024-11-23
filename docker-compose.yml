@@ -7,8 +7,8 @@ services:
       - "80:80"        # Cổng chính để truy cập từ host
       - "443:443"      # Nếu bạn muốn sử dụng HTTPS
     volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d  # Thư mục chứa cấu hình Nginx
-      - ./nginx/certs:/etc/nginx/certs    # Thư mục chứa chứng chỉ SSL (nếu sử dụng HTTPS)
+      - ./backend/nginx/conf.d:/etc/nginx/conf.d  # Thư mục chứa cấu hình Nginx
+      - ./backend/nginx/certs:/etc/nginx/certs    # Thư mục chứa chứng chỉ SSL (nếu sử dụng HTTPS)
     depends_on:
       - frontend
       - app
@@ -20,13 +20,13 @@ services:
   app:
     container_name: application
     build:
-      context: ./backend
+      context: ./backend/management
     expose:                           # Sử dụng `expose` thay vì `ports`
       - "81"
     ports:
       - "81"
     volumes:
-      - ./backend/uploads:/app/uploads  # Mount thư mục uploads của backend
+      - ./backend/management/uploads:/app/uploads  # Mount thư mục uploads của backend
     depends_on:
       - db
       - elasticsearch
@@ -60,7 +60,7 @@ services:
   auth-service:
     container_name: auth_service
     build:
-      context: ./auth-service
+      context: ./backend/auth-service
     expose:                           # Sử dụng `expose` thay vì `ports`
       - "84"
     ports:
@@ -95,7 +95,7 @@ services:
   image-service:
     container_name: image_service
     build:
-      context: ./image-service
+      context: ./backend/image-service
     expose:
       - "82"
     ports:
@@ -119,7 +119,7 @@ services:
   search-service:
     container_name: search_service
     build:
-      context: ./search-service
+      context: ./backend/search-service
     expose:
       - "83"
     ports:
@@ -208,7 +208,7 @@ services:
   fluentd:
     #image: fluent/fluentd:v1.14-debian-1
     build:
-      context: ./fluentd
+      context: ./backend/fluentd
       dockerfile: Dockerfile
     container_name: fluentd
     depends_on:
@@ -220,9 +220,9 @@ services:
     expose:
       - "24224"
     volumes:
-      - ./fluentd/conf:/fluentd/etc    # Thư mục cấu hình Fluentd
-      - ./fluentd/logs:/fluentd/log    # Thư mục lưu trữ log
-      - ./fluentd/buffer:/fluentd/buffer # Thư mục buffer
+      - ./backend/fluentd/conf:/fluentd/etc    # Thư mục cấu hình Fluentd
+      - ./backend/fluentd/logs:/fluentd/log    # Thư mục lưu trữ log
+      - ./backend/fluentd/buffer:/fluentd/buffer # Thư mục buffer
     networks:
       - app-network
 
@@ -245,7 +245,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml  # Cấu hình Prometheus
+      - ./backend/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml  # Cấu hình Prometheus
     networks:
       - app-network
 

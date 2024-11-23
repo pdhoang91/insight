@@ -22,7 +22,10 @@ RUN go mod download
 COPY . .
 
 # Build ứng dụng
-RUN go build -o main .
+RUN go build -o management .
+
+# Expose cổng
+EXPOSE 81
 
 # Chạy ứng dụng sau khi PostgreSQL và Elasticsearch đã sẵn sàng
 ENTRYPOINT ["/entrypoint.sh"]
