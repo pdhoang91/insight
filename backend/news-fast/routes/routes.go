@@ -16,6 +16,8 @@ func SetupRoutes(r *gin.Engine, db *gorm.DB) {
 	categoryController := &controllers.CategoryController{DB: db}
 	sourceController := &controllers.SourceController{DB: db}
 
+	r.Static("/static", "./static")
+
 	// 5. Create API Group
 	api := r.Group("/api")
 	{
