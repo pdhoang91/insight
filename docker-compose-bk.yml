@@ -7,8 +7,8 @@ services:
       - "80:80"        # Cổng chính để truy cập từ host
       - "443:443"      # Nếu bạn muốn sử dụng HTTPS
     volumes:
-      - ./backend/nginx/conf.d:/etc/nginx/conf.d  # Thư mục chứa cấu hình Nginx
-      - ./backend/nginx/certs:/etc/nginx/certs    # Thư mục chứa chứng chỉ SSL (nếu sử dụng HTTPS)
+      - ./nginx/conf.d:/etc/nginx/conf.d  # Thư mục chứa cấu hình Nginx
+      - ./nginx/certs:/etc/nginx/certs    # Thư mục chứa chứng chỉ SSL (nếu sử dụng HTTPS)
     depends_on:
       - frontend
       - app
