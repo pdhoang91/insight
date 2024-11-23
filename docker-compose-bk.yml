@@ -13,7 +13,7 @@ services:
       - frontend
       - app
       - image-service
-      #- fluentd
+      - fluentd
     networks:
       - app-network
 
@@ -21,8 +21,8 @@ services:
     image: postgres:13
     container_name: database
     restart: always
-    # depends_on:
-    #   - fluentd
+    depends_on:
+      - fluentd
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -48,7 +48,7 @@ services:
       - db
       - elasticsearch
       - image-service
-      #- fluentd
+      - fluentd
     environment:
       - DB_HOST=db
       - DB_PORT=5432
@@ -68,11 +68,11 @@ services:
       - LOG_LEVEL=DEBUG
     networks:
       - app-network
-    # logging:
-    #   driver: "fluentd"
-    #   options:
-    #     fluentd-address: localhost:24224
-    #     tag: docker.application
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: docker.application
 
   image-service:
     container_name: image_service
@@ -86,17 +86,17 @@ services:
       - ./image-service/images:/app/images/uploads  # Mount thư mục uploads của image-service
     depends_on:
       - db
-      #- fluentd
+      - fluentd
     environment:
       - BASE_BE_URL=${BASE_BE_URL}
       - LOG_LEVEL=DEBUG
     networks:
       - app-network
-    # logging:
-    #   driver: "fluentd"
-    #   options:
-    #     fluentd-address: localhost:24224
-    #     tag: docker.image_service
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: docker.image_service
 
   search-service:
     container_name: search_service
@@ -110,7 +110,8 @@ services:
     #   - ./search-service/images:/app/images/uploads  # Mount thư mục uploads của image-service
     depends_on:
       - db
-      #- fluentd
+      - fluentd
+      # - elasticsearch
     environment:
       - DB_HOST=db
       - DB_PORT=5432
@@ -125,11 +126,11 @@ services:
       - LOG_LEVEL=DEBUG
     networks:
       - app-network
-    # logging:
-    #   driver: "fluentd"
-    #   options:
-    #     fluentd-address: localhost:24224
-    #     tag: docker.search_service
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: docker.search_service
 
   auth-service:
     container_name: auth_service
@@ -141,7 +142,7 @@ services:
       - "84"
     depends_on:
       - db
-    #  - fluentd
+      - fluentd
     environment:
       - DB_HOST=db
       - DB_PORT=5432
@@ -160,11 +161,11 @@ services:
       - LOG_LEVEL=DEBUG
     networks:
       - app-network
-    # logging:
-    #   driver: "fluentd"
-    #   options:
-    #     fluentd-address: localhost:24224
-    #     tag: docker.auth_service
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: docker.auth_service
 
   news-fast:
     build:
@@ -216,31 +217,31 @@ services:
       - "5601"
     depends_on:
       - elasticsearch
-      #- fluentd
+      - fluentd
     networks:
       - app-network
 
   # Thêm Fluentd
-  # fluentd:
-  #   #image: fluent/fluentd:v1.14-debian-1
-  #   build:
-  #     context: ./backend/fluentd
-  #     dockerfile: Dockerfile
-  #   container_name: fluentd
-  #   depends_on:
-  #     elasticsearch:
-  #       condition: service_healthy
-  #   ports:
-  #     - "24224:24224"       # Port mặc định cho Fluentd
-  #     - "24224:24224/udp"   # Port UDP cho Fluentd
-  #   expose:
-  #     - "24224"
-  #   volumes:
-  #     - ./backend/fluentd/conf:/fluentd/etc    # Thư mục cấu hình Fluentd
-  #     - ./backend/fluentd/logs:/fluentd/log    # Thư mục lưu trữ log
-  #     - ./backend/fluentd/buffer:/fluentd/buffer # Thư mục buffer
-  #   networks:
-  #     - app-network
+  fluentd:
+    #image: fluent/fluentd:v1.14-debian-1
+    build:
+      context: ./backend/fluentd
+      dockerfile: Dockerfile
+    container_name: fluentd
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    ports:
+      - "24224:24224"       # Port mặc định cho Fluentd
+      - "24224:24224/udp"   # Port UDP cho Fluentd
+    expose:
+      - "24224"
+    volumes:
+      - ./backend/fluentd/conf:/fluentd/etc    # Thư mục cấu hình Fluentd
+      - ./backend/fluentd/logs:/fluentd/log    # Thư mục lưu trữ log
+      - ./backend/fluentd/buffer:/fluentd/buffer # Thư mục buffer
+    networks:
+      - app-network
 
   frontend:
     container_name: frontend
