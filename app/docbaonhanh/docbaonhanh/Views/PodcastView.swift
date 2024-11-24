@@ -15,14 +15,13 @@ struct PodcastView: View {
                         PodcastItemRow(
                             item: item,
                             isPlaying: audioService.isPlaying &&
-                                     audioService.currentIndex == viewModel.newsItems.firstIndex(where: { $0.id == item.id }) ?? -1,
+                                     audioService.currentItem?.id == item.id,
                             onTap: {
                                 if let index = viewModel.newsItems.firstIndex(where: { $0.id == item.id }) {
                                     audioService.setPlaylist(viewModel.newsItems)
                                     audioService.currentIndex = index
                                     if let audioUrl = URL(string: item.audioUrl ?? "") {
                                         audioService.play(url: audioUrl)
-                                        showingFullPlayer = true
                                     }
                                 }
                             }
@@ -62,38 +61,62 @@ struct PodcastView: View {
                 }
             }
             .navigationTitle("Podcast")
-            .sheet(isPresented: $showingFullPlayer) {
-                if let currentItem = viewModel.newsItems[safe: audioService.currentIndex] {
-                    AudioPlayerView(audioService: audioService, newsTitle: currentItem.title)
-                        .presentationDetents([.height(200)])
-                }
-            }
             .overlay(
                 VStack {
                     Spacer()
-                    if !viewModel.newsItems.isEmpty &&
-                       audioService.isPlaying,
-                       let currentItem = viewModel.newsItems[safe: audioService.currentIndex] {
-                        MiniPlayerView(audioService: audioService, newsTitle: currentItem.title)
-                            .onTapGesture {
-                                showingFullPlayer = true
-                            }
+                    if audioService.currentItem != nil {
+                        VStack(spacing: 0) {
+                            Divider()
+                            MiniPlayerView(showProgressBar: true)
+                                .onTapGesture {
+                                    showingFullPlayer = true
+                                }
+                        }
+                        .background(Color(UIColor.systemBackground))
+                        .shadow(radius: 2)
                     }
                 }
             )
+            .sheet(isPresented: $showingFullPlayer) {
+                if let currentItem = audioService.currentItem {
+                    VStack(spacing: 0) {
+                        // Player Header
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(currentItem.title)
+                                    .font(.headline)
+                                    .lineLimit(2)
+                                Text(currentItem.source)
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                            Spacer()
+                            Button(action: {
+                                showingFullPlayer = false
+                            }) {
+                                Image(systemName: "chevron.down")
+                                    .font(.title3)
+                                    .foregroundColor(.gray)
+                            }
+                        }
+                        .padding()
+                        
+                        Divider()
+                        
+                        // Player Controls
+                        MiniPlayerView(showProgressBar: true)
+                            .padding(.bottom)
+                    }
+                    .presentationDetents([.height(200)])
+                    .presentationDragIndicator(.visible)
+                }
+            }
         }
         .onAppear {
             if viewModel.newsItems.isEmpty {
                 viewModel.fetchInitialNews()
             }
         }
-    }
-}
-
-// Helper extension để an toàn khi truy cập array
-extension Array {
-    subscript(safe index: Int) -> Element? {
-        return indices.contains(index) ? self[index] : nil
     }
 }
 
@@ -104,29 +127,56 @@ struct PodcastItemRow: View {
     
     var body: some View {
         HStack(spacing: 12) {
-            Button(action: onTap) {
-                Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                    .font(.title)
-                    .foregroundColor(.blue)
+            AsyncImage(url: URL(string: item.imageUrl)) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            } placeholder: {
+                Color.gray
             }
+            .frame(width: 60, height: 60)
+            .cornerRadius(8)
+            .overlay(
+                Button(action: onTap) {
+                    Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                        .font(.title)
+                        .foregroundColor(.white)
+                        .shadow(radius: 2)
+                }
+                .frame(width: 60, height: 60)
+                .background(Color.black.opacity(0.3))
+            )
             
             VStack(alignment: .leading, spacing: 4) {
                 Text(item.title)
-                    .font(.headline)
+                    .font(.subheadline)
+                    .fontWeight(.medium)
                     .lineLimit(2)
                 
-                Text(item.source)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                HStack {
+                    Text(item.source)
+                        .font(.caption)
+                        .foregroundColor(.blue)
+                    
+                    Text("•")
+                        .foregroundColor(.gray)
+                    
+                    Text(item.publishedDate, style: .date)
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
             }
             
             Spacer()
-            
-            Text(item.publishedDate, style: .date)
-                .font(.caption)
-                .foregroundColor(.gray)
         }
-        .padding(.vertical, 8)
+        .padding(.vertical, 4)
+    }
+}
+
+// Helper extension để an toàn khi truy cập array
+extension Array {
+    subscript(safe index: Int) -> Element? {
+        return indices.contains(index) ? self[index] : nil
     }
 }
 
