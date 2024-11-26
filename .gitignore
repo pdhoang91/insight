@@ -63,3 +63,4 @@ fluentd/logs/*
 fluentd/buffer/*
 .vscode/*
 backend/fluentd/buffer/elasticsearch/
+backend/news-fast/static/mp3/*
