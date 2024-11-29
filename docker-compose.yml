@@ -41,7 +41,7 @@ services:
     expose:                           # Sử dụng `expose` thay vì `ports`
       - "81"
     ports:
-      - "81"
+      - "81:81"
     volumes:
       - ./backend/application/uploads:/app/uploads  # Mount thư mục uploads của backend
     depends_on:
@@ -81,7 +81,7 @@ services:
     expose:
       - "82"
     ports:
-      - "82"
+      - "82:82"
     volumes:
       - ./image-service/images:/app/images/uploads  # Mount thư mục uploads của image-service
     depends_on:
@@ -105,7 +105,7 @@ services:
     expose:
       - "83"
     ports:
-      - "83"
+      - "83:83"
     # volumes:
     #   - ./search-service/images:/app/images/uploads  # Mount thư mục uploads của image-service
     depends_on:
@@ -138,7 +138,7 @@ services:
     expose:                           # Sử dụng `expose` thay vì `ports`
       - "84"
     ports:
-      - "84"
+      - "84:84"
     depends_on:
       - db
     #  - fluentd

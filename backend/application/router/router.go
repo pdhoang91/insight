@@ -16,7 +16,7 @@ import (
 func SetupRouter() *gin.Engine {
 	r := gin.Default()
 
-	r.Static("/uploads", "./uploads") // Serve the uploads directory
+	//r.Static("/uploads", "./uploads") // Serve the uploads directory
 	allowOrigins := os.Getenv("BASE_FE_URL")
 	fmt.Println("allowOrigins", allowOrigins)
 	config := cors.Config{
