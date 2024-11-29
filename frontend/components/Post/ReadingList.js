@@ -17,13 +17,12 @@ const fetchReadingList = async () => {
 const ReadingList = () => {
   const { user } = useUser();
   const router = useRouter();
+  const { data, error } = useSWR('/api/bookmarks', fetchReadingList);
 
   // Early return if there's no user
   if (!user) {
     return <div className="text-gray-600">Đăng nhập để xem danh sách đọc.</div>;
   }
-
-  const { data, error } = useSWR('/api/bookmarks', fetchReadingList);
 
   if (error) {
     return <div className="text-red-500">Không thể tải danh sách đọc.</div>;
