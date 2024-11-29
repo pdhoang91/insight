@@ -34,16 +34,16 @@ services:
     networks:
       - app-network
 
-  app:
+  application:
     container_name: application
     build:
-      context: ./backend/management
+      context: ./backend/application
     expose:                           # Sử dụng `expose` thay vì `ports`
       - "81"
     ports:
       - "81"
     volumes:
-      - ./backend/management/uploads:/app/uploads  # Mount thư mục uploads của backend
+      - ./backend/application/uploads:/app/uploads  # Mount thư mục uploads của backend
     depends_on:
       - db
       - elasticsearch
