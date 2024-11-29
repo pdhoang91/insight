@@ -41,9 +41,9 @@ global:
   scrape_interval: 15s  # Tần suất quét  
 
 scrape_configs:
-  - job_name: 'application'
-    static_configs:
-      - targets: ['application:81']
+  # - job_name: 'application'
+  #   static_configs:
+  #     - targets: ['application:81']
 
   - job_name: 'search_service'
     static_configs:

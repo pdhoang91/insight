@@ -4,9 +4,6 @@ package main
 import (
 	"log"
 
-	"github.com/gin-gonic/gin"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
-
 	"github.com/pdhoang91/blog/config"
 	"github.com/pdhoang91/blog/database"
 	"github.com/pdhoang91/blog/router"
@@ -30,7 +27,7 @@ func main() {
 	r := router.SetupRouter()
 
 	// Đăng ký endpoint /metrics
-	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
+	//r.GET("/metrics", gin.WrapH(promhttp.Handler()))
 
 	err = r.Run(":81")
 	if err != nil {
