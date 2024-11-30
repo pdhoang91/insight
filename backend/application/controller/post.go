@@ -746,7 +746,7 @@ func GetPostsByCategory(c *gin.Context) {
 	}
 
 	var category models.Category
-	if err := database.DB.Where("name = ?", decodedCategoryName).First(&category).Error; err != nil {
+	if err := database.DB.Where("name ILIKE ?", decodedCategoryName).First(&category).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Category not found"})
 		} else {
