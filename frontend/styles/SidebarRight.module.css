@@ -1,0 +1,19 @@
+
+/* styles/SidebarRight.module.css */
+.categoriesSection {
+  /* Add any specific styles for categories section */
+  margin-bottom: 1.5rem;
+}
+
+.readingListSection {
+  /* Add any specific styles for reading list section */
+  margin-bottom: 1.5rem;
+}
+
+/* Optional: Add media queries if needed */
+@media (max-width: 950px) {
+  .categoriesSection,
+  .readingListSection {
+    display: none;
+  }
+}
