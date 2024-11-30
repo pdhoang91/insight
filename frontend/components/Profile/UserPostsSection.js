@@ -1,18 +1,37 @@
-// components/Profile/UserPostList.js
+// components/Profile/UserPostsSection.js
 import React from 'react';
-//import UserPostItem from './UserPostItem';
+import InfiniteScrollWrapper from '../Utils/InfiniteScrollWrapper';
 import UserPostList from './UserPostList';
+import PostItemProfile from '../Post/PostItemProfile';
 
+const UserPostsSection = ({ posts, isLoading, isError, setSize, isReachingEnd, isOwner }) => {
+  const fetchMore = () => {
+    if (!isReachingEnd && !isLoading) {
+      setSize(prevSize => prevSize + 1);
+    }
+  };
 
-const UserPostsSection = ({ posts, isOwner }) => {
-  if (!Array.isArray(posts)) {
-    return <div>No posts available.</div>;
-  }
+  const renderItem = (post) => {
+    if (!post || !post.id) {
+      console.warn('Post without id:', post);
+      return null; // Hoặc render một component khác để xử lý
+    }
+    return <PostItemProfile key={post.id} post={post} isOwner={isOwner} />;
+  };
+
+  if (isError) return <div className="text-red-500">Failed to load posts</div>;
+  if (isLoading && posts.length === 0) return <div>Loading...</div>;
 
   return (
-      <div>
-        <UserPostList posts={posts} isOwner={isOwner} />
-      </div>
+    <InfiniteScrollWrapper
+      items={posts}
+      renderItem={renderItem}
+      fetchMore={fetchMore}
+      hasMore={!isReachingEnd}
+      loader={<div className="text-center my-4">Loading more posts...</div>}
+      endMessage={<p className="text-center mt-4">Đã tải hết bài viết.</p>}
+      className="space-y-4"
+    />
   );
 };
 

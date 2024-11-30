@@ -4,6 +4,8 @@ import { useRouter } from 'next/router';
 import { useUser } from '../context/UserContext';
 import usePublicProfile from '../hooks/usePublicProfile';
 import useProfile from '../hooks/useProfile';
+import useInfiniteUserPosts from '../hooks/useInfiniteUserPosts';
+import useInfiniteBookmarks from '../hooks/useInfiniteBookmarks'; // Import hook mới
 import ProfileHeader from '../components/Profile/ProfileHeader';
 import ProfileUpdateForm from '../components/Profile/ProfileUpdateForm';
 import UserPostsSection from '../components/Profile/UserPostsSection';
@@ -16,9 +18,6 @@ const UserProfilePage = () => {
   const router = useRouter();
   const { username } = router.query;
   const { user: loggedUser, loading: loadingUser, mutate: mutateUser } = useUser();
-
-  //const { user: loggedUser, loading: loadingUser, setUser, setModalOpen } = useUser(); // Sửa lại destructuring
-  // Đã loại bỏ mutateUser vì không có trong UserContext
 
   const [activeTab, setActiveTab] = useState('');
   const [isOwner, setIsOwner] = useState(false);
@@ -60,7 +59,23 @@ const UserProfilePage = () => {
     updateProfile,
   } = useProfile();
 
-  //const { data, isLoading, isError } = useSearch(query);
+  // Sử dụng useInfinitePosts hook
+  const {
+    posts: infinitePosts,
+    isLoading: isLoadingPosts,
+    isError: isErrorPosts,
+    setSize: setSizePosts,
+    isReachingEnd: isReachingEndPosts,
+  } = useInfiniteUserPosts(activeTab, loggedUser);
+
+  // Sử dụng useInfiniteBookmarks hook
+  const {
+    bookmarks,
+    isLoading: isLoadingBookmarks,
+    isError: isErrorBookmarks,
+    setSize: setSizeBookmarks,
+    isReachingEnd: isReachingEndBookmarks,
+  } = useInfiniteBookmarks();
 
   const handleUpdateProfile = async (profileData) => {
     try {
@@ -69,9 +84,6 @@ const UserProfilePage = () => {
       if (mutateUser) {
         await mutateUser();
       }
-
-      // Không cần gọi mutateUser vì không có trong UserContext
-      // setUser đã được gọi trong updateProfile
     } catch (err) {
       console.error("Failed to update profile:", err);
       alert("Cập nhật hồ sơ thất bại. Vui lòng thử lại.");
@@ -80,8 +92,9 @@ const UserProfilePage = () => {
 
   const profile = isOwner ? ownerProfile : publicProfile;
   const posts = isOwner ? ownerPosts : publicPosts;
-  //const folows = isOwner ? folows : folows;
-  const bookmarks = isOwner ? ownerReadingList : publicBookmarks;
+  // Đã tích hợp infinitePosts vào posts
+  const combinedPosts = isOwner ? infinitePosts : publicPosts;
+  const bookmarksData = isOwner ? ownerReadingList : publicBookmarks;
   const loading = isOwner ? loadingOwner : loadingPublic;
   const error = isOwner ? ownerError : publicError;
 
@@ -157,13 +170,33 @@ const UserProfilePage = () => {
         >
           {/* Hiển Thị Nội Dung Tùy Thuộc Vào activeTab */}
           {activeTab === 'YourPosts' && isOwner && (
-            <UserPostsSection posts={posts || []} isOwner={isOwner} />
+            <UserPostsSection
+              posts={infinitePosts}
+              isLoading={isLoadingPosts}
+              isError={isErrorPosts}
+              setSize={setSizePosts}
+              isReachingEnd={isReachingEndPosts}
+              isOwner={isOwner}
+            />
           )}
           {activeTab === 'UserPosts' && !isOwner && (
-            <UserPostsSection posts={posts || []} isOwner={isOwner} />
+            <UserPostsSection
+              posts={publicPosts}
+              isLoading={loading}
+              isError={error}
+              setSize={setSizePosts}
+              isReachingEnd={isReachingEndPosts}
+              isOwner={isOwner}
+            />
           )}
           {activeTab === 'YourReading' && isOwner && (
-            <ReadingListSection bookmarks={bookmarks} />
+            <ReadingListSection
+              bookmarks={bookmarks}
+              isLoading={isLoadingBookmarks}
+              isError={isErrorBookmarks}
+              setSize={setSizeBookmarks}
+              isReachingEnd={isReachingEndBookmarks}
+            />
           )}
           {activeTab === 'Your Folow' && (
             <FolowPeopleSestion peoples={folows}/>
