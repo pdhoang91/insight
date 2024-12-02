@@ -8,6 +8,9 @@ export const axiosPublicInstance = axios.create({
 
 export const axiosAIPublicInstance = axios.create({
   baseURL: BASE_AIAPI_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 export const axiosPublicInstanceSimple = axios.create({

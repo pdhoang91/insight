@@ -1,6 +1,4 @@
-// src/services/aiService.js
-
-import { BASE_AIAPI_URL } from '../config/api';
+import { axiosAIPublicInstance } from '../utils/axiosPublicInstance';
 
 /**
  * Lấy nội dung bài viết từ URL.
@@ -9,20 +7,11 @@ import { BASE_AIAPI_URL } from '../config/api';
  * @throws {Error} - Nếu không thể lấy nội dung.
  */
 export const fetchArticle = async (url) => {
-  const response = await fetch(`${BASE_AIAPI_URL}/fetch-article`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ url }),
+  const response = await axiosAIPublicInstance.post('/ai/fetch-article', {
+    url, // Payload chỉ chứa key-value
   });
-
-  if (!response.ok) {
-    throw new Error('Không thể tải nội dung bài viết');
-  }
-
-  const data = await response.json();
-  return data.content;
+  // Trả về nội dung bài viết từ response.data
+  return response.data.content;
 };
 
 /**
@@ -34,22 +23,11 @@ export const fetchArticle = async (url) => {
  * @throws {Error} - Nếu có lỗi khi tóm tắt.
  */
 export const summarizeArticle = async (content, model, prompt) => {
-  const response = await fetch(`${BASE_AIAPI_URL}/summarize`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      content,
-      model,
-      prompt,
-    }),
+  const response = await axiosAIPublicInstance.post('/ai/summarize', {
+    content,
+    model,
+    prompt, // Gửi payload đúng định dạng JSON
   });
-
-  if (!response.ok) {
-    throw new Error('Lỗi khi tóm tắt bài viết');
-  }
-
-  const data = await response.json();
-  return data.summary;
+  // Trả về bản tóm tắt từ response.data
+  return response.data.summary;
 };
