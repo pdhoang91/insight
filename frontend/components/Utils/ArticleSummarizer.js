@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BASE_AIAPI_URL } from '../config/api';
+import { fetchArticle, summarizeArticle } from '../services/aiService';
 
 const styles = {
   container: {
@@ -88,6 +88,7 @@ const styles = {
   }
 };
 
+
 const ArticleSummarizer = () => {
   const [inputType, setInputType] = useState('text');
   const [input, setInput] = useState('');
@@ -103,12 +104,12 @@ const ArticleSummarizer = () => {
     { id: 'gpt-4o', name: 'gpt-4o' },
   ];
 
-  const summarizePrompt = `
+  const summarizePrompt = (content) => `
     Hãy viết lại nội dung bài viết sau một cách ngắn gọn và mạch lạc. 
     Đảm bảo giữ lại các ý chính và thông tin quan trọng. Đảm bảo nội dung bài viết có các bố cục rõ ràng như mở bài, thân bài, kết bài.
     Nội dung bài viết:
     
-    ${input}
+    ${content}
   `;
 
   const handleSubmit = async (e) => {
@@ -122,41 +123,15 @@ const ArticleSummarizer = () => {
 
       // Nếu là URL, fetch nội dung bài viết
       if (inputType === 'url') {
-        const response = await fetch(`${BASE_AIAPI_URL}/fetch-article`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ url: input }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Không thể tải nội dung bài viết');
-        }
-
-        const data = await response.json();
-        content = data.content;
+        content = await fetchArticle(input);
       }
 
-      // Gọi API ChatGPT
-      const response = await fetch(`${BASE_AIAPI_URL}/summarize`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          content: content,
-          model: model,
-          prompt: summarizePrompt
-        }),
-      });
+      // Tạo prompt với nội dung
+      const prompt = summarizePrompt(content);
 
-      if (!response.ok) {
-        throw new Error('Lỗi khi tóm tắt bài viết');
-      }
-
-      const data = await response.json();
-      setSummary(data.summary);
+      // Gọi API ChatGPT để tóm tắt
+      const summarizedText = await summarizeArticle(content, model, prompt);
+      setSummary(summarizedText);
     } catch (err) {
       setError(err.message);
     } finally {
