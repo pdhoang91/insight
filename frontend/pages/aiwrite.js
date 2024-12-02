@@ -13,15 +13,11 @@ const styles = {
     justifyContent: 'center',
     alignItems: 'flex-start',
     minHeight: '100vh',
-    backgroundColor: '#F7F7F7',
   },
   contentWrapper: {
     width: '100%',
     maxWidth: '1200px',
     padding: '1.5rem',
-    backgroundColor: '#FFFFFF',
-    borderRadius: '8px',
-    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
   },
   columns: {
     display: 'flex',
