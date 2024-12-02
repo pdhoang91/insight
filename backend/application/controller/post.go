@@ -100,6 +100,48 @@ func GetPostByID(c *gin.Context) {
 	})
 }
 
+// GetMostViewedPosts trả về danh sách các bài viết có lượt xem cao nhất
+func GetMostViewedPosts(c *gin.Context) {
+	var posts []models.Post
+	var total int64
+
+	// Lấy tham số phân trang từ query
+	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "10"))
+	if err != nil || limit < 1 {
+		limit = 10
+	}
+	offset := (page - 1) * limit
+
+	// Đếm tổng số bài viết
+	if err := database.DB.Model(&models.Post{}).Count(&total).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Lấy danh sách bài viết, sắp xếp theo views giảm dần
+	result := database.DB.
+		Preload("User").     // Eager load thông tin User
+		Order("views DESC"). // Sắp xếp theo số lượt xem giảm dần
+		Limit(limit).
+		Offset(offset).
+		Find(&posts)
+
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+		return
+	}
+
+	// Trả về kết quả
+	c.JSON(http.StatusOK, gin.H{
+		"data":        posts,
+		"total_count": total,
+	})
+}
+
 func GetPostByName(c *gin.Context) {
 	titleName := c.Param("title_name")
 	var post models.Post

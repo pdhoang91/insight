@@ -5,7 +5,6 @@ import CommentList from './CommentList';
 import AddCommentForm from './AddCommentForm';
 import { addComment } from '../../services/commentService';
 import { useComments } from '../../hooks/useComments';
-import { useUser } from '../../context/UserContext';
 import { FaTimes } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 

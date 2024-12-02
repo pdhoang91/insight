@@ -43,13 +43,6 @@ const CategoriesSection = () => {
       </div>
       {categories.length > 3 && (
          <ViewMoreButton onClick={handleSeeMore} />
-      //   <button
-      //       href="#"
-      //       onClick={handleSeeMore}
-      //       className="mt-4 inline-block px-6 py-2 border border-gray-300 text-gray-600 rounded-full text-center transition-colors hover:bg-gray-100"
-      //     >
-      //       View More
-      // </button>
       )}
     </div>
   );

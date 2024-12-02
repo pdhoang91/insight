@@ -67,6 +67,5 @@ func AutoMigrate(database *gorm.DB) {
 func InitializeDatabase() *gorm.DB {
 	db := ConnectDatabase()
 	AutoMigrate(db)
-	//SetupElasticsearchHooks(db)
 	return db
 }

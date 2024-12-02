@@ -66,7 +66,7 @@ const UserProfilePage = () => {
     isError: isErrorPosts,
     setSize: setSizePosts,
     isReachingEnd: isReachingEndPosts,
-  } = useInfiniteUserPosts(activeTab, loggedUser);
+  } = useInfiniteUserPosts(activeTab, username);
 
   // Sử dụng useInfiniteBookmarks hook
   const {
@@ -98,7 +98,7 @@ const UserProfilePage = () => {
   const loading = isOwner ? loadingOwner : loadingPublic;
   const error = isOwner ? ownerError : publicError;
 
-  if (loading || loadingUser) return <div className="container mx-auto">Loading...</div>;
+  if (loading || loadingUser) return <div className="container mx-auto"></div>;
   if (error) return <div className="container mx-auto text-red-500">{error}</div>;
 
   // Hàm xử lý khi nhấp vào tab
@@ -118,6 +118,7 @@ const UserProfilePage = () => {
           name={profile?.name}
           phone={profile?.phone}
           dob={profile?.dob}
+          id={profile?.id}
           onUpdate={isOwner ? () => setShowPopup(true) : null}
         />
 

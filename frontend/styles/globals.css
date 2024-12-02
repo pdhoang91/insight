@@ -142,13 +142,91 @@ p {
   outline: none !important;
 }
 
+/* Lớp chung cho nội dung bài viết */
+.content {
+  width: 100%;
+  word-break: break-word;
+}
+
+.content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.content pre,
+.content code,
+.content table,
+.content iframe,
+.content embed,
+.content object {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.content pre {
+  white-space: pre-wrap; /* Allow wrapping in code blocks */
+  word-break: break-word; /* Break long words */
+}
+
+.content code {
+  white-space: pre-wrap; /* Allow wrapping in inline code */
+  word-break: break-word; /* Break long words */
+}
+
+.content table {
+  width: 100%;
+  table-layout: auto;
+}
+
+.content a {
+  word-break: break-word;
+  color: #06c;
+  text-decoration: underline;
+}
+
+.content h1,
+.content h2,
+.content h3,
+.content h4,
+.content h5,
+.content h6 {
+  word-break: break-word;
+}
+
+/* Styles cho blockquote */
+.content blockquote {
+  border-left: 3px solid #ddd;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 10px;
+  color: #666;
+  font-style: italic;
+}
+
 /* Post Content Styles */
 .post-content {
-  /* Ensure post-content takes full width */
-  width: 100%;
+  @apply content;
+}
+
+/* Editor Content Styles */
+.editor-content {
+  @apply content;
+
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  min-height: 300px; /* Đảm bảo chiều cao tối thiểu */
+  height: auto; /* Cho phép chiều cao tự động điều chỉnh */
+}
+
+.editor-content::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
 }
 
 /* Images */
+.content img,
 .post-content img {
   max-width: 100%;
   height: auto;
@@ -158,6 +236,12 @@ p {
 }
 
 /* Code Blocks and Tables */
+.content pre,
+.content code,
+.content table,
+.content iframe,
+.content embed,
+.content object,
 .post-content pre,
 .post-content code,
 .post-content table,
@@ -169,30 +253,41 @@ p {
 }
 
 /* Code Blocks Specific */
+.content pre,
 .post-content pre {
   white-space: pre-wrap; /* Allow wrapping in code blocks */
   word-break: break-word; /* Break long words */
 }
 
 /* Inline Code */
+.content code,
 .post-content code {
   white-space: pre-wrap; /* Allow wrapping in inline code */
   word-break: break-word; /* Break long words */
 }
 
 /* Tables */
+.content table,
 .post-content table {
   width: 100%;
   table-layout: auto;
 }
 
 /* Links */
+.content a,
 .post-content a {
   word-break: break-word;
-  /* Optional: You can add more link styles here */
+  color: #06c;
+  text-decoration: underline;
 }
 
-/* Ensure all headings within post-content can break words */
+/* Ensure all headings within content can break words */
+.content h1, 
+.content h2, 
+.content h3, 
+.content h4, 
+.content h5, 
+.content h6,
 .post-content h1, 
 .post-content h2, 
 .post-content h3, 
@@ -200,86 +295,4 @@ p {
 .post-content h5, 
 .post-content h6 {
   word-break: break-word;
-}
-
-/* Responsive Images in Sidebar (if any) */
-aside img {
-  max-width: 100%;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-}
-
-/* Additional Customizations */
-
-/* Ensure no horizontal scrollbar appears due to flex containers */
-.flex {
-  /* flex-wrap: wrap; */
-}
-
-/* Ensure main content does not exceed available space */
-main {
-  overflow-x: hidden;
-}
-
-/* Specific adjustments if needed */
-@media (min-width: 1024px) {
-  .lg\:flex-row {
-    flex-direction: row;
-  }
-
-  /* Ensure sidebars do not cause overflow */
-  /* aside.lg\:w-2/12 {
-    max-width: 16.666667%;
-  } */
-
-  main.flex-1 {
-    max-width: 66.666667%;
-  }
-}
-
-/* Prevent images or other elements from causing overflow in smaller screens */
-@media (max-width: 1023px) {
-  .post-content img,
-  .post-content pre,
-  .post-content code,
-  .post-content table,
-  .post-content iframe,
-  .post-content embed,
-  .post-content object {
-    max-width: 100%;
-    overflow-x: auto;
-  }
-}
-
-
-/* Styles cho blockquote */
-.ProseMirror blockquote {
-  border-left: 3px solid #ddd;
-  margin-left: 0;
-  margin-right: 0;
-  padding-left: 10px;
-  color: #666;
-  font-style: italic;
-}
-
-/* Styles cho link */
-.ProseMirror a {
-  color: #06c;
-  text-decoration: underline;
-}
-
-
-/* styles/globals.css hoặc file CSS tương ứng */
-.custom-scrollbar::-webkit-scrollbar {
-  height: 0px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 1px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background-color: rgba(0, 0, 0, 0.05);
 }

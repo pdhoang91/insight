@@ -123,6 +123,6 @@ func UploadImageV2(c *gin.Context) {
 		return
 	}
 
-	imageURL := fmt.Sprintf("http://%s/images/uploads/%s/%s/%s/%s", c.Request.Host, userID, time.Now().Format("2006-01-02"), imageType, filepath.Base(filePath))
+	imageURL := fmt.Sprintf("https://%s/images/uploads/%s/%s/%s/%s", c.Request.Host, userID, time.Now().Format("2006-01-02"), imageType, filepath.Base(filePath))
 	c.JSON(http.StatusOK, gin.H{"url": imageURL})
 }

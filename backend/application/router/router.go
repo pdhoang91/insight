@@ -41,6 +41,7 @@ func SetupRouter() *gin.Engine {
 
 	// Routes cho Posts and Comments, Ratings
 	r.GET("/posts", controllers.GetPosts)
+	r.GET("/posts/populer", controllers.GetMostViewedPosts)
 	//r.GET("/posts/:id", controllers.GetPostByID)
 	r.GET("/p/:title_name", controllers.GetPostByName)
 	r.GET("/posts/:id/comments", controllers.GetComments)
