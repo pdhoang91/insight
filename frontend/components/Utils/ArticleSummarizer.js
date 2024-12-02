@@ -11,7 +11,7 @@ const styles = {
     background: 'white',
     borderRadius: '8px',
     padding: '24px',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+    //boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
   },
   title: {
     fontSize: '24px',
@@ -105,7 +105,7 @@ const ArticleSummarizer = () => {
   ];
 
   const summarizePrompt = (content) => `
-    Hãy viết lại nội dung bài viết sau một cách ngắn gọn và mạch lạc. 
+    Hãy viết lại nội dung bài viết sau một cách rõ ràng và mạch lạc. 
     Đảm bảo giữ lại các ý chính và thông tin quan trọng. Đảm bảo nội dung bài viết có các bố cục rõ ràng như mở bài, thân bài, kết bài.
     Nội dung bài viết:
     
