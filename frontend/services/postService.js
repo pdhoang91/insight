@@ -19,6 +19,44 @@ export const getPosts = async (page = 1, limit = 10) => {
   };
 };
 
+export const getPopulerPosts = async (page = 1, limit = 10) => {
+  const response = await axiosPublicInstance.get(`/posts/populer?page=${page}&limit=${limit}`);
+  const data = response.data;
+  if (
+    !data ||
+    !Array.isArray(data.data) || 
+    typeof data.total_count !== 'number'
+  ) {
+    throw new Error('Invalid response format for getPosts');
+  }
+
+  return {
+    posts: data.data,
+    totalCount: data.total_count, 
+  };
+};
+
+export const fetchUserPosts = async (username, page = 1, limit = 10) => {
+  try {
+    const response = await axiosPublicInstance.get(`/public/${username}/posts`, {
+      params: { page, limit },
+    });
+    const data = response.data;
+
+    if (!data || !Array.isArray(data.data) || typeof data.total_count !== 'number') {
+      throw new Error('Invalid response format for getUserPosts');
+    }
+
+    return {
+      posts: data.data,
+      totalCount: data.total_count,
+    };
+  } catch (error) {
+    console.error(`Error fetching posts for user "${username}":`, error);
+    throw error;
+  }
+};
+
 export const createPost = async (postData) => {
   const response = await axiosInstance.post('/api/posts', postData);
   return response.data;

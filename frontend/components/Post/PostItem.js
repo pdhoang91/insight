@@ -97,11 +97,12 @@ const PostItem = ({ post }) => {
           </p>
 
           {/* Rating Component */}
-          <Rating postId={post.id} />
+          {/* <Rating postId={post.id} /> */}
 
           {/* Interaction Buttons */}
           <div className="flex flex-wrap items-center justify-between mt-4 space-y-2 md:space-y-0">
             <div className="flex items-center space-x-4">
+              <TimeAgo timestamp={post.created_at} />
               {/* Nút Clap */}
               <button
                 onClick={handleClap}
@@ -124,7 +125,6 @@ const PostItem = ({ post }) => {
               <span className="flex items-center text-gray-600">
                 <FaEye className="mr-1" /> {post.views}
               </span>
-              <TimeAgo timestamp={post.created_at} />
             </div>
 
             <div className="flex items-center space-x-4">

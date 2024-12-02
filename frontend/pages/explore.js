@@ -1,9 +1,9 @@
-//pages/suggestion.js
+//pages/explore.js
 import React, { useEffect, useState } from 'react';
 import { useUser } from '../context/UserContext';
 import Sidebar from '../components/Shared/Sidebar';
 import SidebarRight from '../components/Shared/SidebarRight';
-import FollowList from '../components/Following/FollowList';
+import FollowList from '../components/Explore/FollowList';
 import { useTabSwitcher } from '../hooks/useTabSwitcher';
 import { getUserTabs } from '../services/tabService'; // Endpoint mới để lấy tabs người dùng đang theo dõi (categories)
 import { getAvailableWriters, getAvailableTopics } from '../services/followService';
@@ -11,7 +11,6 @@ import { motion } from 'framer-motion'; // Thêm thư viện Framer Motion cho a
 import Link from 'next/link';
 import FollowButton from '../components/Utils/FollowButton';
 
-import AuthorInfo from '../components/Auth/AuthorInfo';
 const Suggestion = () => {
   const { user } = useUser();
   const [loading, setLoading] = useState(true);
@@ -114,7 +113,7 @@ const Suggestion = () => {
     // Thêm logic cập nhật userTabs nếu cần thiết
   };
 
-  if (loading) return <div>Loading following...</div>;
+  if (loading) return <div></div>;
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
@@ -151,26 +150,12 @@ const Suggestion = () => {
         {/* Hiển thị nội dung dựa trên activeTab */}
         {activeTab === 'Suggestions' && (
           <FollowList
-            category="Suggestions to follow"
+            category="Đề xuất"
             initialItems={availableTopics}
             onFollowChange={handleCategoryFollowChange}
           />
         )}
        {activeTab === 'Following' && (
-          // <div>
-          //   {availableWriters.map((person) => (
-          //     <div key={person.user_id} className="mb-4 p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-          //       <AuthorInfo author={{ 
-          //         id: person.user_id, 
-          //         username: person.username, 
-          //         name: person.name, 
-          //         avatar_url: person.avatar_url
-          //       }} />
-          //       <p className="text-gray-600">{person.email}</p>
-          //       <p className="text-gray-600">{person.phone}</p>
-          //     </div>
-          //   ))}
-          // </div>
           <div className="container mx-auto px-4 py-8">
       <h2 className="text-2xl font-semibold text-gray-800 mb-6 text-center">
         Gợi ý cho bạn

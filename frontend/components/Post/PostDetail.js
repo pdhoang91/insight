@@ -286,6 +286,11 @@ export const PostDetail = ({ post }) => {
 
       {/* Post Content */}
       <div className="prose lg:prose-xl max-w-none mb-8">
+        <img
+          src={post.image_title}
+          alt={post.title}
+          className="h-48 w-full object-cover rounded transform hover:scale-105 transition-transform duration-300"
+        />
         <div
           className="post-content"
           dangerouslySetInnerHTML={{ __html: post.content }}

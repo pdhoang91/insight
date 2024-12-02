@@ -2,8 +2,9 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import FollowButton from '../Utils/FollowButton';
 
-const ProfileHeader = ({ avatarUrl, name, phone, dob, onUpdate }) => {
+const ProfileHeader = ({ avatarUrl, name, phone, dob, id, onUpdate }) => {
   return (
     <motion.div 
       className="mb-6 flex items-center p-4 bg-white rounded-lg"
@@ -31,6 +32,8 @@ const ProfileHeader = ({ avatarUrl, name, phone, dob, onUpdate }) => {
         <h2 className="text-2xl font-semibold">{name}</h2>
         <p className="text-gray-600">Phone: {phone || 'N/A'}</p>
         <p className="text-gray-600">Date of Birth: {dob || 'N/A'}</p>
+        <FollowButton authorId={id} />
+        
         {/* Nếu bạn có liên kết cần sử dụng, hãy chắc chắn không sử dụng thẻ <a> bên trong <Link> */}
         {/* Ví dụ:
             <Link href="/edit-profile" className="mt-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">

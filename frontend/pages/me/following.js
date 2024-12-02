@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useUser } from '../../context/UserContext';
 import Sidebar from '../../components/Shared/Sidebar';
 import SidebarRight from '../../components/Shared/SidebarRight';
-import FollowList from '../../components/Following/FollowList';
+import FollowList from '../../components/Explore/FollowList';
 import { useTabSwitcher } from '../../hooks/useTabSwitcher';
 import { getUserTabs } from '../../services/tabService'; // Endpoint mới để lấy tabs người dùng đang theo dõi (categories)
 import { getAvailableWriters, getAvailableTopics } from '../../services/followService';

@@ -9,6 +9,7 @@
 
 export const BASE_API_URL_SIMPLE = process.env.NEXT_PUBLIC_BASE_API_URL_SIMPLE;
 export const BASE_API_URL = process.env.NEXT_PUBLIC_BASE_API_URL;
+export const BASE_AIAPI_URL = process.env.NEXT_PUBLIC_BASE_AIAPI_URL;
 export const BASE_FE_URL = process.env.NEXT_PUBLIC_BASE_FE_URL;
 
 

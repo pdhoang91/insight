@@ -11,14 +11,14 @@ const AuthorInfo = ({ author }) => {
           <img
             src={author?.avatar_url || '/default-avatar.png'}
             alt={`${author?.name || 'Author'} Avatar`}
-            className="w-8 h-8 rounded-full mr-2"
+            className="w-5 h-5 rounded-full mr-2"
           />
-          <span className="text-sm font-semibold text-gray-700">
+          <span className="text-sm sohne text-gray-700">
             {author?.name || 'Unknown Author'}
           </span>
         </a>
       </Link>
-      <FollowButton authorId={author.id} />
+      {/* <FollowButton authorId={author.id} /> */}
     </div>
   );
 };
