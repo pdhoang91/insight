@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { fetchArticle, summarizeArticle } from '../services/aiService';
+import { fetchArticle, summarizeArticle } from '../../services/aiService';
 
 const styles = {
   container: {
