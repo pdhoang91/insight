@@ -1,16 +1,17 @@
-// pages/write.js
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { useUser } from '../context/UserContext';
 import CategoryTagsPopup from '../components/Category/CategoryTagsPopup';
 import PostForm from '../components/Post/PostForm';
 import { createPost } from '../services/postService';
-import { usePostContext } from '../context/PostContext'; // Import hook
+import { usePostContext } from '../context/PostContext';
+import { FaRobot } from 'react-icons/fa';
 
 const Write = () => {
   const router = useRouter();
   const { user, setModalOpen, loading } = useUser();
-  const { setHandlePublish, setHandleUpdate } = usePostContext(); // Sử dụng setter từ Context
+  const { setHandlePublish, setHandleUpdate } = usePostContext();
 
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -45,7 +46,6 @@ const Write = () => {
         categories: categories ? categories.split(',').map(cat => cat.trim()) : [],
         tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
       });
-      //alert('Bài viết đã được tạo thành công!');
       router.push(`/p/${res.data.title_name}`);
     } catch (error) {
       console.error('Failed to create post:', error);
@@ -53,10 +53,9 @@ const Write = () => {
     }
   }, [user, title, content, imageTitle, router]);
 
-  // Thiết lập handlePublish trong Context khi trang mount
   useEffect(() => {
     setHandlePublish(() => publishFunction);
-    setHandleUpdate(null); // Đảm bảo handleUpdate không được thiết lập trên trang write
+    setHandleUpdate(null);
     return () => {
       setHandlePublish(null);
     };
@@ -73,6 +72,11 @@ const Write = () => {
   return (
     <div className="flex justify-center items-start min-h-screen bg-white-7000">
       <div className="w-full max-w p-6 bg-white">
+        <div className="flex justify-between items-center mb-4">
+          <Link href="/aiwrite" className="text-gray-500 hover:text-gray-700" title="Hỗ trợ viết bằng AI">
+              <FaRobot size={24} />
+          </Link>
+        </div>
         <PostForm
           title={title}
           setTitle={setTitle}
