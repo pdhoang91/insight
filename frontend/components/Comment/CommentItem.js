@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import AddCommentForm from './AddCommentForm';
 import CommentContent from './CommentContent';
-import CommentActions from './CommentActions';
 import AuthorInfo from '../Auth/AuthorInfo';
 import ReplyList from './ReplyList';
 import { useClapsCount } from '../../hooks/useClapsCount';
@@ -72,19 +71,6 @@ const CommentItem = ({ comment, postId, mutate }) => {
 
       {/* Comment Content */}
       <CommentContent content={comment.content} />
-
-      {/* Timestamp */}
-      {/* <TimeAgo timestamp={comment.created_at} /> */}
-
-      {/* Actions */}
-      {/* <CommentActions
-        handleClap={handleClap}
-        clapsCount={clapsCount}
-        hasClapped={hasClapped}
-        handleToggleReply={handleToggleReply}
-        repliesCount={repliesCount}
-        showReplyForm={showReplyForm}
-      /> */}
 
       <div className="flex items-center space-x-6 mt-2">
       <button
