@@ -4,7 +4,7 @@ import { useUser } from '../context/UserContext';
 import CategoryTagsPopup from '../components/Category/CategoryTagsPopup';
 import { createPost } from '../services/postService';
 import { usePostContext } from '../context/PostContext'; // Import hook
-import ArticleSummarizer from '../components/AIWrite/ArticleSummarizer';
+import ArticleSummarizer from '../components/Editor/AIWrite/ArticleSummarizer';
 
 const styles = {
   container: {
