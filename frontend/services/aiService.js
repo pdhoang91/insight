@@ -23,6 +23,8 @@ export const fetchArticle = async (url) => {
  * @throws {Error} - Nếu có lỗi khi tóm tắt.
  */
 export const summarizeArticle = async (content, model, prompt) => {
+
+  console.log("content: ", content)
   const response = await axiosAIPublicInstance.post('/ai/summarize', {
     content,
     model,
