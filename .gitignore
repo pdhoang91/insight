@@ -52,14 +52,7 @@ frontend/.next/
 frontend/node_modules
 nginx/certs/
 .idea/sonarlint
-backend/image-service/uploads/
-backend/image-service/images/uploads/
-backend/image-service/images/
-backend/image-service/images/*
-backend/image-service/uploads/
-backend/image-service/images/uploads/
-backend/image-service/images/
-backend/image-service/images/*
+backend/image-service/uploads/*
 # logs
 # logs/*
 fluentd/logs
