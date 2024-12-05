@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main  # Hoặc nhánh bạn muốn theo dõi
-      - dev   # Hoặc nhánh bạn muốn theo dõi
 
 jobs:
   deploy:
