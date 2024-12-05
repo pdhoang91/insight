@@ -76,7 +76,7 @@ const PostItem = ({ post }) => {
     <div
       className="rounded-lg p-3 mb-6 bg-white transition-shadow duration-300"
     >
-      <div className="flex flex-col md:flex-row">
+      <div className="flex flex-col md:flex-row pl-2">
         {/* Post Section */}
         <div className="w-full md:w-2/3 pr-0 md:pr-4">
           {/* Author Information */}
@@ -169,16 +169,20 @@ const PostItem = ({ post }) => {
         </div>
 
         {/* Image Section */}
-        <div className="w-full md:w-1/3 mt-4 md:mt-0">
+        <div className="w-full md:w-1/4 mt-4 md:mt-0">
           {post.image_title && (
-            <div className="p-4">
+            <div className="py-4">
+              <div className="">
               <Link href={`/p/${post.title_name}`}>
-                <img
-                  src={post.image_title}
-                  alt={post.title}
-                  className="h-48 w-full object-cover rounded transform hover:scale-105 transition-transform duration-300"
-                />
+                <div className=""> {/* Thêm container với tỷ lệ 1:1 */}
+                  <img
+                    src={post.image_title}
+                    alt={post.title}
+                    className="w-full h-full object-cover rounded transform hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
               </Link>
+              </div>
             </div>
           )}
         </div>
