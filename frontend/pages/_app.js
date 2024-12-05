@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { PostProvider } from '../context/PostContext'; // Import PostProvider
 import UserContext from '../context/UserContext';
-import Navbar from '../components/Shared/Navbar';
+import Navbar from '../components/Navbar/Navbar';
 import LoginModal from '../components/Auth/LoginModal';
 import useAuth from '../hooks/useAuth';
 import '../styles/globals.css';
