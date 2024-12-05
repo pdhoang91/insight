@@ -1,4 +1,4 @@
-// components/Post/ToolbarButton.js
+// components/Editor/ToolbarButton.js
 import React, { useState, useRef, useEffect } from 'react';
 import Tippy from '@tippyjs/react';
 import 'tippy.js/dist/tippy.css'; // Tooltip styling

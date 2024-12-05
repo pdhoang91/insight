@@ -1,5 +1,4 @@
-// // src/components/Comment/CommentsPopup.js
-// src/components/Comment/CommentsPopup.js
+// components/Comment/CommentsPopup.js
 import React, { useMemo, useEffect } from 'react';
 import CommentList from './CommentList';
 import AddCommentForm from './AddCommentForm';

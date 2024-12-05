@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useUser } from '../context/UserContext';
 import CategoryTagsPopup from '../components/Category/CategoryTagsPopup';
-import PostForm from '../components/Post/PostForm';
+import PostForm from '../components/Editor/PostForm';
 import { createPost } from '../services/postService';
 import { usePostContext } from '../context/PostContext';
 import { FaRobot } from 'react-icons/fa';
@@ -72,7 +72,7 @@ const Write = () => {
   return (
     <div className="flex justify-center items-start min-h-screen bg-white-7000">
       <div className="w-full max-w p-6 bg-white">
-        <div className="flex justify-between items-center mb-4">
+        <div className="flex justify-between items-center gap-4 mb-4">
           <Link href="/aiwrite" className="text-gray-500 hover:text-gray-700" title="Hỗ trợ viết bằng AI">
               <FaRobot size={24} />
           </Link>

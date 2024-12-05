@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { FaEye, FaShareAlt, FaRegBookmark, FaBookmark, FaComment } from 'react-icons/fa';
 import { FaHandsClapping } from "react-icons/fa6";
 import CommentsPopup from '../Comment/CommentsPopup';
-import Rating from './Rating';
 import TextUtils from '../Utils/TextUtils';
 import AuthorInfo from '../Auth/AuthorInfo';
 import { useUser } from '../../context/UserContext';

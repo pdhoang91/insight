@@ -1,4 +1,3 @@
-// // components/Post/ReadingList.js
 // components/Post/ReadingList.js
 import React from 'react';
 import { useRouter } from 'next/router';
