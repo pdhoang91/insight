@@ -18,7 +18,7 @@ const FollowList = ({ category, initialItems, onFollowChange }) => {
   };
 
   return (
-    <div className="mb-6 p-6 bg-gray-50 rounded-xl shadow-lg">
+    <div className="mb-6 p-6 rounded-xl">
       <h2 className="text-2xl font-semibold mb-6 text-gray-800">{category}</h2>
       {error && <div className="text-red-500 mb-4 animate-pulse">{error}</div>}
       {items.length === 0 ? (
