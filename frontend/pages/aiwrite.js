@@ -97,7 +97,7 @@ const AIWrite = () => {
     <div style={styles.container}>
       <div style={styles.contentWrapper}>
         <div style={styles.columns}>
-          <div style={styles.column}>
+          {/* <div style={styles.column}>
             <PostForm
               title={title}
               setTitle={setTitle}
@@ -106,7 +106,7 @@ const AIWrite = () => {
               imageTitle={imageTitle}
               setImageTitle={setImageTitle}
             />
-          </div>
+          </div> */}
           <div style={styles.column}>
             <ArticleSummarizer />
           </div>
