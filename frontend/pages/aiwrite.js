@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import { useUser } from '../context/UserContext';
 import CategoryTagsPopup from '../components/Category/CategoryTagsPopup';
-import PostForm from '../components/Post/PostForm';
+import PostForm from '../components/Editor/PostForm';
 import { createPost } from '../services/postService';
 import { usePostContext } from '../context/PostContext'; // Import hook
 import ArticleSummarizer from '../components/Utils/ArticleSummarizer';
