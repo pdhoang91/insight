@@ -83,7 +83,7 @@ services:
     ports:
       - "82:82"
     volumes:
-      - ./backend/image-service/images:/app/images/uploads  # Mount thư mục uploads của image-service
+      - image-data:/app/images/uploads
     depends_on:
       - db
       #- fluentd
@@ -322,3 +322,4 @@ volumes:
   db-data:
   es-data:
   grafana-data:
+  image-data:

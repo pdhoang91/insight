@@ -8,11 +8,11 @@ import ViewMoreButton from '../../components/Utils/ViewMoreButton';
 const RecommendedTopicsSection = () => {
   const { recommendedTopics, isLoading, isError } = useRecommendedTopics();
   const router = useRouter();
-  if (isError) return <div className="text-red-500">Không thể tải chủ đề được đề xuất</div>;
+  if (isError) return <div className="p-8 text-red-500">Không thể tải chủ đề được đề xuất</div>;
   if (isLoading) return <div>Đang tải...</div>;
 
   const handleSeeMore = () => {
-    router.push(`/suggestion`);
+    router.push(`/explore`);
   };
 
   return (
