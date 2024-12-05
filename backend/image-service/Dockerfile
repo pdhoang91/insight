@@ -19,9 +19,6 @@ COPY . .
 # Build ứng dụng
 RUN go build -o image-service .
 
-# Tạo thư mục uploads
-RUN mkdir -p /uploads
-
 # Expose cổng
 EXPOSE 82
 
