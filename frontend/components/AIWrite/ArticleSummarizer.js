@@ -129,7 +129,7 @@ const ArticleSummarizer = () => {
             )}
           </div>
 
-          <div style={styles.promptArea}>
+          {/* <div style={styles.promptArea}>
             <textarea
               placeholder="Tùy chỉnh prompt..."
               value={customPrompt}
@@ -137,7 +137,7 @@ const ArticleSummarizer = () => {
               rows={4}
               style={styles.textarea}
             />
-          </div>
+          </div> */}
 
           <div style={styles.inputGroup}>
             <select
