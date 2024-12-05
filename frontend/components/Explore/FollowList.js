@@ -6,6 +6,8 @@ const FollowList = ({ category, initialItems, onFollowChange }) => {
   const [items, setItems] = useState(initialItems);
   const [error, setError] = useState(null);
 
+  //console.log("items", items);
+
   useEffect(() => {
     setItems(initialItems);
   }, [initialItems]);

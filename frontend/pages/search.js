@@ -14,7 +14,7 @@ const SearchPage = () => {
        <div className="w-full lg:w-1/12 p-4 sticky top-4 h-fit hidden lg:block">
         <Sidebar />
       </div>
-      <div className="w-8/12 p-4">
+      <div className="w-8/12 p-8">
         {q ? (
           <SearchResults query={q} />
         ) : (

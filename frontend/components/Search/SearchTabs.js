@@ -21,7 +21,7 @@ export const SearchTabs = ({ query, data }) => {
 
   return (
     <div>
-      <div className="flex space-x-4 mb-4 border-b">
+      <div className="flex space-x-4 mb-4">
         {tabs.map((tab) => (
           <button
             key={tab}

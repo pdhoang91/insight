@@ -4,7 +4,7 @@ import PostItemSmallWithImage from '../../Post/PostItemSmallWithImage';
 
 export const StoriesTab = ({ stories, query }) => {
   if (!stories || stories.length === 0) {
-    return <p className="text-gray-600">Không tìm thấy Stories phù hợp.</p>;
+    return <p className="text-gray-600 text-center mt-8">Không tìm thấy Stories phù hợp.</p>;
   }
 
   return (
