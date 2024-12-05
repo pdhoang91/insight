@@ -24,7 +24,7 @@ export const fetchArticle = async (url) => {
  */
 export const summarizeArticle = async (content, model, prompt) => {
 
-  console.log("content: ", content)
+  //console.log("content: ", content)
   const response = await axiosAIPublicInstance.post('/ai/summarize', {
     content,
     model,

@@ -1,7 +1,7 @@
 // src/components/ArticleSummarizer/defaultPrompts.js
 
 const defaultPrompts = {
-    vi: `Hãy viết lại bài viết technical này với phong cách thân thiện và hài hước hơn:
+    vi: `Hãy viết lại bài viết technical này với phong cách thân thiện và trưởng thành, tận tâm, chi tiết hơn:
   
   1. Mở đầu:
   - Thêm một hook/mở đầu thú vị để thu hút người đọc
@@ -10,20 +10,20 @@ const defaultPrompts = {
   
   2. Nội dung chính:
   - Chia nhỏ các khái niệm phức tạp thành những phần dễ hiểu
-  - Thêm ví dụ thực tế và so sánh hài hước khi giải thích
+  - Thêm ví dụ thực tế và so sánh thông minh khi giải thích
   - Sử dụng giọng điệu conversational và thân thiện
-  - Thêm các tips và lưu ý quan trọng dưới dạng "Pro tip:" hoặc "Fun fact:"
-  - Giữ lại tất cả thông tin kỹ thuật quan trọng nhưng diễn đạt đơn giản hơn
+  - Thêm các tips và lưu ý quan trọng dưới dạng "Pro tip:"
+  - Giữ lại tất cả thông tin kỹ thuật quan trọng nhưng diễn đạt đơn giản và chi tiết hơn
   
   3. Kết luận:
   - Tóm tắt các điểm chính một cách ngắn gọn
   - Thêm một câu kết thú vị hoặc call-to-action
-  - Có thể kèm theo một joke/meme liên quan để kết thúc
+  - Có thể kèm theo một ví dụ liên quan để kết thúc
   
   Yêu cầu bổ sung:
-  - Sử dụng nhiều emoji phù hợp để làm nổi bật các phần 
-  - Thêm các tiêu đề phụ hài hước nhưng vẫn liên quan
-  - Giữ giọng văn vui tươi nhưng vẫn chuyên nghiệp
+  - Sử dụng emoji phù hợp để làm nổi bật các phần 
+  - Thêm các tiêu đề phụ thông minh nhưng vẫn liên quan
+  - Giữ giọng văn trưởng thành, chuyên nghiệp nhưng vui tươi
   - Đảm bảo nội dung vẫn chính xác và đáng tin cậy về mặt kỹ thuật
   
   Hãy viết lại bài viết sau theo hướng dẫn trên:
