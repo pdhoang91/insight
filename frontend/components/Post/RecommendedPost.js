@@ -8,7 +8,7 @@ import { useUser } from '../../context/UserContext';
 const fetchPopulerPost = async () => {
   // Adjust parameters as needed
   const data = await getPopulerPosts(1, 3);
-  console.log("datatest", data);
+  //console.log("datatest", data);
   return data;
 };
 
