@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { FaCopy, FaCheck } from 'react-icons/fa6';
-import { fetchArticle, summarizeArticle } from '../../services/aiService';
+import { fetchArticle, summarizeArticle } from '../../../services/aiService';
 import styles from './ArticleSummarizer.styles';
 import defaultPrompts from './defaultPrompts';
 
