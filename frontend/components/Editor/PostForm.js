@@ -1,14 +1,12 @@
-
-
 // components/Editor/PostForm.js
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
-import { useEditor, EditorContent } from '@tiptap/react';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import { useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import TextStyle from '@tiptap/extension-text-style';
 import Underline from '@tiptap/extension-underline';
-import TextAlign from '@tiptap/extension-text-align'; // Import TextAlign
+import TextAlign from '@tiptap/extension-text-align';
 import Placeholder from '@tiptap/extension-placeholder';
 import { uploadImage } from '../../services/imageService';
 import {
@@ -32,7 +30,9 @@ import {
   FaAlignRight,
   FaAlignJustify,
 } from 'react-icons/fa';
-import ToolbarButton from './ToolbarButton';
+import Toolbar from './Toolbar';
+import TitleInput from './TitleInput';
+import ContentEditor from './ContentEditor';
 import 'tippy.js/dist/tippy.css';
 
 const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTitle }) => {
@@ -40,16 +40,17 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
   const [isUploadingTitle, setIsUploadingTitle] = useState(false);
   const [isContentEmpty, setIsContentEmpty] = useState(!content || content.trim() === '');
   const [isPreview, setIsPreview] = useState(false);
-  const [autoSave, setAutoSave] = useState(false);
-  const [toc, setToc] = useState([]); // Table of Contents
+
+  // Thêm useRef để kiểm soát vòng lặp
+  const isGeneratingTOC = useRef(false);
 
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
         heading: {
-          levels: [1, 2, 3],
+          levels: [1, 2, 3, 4, 5], // Hỗ trợ từ H1 đến H5
           HTMLAttributes: {
-            id: null,
+            id: null, // Đảm bảo không có ID mặc định
           },
         },
       }),
@@ -63,50 +64,17 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       Placeholder.configure({
         placeholder: 'Nội dung bài viết...',
       }),
-      // Thêm các extension khác nếu cần
     ],
     content: content || '',
     onUpdate: ({ editor }) => {
+      // Nếu đang trong quá trình generate TOC, không thực hiện lại
+      if (isGeneratingTOC.current) return;
+
       const html = editor.getHTML();
       setContent(html);
       setIsContentEmpty(!html || html.trim() === '');
-      generateTOC(editor);
-      handleAutoSave(html);
     },
   });
-
-  // Hàm tạo Table of Contents
-  const generateTOC = (editorInstance) => {
-    const headings = [];
-    editorInstance.state.doc.descendants((node, pos) => {
-      if (node.type.name === 'heading') {
-        const id = `heading-${pos}`;
-        // Đảm bảo rằng heading có thuộc tính id
-        editorInstance.commands.setNodeMarkup(pos, undefined, {
-          ...node.attrs,
-          id,
-        });
-        headings.push({
-          level: node.attrs.level,
-          text: node.textContent,
-          id,
-        });
-      }
-    });
-    setToc(headings);
-  };
-
-  // Hàm tự động lưu
-  const handleAutoSave = useCallback(
-    (htmlContent) => {
-      // Giả sử bạn có API để tự động lưu
-      // uploadAutoSave(htmlContent).then(() => setAutoSave(true));
-      // Ở đây chỉ đơn giản là hiển thị trạng thái
-      setAutoSave(true);
-      setTimeout(() => setAutoSave(false), 2000);
-    },
-    []
-  );
 
   useEffect(() => {
     if (editor) {
@@ -193,6 +161,12 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       },
       // Nhóm Căn Chỉnh Văn Bản
       {
+        icon: FaAlignJustify,
+        action: () => editor.chain().focus().setTextAlign('justify').run(),
+        isActive: () => editor.isActive({ textAlign: 'justify' }),
+        tooltip: 'Căn đều hai bên',
+      },
+      {
         icon: FaAlignLeft,
         action: () => editor.chain().focus().setTextAlign('left').run(),
         isActive: () => editor.isActive({ textAlign: 'left' }),
@@ -209,12 +183,6 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         action: () => editor.chain().focus().setTextAlign('right').run(),
         isActive: () => editor.isActive({ textAlign: 'right' }),
         tooltip: 'Căn phải',
-      },
-      {
-        icon: FaAlignJustify,
-        action: () => editor.chain().focus().setTextAlign('justify').run(),
-        isActive: () => editor.isActive({ textAlign: 'justify' }),
-        tooltip: 'Căn đều hai bên',
       },
       // Nhóm Chèn Đối Tượng
       {
@@ -256,7 +224,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         tooltip: 'Chỉnh cấp độ tiêu đề',
         children: (
           <div className="py-1">
-            {[1, 2, 3].map((level) => (
+            {[1, 2, 3, 4, 5].map((level) => (
               <button
                 key={level}
                 onClick={(event) => {
@@ -293,14 +261,8 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         isActive: false,
         tooltip: isPreview ? 'Thoát chế độ xem trước' : 'Chế độ xem trước',
       },
-      {
-        icon: FaSave,
-        action: () => handleSubmit(null),
-        isActive: false,
-        tooltip: 'Lưu bài viết',
-      },
     ];
-  }, [editor, isPreview, handleImageUpload]);
+  }, [editor, isPreview, handleImageUpload, setIsPreview]);
 
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
@@ -315,47 +277,19 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       content,
     };
     console.log('Đăng bài viết:', postData);
-    // Bạn có thể thực hiện gửi dữ liệu đến backend tại đây
+    // Gửi dữ liệu đến backend tại đây
   };
 
   return (
     <form onSubmit={handleSubmit} className="max-w-5xl mx-auto p-6 relative bg-white">
       {/* Tiêu đề và Hình ảnh tiêu đề */}
-      <div className="mb-6">
-        <div className="relative">
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-            className="w-full pr-10 p-3 border border-gray-300 rounded text-gray-500 italic top-4 left-4 focus:outline-none focus:border-blue-500"
-            placeholder="Tiêu đề bài viết..."
-          />
-          <button
-            type="button"
-            onClick={handleImageTitleUpload}
-            className="absolute right-0 top-0 mt-3 mr-3 text-gray-500 hover:text-blue-500"
-            aria-label="Upload Image Title"
-            title="Tải lên ảnh tiêu đề"
-          >
-            {isUploadingTitle ? (
-              <svg
-                className="animate-spin h-5 w-5 text-blue-500"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-              </svg>
-            ) : imageTitle ? (
-              <img src={imageTitle} alt="Image Title" className="w-5 h-5 object-cover rounded-full" />
-            ) : (
-              <FaUpload />
-            )}
-          </button>
-        </div>
-      </div>
+      <TitleInput
+        title={title}
+        setTitle={setTitle}
+        imageTitle={imageTitle}
+        handleImageTitleUpload={handleImageTitleUpload}
+        isUploadingTitle={isUploadingTitle}
+      />
 
       {/* Container Scrollable Cho Toolbar và Nội Dung */}
       <div
@@ -366,80 +300,19 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         }}
       >
         {/* Thanh công cụ (Toolbar) */}
-        <div className="sticky top-0 z-10 bg-white p-2 flex items-center space-x-2">
-          {menuBar.map((item, index) => (
-            <ToolbarButton
-              key={index}
-              icon={item.icon}
-              onClick={item.action}
-              isActive={item.isActive ? item.isActive() : false}
-              tooltip={item.tooltip}
-              disabled={!editor}
-            >
-              {item.children}
-            </ToolbarButton>
-          ))}
-        </div>
-
-        {/* Table of Contents (Mục Lục) */}
-        {toc.length > 0 && (
-          <div className="p-4 bg-blue-50">
-            <h3 className="text-lg font-semibold mb-2">Mục Lục</h3>
-            <ul className="list-disc list-inside space-y-1">
-              {toc.map((heading, index) => (
-                <li key={index} className={`ml-${heading.level * 2}`}>
-                  <a href={`#${heading.id}`} className="text-blue-500 hover:underline">
-                    {heading.text}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        <Toolbar menuBar={menuBar} editor={editor} isPreview={isPreview} setIsPreview={setIsPreview} />
 
         {/* Nội dung bài viết */}
-        <div
-          className="p-4 relative editor-content content"
-        >
-          {isUploading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50">
-              <svg
-                className="animate-spin h-8 w-8 text-blue-500"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
-              </svg>
-            </div>
-          )}
-          {editor && (
-            <>
-              {isPreview ? (
-                <div className="prose lg:prose-xl max-w-none mb-8">
-                  <div
-                    className="post-content content" // Thêm lớp .content
-                    dangerouslySetInnerHTML={{ __html: content }}
-                  />
-                </div>
-              ) : (
-                <>
-                  <EditorContent editor={editor} className="min-h-[300px] focus:outline-none prose content" /> {/* Thêm lớp .content */}
-                  {isContentEmpty && (
-                    <p className="absolute text-gray-500 italic top-4 left-4 pointer-events-none">
-                      Nội dung bài viết...
-                    </p>
-                  )}
-                </>
-              )}
-            </>
-          )}
-        </div>
+        <ContentEditor
+          editor={editor}
+          isPreview={isPreview}
+          content={content}
+          isContentEmpty={isContentEmpty}
+          isUploading={isUploading}
+        />
       </div>
     </form>
   );
 };
 
 export default PostForm;
-
