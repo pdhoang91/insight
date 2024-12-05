@@ -1,8 +1,8 @@
-// components/Shared/UserMenu.js
 import { useState, useRef, useEffect } from 'react';
 import { useUser } from '../../context/UserContext';
 import { useRouter } from 'next/router';
 import axios from 'axios';
+import { FaUser, FaRightFromBracket } from "react-icons/fa6";
 
 const UserMenu = ({ isMobile }) => {
   const { user, setUser, setModalOpen, loading } = useUser();
@@ -19,7 +19,7 @@ const UserMenu = ({ isMobile }) => {
     delete axios.defaults.headers.common['Authorization'];
     setUser(null);
     setDropdownOpen(false);
-    router.push('/'); // Chuyển hướng về trang chủ sau khi đăng xuất
+    router.push('/');
   };
 
   const handleViewProfile = () => {
@@ -28,7 +28,7 @@ const UserMenu = ({ isMobile }) => {
   };
 
   useEffect(() => {
-    if (!isMobile) { // Chỉ thêm listener khi không ở mobile
+    if (!isMobile) {
       const handleClickOutside = (event) => {
         if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
           setDropdownOpen(false);
@@ -54,30 +54,30 @@ const UserMenu = ({ isMobile }) => {
   }
 
   if (isMobile) {
-    // Hiển thị trực tiếp các tùy chọn trên mobile
     return (
       <div className="flex flex-col space-y-2">
         <button
           onClick={handleViewProfile}
-          className="block w-full text-left px-2 py-2 text-gray-800 hover:bg-gray-200 rounded"
+          className="block w-full text-left px-2 py-2 text-gray-800 hover:bg-gray-200 rounded flex items-center gap-2"
         >
+          <FaUser className="text-gray-600" />
           View Profile
         </button>
         <button
           onClick={handleLogout}
-          className="w-full text-left px-2 py-2 text-gray-800 hover:bg-gray-200 rounded"
+          className="w-full text-left px-2 py-2 text-gray-800 hover:bg-gray-200 rounded flex items-center gap-2"
         >
+          <FaRightFromBracket className="text-gray-600" />
           Logout
         </button>
       </div>
     );
   }
 
-  // Hiển thị avatar và dropdown trên desktop
   return (
     <div ref={dropdownRef} className="relative">
       <img
-        src={`${user.avatar_url || '/default-avatar.png'}?t=${new Date().getTime()}`} // Thêm tham số timestamp để tránh cache
+        src={`${user.avatar_url || '/default-avatar.png'}?t=${new Date().getTime()}`}
         alt="User Avatar"
         className="w-8 h-8 rounded-full cursor-pointer"
         onClick={handleAvatarClick}
@@ -86,14 +86,16 @@ const UserMenu = ({ isMobile }) => {
         <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg z-20">
           <button
             onClick={handleViewProfile}
-            className="block w-full text-left px-2 py-2 text-gray-800 hover:bg-gray-200"
+            className="block w-full text-left px-2 py-2 text-gray-800 hover:bg-gray-200 flex items-center gap-2"
           >
+            <FaUser className="text-gray-600" />
             View Profile
           </button>
           <button
             onClick={handleLogout}
-            className="w-full text-left px-2 py-2 text-gray-800 hover:bg-gray-200"
+            className="w-full text-left px-2 py-2 text-gray-800 hover:bg-gray-200 flex items-center gap-2"
           >
+            <FaRightFromBracket className="text-gray-600" />
             Logout
           </button>
         </div>
