@@ -96,12 +96,12 @@ const TabSwitcher = ({ activeTab, toggleTab, user }) => {
           <IoIosArrowBack size={20} className="-translate-y-1"/>
         </button>
       )}
-      <div  className="overflow-x-auto ">
+      <div  className="overflow-x-auto">
 
       {/* Container cuộn các tab */}
       <div
         ref={tabsContainerRef}
-        className="flex custom-scrollbar items-center space-x-4 overflow-x-auto flex-nowrap ml-2 lg:ml-4 px-2"
+        className="flex custom-scrollbar hide-scrollbar items-center space-x-4 overflow-x-auto flex-nowrap ml-2 lg:ml-4 px-2"
       >
         {/* Nút thêm tab nếu có người dùng */}
       {user && (
