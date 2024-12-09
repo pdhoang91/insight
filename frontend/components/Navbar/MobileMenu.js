@@ -14,7 +14,7 @@ const MobileMenu = ({ onClose }) => {
         <WritePublishButton onAction={onClose} />
 
         {/* User Menu with isMobile=true */}
-        <UserMenu isMobile={true} />
+        <UserMenu isMobile={true} onClose={onClose} />
       </div>
     </div>
   );

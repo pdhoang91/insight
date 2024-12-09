@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import axios from 'axios';
 import { FaUser, FaRightFromBracket } from "react-icons/fa6";
 
-const UserMenu = ({ isMobile }) => {
+const UserMenu = ({ isMobile, onClose }) => {
   const { user, setUser, setModalOpen, loading } = useUser();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
@@ -20,11 +20,13 @@ const UserMenu = ({ isMobile }) => {
     setUser(null);
     setDropdownOpen(false);
     router.push('/');
+    if (isMobile && onClose) onClose();
   };
 
   const handleViewProfile = () => {
     setDropdownOpen(false);
     router.push(`/${user.username}`);
+    if (isMobile && onClose) onClose();
   };
 
   useEffect(() => {
