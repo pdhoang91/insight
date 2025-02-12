@@ -9,15 +9,15 @@ import (
 
 	"github.com/pdhoang91/image-service/controllers"
 	"github.com/pdhoang91/image-service/middleware"
+	"github.com/pdhoang91/image-service/services"
 )
 
-func SetupRouter() *gin.Engine {
+func SetupRouter(s3Service *services.S3Service) *gin.Engine {
 	r := gin.Default()
 	// Đăng ký endpoint /metrics
 	r.GET("/images/metrics", gin.WrapH(promhttp.Handler()))
 
-	config := cors.Config{
-		//AllowOrigins:     []string{allowOrigins, "http://localhost:3000", "http://202.92.6.77:3000"}, // Thay đổi tùy vào frontend
+	configCors := cors.Config{
 		AllowOrigins:     []string{"http://202.92.6.77:3000", "http://localhost:3000", "https://insight.io.vn"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
@@ -29,13 +29,15 @@ func SetupRouter() *gin.Engine {
 	// Serve the uploads directory
 	r.Static("/images/uploads", "./images/uploads/.")
 
-	r.Use(cors.New(config))
-	//r.Use(middleware.LoggerMiddleware())
+	r.Use(cors.New(configCors))
+	// r.Use(middleware.LoggerMiddleware())
 	r.Use(middleware.AuthMiddleware())
 
 	// Routes for image upload
-	//r.POST("/upload", controllers.UploadImage)
-	r.POST("/images/upload/v2/:type", controllers.UploadImageV2)
+	// Sử dụng closure để truyền s3Service vào handler
+	r.POST("/images/upload/v2/:type", func(c *gin.Context) {
+		controllers.UploadImageV2(c, s3Service)
+	})
 
 	// Optional: Route for getting images if cần
 	// r.GET("/images/:imageName", controllers.GetImage)

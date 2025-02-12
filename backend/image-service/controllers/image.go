@@ -3,17 +3,15 @@ package controllers
 import (
 	"crypto/rand"
 	"encoding/hex"
-	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
-	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
-
+	"github.com/pdhoang91/image-service/services"
 	"github.com/pdhoang91/image-service/utils"
 )
 
@@ -75,7 +73,8 @@ func saveImageFile(c *gin.Context, file *multipart.FileHeader, uploadDir, prefix
 	return filePath, nil
 }
 
-func UploadImageV2(c *gin.Context) {
+// Thêm đối số s3Service vào UploadImageV2
+func UploadImageV2(c *gin.Context, s3Service *services.S3Service) {
 	userID, err := utils.GetUserIDFromContext(c)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
@@ -105,24 +104,17 @@ func UploadImageV2(c *gin.Context) {
 		return
 	}
 
-	uploadDir := getImageUploadDir(userID.String(), imageType)
-	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể tạo thư mục uploads"})
-		return
-	}
-
 	prefix, err := generatePrefix()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể tạo tên tệp duy nhất"})
 		return
 	}
 
-	filePath, err := saveImageFile(c, file, uploadDir, prefix)
+	imageURL, err := s3Service.UploadFile(c.Request.Context(), file, userID.String(), imageType, prefix)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể lưu ảnh hoặc tệp"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể tải ảnh lên S3"})
 		return
 	}
 
-	imageURL := fmt.Sprintf("https://%s/images/uploads/%s/%s/%s/%s", c.Request.Host, userID, time.Now().Format("2006-01-02"), imageType, filepath.Base(filePath))
 	c.JSON(http.StatusOK, gin.H{"url": imageURL})
 }
