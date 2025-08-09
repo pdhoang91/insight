@@ -1,6 +1,8 @@
 // components/Post/PostList.js
 import React from 'react';
-import PostItem from './PostItem';
+import PostItemTimeline from './PostItemTimeline';
+import PostItemList from './PostItemList';
+import PostItemCard from './PostItemCard';
 import EnhancedPostItem from './EnhancedPostItem';
 import CompactPostItem from './CompactPostItem';
 import LoadingSpinner from '../Shared/LoadingSpinner';
@@ -262,21 +264,21 @@ const PostList = ({ posts, isLoading, isError, setSize, isReachingEnd, variant =
           // List Layout - Traditional blog style
           <div className="space-y-6">
             {posts.map((post, index) => (
-              <PostItem key={`${post.id}-${index}`} post={post} variant="list" />
+              <PostItemList key={`${post.id}-${index}`} post={post} />
             ))}
           </div>
         ) : variant === 'timeline' ? (
           // Timeline Layout - Horizontal timeline style
           <div className="space-y-6">
             {posts.map((post, index) => (
-              <PostItem key={`${post.id}-${index}`} post={post} variant="timeline" />
+              <PostItemTimeline key={`${post.id}-${index}`} post={post} />
             ))}
           </div>
         ) : (
           // Grid Layout - Modern card style (fallback)
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {posts.map((post, index) => (
-              <PostItem key={`${post.id}-${index}`} post={post} variant="card" />
+              <PostItemCard key={`${post.id}-${index}`} post={post} />
             ))}
           </div>
         )}
