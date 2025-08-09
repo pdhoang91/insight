@@ -1,20 +1,16 @@
 // pages/category/index.js
 import React from 'react';
-import Sidebar from '../../components/Shared/Sidebar'; // Nếu bạn muốn có sidebar
 import CategoryList from '../../components/Category/CategoryList';
 
 const CategoryPage = () => {
   return (
-    <div className="flex flex-col lg:flex-row">
-      <div className="lg:w-1/12 p-4 h-screen sticky top-0 overflow-auto hidden lg:block">
-        <Sidebar />
-      </div>
-      <div className="lg:w-10/12 p-4">
-        <h1 className="text-3xl font-bold mb-4 center-parent">Categories</h1>
-          <CategoryList />
-      </div>
-      <div className="lg:w-1/12 p-8 hidden lg:block">
-        {/* <ProfileRightSidebar currentUser={loggedUser} viewedUsername={viewedUsername} /> */}
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 text-center">Categories</h1>
+          <p className="mt-2 text-lg text-gray-600 text-center">Explore stories by category</p>
+        </div>
+        <CategoryList />
       </div>
     </div>
   );

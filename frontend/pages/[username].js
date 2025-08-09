@@ -1,17 +1,16 @@
 // pages/[username].js
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import Image from 'next/image';
 import { useUser } from '../context/UserContext';
 import usePublicProfile from '../hooks/usePublicProfile';
 import useProfile from '../hooks/useProfile';
 import useInfiniteUserPosts from '../hooks/useInfiniteUserPosts';
-import useInfiniteBookmarks from '../hooks/useInfiniteBookmarks'; // Import hook mới
-import ProfileHeader from '../components/Profile/ProfileHeader';
+import useInfiniteBookmarks from '../hooks/useInfiniteBookmarks';
 import ProfileUpdateForm from '../components/Profile/ProfileUpdateForm';
 import UserPostsSection from '../components/Profile/UserPostsSection';
 import ReadingListSection from '../components/Profile/ReadingListSection';
 import FolowPeopleSestion from '../components/Profile/FolowPeopleSestion';
-import Sidebar from '../components/Shared/Sidebar';
 import { motion } from 'framer-motion';
 
 const UserProfilePage = () => {
@@ -19,11 +18,11 @@ const UserProfilePage = () => {
   const { username } = router.query;
   const { user: loggedUser, loading: loadingUser, mutate: mutateUser } = useUser();
 
-  const [activeTab, setActiveTab] = useState('');
+  const [activeTab, setActiveTab] = useState('posts');
   const [isOwner, setIsOwner] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
 
-  // Xác định xem người dùng hiện tại có phải là chủ sở hữu trang hay không
+  // Determine if current user is the profile owner
   useEffect(() => {
     if (loggedUser && username) {
       setIsOwner(loggedUser.username === username);
@@ -31,15 +30,6 @@ const UserProfilePage = () => {
       setIsOwner(false);
     }
   }, [loggedUser, username]);
-
-  // Đặt activeTab dựa trên việc người dùng có phải là chủ sở hữu hay không
-  useEffect(() => {
-    if (isOwner) {
-      setActiveTab('YourPosts');
-    } else {
-      setActiveTab('UserPosts');
-    }
-  }, [isOwner]);
 
   const {
     profile: publicProfile,
@@ -59,7 +49,6 @@ const UserProfilePage = () => {
     updateProfile,
   } = useProfile();
 
-  // Sử dụng useInfinitePosts hook
   const {
     posts: infinitePosts,
     isLoading: isLoadingPosts,
@@ -68,7 +57,6 @@ const UserProfilePage = () => {
     isReachingEnd: isReachingEndPosts,
   } = useInfiniteUserPosts(activeTab, username);
 
-  // Sử dụng useInfiniteBookmarks hook
   const {
     bookmarks,
     isLoading: isLoadingBookmarks,
@@ -86,111 +74,224 @@ const UserProfilePage = () => {
       }
     } catch (err) {
       console.error("Failed to update profile:", err);
-      alert("Cập nhật hồ sơ thất bại. Vui lòng thử lại.");
+      alert("Failed to update profile. Please try again.");
     }
   };
 
   const profile = isOwner ? ownerProfile : publicProfile;
   const posts = isOwner ? ownerPosts : publicPosts;
-  // Đã tích hợp infinitePosts vào posts
   const combinedPosts = isOwner ? infinitePosts : publicPosts;
   const bookmarksData = isOwner ? ownerReadingList : publicBookmarks;
   const loading = isOwner ? loadingOwner : loadingPublic;
   const error = isOwner ? ownerError : publicError;
 
-  if (loading || loadingUser) return <div className="container mx-auto"></div>;
-  if (error) return <div className="container mx-auto text-red-500">{error}</div>;
-
-  // Hàm xử lý khi nhấp vào tab
-  const handleTabClick = (tab) => {
-    setActiveTab(tab);
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
   };
 
+  const handleFollow = () => {
+    console.log('Follow user:', username);
+  };
+
+  const handleMessage = () => {
+    console.log('Message user:', username);
+  };
+
+  if (loading || loadingUser) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-red-500 text-center">
+          <p className="text-lg font-medium">Error loading profile</p>
+          <p className="text-sm">{error}</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col lg:flex-row">
-      <div className="lg:w-1/12 p-4 h-screen sticky top-0 overflow-auto hidden lg:block">
-        <Sidebar />
+    <div className="min-h-screen bg-gray-50">
+      {/* Profile Header */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
+            {/* Avatar */}
+            <div className="flex-shrink-0">
+              {profile?.avatar_url ? (
+                <Image
+                  src={profile.avatar_url}
+                  alt={profile.name || username}
+                  width={120}
+                  height={120}
+                  className="rounded-full border-4 border-white shadow-lg"
+                />
+              ) : (
+                <div className="w-30 h-30 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-lg">
+                  {(profile?.name || username)?.charAt(0).toUpperCase()}
+                </div>
+              )}
+            </div>
+
+            {/* Profile Info */}
+            <div className="flex-1 min-w-0">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div className="mb-4 sm:mb-0">
+                  <h1 className="text-3xl font-bold text-gray-900">
+                    {profile?.name || username}
+                  </h1>
+                  <p className="text-lg text-gray-600 mt-1">@{username}</p>
+                  
+                  {profile?.phone && (
+                    <p className="mt-2 text-gray-600">
+                      {profile.phone}
+                    </p>
+                  )}
+                  
+                  {/* Meta Info */}
+                  <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                    {profile?.dob && (
+                      <div className="flex items-center">
+                        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4h6m-6 0a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2v-6a2 2 0 00-2-2" />
+                        </svg>
+                        Born {formatDate(profile.dob)}
+                      </div>
+                    )}
+                    
+                    <div className="flex items-center">
+                      <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4h6m-6 0a2 2 0 00-2 2v6a2 2 0 002 2h6a2 2 0 002-2v-6a2 2 0 00-2-2" />
+                      </svg>
+                      Joined {formatDate(profile?.created_at || '2024-01-01')}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center space-x-3">
+                  {isOwner ? (
+                    <button
+                      onClick={() => setShowPopup(true)}
+                      className="px-4 py-2 border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-lg transition-colors"
+                    >
+                      Edit Profile
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        onClick={handleFollow}
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors"
+                      >
+                        Follow
+                      </button>
+                      <button
+                        onClick={handleMessage}
+                        className="px-4 py-2 border border-gray-300 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-lg transition-colors"
+                      >
+                        Message
+                      </button>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Stats */}
+              <div className="mt-6 flex items-center space-x-8">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-900">
+                    {posts?.length || 0}
+                  </div>
+                  <div className="text-sm text-gray-500">Stories</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-900">
+                    {folows?.followers?.length || 0}
+                  </div>
+                  <div className="text-sm text-gray-500">Followers</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-gray-900">
+                    {folows?.following?.length || 0}
+                  </div>
+                  <div className="text-sm text-gray-500">Following</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="lg:w-10/12 p-4">
-        <ProfileHeader
-          avatarUrl={profile?.avatar_url}
-          name={profile?.name}
-          phone={profile?.phone}
-          dob={profile?.dob}
-          id={profile?.id}
-          onUpdate={isOwner ? () => setShowPopup(true) : null}
-        />
-
-        <div className="flex space-x-4 my-4 border-b">
-          {/* Tab Đầu Tiên: Luôn Hiển Thị */}
-          <button
-            onClick={() => handleTabClick(isOwner ? 'YourPosts' : 'UserPosts')}
-            className={`p-2 transition-colors ${
-              activeTab === (isOwner ? 'YourPosts' : 'UserPosts')
-                ? 'border-b-2 border-gray-200 text-blue-500 border-blue-500'
-                : 'text-gray-600 hover:text-blue-400'
-            }`}
-          >
-            {isOwner ? 'Your Posts' : "User's Posts"}
-          </button>
-
-          {/* Tab Thứ Hai: Chỉ Hiển Thị Khi isOwner */}
-          {isOwner && (
+      {/* Tabs */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <nav className="flex space-x-8">
             <button
-              onClick={() => handleTabClick('YourReading')}
-              className={`p-2 transition-colors ${
-                activeTab === 'YourReading'
-                  ? 'border-b-2 border-gray-200 text-blue-500 border-blue-500'
-                  : 'text-gray-600 hover:text-blue-400'
+              onClick={() => setActiveTab('posts')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'posts'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              Your Reading
+              Stories ({posts?.length || 0})
             </button>
-          )}
-
-          {/* Tab Thứ 3: Luôn Hiển Thị */}
-          <button
-            onClick={() => handleTabClick(isOwner ? 'Your Folow' : 'Folow')}
-            className={`p-2 transition-colors ${
-              activeTab === (isOwner ? 'Your Folow' : 'Folow')
-                ? 'border-b-2 border-gray-200 text-blue-500 border-blue-500'
-                : 'text-gray-600 hover:text-blue-400'
-            }`}
-          >
-            {isOwner ? 'Your Folow' : "Folow"}
-          </button>
+            
+            {isOwner && (
+              <button
+                onClick={() => setActiveTab('reading')}
+                className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'reading'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Reading List
+              </button>
+            )}
+            
+            <button
+              onClick={() => setActiveTab('following')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'following'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              {isOwner ? 'Following' : 'Network'}
+            </button>
+          </nav>
         </div>
+      </div>
 
+      {/* Tab Content */}
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <motion.div
           key={activeTab}
-          initial={{ opacity: 0, x: 50 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -50 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
         >
-          {/* Hiển Thị Nội Dung Tùy Thuộc Vào activeTab */}
-          {activeTab === 'YourPosts' && isOwner && (
+          {activeTab === 'posts' && (
             <UserPostsSection
-              posts={infinitePosts}
-              isLoading={isLoadingPosts}
-              isError={isErrorPosts}
+              posts={isOwner ? infinitePosts : publicPosts}
+              isLoading={isOwner ? isLoadingPosts : loading}
+              isError={isOwner ? isErrorPosts : error}
               setSize={setSizePosts}
               isReachingEnd={isReachingEndPosts}
               isOwner={isOwner}
             />
           )}
-          {activeTab === 'UserPosts' && !isOwner && (
-            <UserPostsSection
-              posts={publicPosts}
-              isLoading={loading}
-              isError={error}
-              setSize={setSizePosts}
-              isReachingEnd={isReachingEndPosts}
-              isOwner={isOwner}
-            />
-          )}
-          {activeTab === 'YourReading' && isOwner && (
+          
+          {activeTab === 'reading' && isOwner && (
             <ReadingListSection
               bookmarks={bookmarks}
               isLoading={isLoadingBookmarks}
@@ -199,26 +300,21 @@ const UserProfilePage = () => {
               isReachingEnd={isReachingEndBookmarks}
             />
           )}
-          {activeTab === 'Your Folow' && (
-            <FolowPeopleSestion peoples={folows}/>
-          )}
-          {activeTab === 'Folow' && (
-            <FolowPeopleSestion peoples={folows}/>
+          
+          {activeTab === 'following' && (
+            <FolowPeopleSestion peoples={folows} />
           )}
         </motion.div>
-
-        {isOwner && showPopup && (
-          <ProfileUpdateForm
-            userProfile={profile}
-            onUpdate={handleUpdateProfile}
-            onCancel={() => setShowPopup(false)}
-          />
-        )}
       </div>
 
-      <div className="lg:w-1/12 p-8 hidden lg:block">
-        {/* <ProfileRightSidebar currentUser={loggedUser} viewedUsername={viewedUsername} /> */}
-      </div>
+      {/* Profile Update Modal */}
+      {isOwner && showPopup && (
+        <ProfileUpdateForm
+          userProfile={profile}
+          onUpdate={handleUpdateProfile}
+          onCancel={() => setShowPopup(false)}
+        />
+      )}
     </div>
   );
 };

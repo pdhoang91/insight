@@ -1,8 +1,9 @@
-// // pages/_app.js
+// pages/_app.js
 import { useState } from 'react';
 import { PostProvider } from '../context/PostContext'; // Import PostProvider
 import UserContext from '../context/UserContext';
 import Navbar from '../components/Navbar/Navbar';
+import Footer from '../components/Shared/Footer';
 import LoginModal from '../components/Auth/LoginModal';
 import useAuth from '../hooks/useAuth';
 import '../styles/globals.css';
@@ -14,10 +15,13 @@ function MyApp({ Component, pageProps }) {
   return (
     <PostProvider>
       <UserContext.Provider value={{ user, setUser, setModalOpen, loading }}>
+        <div className="min-h-screen flex flex-col bg-gray-50">
           <Navbar />
-        <LoginModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
-        <div className="pt-16">
-        <Component {...pageProps} />
+          <LoginModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+          <main className="flex-1">
+            <Component {...pageProps} />
+          </main>
+          <Footer />
         </div>
       </UserContext.Provider>
     </PostProvider>
