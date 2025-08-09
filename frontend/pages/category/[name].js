@@ -16,9 +16,9 @@ const CategoryPage = () => {
 
   if (!name) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
-        <div className="bg-white text-gray-900 font-mono p-8 max-w-md w-full text-center">
-          <div className="animate-pulse">Loading category...</div>
+      <div className="loading-container">
+        <div className="loading-card animate-pulse">
+          Loading category...
         </div>
       </div>
     );
@@ -34,18 +34,14 @@ const CategoryPage = () => {
   } = useInfinitePostByCategory(name);
 
   return (
-    <div className="min-h-screen bg-gray-900">
-      {/* Technical Terminal-style Layout */}
-      <div className="max-w-4xl mx-auto p-6">
-        {/* Content Area - White on Black */}
-        <main className="bg-white text-gray-900 min-h-[80vh] p-8">
-          {/* Header Section */}
-          <header className="mb-8 pb-6 border-b border-gray-200">
-            <h1 className="text-4xl font-bold mb-4 text-gray-900 leading-tight">{name}</h1>
-            <p className="text-gray-600 font-mono">// posts in this category</p>
+    <div className="page-container">
+      <div className="page-content">
+        <main className="content-area">
+          <header className="page-header">
+            <h1 className="page-title">{name}</h1>
+            <p className="page-subtitle tech-comment">posts in this category</p>
           </header>
           
-          {/* Posts List */}
           <CategoryListWithPosts
             posts={posts}
             isLoading={isLoading}

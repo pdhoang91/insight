@@ -77,12 +77,20 @@ const EditPost = () => {
     }
   }, [router.asPath, router, id]);
 
-  if (!router.isReady || isLoading) return <div className="flex justify-center items-center h-screen bg-gray-900 text-gray-300 font-mono">Loading editor...</div>;
-  if (isError) return <div className="flex justify-center items-center h-screen bg-gray-900 text-red-400 font-mono">// Failed to load post</div>;
+  if (!router.isReady || isLoading) return (
+    <div className="loading-container">
+      <div className="loading-card">Loading editor...</div>
+    </div>
+  );
+  if (isError) return (
+    <div className="loading-container">
+      <div className="error-card">Failed to load post</div>
+    </div>
+  );
   if (!user) return null;
 
   return (
-          <div className="flex justify-center items-start min-h-screen bg-gray-900">
+          <div className="page-container flex justify-center items-start">
       <div className="w-full max-w p-6 bg-gray-800 rounded-lg shadow-lg border border-gray-700">
         <PostForm
           title={title}

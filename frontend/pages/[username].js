@@ -100,25 +100,27 @@ const UserProfilePage = () => {
 
   if (loading || loadingUser) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-400"></div>
+      <div className="loading-container">
+        <div className="loading-card">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-400 mx-auto"></div>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-red-400 text-center">
-          <p className="text-lg font-medium font-mono">// Error loading profile</p>
-          <p className="text-sm font-mono">{error}</p>
+      <div className="loading-container">
+        <div className="error-card">
+          <p className="text-lg font-medium">Error loading profile</p>
+          <p className="text-sm">{error}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="page-container">
       {/* Profile Header */}
       <div className="bg-gray-800 border-b border-gray-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

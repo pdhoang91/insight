@@ -110,7 +110,7 @@ const Write = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+      <div className="loading-container">
         <div className="text-center">
           <LoadingSpinner size="lg" />
           <p className="mt-4 text-gray-300 font-mono">Loading editor...</p>
@@ -124,7 +124,7 @@ const Write = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="page-container">
       {/* Enhanced Header */}
       <motion.div 
         initial={{ y: -20, opacity: 0 }}

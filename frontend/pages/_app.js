@@ -1,6 +1,7 @@
 // pages/_app.js
 import { useState } from 'react';
-import { PostProvider } from '../context/PostContext'; // Import PostProvider
+import { PostProvider } from '../context/PostContext';
+import { ThemeProvider } from '../context/ThemeContext';
 import UserContext from '../context/UserContext';
 import Navbar from '../components/Navbar/Navbar';
 import LoginModal from '../components/Auth/LoginModal';
@@ -12,17 +13,19 @@ function MyApp({ Component, pageProps }) {
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
-    <PostProvider>
-      <UserContext.Provider value={{ user, setUser, setModalOpen, loading }}>
-        <div className="min-h-screen flex flex-col bg-gray-50">
-          <Navbar />
-          <LoginModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
-          <main className="flex-1">
-            <Component {...pageProps} />
-          </main>
-        </div>
-      </UserContext.Provider>
-    </PostProvider>
+    <ThemeProvider>
+      <PostProvider>
+        <UserContext.Provider value={{ user, setUser, setModalOpen, loading }}>
+          <div className="page-container flex flex-col">
+            <Navbar />
+            <LoginModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
+            <main className="flex-1">
+              <Component {...pageProps} />
+            </main>
+          </div>
+        </UserContext.Provider>
+      </PostProvider>
+    </ThemeProvider>
   );
 }
 

@@ -29,11 +29,11 @@ const BlogSidebar = () => {
   return (
     <aside className="space-y-6">
       {/* Top Posts Section */}
-      <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
-                  <div className="flex items-center space-x-2 mb-4">
-            <FaFire className="w-4 h-4 text-red-400" />
-            <h3 className="text-lg font-semibold text-white font-mono">TOP POSTS</h3>
-          </div>
+      <div className="sidebar">
+        <div className="sidebar-title">
+          <FaFire className="w-4 h-4 text-red-400" />
+          TOP POSTS
+        </div>
         
         {postsLoading ? (
           <div className="space-y-4">
@@ -81,12 +81,12 @@ const BlogSidebar = () => {
         )}
       </div>
 
-             {/* Latest Posts Section - Title Only */}
-       <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
-         <div className="flex items-center space-x-2 mb-4">
-           <FaClock className="w-4 h-4 text-blue-400" />
-           <h3 className="text-lg font-semibold text-white font-mono">LATEST POSTS</h3>
-         </div>
+      {/* Latest Posts Section - Title Only */}
+      <div className="sidebar">
+        <div className="sidebar-title">
+          <FaClock className="w-4 h-4 text-blue-400" />
+          LATEST POSTS
+        </div>
         
         {postsLoading ? (
           <div className="space-y-3">
@@ -112,13 +112,13 @@ const BlogSidebar = () => {
         )}
       </div>
 
-             {/* Categories Widget - Admin Defined */}
-       <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
-         <div className="flex items-center space-x-2 mb-4">
-           <FaCode className="w-4 h-4 text-purple-400" />
-           <h3 className="text-lg font-semibold text-white font-mono">CATEGORIES</h3>
-         </div>
-         <p className="text-xs text-gray-400 mb-3 font-mono">// curated by editors</p>
+      {/* Categories Widget - Admin Defined */}
+      <div className="sidebar">
+        <div className="sidebar-title">
+          <FaCode className="w-4 h-4 text-purple-400" />
+          CATEGORIES
+        </div>
+        <p className="tech-comment mb-3">curated by editors</p>
         
         {categoriesLoading ? (
           <div className="space-y-2">
@@ -149,13 +149,13 @@ const BlogSidebar = () => {
         )}
       </div>
 
-             {/* Popular Tags Widget - User Generated */}
-       <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 p-6">
-         <div className="flex items-center space-x-2 mb-4">
-           <FaBolt className="w-4 h-4 text-yellow-400" />
-           <h3 className="text-lg font-semibold text-white font-mono">POPULAR TAGS</h3>
-         </div>
-         <p className="text-xs text-gray-400 mb-3 font-mono">// community driven</p>
+      {/* Popular Tags Widget - User Generated */}
+      <div className="sidebar">
+        <div className="sidebar-title">
+          <FaBolt className="w-4 h-4 text-yellow-400" />
+          POPULAR TAGS
+        </div>
+        <p className="tech-comment mb-3">community driven</p>
         
         {tagsLoading ? (
           <div className="flex flex-wrap gap-2">
