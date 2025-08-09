@@ -35,7 +35,7 @@ import TitleInput from './TitleInput';
 import ContentEditor from './ContentEditor';
 import 'tippy.js/dist/tippy.css';
 
-const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTitle }) => {
+const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTitle, focusMode = false, isFullscreen = false }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [isUploadingTitle, setIsUploadingTitle] = useState(false);
   const [isContentEmpty, setIsContentEmpty] = useState(!content || content.trim() === '');
@@ -136,92 +136,110 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
     return [
       // Nhóm Định Dạng Văn Bản
       {
+        name: 'bold',
         icon: FaBold,
         action: () => editor.chain().focus().toggleBold().run(),
         isActive: () => editor.isActive('bold'),
-        tooltip: 'Đậm',
+        tooltip: 'Bold',
+        essential: true,
       },
       {
+        name: 'italic',
         icon: FaItalic,
         action: () => editor.chain().focus().toggleItalic().run(),
         isActive: () => editor.isActive('italic'),
-        tooltip: 'Nghiêng',
+        tooltip: 'Italic',
+        essential: true,
       },
       {
+        name: 'underline',
         icon: FaUnderline,
         action: () => editor.chain().focus().toggleUnderline().run(),
         isActive: () => editor.isActive('underline'),
-        tooltip: 'Gạch chân',
+        tooltip: 'Underline',
       },
       {
+        name: 'strike',
         icon: FaStrikethrough,
         action: () => editor.chain().focus().toggleStrike().run(),
         isActive: () => editor.isActive('strike'),
-        tooltip: 'Gạch ngang',
+        tooltip: 'Strikethrough',
       },
       // Nhóm Căn Chỉnh Văn Bản
       {
+        name: 'alignJustify',
         icon: FaAlignJustify,
         action: () => editor.chain().focus().setTextAlign('justify').run(),
         isActive: () => editor.isActive({ textAlign: 'justify' }),
-        tooltip: 'Căn đều hai bên',
+        tooltip: 'Justify',
       },
       {
+        name: 'alignLeft',
         icon: FaAlignLeft,
         action: () => editor.chain().focus().setTextAlign('left').run(),
         isActive: () => editor.isActive({ textAlign: 'left' }),
-        tooltip: 'Căn trái',
+        tooltip: 'Align Left',
       },
       {
+        name: 'alignCenter',
         icon: FaAlignCenter,
         action: () => editor.chain().focus().setTextAlign('center').run(),
         isActive: () => editor.isActive({ textAlign: 'center' }),
-        tooltip: 'Căn giữa',
+        tooltip: 'Align Center',
       },
       {
+        name: 'alignRight',
         icon: FaAlignRight,
         action: () => editor.chain().focus().setTextAlign('right').run(),
         isActive: () => editor.isActive({ textAlign: 'right' }),
-        tooltip: 'Căn phải',
+        tooltip: 'Align Right',
       },
       // Nhóm Chèn Đối Tượng
       {
+        name: 'image',
         icon: FaImage,
         action: handleImageUpload,
         isActive: false,
-        tooltip: 'Chèn hình ảnh',
+        tooltip: 'Insert Image',
       },
       {
+        name: 'link',
         icon: FaLink,
         action: () => {
-          const url = prompt('Nhập URL');
+          const url = prompt('Enter URL');
           if (url) editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
         },
         isActive: () => editor.isActive('link'),
-        tooltip: 'Chèn liên kết',
+        tooltip: 'Insert Link',
       },
       // Nhóm Tổ Chức Nội Dung
       {
+        name: 'bulletList',
         icon: FaListUl,
         action: () => {
           editor.chain().focus().toggleBulletList().run();
           console.log('Bullet List toggled:', editor.isActive('bulletList'));
         },
         isActive: () => editor.isActive('bulletList'),
-        tooltip: 'Danh sách không thứ tự',
+        tooltip: 'Bullet List',
+        essential: true,
       },
       {
+        name: 'orderedList',
         icon: FaListOl,
         action: () => {
           editor.chain().focus().toggleOrderedList().run();
           console.log('Ordered List toggled:', editor.isActive('orderedList'));
         },
         isActive: () => editor.isActive('orderedList'),
-        tooltip: 'Danh sách có thứ tự',
+        tooltip: 'Numbered List',
+        essential: true,
       },
       {
+        name: 'heading',
         icon: FaHeading,
-        tooltip: 'Chỉnh cấp độ tiêu đề',
+        tooltip: 'Heading',
+        essential: true,
         children: (
           <div className="py-1">
             {[1, 2, 3, 4, 5].map((level) => (
@@ -244,22 +262,26 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       },
       // Nhóm Hỗ Trợ
       {
+        name: 'blockquote',
         icon: FaQuoteRight,
         action: () => editor.chain().focus().toggleBlockquote().run(),
         isActive: () => editor.isActive('blockquote'),
-        tooltip: 'Trích dẫn',
+        tooltip: 'Quote',
+        essential: true,
       },
       {
+        name: 'clearFormat',
         icon: FaEraser,
         action: () => editor.chain().focus().clearNodes().unsetAllMarks().run(),
         isActive: false,
-        tooltip: 'Xóa định dạng',
+        tooltip: 'Clear Format',
       },
       {
+        name: 'preview',
         icon: isPreview ? FaEyeSlash : FaEye,
         action: () => setIsPreview((prev) => !prev),
         isActive: false,
-        tooltip: isPreview ? 'Thoát chế độ xem trước' : 'Chế độ xem trước',
+        tooltip: isPreview ? 'Edit Mode' : 'Preview Mode',
       },
     ];
   }, [editor, isPreview, handleImageUpload, setIsPreview]);
@@ -281,36 +303,48 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-5xl mx-auto p-6 relative card-content">
-      {/* Tiêu đề và Hình ảnh tiêu đề */}
-      <TitleInput
-        title={title}
-        setTitle={setTitle}
-        imageTitle={imageTitle}
-        handleImageTitleUpload={handleImageTitleUpload}
-        isUploadingTitle={isUploadingTitle}
-      />
+    <div className={`w-full transition-all duration-300 ${focusMode ? 'max-w-4xl mx-auto' : 'max-w-6xl mx-auto'}`}>
+      <div className={`${focusMode ? 'px-4' : 'p-6'}`}>
+        {/* Title Input Section */}
+        <div className="mb-6">
+          <TitleInput
+            title={title}
+            setTitle={setTitle}
+            imageTitle={imageTitle}
+            setImageTitle={setImageTitle}
+            handleImageTitleUpload={handleImageTitleUpload}
+            isUploadingTitle={isUploadingTitle}
+            focusMode={focusMode}
+          />
+        </div>
 
-      {/* Container Scrollable Cho Toolbar và Nội Dung */}
-      <div
-        className="h-[600px] overflow-y-auto editor-container"
-        style={{
-          scrollbarWidth: 'thin',
-          scrollbarColor: '#CBD5E0 transparent',
-        }}
-      >
-        {/* Thanh công cụ (Toolbar) */}
-        <Toolbar menuBar={menuBar} editor={editor} isPreview={isPreview} setIsPreview={setIsPreview} />
+        {/* Editor Section */}
+        <div className={`transition-all duration-300 ${isFullscreen ? 'h-[calc(100vh-8rem)]' : 'min-h-[70vh]'}`}>
+          {/* Toolbar - Only show in non-focus mode or on hover in focus mode */}
+          <div className={`transition-all duration-300 ${focusMode ? 'opacity-30 hover:opacity-100 mb-2' : 'mb-4'}`}>
+            <Toolbar 
+              menuBar={menuBar} 
+              editor={editor} 
+              isPreview={isPreview} 
+              setIsPreview={setIsPreview}
+              compact={focusMode}
+            />
+          </div>
 
-        {/* Nội dung bài viết */}
-        <ContentEditor
-          editor={editor}
-          isPreview={isPreview}
-          content={content}
-          isUploading={isUploading}
-        />
+          {/* Content Editor */}
+          <div className={`transition-all duration-300 ${isFullscreen ? 'h-[calc(100%-4rem)]' : ''} overflow-y-auto`}>
+            <ContentEditor
+              editor={editor}
+              isPreview={isPreview}
+              content={content}
+              isUploading={isUploading}
+              focusMode={focusMode}
+              isFullscreen={isFullscreen}
+            />
+          </div>
+        </div>
       </div>
-    </form>
+    </div>
   );
 };
 

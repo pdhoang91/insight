@@ -10,19 +10,22 @@ const SearchPage = () => {
   const { q } = router.query; // Từ khóa tìm kiếm
 
   return (
-    <div className="page-container flex flex-col lg:flex-row">
-               <div className="w-full lg:w-1/12 p-4 sticky top-4 h-fit hidden lg:block sidebar">
-        <Sidebar />
-      </div>
-      <div className="w-8/12 p-8">
-        {q ? (
-          <SearchResults query={q} />
-        ) : (
-          <p className="tech-comment">please enter search keyword</p>
-        )}
-      </div>
-              <div className="w-full lg:w-3/12 p-4 border-l border-primary sticky top-4 h-fit hidden xl:block sidebar">
-        <SidebarRight />
+    <div className="standard-page">
+      <div className="standard-page-content">
+        <div className="standard-content-area">
+          <header className="standard-page-header">
+            <h1 className="standard-page-title">Search</h1>
+            <p className="standard-page-subtitle tech-comment">find articles and topics</p>
+          </header>
+          
+          {q ? (
+            <SearchResults query={q} />
+          ) : (
+            <div className="text-center text-content-secondary font-mono">
+              Enter a search query to begin
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

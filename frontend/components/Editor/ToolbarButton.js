@@ -1,13 +1,13 @@
 // components/Editor/ToolbarButton.js
 import React, { useState, useRef, useEffect } from 'react';
 import Tippy from '@tippyjs/react';
-import 'tippy.js/dist/tippy.css'; // Tooltip styling
+import 'tippy.js/dist/tippy.css';
 
-const ToolbarButton = ({ icon: Icon, onClick, isActive, tooltip, disabled, children }) => {
+const ToolbarButton = ({ icon: Icon, onClick, isActive, tooltip, disabled, children, compact = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef();
 
-  // Đóng dropdown khi click ra ngoài
+  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (ref.current && !ref.current.contains(event.target)) {
@@ -20,45 +20,54 @@ const ToolbarButton = ({ icon: Icon, onClick, isActive, tooltip, disabled, child
     };
   }, []);
 
+  const buttonClasses = `
+    ${compact ? 'p-1.5' : 'p-2'} 
+    rounded-lg transition-all duration-200 
+    ${isActive 
+      ? 'bg-primary text-white shadow-sm' 
+      : 'text-secondary hover:text-primary hover:bg-elevated/50'
+    } 
+    ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+    focus:outline-none focus:ring-2 focus:ring-primary/20
+  `;
+
   if (children) {
-    // Đây là nút có dropdown menu (ví dụ: FaHeading)
+    // Dropdown menu button
     return (
       <div className="relative" ref={ref}>
-        <Tippy content={tooltip} placement="top">
+        <Tippy content={tooltip} placement="top" disabled={compact}>
           <button
             onClick={() => setIsOpen(!isOpen)}
             disabled={disabled}
-            className={`p-2 rounded hover:bg-blue-100 focus:outline-none ${
-              isActive ? 'bg-blue-500 text-white' : 'text-gray-700'
-            } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={buttonClasses}
             aria-label={tooltip}
             title={tooltip}
           >
-            <Icon />
+            <Icon className={compact ? 'w-4 h-4' : 'w-5 h-5'} />
           </button>
         </Tippy>
         {isOpen && (
-          <div className="absolute left-0 mt-2 w-40 bg-white border border-gray-200 rounded shadow-lg z-20">
-            {children}
+          <div className="absolute left-0 mt-2 w-48 bg-surface border border-border-primary rounded-lg shadow-xl z-20 overflow-hidden">
+            <div className="py-1">
+              {children}
+            </div>
           </div>
         )}
       </div>
     );
   }
 
-  // Đây là nút đơn (ví dụ: FaBold, FaItalic, FaListUl, FaListOl)
+  // Single button
   return (
-    <Tippy content={tooltip} placement="top">
+    <Tippy content={tooltip} placement="top" disabled={compact}>
       <button
         onClick={onClick}
         disabled={disabled}
-        className={`p-2 rounded hover:bg-blue-100 focus:outline-none ${
-          isActive ? 'bg-blue-500 text-white' : 'text-gray-700'
-        } ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+        className={buttonClasses}
         aria-label={tooltip}
         title={tooltip}
       >
-        <Icon />
+        <Icon className={compact ? 'w-4 h-4' : 'w-5 h-5'} />
       </button>
     </Tippy>
   );

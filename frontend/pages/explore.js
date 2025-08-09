@@ -117,14 +117,13 @@ const Suggestion = () => {
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen">
-      {/* Sidebar Left */}
-      <aside className="w-full lg:w-1/12 p-4 sticky top-4 h-fit hidden lg:block">
-        <Sidebar />
-      </aside>
-
-      {/* Main Content */}
-      <main className="w-full lg:w-8/12 p-4">
+    <div className="standard-page">
+      <div className="standard-page-content">
+        <div className="standard-content-area">
+          <header className="standard-page-header">
+            <h1 className="standard-page-title">Explore</h1>
+            <p className="standard-page-subtitle tech-comment">discover new writers and topics</p>
+          </header>
         {/* Tab Switcher */}
         <div className="flex space-x-4 mb-6 pb-2">
           <button
@@ -188,15 +187,11 @@ const Suggestion = () => {
           </motion.div>
         ))}
       </div>
-    </div>
-        )}
-        {/* Thêm các tab khác nếu cần */}
-      </main>
-
-      {/* Sidebar Right */}
-      <aside className="w-full lg:w-3/12 p-4 border-l sticky top-4 h-fit hidden xl:block">
-        <SidebarRight />
-      </aside>
+          </div>
+          )}
+          {/* Thêm các tab khác nếu cần */}
+        </div>
+      </div>
     </div>
   );
 };
