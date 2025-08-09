@@ -1,19 +1,23 @@
 // components/Search/Tabs/StoriesTab.js
 import React from 'react';
-import PostItemSmallWithImage from '../../Post/PostItemSmallWithImage';
+import PostItem from '../../Post/PostItem';
 
 export const StoriesTab = ({ stories, query }) => {
   if (!stories || stories.length === 0) {
-    return <p className="text-gray-600 text-center mt-8">Không tìm thấy Stories phù hợp.</p>;
+    return (
+      <div className="text-center py-8 text-gray-500">
+        <p>No stories found for "{query}"</p>
+      </div>
+    );
   }
 
   return (
-    <div>
+    <div className="space-y-4">
       {stories.map((story) => (
-        <PostItemSmallWithImage key={story.id} post={story} />
+        <PostItem key={story.id} post={story} />
       ))}
     </div>
   );
 };
 
-//export default StoriesTab;
+export default StoriesTab; 
