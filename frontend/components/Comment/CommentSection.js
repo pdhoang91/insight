@@ -1,31 +1,24 @@
 // components/Comment/CommentSection.js
 import React, { useMemo } from 'react';
-import CommentList from './CommentList';
+import LimitedCommentList from './LimitedCommentList';
 import AddCommentForm from './AddCommentForm';
 import { addComment } from '../../services/commentService';
-import { useComments } from '../../hooks/useComments';
+import { useInfiniteComments } from '../../hooks/useInfiniteComments';
 import { FaSpinner } from 'react-icons/fa';
 
 const CommentSection = ({ postId, user }) => {
-  const { comments, isLoading, isError, mutate } = useComments(postId, true, 1, 10);
+  const { 
+    comments, 
+    totalCount, 
+    totalCommentReply,
+    isLoading, 
+    isError, 
+    canLoadMore,
+    loadMore,
+    mutate 
+  } = useInfiniteComments(postId, true, 2);
 
-  const countComments = (commentsArray) => {
-    let count = 0;
-    for (const comment of commentsArray) {
-      count += 1;
-      if (comment.children && comment.children.length > 0) {
-        count += countComments(comment.children);
-      }
-    }
-    return count;
-  };
-
-  const totalComments = useMemo(() => {
-    if (comments && comments.length > 0) {
-      return countComments(comments);
-    }
-    return 0;
-  }, [comments]);
+  const totalComments = totalCount;
 
   const handleAddComment = async (content) => {
     if (!user) {
@@ -76,7 +69,17 @@ const CommentSection = ({ postId, user }) => {
             <span className="text-secondary font-mono">Loading comments...</span>
           </div>
         )}
-        {comments && <CommentList comments={comments} postId={postId} mutate={mutate} />}
+        {comments && (
+          <LimitedCommentList 
+            comments={comments} 
+            postId={postId} 
+            mutate={mutate}
+            canLoadMore={canLoadMore}
+            loadMore={loadMore}
+            isLoadingMore={isLoading}
+            totalCount={totalCount}
+          />
+        )}
       </div>
     </div>
   );

@@ -1,32 +1,25 @@
 // components/Comment/CommentsPopup.js
 import React, { useMemo, useEffect } from 'react';
-import CommentList from './CommentList';
+import LimitedCommentList from './LimitedCommentList';
 import AddCommentForm from './AddCommentForm';
 import { addComment } from '../../services/commentService';
-import { useComments } from '../../hooks/useComments';
+import { useInfiniteComments } from '../../hooks/useInfiniteComments';
 import { FaTimes, FaSpinner } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const CommentsPopup = ({ isOpen, onClose, postId, user }) => {
-  const { comments, isLoading, isError, mutate } = useComments(postId, isOpen, 1, 10);
+  const { 
+    comments, 
+    totalCount, 
+    totalCommentReply,
+    isLoading, 
+    isError, 
+    canLoadMore,
+    loadMore,
+    mutate 
+  } = useInfiniteComments(postId, isOpen, 2);
 
-  const countComments = (commentsArray) => {
-    let count = 0;
-    for (const comment of commentsArray) {
-      count += 1;
-      if (comment.children && comment.children.length > 0) {
-        count += countComments(comment.children);
-      }
-    }
-    return count;
-  };
-
-  const totalComments = useMemo(() => {
-    if (comments && comments.length > 0) {
-      return countComments(comments);
-    }
-    return 0;
-  }, [comments]);
+  const totalComments = totalCount;
 
   const handleAddComment = async (content) => {
     if (!user) {
@@ -90,7 +83,7 @@ const CommentsPopup = ({ isOpen, onClose, postId, user }) => {
             animate={{ opacity: 0.3 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-          ></motion.div>
+          />
 
           {/* Modal Content */}
           <motion.div
@@ -134,7 +127,17 @@ const CommentsPopup = ({ isOpen, onClose, postId, user }) => {
                   <span className="text-gray-400 font-mono">Loading comments...</span>
                 </div>
               )}
-              {comments && <CommentList comments={comments} postId={postId} mutate={mutate} />}
+              {comments && (
+                <LimitedCommentList 
+                  comments={comments} 
+                  postId={postId} 
+                  mutate={mutate}
+                  canLoadMore={canLoadMore}
+                  loadMore={loadMore}
+                  isLoadingMore={isLoading}
+                  totalCount={totalCount}
+                />
+              )}
             </div>
           </motion.div>
         </motion.div>
