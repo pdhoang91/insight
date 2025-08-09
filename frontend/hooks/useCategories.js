@@ -1,37 +1,52 @@
 // hooks/useCategories.js
 import useSWR from 'swr';
-import { getCategories, getTopCategories } from '../services/categoryService';
+import { getCategories, getTopCategories, getPostsByCategory } from '../services/categoryService';
 
 export const useCategories = (page = 1, limit = 10) => {
-  const { data, error } = useSWR('/categories', () => getCategories(page, limit), {
-    revalidateOnMount: true,
-  });
+  const { data, error, mutate } = useSWR(
+    `/categories?page=${page}&limit=${limit}`,
+    () => getCategories(page, limit),
+    {
+      revalidateOnMount: true,
+      dedupingInterval: 300000, // Cache for 5 minutes (categories don't change often)
+    }
+  );
 
   return {
     categories: data ? data.categories : [],
     totalCount: data ? data.totalCount : 0,
     isLoading: !error && !data,
     isError: error,
+    mutate,
   };
 };
 
 export const useTopCategories = (page = 1, limit = 10) => {
-  const { data, error } = useSWR('/categories_top', () => getTopCategories(page, limit), {
-    revalidateOnMount: true,
-  });
+  const { data, error, mutate } = useSWR(
+    `/categories_top?page=${page}&limit=${limit}`,
+    () => getTopCategories(page, limit),
+    {
+      revalidateOnMount: true,
+      dedupingInterval: 300000, // Cache for 5 minutes
+    }
+  );
 
   return {
     categories: data ? data.categories : [],
     totalCount: data ? data.totalCount : 0,
     isLoading: !error && !data,
     isError: error,
+    mutate,
   };
 };
 
 export const useCategoriesWithPosts = (categoryName, page = 1, limit = 10) => {
-  const { data, error } = useSWR(
-    `/categories/${encodeURIComponent(categoryName)}/posts?page=${page}&limit=${limit}`,
-    () => getPostsByCategory(categoryName, page, limit)
+  const { data, error, mutate } = useSWR(
+    categoryName ? `/categories/${encodeURIComponent(categoryName)}/posts?page=${page}&limit=${limit}` : null,
+    () => getPostsByCategory(categoryName, page, limit),
+    {
+      revalidateOnMount: true,
+    }
   );
 
   return {
@@ -39,5 +54,6 @@ export const useCategoriesWithPosts = (categoryName, page = 1, limit = 10) => {
     totalCount: data ? data.totalCount : 0,
     isLoading: !error && !data,
     isError: error,
+    mutate,
   };
 };

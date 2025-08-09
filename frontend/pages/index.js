@@ -7,6 +7,7 @@ import HeroSection from '../components/Shared/HeroSection';
 import BlogSidebar from '../components/Shared/BlogSidebar';
 import PostList from '../components/Post/PostList';
 import TabSwitcher from '../components/Shared/HomeTabSwitcher';
+import CategoryTagExplainer from '../components/Shared/CategoryTagExplainer';
 
 const Home = () => {
   const { activeTab, toggleTab } = useTabSwitcher();
@@ -22,6 +23,8 @@ const Home = () => {
 
   return (
     <div className="min-h-screen">
+      {/* Hero Section */}
+      <HeroSection />
       
       {/* Main Content with Sidebar Layout */}
       <div className="bg-gray-50">
@@ -29,27 +32,33 @@ const Home = () => {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Main Content Area */}
             <div className="lg:col-span-3">
+              {/* Category vs Tags Explainer */}
+              <CategoryTagExplainer />
+
               {/* Section Header */}
               <div className="mb-12">
                 <h2 className="text-4xl font-bold text-gray-900 mb-4">
-                  Latest Stories
+                  Latest Tech Stories
                 </h2>
                 <p className="text-xl text-gray-600 max-w-2xl">
-                  Discover fresh perspectives and insights from our community of writers
+                  Discover in-depth tutorials, insights, and experiences from our community of developers and tech enthusiasts
                 </p>
               </div>
 
-              {/* Post List - Using list variant instead of grid for traditional blog layout */}
-              <div className="space-y-6">
-                <PostList
-                  posts={posts}
-                  isLoading={isLoading}
-                  isError={isError}
-                  setSize={setSize}
-                  isReachingEnd={isReachingEnd}
-                  variant="list"
-                />
+              {/* Tab Switcher */}
+              <div className="mb-8">
+                <TabSwitcher activeTab={activeTab} toggleTab={toggleTab} user={user} />
               </div>
+
+              {/* Enhanced Post List */}
+              <PostList
+                posts={posts}
+                isLoading={isLoading}
+                isError={isError}
+                setSize={setSize}
+                isReachingEnd={isReachingEnd}
+                variant="enhanced"
+              />
             </div>
 
             {/* Sidebar */}
