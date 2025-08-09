@@ -307,7 +307,6 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
           editor={editor}
           isPreview={isPreview}
           content={content}
-          isContentEmpty={isContentEmpty}
           isUploading={isUploading}
         />
       </div>

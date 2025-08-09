@@ -8,7 +8,6 @@ const ContentEditor = ({
   editor,
   isPreview,
   content,
-  isContentEmpty,
   isUploading,
 }) => {
   return (
@@ -23,14 +22,7 @@ const ContentEditor = ({
           {isPreview ? (
             <PreviewContent content={content} />
           ) : (
-            <>
-              <EditorContent editor={editor} className="min-h-[300px] focus:outline-none prose content" />
-              {isContentEmpty && (
-                <p className="absolute text-gray-500 italic top-4 left-4 pointer-events-none">
-                  Nội dung bài viết...
-                </p>
-              )}
-            </>
+            <EditorContent editor={editor} className="min-h-[300px] focus:outline-none prose content" />
           )}
         </>
       )}
