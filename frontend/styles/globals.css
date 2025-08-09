@@ -444,74 +444,7 @@ a:hover {
   }
 }
 
-/* Post Content Styles - White Background with Black Text */
-.post-content {
-  background-color: #ffffff;
-  color: #1f2937 !important;
-}
-
-.post-content p,
-.post-content div,
-.post-content span,
-.post-content li,
-.post-content td,
-.post-content th,
-.post-content blockquote {
-  color: #1f2937 !important;
-}
-
-.post-content h1,
-.post-content h2,
-.post-content h3,
-.post-content h4,
-.post-content h5,
-.post-content h6 {
-  color: #111827 !important;
-  font-weight: bold;
-}
-
-.post-content a {
-  color: #2563eb !important;
-}
-
-.post-content a:hover {
-  color: #1d4ed8 !important;
-}
-
-.post-content strong,
-.post-content b {
-  color: #111827 !important;
-  font-weight: bold;
-}
-
-.post-content em,
-.post-content i {
-  color: #374151 !important;
-}
-
-.post-content pre {
-  background-color: #f3f4f6 !important;
-  color: #1f2937 !important;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 1rem;
-}
-
-.post-content code {
-  background-color: #f3f4f6 !important;
-  color: #dc2626 !important;
-  padding: 0.2rem 0.4rem;
-  border-radius: 4px;
-  font-size: 0.875em;
-}
-
-.post-content blockquote {
-  border-left: 4px solid #e5e7eb;
-  padding-left: 1rem;
-  margin: 1rem 0;
-  font-style: italic;
-  background-color: #f9fafb;
-}
+/* Post Content Styles - Removed duplicate white theme styles */
 
 /* Focus States */
 *:focus-visible {

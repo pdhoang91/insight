@@ -120,10 +120,10 @@ const UserProfilePage = () => {
   }
 
   return (
-    <div className="profile-page">
+    <div className="min-h-screen bg-app">
       {/* Profile Header */}
-      <div className="profile-header">
-        <div className="profile-header-content">
+      <div className="bg-surface border-b border-border-primary py-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
             {/* Avatar */}
             <div className="flex-shrink-0">
@@ -274,7 +274,7 @@ const UserProfilePage = () => {
       </div>
 
       {/* Tab Content */}
-      <div className="profile-content">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <motion.div
           key={activeTab}
           initial={{ opacity: 0, y: 20 }}

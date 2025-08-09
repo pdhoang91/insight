@@ -62,7 +62,7 @@ export const PostDetail = ({ post }) => {
   };
 
   return (
-    <div className="flex flex-col p-8">
+    <div className="flex flex-col p-8 bg-surface text-primary">
       {/* Image Section */}
       {/* {post.categories?.length > 0 && (
         <img
@@ -77,16 +77,16 @@ export const PostDetail = ({ post }) => {
       )} */}
 
       {/* Header Section - Technical Style */}
-      <header className="page-header">
-        <h1 className="page-title">{post.title}</h1>
+      <header className="mb-8 pb-6 border-b border-border-primary">
+        <h1 className="text-4xl font-bold text-primary mb-4 line-height-tight">{post.title}</h1>
         
         {/* Meta Information */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-sm text-gray-600">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-sm text-secondary">
           <div className="flex items-center space-x-4">
             {post.user && <AuthorInfo author={post.user} />}
             <span className="font-mono">{new Date(post.created_at).toLocaleDateString()}</span>
           </div>
-          <div className="flex items-center space-x-4 mt-2 sm:mt-0 font-mono text-xs">
+          <div className="flex items-center space-x-4 mt-2 sm:mt-0 font-mono text-xs text-muted">
             <span>{post.views} views</span>
             <span>~{Math.ceil(post.content?.replace(/<[^>]*>/g, '').length / 200) || 1} min read</span>
           </div>
@@ -94,26 +94,26 @@ export const PostDetail = ({ post }) => {
       </header>
 
       {/* Interaction Section - Technical Style */}
-      <div className="flex flex-wrap items-center text-gray-600 mb-8 pb-4 border-t border-gray-200 pt-4 space-x-6">
+      <div className="flex flex-wrap items-center text-secondary mb-8 pb-4 border-t border-border-primary pt-4 space-x-6">
         {/* Claps */}
         <button
           onClick={handleClap}
           className={`flex items-center font-mono ${
-            hasClapped ? 'text-red-500' : 'text-gray-600 hover:text-red-500'
+            hasClapped ? 'text-primary' : 'text-secondary hover:text-primary'
           } transition-colors`}
         >
           <FaHandsClapping className="mr-1" /> {postClapsCount} claps
         </button>
 
         {/* Comments */}
-        <button onClick={toggleCommentPopup} className="flex items-center text-gray-600 hover:text-blue-500 transition-colors font-mono">
+        <button onClick={toggleCommentPopup} className="flex items-center text-secondary hover:text-primary transition-colors font-mono">
           <FaComment className="mr-1" /> {totalCommentReply} comments
         </button>
 
         {/* Bookmark */}
-        <button onClick={toggleBookmark} className="flex items-center text-gray-600 hover:text-yellow-500 transition-colors font-mono" disabled={isBookmarkLoading}>
+        <button onClick={toggleBookmark} className="flex items-center text-secondary hover:text-primary transition-colors font-mono" disabled={isBookmarkLoading}>
           {isBookmarked ? (
-            <FaBookmark className="mr-1 text-yellow-500" />
+            <FaBookmark className="mr-1 text-primary" />
           ) : (
             <FaRegBookmark className="mr-1" />
           )}
@@ -122,7 +122,7 @@ export const PostDetail = ({ post }) => {
         </button>
 
         {/* Share */}
-        <button onClick={handleShare} className="flex items-center text-gray-600 hover:text-green-500 transition-colors font-mono">
+        <button onClick={handleShare} className="flex items-center text-secondary hover:text-primary transition-colors font-mono">
           <FaShareAlt className="mr-1" /> share
         </button>
       </div>
@@ -137,8 +137,11 @@ export const PostDetail = ({ post }) => {
         />
         
         {/* Content Area - Clean & Simple */}
-        <div className="post-content text-gray-900 leading-relaxed prose lg:prose-xl max-w-none">
-          <div dangerouslySetInnerHTML={{ __html: post.content }} />
+        <div className="post-content text-primary leading-relaxed max-w-none">
+          <div 
+            dangerouslySetInnerHTML={{ __html: post.content }} 
+            className="prose-content"
+          />
         </div>
       </div>
 

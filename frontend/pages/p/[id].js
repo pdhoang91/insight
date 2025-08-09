@@ -46,25 +46,25 @@ const PostPage = () => {
   const { post, isLoading, isError, mutate } = usePostName(id);
 
   if (isLoading) return (
-    <div className="loading-container">
-      <div className="loading-card animate-pulse">
-        Loading post...
+    <div className="min-h-screen bg-app flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-pulse text-secondary">Loading post...</div>
       </div>
     </div>
   );
   
   if (isError) return (
-    <div className="loading-container">
-      <div className="error-card">
-        // Failed to load post
+    <div className="min-h-screen bg-app flex items-center justify-center">
+      <div className="text-center">
+        <div className="text-danger font-mono">Failed to load post</div>
       </div>
     </div>
   );
 
   return (
-    <div className="page-container">
-      <div className="page-content">
-        <main className="content-area">
+    <div className="min-h-screen bg-app">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="overflow-hidden">
           <PostDetail post={post} />
         </main>
       </div>

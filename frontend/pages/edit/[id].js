@@ -78,20 +78,25 @@ const EditPost = () => {
   }, [router.asPath, router, id]);
 
   if (!router.isReady || isLoading) return (
-    <div className="loading-container">
-      <div className="loading-card">Loading editor...</div>
+    <div className="min-h-screen bg-app flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-pulse text-secondary">Loading editor...</div>
+      </div>
     </div>
   );
   if (isError) return (
-    <div className="loading-container">
-      <div className="error-card">Failed to load post</div>
+    <div className="min-h-screen bg-app flex items-center justify-center">
+      <div className="text-center">
+        <div className="text-danger font-mono">Failed to load post</div>
+      </div>
     </div>
   );
   if (!user) return null;
 
   return (
-          <div className="page-container flex justify-center items-start">
-              <div className="w-full max-w p-6 card">
+    <div className="min-h-screen bg-app">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-surface rounded-xl p-8">
         <PostForm
           title={title}
           setTitle={setTitle}
@@ -110,6 +115,7 @@ const EditPost = () => {
             onCancel={() => setShowPopup(false)}
           />
         )}
+        </div>
       </div>
     </div>
   );

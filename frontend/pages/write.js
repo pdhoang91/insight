@@ -194,7 +194,7 @@ const Write = () => {
     <div className={`min-h-screen bg-app transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50 pt-0' : ''}`}>
       {/* Writing Toolbar - Only show when not in fullscreen */}
       {!isFullscreen && (
-        <div className={`sticky top-16 z-40 bg-app/95 backdrop-blur-sm border-b border-border-primary transition-all duration-300 ${focusMode ? 'opacity-20 hover:opacity-100' : 'opacity-100'}`}>
+        <div className={`sticky top-16 z-40 bg-app/95 backdrop-blur-sm transition-all duration-300 ${focusMode ? 'opacity-20 hover:opacity-100' : 'opacity-100'}`}>
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-12">
               {/* Left Section - Stats */}
@@ -318,7 +318,7 @@ const Write = () => {
           )}
 
           {/* Editor Container */}
-          <div className={`transition-all duration-300 ${focusMode ? 'bg-transparent' : 'bg-surface rounded-xl border border-border-primary'} ${isFullscreen ? 'h-[calc(100vh-3.5rem)]' : ''}`}>
+          <div className={`transition-all duration-300 ${focusMode ? 'bg-transparent' : 'bg-surface rounded-xl'} ${isFullscreen ? 'h-[calc(100vh-3.5rem)]' : ''}`}>
             <PostForm
               title={title}
               setTitle={setTitle}
