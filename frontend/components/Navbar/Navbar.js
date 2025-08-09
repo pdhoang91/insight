@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  FaBell, 
   FaUser, 
   FaSignOutAlt, 
   FaUserCircle, 
@@ -13,7 +12,6 @@ import {
   FaBars, 
   FaTimes, 
   FaEdit,
-  FaCode,
   FaTerminal,
   FaGithub
 } from 'react-icons/fa';
@@ -59,9 +57,7 @@ const Navbar = () => {
   };
 
   const navigationLinks = [
-    { href: '/explore', label: 'Explore', active: router.pathname === '/explore', icon: FaCode },
-    { href: '/category', label: 'Categories', active: router.pathname.startsWith('/category'), icon: FaTerminal },
-    { href: '/write', label: 'Write', active: router.pathname === '/write', authRequired: true, icon: FaEdit },
+    // Removed explore and category links as requested
   ];
 
   return (
@@ -118,11 +114,18 @@ const Navbar = () => {
           <div className="flex items-center space-x-3">
             {user ? (
               <>
-                {/* Notifications */}
-                <button className="relative p-2 text-secondary hover:text-primary rounded-lg transition-colors">
-                  <FaBell className="w-5 h-5" />
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
-                </button>
+                {/* Write Button - Replaced notification */}
+                <Link
+                  href="/write"
+                  className={`flex items-center space-x-2 px-4 py-2 text-sm font-mono transition-all duration-200 rounded-lg ${
+                    router.pathname === '/write'
+                      ? 'text-primary bg-elevated shadow-sm'
+                      : 'text-secondary hover:text-primary hover:bg-elevated/50'
+                  }`}
+                >
+                  <FaEdit className="w-4 h-4" />
+                  <span>Write</span>
+                </Link>
 
                 {/* User Menu */}
                 <div className="relative" ref={userMenuRef}>
@@ -183,13 +186,24 @@ const Navbar = () => {
                 </div>
               </>
             ) : (
-              <button
-                onClick={() => setModalOpen(true)}
-                className="flex items-center space-x-2 px-4 py-2 bg-primary text-white font-mono text-sm rounded-lg hover:bg-primary-hover transition-colors"
-              >
-                <FaTerminal className="w-4 h-4" />
-                <span>Sign In</span>
-              </button>
+              <>
+                {/* Write Button for non-authenticated users */}
+                <button
+                  onClick={() => setModalOpen(true)}
+                  className="flex items-center space-x-2 px-4 py-2 text-secondary hover:text-primary hover:bg-elevated/50 font-mono text-sm rounded-lg transition-colors"
+                >
+                  <FaEdit className="w-4 h-4" />
+                  <span>Write</span>
+                </button>
+                
+                <button
+                  onClick={() => setModalOpen(true)}
+                  className="flex items-center space-x-2 px-4 py-2 bg-primary text-white font-mono text-sm rounded-lg hover:bg-primary-hover transition-colors"
+                >
+                  <FaTerminal className="w-4 h-4" />
+                  <span>Sign In</span>
+                </button>
+              </>
             )}
 
             {/* Mobile Menu Button */}
@@ -222,25 +236,32 @@ const Navbar = () => {
                 <TechSearchBar placeholder="Search..." />
               </div>
 
-              {navigationLinks.map((link) => {
-                if (link.authRequired && !user) return null;
-                
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className={`flex items-center space-x-3 px-3 py-2 text-sm font-mono rounded-lg transition-colors ${
-                      link.active
-                        ? 'bg-elevated text-primary'
-                        : 'text-secondary hover:text-primary hover:bg-elevated/50'
-                    }`}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <link.icon className="w-4 h-4" />
-                    <span>{link.label}</span>
-                  </Link>
-                );
-              })}
+              {/* Write Link for Mobile */}
+              {user ? (
+                <Link
+                  href="/write"
+                  className={`flex items-center space-x-3 px-3 py-2 text-sm font-mono rounded-lg transition-colors ${
+                    router.pathname === '/write'
+                      ? 'bg-elevated text-primary'
+                      : 'text-secondary hover:text-primary hover:bg-elevated/50'
+                  }`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <FaEdit className="w-4 h-4" />
+                  <span>Write</span>
+                </Link>
+              ) : (
+                <button
+                  onClick={() => {
+                    setModalOpen(true);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="flex items-center space-x-3 px-3 py-2 text-sm font-mono rounded-lg transition-colors text-secondary hover:text-primary hover:bg-elevated/50 w-full text-left"
+                >
+                  <FaEdit className="w-4 h-4" />
+                  <span>Write</span>
+                </button>
+              )}
 
               {!user && (
                 <button
