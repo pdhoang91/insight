@@ -63,9 +63,6 @@ const Navbar = () => {
               <span className="text-white font-mono text-xl font-bold mx-1">Insight</span>
               <span className="text-green-400 font-mono text-xl font-bold">/&gt;</span>
             </div>
-            <div className="hidden sm:block">
-              <span className="text-gray-400 text-xs font-mono">// tech blog</span>
-            </div>
           </Link>
 
           {/* Desktop Navigation - Terminal Style */}

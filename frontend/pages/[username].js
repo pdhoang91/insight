@@ -100,7 +100,7 @@ const UserProfilePage = () => {
 
   if (loading || loadingUser) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-400"></div>
       </div>
     );
@@ -108,7 +108,7 @@ const UserProfilePage = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
         <div className="text-red-400 text-center">
           <p className="text-lg font-medium font-mono">// Error loading profile</p>
           <p className="text-sm font-mono">{error}</p>
@@ -118,7 +118,7 @@ const UserProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900">
+    <div className="min-h-screen bg-gray-900">
       {/* Profile Header */}
       <div className="bg-gray-800 border-b border-gray-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

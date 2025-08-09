@@ -10,7 +10,7 @@ const SearchPage = () => {
   const { q } = router.query; // Từ khóa tìm kiếm
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-slate-900">
+    <div className="flex flex-col lg:flex-row min-h-screen bg-gray-900">
        <div className="w-full lg:w-1/12 p-4 sticky top-4 h-fit hidden lg:block bg-gray-800 rounded-lg border border-gray-700">
         <Sidebar />
       </div>

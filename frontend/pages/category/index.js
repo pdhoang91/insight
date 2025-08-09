@@ -4,7 +4,7 @@ import CategoryList from '../../components/Category/CategoryList';
 
 const CategoryPage = () => {
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-gray-900">
       {/* Technical Terminal-style Layout */}
       <div className="max-w-4xl mx-auto p-6">
         {/* Content Area - White on Black */}
