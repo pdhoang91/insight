@@ -8,7 +8,7 @@ const CategoryItem = ({ category }) => {
   const { posts, isLoading, isError } = usePostsByCategory(category.name, 2);
 
   return (
-    <div className="bg-white p-6 mb-6 border-b border-gray-200 last:border-b-0">
+    <div className="post-item">
       {/* Category Header */}
       <header className="mb-4">
         <h2 className="text-2xl font-bold mb-2">

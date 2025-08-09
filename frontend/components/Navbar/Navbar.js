@@ -53,14 +53,14 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="bg-gray-900 border-b border-gray-800 sticky top-0 z-50 shadow-lg">
+    <nav className="bg-app border-primary sticky top-0 z-50 shadow-lg border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo - Tech Style */}
           <Link href="/" className="flex items-center space-x-2">
             <div className="flex items-center">
               <span className="text-green-400 font-mono text-xl font-bold">&lt;</span>
-              <span className="text-white font-mono text-xl font-bold mx-1">Insight</span>
+              <span className="text-primary font-mono text-xl font-bold mx-1">Insight</span>
               <span className="text-green-400 font-mono text-xl font-bold">/&gt;</span>
             </div>
           </Link>

@@ -94,7 +94,7 @@ const CommentsPopup = ({ isOpen, onClose, postId, user }) => {
 
           {/* Modal Content */}
           <motion.div
-            className="relative w-full max-w-md bg-gray-800 shadow-lg overflow-y-auto h-full border-l border-gray-700"
+            className="relative w-full max-w-md bg-surface shadow-lg overflow-y-auto h-full border-l border-primary"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
@@ -109,17 +109,17 @@ const CommentsPopup = ({ isOpen, onClose, postId, user }) => {
               <FaTimes size={20} />
             </button>
 
-            {/* Header */}
-            <div className="p-4 border-b border-gray-700">
-              <h2 className="text-xl font-semibold text-white font-mono">Comments ({totalComments})</h2>
-            </div>
+                    {/* Header */}
+        <div className="p-4 border-b border-primary">
+          <h2 className="text-xl font-semibold text-primary font-mono">Comments ({totalComments})</h2>
+        </div>
 
-            {/* Add Comment Form */}
-            <div className="p-4 border-b border-gray-700">
+        {/* Add Comment Form */}
+        <div className="p-4 border-b border-primary">
               {user ? (
                 <AddCommentForm onAddComment={handleAddComment} />
               ) : (
-                <p className="text-gray-400 font-mono">// Login required to comment</p>
+                <p className="tech-comment">Login required to comment</p>
               )}
             </div>
 

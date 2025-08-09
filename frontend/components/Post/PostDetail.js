@@ -62,7 +62,7 @@ export const PostDetail = ({ post }) => {
   };
 
   return (
-    <div className="flex flex-col bg-white p-8">
+    <div className="flex flex-col p-8">
       {/* Image Section */}
       {/* {post.categories?.length > 0 && (
         <img
@@ -77,8 +77,8 @@ export const PostDetail = ({ post }) => {
       )} */}
 
       {/* Header Section - Technical Style */}
-      <header className="mb-8 pb-6 border-b border-gray-200">
-        <h1 className="text-4xl font-bold mb-4 text-gray-900 leading-tight">{post.title}</h1>
+      <header className="page-header">
+        <h1 className="page-title">{post.title}</h1>
         
         {/* Meta Information */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-sm text-gray-600">

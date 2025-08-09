@@ -281,7 +281,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-5xl mx-auto p-6 relative bg-white">
+    <form onSubmit={handleSubmit} className="max-w-5xl mx-auto p-6 relative card-content">
       {/* Tiêu đề và Hình ảnh tiêu đề */}
       <TitleInput
         title={title}

@@ -74,7 +74,7 @@ const PostItem = ({ post, variant = 'default' }) => {
   if (variant === 'list') {
     return (
       <>
-        <article className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 p-6">
+        <article className="post-item">
           <div className="flex flex-col md:flex-row gap-6">
             {/* Content Section */}
             <div className="flex-1">
@@ -200,7 +200,7 @@ const PostItem = ({ post, variant = 'default' }) => {
   if (variant === 'card') {
     return (
       <>
-        <article className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-all duration-300 hover:-translate-y-1">
+        <article className="post-item overflow-hidden hover:-translate-y-1">
           {/* Featured Image */}
           {post.image_title && (
             <div className="relative h-48 w-full">
@@ -321,7 +321,7 @@ const PostItem = ({ post, variant = 'default' }) => {
   if (variant === 'timeline') {
     return (
       <>
-        <article className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 hover:shadow-xl hover:border-gray-600 transition-all duration-300 overflow-hidden">
+        <article className="card overflow-hidden hover:shadow-xl transition-all duration-300">
           <div className="flex flex-col md:flex-row">
             {/* Content Section - Left side */}
             <div className="flex-1 p-6">

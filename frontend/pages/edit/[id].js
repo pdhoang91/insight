@@ -91,7 +91,7 @@ const EditPost = () => {
 
   return (
           <div className="page-container flex justify-center items-start">
-      <div className="w-full max-w p-6 bg-gray-800 rounded-lg shadow-lg border border-gray-700">
+              <div className="w-full max-w p-6 card">
         <PostForm
           title={title}
           setTitle={setTitle}

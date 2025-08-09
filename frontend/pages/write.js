@@ -220,7 +220,7 @@ const Write = () => {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="bg-gray-800 rounded-2xl shadow-lg border border-gray-700 overflow-hidden"
+          className="card overflow-hidden"
         >
           <PostForm
             title={title}
@@ -239,34 +239,34 @@ const Write = () => {
           transition={{ delay: 0.4 }}
           className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6"
         >
-          <div className="p-4 bg-gray-800 rounded-xl border border-gray-700 hover:shadow-lg hover:border-gray-600 transition-all">
+          <div className="card hover:shadow-lg transition-all">
             <div className="w-8 h-8 bg-blue-900/30 rounded-lg flex items-center justify-center mb-3">
               <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
               </svg>
             </div>
-            <h3 className="font-semibold text-white mb-2 font-mono">start_strong()</h3>
-            <p className="text-sm text-gray-300">Hook your readers with an engaging opening that makes them want to continue reading.</p>
+            <h3 className="font-semibold text-primary mb-2 font-mono">start_strong()</h3>
+            <p className="text-sm text-secondary">Hook your readers with an engaging opening that makes them want to continue reading.</p>
           </div>
           
-          <div className="p-4 bg-gray-800 rounded-xl border border-gray-700 hover:shadow-lg hover:border-gray-600 transition-all">
+          <div className="card hover:shadow-lg transition-all">
             <div className="w-8 h-8 bg-green-900/30 rounded-lg flex items-center justify-center mb-3">
               <svg className="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </div>
-            <h3 className="font-semibold text-white mb-2 font-mono">be_authentic()</h3>
-            <p className="text-sm text-gray-300">Write in your own voice. Authenticity resonates with readers and builds trust.</p>
+            <h3 className="font-semibold text-primary mb-2 font-mono">be_authentic()</h3>
+            <p className="text-sm text-secondary">Write in your own voice. Authenticity resonates with readers and builds trust.</p>
           </div>
           
-          <div className="p-4 bg-gray-800 rounded-xl border border-gray-700 hover:shadow-lg hover:border-gray-600 transition-all">
+          <div className="card hover:shadow-lg transition-all">
             <div className="w-8 h-8 bg-purple-900/30 rounded-lg flex items-center justify-center mb-3">
               <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
             </div>
-            <h3 className="font-semibold text-white mb-2 font-mono">add_value()</h3>
-            <p className="text-sm text-gray-300">Share insights, experiences, or knowledge that can help or inspire your readers.</p>
+            <h3 className="font-semibold text-primary mb-2 font-mono">add_value()</h3>
+            <p className="text-sm text-secondary">Share insights, experiences, or knowledge that can help or inspire your readers.</p>
           </div>
         </motion.div>
       </motion.div>

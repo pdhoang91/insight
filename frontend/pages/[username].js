@@ -122,7 +122,7 @@ const UserProfilePage = () => {
   return (
     <div className="page-container">
       {/* Profile Header */}
-      <div className="bg-gray-800 border-b border-gray-700">
+      <div className="bg-surface border-b border-primary">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
             {/* Avatar */}

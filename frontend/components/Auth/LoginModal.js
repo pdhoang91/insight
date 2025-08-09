@@ -61,7 +61,7 @@ const LoginModal = ({ isOpen, onClose }) => {
       onClick={onClose}
     >
       <div
-        className="bg-gray-800 border border-gray-700 p-8 rounded-lg shadow-xl w-full max-w-md mx-4 transform transition-transform duration-300 ease-out scale-95 hover:scale-100 opacity-100 z-60"
+        className="card p-8 w-full max-w-md mx-4 transform transition-transform duration-300 ease-out scale-95 hover:scale-100 opacity-100 z-60"
         onClick={(e) => e.stopPropagation()}
         style={{
           animation: 'fadeIn 0.3s ease-out',
