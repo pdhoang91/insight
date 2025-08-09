@@ -16,10 +16,10 @@ function MyApp({ Component, pageProps }) {
     <ThemeProvider>
       <PostProvider>
         <UserContext.Provider value={{ user, setUser, setModalOpen, loading }}>
-          <div className="page-container flex flex-col">
+          <div className="min-h-screen bg-app">
             <Navbar />
             <LoginModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
-            <main className="flex-1">
+            <main className="pt-16">
               <Component {...pageProps} />
             </main>
           </div>

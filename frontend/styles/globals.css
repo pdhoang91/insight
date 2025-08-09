@@ -12,6 +12,16 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Fixed Navbar Spacing */
+body {
+  scroll-padding-top: 4rem; /* 64px for navbar height */
+}
+
 /* Modern CSS Custom Properties - Dark Tech Theme */
 :root {
   /* Tech Theme Colors */

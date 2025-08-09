@@ -191,104 +191,102 @@ const Write = () => {
   }
 
   return (
-    <div className={`min-h-screen bg-app transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50' : ''}`}>
-      {/* Top Navigation Bar */}
-      <nav className={`sticky top-0 z-40 bg-app/95 backdrop-blur-sm border-b border-border-primary transition-all duration-300 ${focusMode ? 'opacity-20 hover:opacity-100' : 'opacity-100'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14">
-            {/* Left Section */}
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => router.back()}
-                className="p-2 text-secondary hover:text-primary rounded-lg transition-colors"
-                title="Go back"
-              >
-                <FaArrowLeft className="w-4 h-4" />
-              </button>
-              
-              <div className="hidden sm:block">
-                <span className="text-lg font-semibold text-primary">Write</span>
+    <div className={`min-h-screen bg-app transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50 pt-0' : ''}`}>
+      {/* Writing Toolbar - Only show when not in fullscreen */}
+      {!isFullscreen && (
+        <div className={`sticky top-16 z-40 bg-app/95 backdrop-blur-sm border-b border-border-primary transition-all duration-300 ${focusMode ? 'opacity-20 hover:opacity-100' : 'opacity-100'}`}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-12">
+              {/* Left Section - Stats */}
+              <div className="flex items-center space-x-6 text-sm text-muted">
+                <div className="flex items-center space-x-2">
+                  <FaFileAlt className="w-4 h-4" />
+                  <span>{wordCount} words</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <FaClock className="w-4 h-4" />
+                  <span>{readingTime} min read</span>
+                </div>
               </div>
-            </div>
 
-            {/* Center Section - Writing Stats */}
-            <div className="hidden md:flex items-center space-x-6 text-sm text-muted">
+              {/* Right Section - Tools */}
               <div className="flex items-center space-x-2">
-                <FaFileAlt className="w-4 h-4" />
-                <span>{wordCount} words</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <FaClock className="w-4 h-4" />
-                <span>{readingTime} min read</span>
-              </div>
-            </div>
+                {/* Writing Tools */}
+                <div className="flex items-center space-x-1">
+                  <button
+                    onClick={() => setFocusMode(!focusMode)}
+                    className={`p-2 rounded-lg transition-colors ${focusMode ? 'text-primary bg-primary/10' : 'text-secondary hover:text-primary'}`}
+                    title="Focus mode"
+                  >
+                    <FaEye className="w-4 h-4" />
+                  </button>
+                  
+                  <button
+                    onClick={() => setIsFullscreen(!isFullscreen)}
+                    className="p-2 text-secondary hover:text-primary rounded-lg transition-colors"
+                    title="Toggle fullscreen"
+                  >
+                    <FaExpand className="w-4 h-4" />
+                  </button>
 
-            {/* Right Section */}
-            <div className="flex items-center space-x-2">
-              {/* Writing Tools */}
-              <div className="hidden sm:flex items-center space-x-1">
-                <button
-                  onClick={() => setFocusMode(!focusMode)}
-                  className={`p-2 rounded-lg transition-colors ${focusMode ? 'text-primary bg-primary/10' : 'text-secondary hover:text-primary'}`}
-                  title="Focus mode"
-                >
-                  <FaEye className="w-4 h-4" />
-                </button>
-                
-                <button
-                  onClick={() => setIsFullscreen(!isFullscreen)}
-                  className="p-2 text-secondary hover:text-primary rounded-lg transition-colors"
-                  title="Toggle fullscreen"
-                >
-                  {isFullscreen ? <FaTimes className="w-4 h-4" /> : <FaExpand className="w-4 h-4" />}
-                </button>
+                  <Link 
+                    href="/aiwrite" 
+                    className="p-2 text-secondary hover:text-primary rounded-lg transition-colors" 
+                    title="AI Assistant"
+                  >
+                    <FaRobot className="w-4 h-4" />
+                  </Link>
+                </div>
 
-                <Link 
-                  href="/aiwrite" 
-                  className="p-2 text-secondary hover:text-primary rounded-lg transition-colors" 
-                  title="AI Assistant"
-                >
-                  <FaRobot className="w-4 h-4" />
-                </Link>
-              </div>
-
-              {/* Save Status */}
-              <div className="flex items-center space-x-3">
-                <span className={`text-xs ${getSaveStatusColor()}`}>
-                  {getSaveStatusText()}
-                </span>
-                
-                <Button
-                  onClick={handleSaveDraft}
-                  variant="ghost"
-                  size="sm"
-                  disabled={saveStatus === 'saving'}
-                  className="hidden sm:flex items-center space-x-2 text-xs px-3 py-1.5"
-                >
-                  {saveStatus === 'saving' ? (
-                    <LoadingSpinner size="sm" />
-                  ) : (
-                    <FaSave className="w-3 h-3" />
-                  )}
-                  <span>Save</span>
-                </Button>
-                
-                <Button
-                  onClick={handlePublish}
-                  size="sm"
-                  className="bg-primary hover:bg-primary-hover text-white px-4 py-1.5 text-sm font-medium"
-                >
-                  Publish
-                </Button>
+                {/* Save Status */}
+                <div className="flex items-center space-x-3">
+                  <span className={`text-xs ${getSaveStatusColor()}`}>
+                    {getSaveStatusText()}
+                  </span>
+                  
+                  <Button
+                    onClick={handleSaveDraft}
+                    variant="ghost"
+                    size="sm"
+                    disabled={saveStatus === 'saving'}
+                    className="hidden sm:flex items-center space-x-2 text-xs px-3 py-1.5"
+                  >
+                    {saveStatus === 'saving' ? (
+                      <LoadingSpinner size="sm" />
+                    ) : (
+                      <FaSave className="w-3 h-3" />
+                    )}
+                    <span>Save</span>
+                  </Button>
+                  
+                  <Button
+                    onClick={handlePublish}
+                    size="sm"
+                    className="bg-primary hover:bg-primary-hover text-white px-4 py-1.5 text-sm font-medium"
+                  >
+                    Publish
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </nav>
+      )}
+
+      {/* Fullscreen Exit Button */}
+      {isFullscreen && (
+        <button
+          onClick={() => setIsFullscreen(false)}
+          className="fixed top-4 right-4 z-50 p-2 bg-surface/80 backdrop-blur-sm text-secondary hover:text-primary rounded-lg transition-colors"
+          title="Exit fullscreen"
+        >
+          <FaTimes className="w-5 h-5" />
+        </button>
+      )}
 
       {/* Main Content */}
-      <main className={`transition-all duration-300 ${focusMode ? 'max-w-4xl mx-auto' : 'max-w-6xl mx-auto'}`}>
-        <div className="px-4 sm:px-6 lg:px-8 py-8">
+      <main className={`transition-all duration-300 ${focusMode ? 'max-w-4xl mx-auto' : 'max-w-6xl mx-auto'} ${isFullscreen ? 'p-8' : ''}`}>
+        <div className={`px-4 sm:px-6 lg:px-8 ${isFullscreen ? 'py-4' : 'py-8'}`}>
           {/* Welcome Message for New Users */}
           {!title && !content && (
             <motion.div 
