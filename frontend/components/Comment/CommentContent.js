@@ -16,7 +16,7 @@ const CommentContent = ({ content }) => {
         <Mention
           key={match.index}
           username={match[1]}
-          className="text-blue-500 hover:underline cursor-pointer"
+          className="text-primary hover:underline cursor-pointer"
         />
       );
       lastIndex = regex.lastIndex;
@@ -26,7 +26,7 @@ const CommentContent = ({ content }) => {
     return parts;
   };
 
-  return <p className="text-sm text-gray-700">{renderContent(content)}</p>;
+  return <p className="text-sm text-primary font-primary">{renderContent(content)}</p>;
 };
 
 export default CommentContent;

@@ -19,7 +19,7 @@ const AddCommentForm = ({ onAddComment, parentId = null }) => {
   return (
     <form onSubmit={handleSubmit} className="relative">
       <textarea
-        className="w-full border border-gray-300 rounded-md p-4 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none transition-all duration-200"
+        className="form-input pr-12 resize-none transition-all duration-200"
         placeholder={parentId ? 'Viết câu trả lời...' : 'Viết bình luận...'}
         value={content}
         onChange={(e) => setContent(e.target.value)}
@@ -29,8 +29,10 @@ const AddCommentForm = ({ onAddComment, parentId = null }) => {
       ></textarea>
       <button
         type="submit"
-        className={`absolute right-4 bottom-4 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-2 transition-colors ${
-          isSubmitting ? 'bg-gray-400 cursor-not-allowed' : ''
+        className={`absolute right-4 bottom-4 rounded-full p-2 transition-colors ${
+          isSubmitting 
+            ? 'bg-elevated text-muted cursor-not-allowed' 
+            : 'btn-primary hover:shadow-md'
         }`}
         disabled={isSubmitting}
         aria-label="Submit comment"

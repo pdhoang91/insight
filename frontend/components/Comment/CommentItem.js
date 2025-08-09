@@ -61,7 +61,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
 
   return (
     <motion.li
-      className="p-4 rounded bg-gray-50 shadow-sm"
+      className="p-4 rounded bg-elevated border border-primary shadow-sm"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
@@ -75,7 +75,9 @@ const CommentItem = ({ comment, postId, mutate }) => {
       <div className="flex items-center space-x-6 mt-2">
       <button
         onClick={handleClap}
-        className={`flex items-center text-sm font-medium focus:outline-none transition-colors text-gray-600 hover:text-red-500`}
+        className={`flex items-center text-sm font-medium focus:outline-none transition-colors font-mono ${
+          hasClapped ? 'text-primary' : 'text-secondary hover:text-primary'
+        }`}
         aria-label="Clap for this comment"
       >
         {hasClapped ? <FaHandsClapping className="mr-1" /> : <FaHandsClapping className="mr-1" />}
@@ -85,7 +87,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
       {/* Reply Button */}
       <button
         onClick={handleToggleReply}
-        className="flex items-center text-sm text-gray-600 hover:text-blue-500 focus:outline-none transition-colors"
+        className="flex items-center text-sm text-secondary hover:text-primary focus:outline-none transition-colors font-mono"
         aria-label="Reply to this comment"
       >
         <FaComment className="mr-1" /> {repliesCount}

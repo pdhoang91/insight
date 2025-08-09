@@ -287,35 +287,6 @@ const Write = () => {
       {/* Main Content */}
       <main className={`transition-all duration-300 ${focusMode ? 'max-w-4xl mx-auto' : 'max-w-6xl mx-auto'} ${isFullscreen ? 'p-8' : ''}`}>
         <div className={`px-4 sm:px-6 lg:px-8 ${isFullscreen ? 'py-4' : 'py-8'}`}>
-          {/* Welcome Message for New Users */}
-          {!title && !content && (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-8 text-center py-12"
-            >
-              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-primary mb-2">Start Writing</h2>
-              <p className="text-secondary max-w-md mx-auto mb-6">
-                Share your thoughts, ideas, and stories with the world. Every great article starts with a single word.
-              </p>
-              
-              {/* Keyboard shortcuts hint */}
-              <div className="max-w-sm mx-auto bg-surface/50 rounded-lg p-4 border border-border-primary">
-                <p className="text-xs text-muted mb-2 font-mono">Keyboard Shortcuts</p>
-                <div className="grid grid-cols-2 gap-2 text-xs text-secondary">
-                  <div><kbd className="px-1 py-0.5 bg-elevated rounded text-xs">⌘ S</kbd> Save</div>
-                  <div><kbd className="px-1 py-0.5 bg-elevated rounded text-xs">⌘ ⏎</kbd> Publish</div>
-                  <div><kbd className="px-1 py-0.5 bg-elevated rounded text-xs">F11</kbd> Fullscreen</div>
-                  <div><kbd className="px-1 py-0.5 bg-elevated rounded text-xs">Esc</kbd> Exit</div>
-                </div>
-              </div>
-            </motion.div>
-          )}
 
           {/* Editor Container */}
           <div className={`transition-all duration-300 ${focusMode ? 'bg-transparent' : 'bg-surface rounded-xl'} ${isFullscreen ? 'h-[calc(100vh-3.5rem)]' : ''}`}>

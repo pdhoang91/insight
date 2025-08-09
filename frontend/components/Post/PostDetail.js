@@ -1,10 +1,10 @@
 // components/Post/PostDetail.js
-import React from 'react';
+import React, { useRef } from 'react';
 import { useUser } from '../../context/UserContext';
 import { FaHandsClapping, FaRegComments } from "react-icons/fa6";
 import { FaEye, FaShareAlt, FaRegBookmark, FaBookmark, FaCommentDots, FaComment } from 'react-icons/fa';
 
-import CommentsPopup from '../Comment/CommentsPopup';
+import CommentSection from '../Comment/CommentSection';
 import Rating from './Rating';
 import AuthorInfo from '../Auth/AuthorInfo';
 import { useClapsCount } from '../../hooks/useClapsCount';
@@ -14,6 +14,8 @@ import { useComments } from '../../hooks/useComments';
 import { BASE_FE_URL } from '../../config/api';
 
 export const PostDetail = ({ post }) => {
+  const commentSectionRef = useRef(null);
+
   if (!post) {
     return <div className="flex justify-center items-center h-64 text-gray-300 font-mono">// Loading post...</div>;
   }
@@ -22,7 +24,6 @@ export const PostDetail = ({ post }) => {
 //  const { clapsCount: postClapsCount, loading: postLoading, hasClapped, mutate: mutateClaps } = useClapsCount('post', post.id);
   const { user } = useUser();
   const { isBookmarked, toggleBookmark, loading: isBookmarkLoading } = useBookmark(post.id);
-  const [isCommentsOpen, setCommentsOpen] = React.useState(false);
   const { comments, totalCount, totalCommentReply, isLoading, isError, mutate: mutateComments } = useComments(post.id, true, 1, 10);
 
   const handleClap = async () => {
@@ -40,12 +41,13 @@ export const PostDetail = ({ post }) => {
     }
   };
 
-  const toggleCommentPopup = () => {
-    setCommentsOpen((prev) => !prev);
-  };
-
-  const closeCommentPopup = () => {
-    setCommentsOpen(false);
+  const scrollToComments = () => {
+    if (commentSectionRef.current) {
+      commentSectionRef.current.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
   };
 
   const shareUrl = `${BASE_FE_URL}/p/${post.title_name}`;
@@ -94,7 +96,7 @@ export const PostDetail = ({ post }) => {
       </header>
 
       {/* Interaction Section - Technical Style */}
-      <div className="flex flex-wrap items-center text-secondary mb-8 pb-4 border-t border-border-primary pt-4 space-x-6">
+      <div className="flex flex-wrap items-center text-secondary mb-8 pb-4 border-border-primary pt-4 space-x-6">
         {/* Claps */}
         <button
           onClick={handleClap}
@@ -106,7 +108,7 @@ export const PostDetail = ({ post }) => {
         </button>
 
         {/* Comments */}
-        <button onClick={toggleCommentPopup} className="flex items-center text-secondary hover:text-primary transition-colors font-mono">
+        <button onClick={scrollToComments} className="flex items-center text-secondary hover:text-primary transition-colors font-mono">
           <FaComment className="mr-1" /> {totalCommentReply} comments
         </button>
 
@@ -150,14 +152,10 @@ export const PostDetail = ({ post }) => {
         <Rating postId={post.id} userId={user ? user.id : null} />
       </div>
 
-      {/* Comments Popup */}
-      <CommentsPopup
-        isOpen={isCommentsOpen}
-        onClose={closeCommentPopup}
-        postId={post.id}
-        user={user}
-        comments={comments}
-      />
+      {/* Comments Section */}
+      <div ref={commentSectionRef}>
+        <CommentSection postId={post.id} user={user} />
+      </div>
     </div>
   );
 };

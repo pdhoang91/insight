@@ -11,7 +11,7 @@ const Toolbar = ({ menuBar, editor, isPreview, setIsPreview, compact = false }) 
     : menuBar;
 
   return (
-    <div className={`sticky top-0 z-10 bg-surface/80 backdrop-blur-sm border border-border-primary rounded-lg transition-all duration-300 ${
+    <div className={`sticky top-0 z-10 bg-surface/80 backdrop-blur-sm rounded-lg transition-all duration-300 ${
       compact ? 'p-2' : 'p-3'
     }`}>
       <div className="flex items-center justify-between">
