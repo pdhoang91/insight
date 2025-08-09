@@ -4,7 +4,7 @@ import CommentList from './CommentList';
 import AddCommentForm from './AddCommentForm';
 import { addComment } from '../../services/commentService';
 import { useComments } from '../../hooks/useComments';
-import { FaTimes } from 'react-icons/fa';
+import { FaTimes, FaSpinner } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const CommentsPopup = ({ isOpen, onClose, postId, user }) => {
@@ -94,7 +94,7 @@ const CommentsPopup = ({ isOpen, onClose, postId, user }) => {
 
           {/* Modal Content */}
           <motion.div
-            className="relative w-full max-w-md bg-white shadow-lg overflow-y-auto h-full"
+            className="relative w-full max-w-md bg-gray-800 shadow-lg overflow-y-auto h-full border-l border-gray-700"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
@@ -102,7 +102,7 @@ const CommentsPopup = ({ isOpen, onClose, postId, user }) => {
           >
             {/* Close Button */}
             <button
-              className="absolute top-4 right-4 text-gray-600 hover:text-gray-800 focus:outline-none"
+              className="absolute top-4 right-4 text-gray-400 hover:text-white focus:outline-none"
               onClick={onClose}
               aria-label="Close Comments"
             >
@@ -110,28 +110,28 @@ const CommentsPopup = ({ isOpen, onClose, postId, user }) => {
             </button>
 
             {/* Header */}
-            <div className="p-4 border-b">
-              <h2 className="text-xl font-semibold text-gray-800">Bình Luận ({totalComments})</h2>
+            <div className="p-4 border-b border-gray-700">
+              <h2 className="text-xl font-semibold text-white font-mono">Comments ({totalComments})</h2>
             </div>
 
             {/* Add Comment Form */}
-            <div className="p-4 border-b">
+            <div className="p-4 border-b border-gray-700">
               {user ? (
                 <AddCommentForm onAddComment={handleAddComment} />
               ) : (
-                <p className="text-gray-600">Bạn cần đăng nhập để bình luận.</p>
+                <p className="text-gray-400 font-mono">// Login required to comment</p>
               )}
             </div>
 
             {/* Comments List */}
             <div className="p-4">
               {isError && (
-                <div className="text-red-500">Không thể tải bình luận.</div>
+                <div className="text-red-400 font-mono">// Failed to load comments</div>
               )}
               {isLoading && !isError && (
                 <div className="flex justify-center items-center">
-                  <FaSpinner className="animate-spin text-gray-500 mr-2" />
-                  <span className="text-gray-500">Đang tải bình luận...</span>
+                  <FaSpinner className="animate-spin text-green-400 mr-2" />
+                  <span className="text-gray-400 font-mono">Loading comments...</span>
                 </div>
               )}
               {comments && <CommentList comments={comments} postId={postId} mutate={mutate} />}

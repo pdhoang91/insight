@@ -13,7 +13,7 @@ const AuthorInfo = ({ author }) => {
             alt={`${author?.name || 'Author'} Avatar`}
             className="w-5 h-5 rounded-full mr-2"
           />
-          <span className="text-sm sohne text-gray-700">
+          <span className="text-sm font-medium text-gray-700">
             {author?.name || 'Unknown Author'}
           </span>
         </a>

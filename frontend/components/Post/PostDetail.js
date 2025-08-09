@@ -15,7 +15,7 @@ import { BASE_FE_URL } from '../../config/api';
 
 export const PostDetail = ({ post }) => {
   if (!post) {
-    return <div className="flex justify-center items-center h-64">Đang tải bài viết...</div>;
+    return <div className="flex justify-center items-center h-64 text-gray-300 font-mono">// Loading post...</div>;
   }
   const { clapsCount: postClapsCount, loading: postLoading, hasClapped: hasClapped, mutate: mutateClaps } = useClapsCount('post', post.id);
 
@@ -62,7 +62,7 @@ export const PostDetail = ({ post }) => {
   };
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col bg-white p-8">
       {/* Image Section */}
       {/* {post.categories?.length > 0 && (
         <img
@@ -76,64 +76,70 @@ export const PostDetail = ({ post }) => {
         />
       )} */}
 
-      {/* Title Section */}
-      <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-gray-800">{post.title}</h1>
+      {/* Header Section - Technical Style */}
+      <header className="mb-8 pb-6 border-b border-gray-200">
+        <h1 className="text-4xl font-bold mb-4 text-gray-900 leading-tight">{post.title}</h1>
+        
+        {/* Meta Information */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-sm text-gray-600">
+          <div className="flex items-center space-x-4">
+            {post.user && <AuthorInfo author={post.user} />}
+            <span className="font-mono">{new Date(post.created_at).toLocaleDateString()}</span>
+          </div>
+          <div className="flex items-center space-x-4 mt-2 sm:mt-0 font-mono text-xs">
+            <span>{post.views} views</span>
+            <span>~{Math.ceil(post.content?.replace(/<[^>]*>/g, '').length / 200) || 1} min read</span>
+          </div>
+        </div>
+      </header>
 
-      {/* Author and Meta Information */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center text-sm text-gray-600 mb-4">
-        {post.user && <AuthorInfo author={post.user} />}
-        <span className="mt-1 sm:mt-0 sm:ml-2">{new Date(post.created_at).toLocaleDateString()}</span>
-      </div>
-
-      {/* Interaction Section */}
-      <div className="flex flex-wrap items-center text-gray-600 mb-4 space-x-4">
+      {/* Interaction Section - Technical Style */}
+      <div className="flex flex-wrap items-center text-gray-600 mb-8 pb-4 border-t border-gray-200 pt-4 space-x-6">
         {/* Claps */}
         <button
           onClick={handleClap}
-          className={`flex items-center mr-2 ${
+          className={`flex items-center font-mono ${
             hasClapped ? 'text-red-500' : 'text-gray-600 hover:text-red-500'
-          }`}
+          } transition-colors`}
         >
-          <FaHandsClapping className="mr-1" /> {postClapsCount}
+          <FaHandsClapping className="mr-1" /> {postClapsCount} claps
         </button>
 
         {/* Comments */}
-        <button onClick={toggleCommentPopup} className="flex items-center mr-2">
-          <FaComment className="mr-1" /> {totalCommentReply}
+        <button onClick={toggleCommentPopup} className="flex items-center text-gray-600 hover:text-blue-500 transition-colors font-mono">
+          <FaComment className="mr-1" /> {totalCommentReply} comments
         </button>
 
-        {/* Views */}
-        <div className="flex items-center mr-2">
-          <FaEye className="mr-1" /> {post.views}
-        </div>
-
         {/* Bookmark */}
-        <button onClick={toggleBookmark} className="flex items-center mr-2" disabled={isBookmarkLoading}>
+        <button onClick={toggleBookmark} className="flex items-center text-gray-600 hover:text-yellow-500 transition-colors font-mono" disabled={isBookmarkLoading}>
           {isBookmarked ? (
             <FaBookmark className="mr-1 text-yellow-500" />
           ) : (
             <FaRegBookmark className="mr-1" />
           )}
+          {isBookmarked ? 'saved' : 'save'}
           {isBookmarkLoading && <span className="ml-1 text-sm">...</span>}
         </button>
 
         {/* Share */}
-        <button onClick={handleShare} className="flex items-center">
-          <FaShareAlt className="mr-1" />
+        <button onClick={handleShare} className="flex items-center text-gray-600 hover:text-green-500 transition-colors font-mono">
+          <FaShareAlt className="mr-1" /> share
         </button>
       </div>
 
       {/* Post Content */}
-      <div className="prose lg:prose-xl max-w-none mb-8">
+      <div className="mb-8">
+        {/* Featured Image */}
         <img
           src={post.image_title}
           alt={post.title}
-          className="h-48 w-full object-cover rounded transform hover:scale-105 transition-transform duration-300"
+          className="w-full h-64 object-cover mb-8"
         />
-        <div
-          className="post-content"
-          dangerouslySetInnerHTML={{ __html: post.content }}
-        />
+        
+        {/* Content Area - Clean & Simple */}
+        <div className="post-content text-gray-900 leading-relaxed prose lg:prose-xl max-w-none">
+          <div dangerouslySetInnerHTML={{ __html: post.content }} />
+        </div>
       </div>
 
       {/* Rating */}

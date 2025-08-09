@@ -100,27 +100,27 @@ const UserProfilePage = () => {
 
   if (loading || loadingUser) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-400"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-red-500 text-center">
-          <p className="text-lg font-medium">Error loading profile</p>
-          <p className="text-sm">{error}</p>
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="text-red-400 text-center">
+          <p className="text-lg font-medium font-mono">// Error loading profile</p>
+          <p className="text-sm font-mono">{error}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-900">
       {/* Profile Header */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-gray-800 border-b border-gray-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
             {/* Avatar */}
@@ -131,10 +131,10 @@ const UserProfilePage = () => {
                   alt={profile.name || username}
                   width={120}
                   height={120}
-                  className="rounded-full border-4 border-white shadow-lg"
+                  className="rounded-full border-4 border-gray-600 shadow-lg"
                 />
               ) : (
-                <div className="w-30 h-30 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-lg">
+                <div className="w-30 h-30 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center text-gray-900 text-4xl font-mono font-bold shadow-lg">
                   {(profile?.name || username)?.charAt(0).toUpperCase()}
                 </div>
               )}
@@ -144,10 +144,10 @@ const UserProfilePage = () => {
             <div className="flex-1 min-w-0">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                 <div className="mb-4 sm:mb-0">
-                  <h1 className="text-3xl font-bold text-gray-900">
+                  <h1 className="text-3xl font-bold text-white font-mono">
                     {profile?.name || username}
                   </h1>
-                  <p className="text-lg text-gray-600 mt-1">@{username}</p>
+                  <p className="text-lg text-gray-400 mt-1 font-mono">@{username}</p>
                   
                   {profile?.phone && (
                     <p className="mt-2 text-gray-600">

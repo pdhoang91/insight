@@ -8,26 +8,32 @@ const CategoryItem = ({ category }) => {
   const { posts, isLoading, isError } = usePostsByCategory(category.name, 2);
 
   return (
-    <div className=" rounded p-4 transition-shadow mb-6">
-      <h2 className="center-parent text-xl font-semibold mb-2">
-        <Link href={`/category/${encodeURIComponent(category.name)}`} className="text-blue-500 hover:underline">
-          {category.name}
-        </Link>
-      </h2>
-      <p className="text-gray-600 mb-4">{category.description}</p>
+    <div className="bg-white p-6 mb-6 border-b border-gray-200 last:border-b-0">
+      {/* Category Header */}
+      <header className="mb-4">
+        <h2 className="text-2xl font-bold mb-2">
+          <Link href={`/category/${encodeURIComponent(category.name)}`} className="text-gray-900 hover:text-blue-600 transition-colors">
+            {category.name}
+          </Link>
+        </h2>
+        <p className="text-gray-600">{category.description}</p>
+      </header>
 
-      {isError && <p className="text-red-500">Failed to load posts for this category.</p>}
-      {isLoading ? (
-        <p>Loading posts...</p>
-      ) : (
-        <div>
-          {posts.length > 0 ? (
-            posts.map(post => <PostItem key={post.id} post={post} />)
-          ) : (
-            <p className="text-gray-600">No posts available for this category.</p>
-          )}
-        </div>
-      )}
+      {/* Posts Section */}
+      <div className="mt-4">
+        {isError && <p className="text-red-600 font-mono">// Failed to load posts</p>}
+        {isLoading ? (
+          <p className="text-gray-600 font-mono">Loading posts...</p>
+        ) : (
+          <div className="space-y-4">
+            {posts.length > 0 ? (
+              posts.map(post => <PostItem key={post.id} post={post} variant="compact" />)
+            ) : (
+              <p className="text-gray-500 font-mono">// No posts available</p>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

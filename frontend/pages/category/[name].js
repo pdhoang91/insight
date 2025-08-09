@@ -15,7 +15,13 @@ const CategoryPage = () => {
   const { user } = useUser(); // Đảm bảo rằng bạn đã thiết lập UserContext
 
   if (!name) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center p-4">
+        <div className="bg-white text-gray-900 font-mono p-8 max-w-md w-full text-center">
+          <div className="animate-pulse">Loading category...</div>
+        </div>
+      </div>
+    );
   }
 
   const {
@@ -25,17 +31,21 @@ const CategoryPage = () => {
     isError,
     setSize,
     isReachingEnd,
-  } = useInfinitePostByCategory(name); // Loại bỏ 'user' nếu không cần thiết
+  } = useInfinitePostByCategory(name);
 
   return (
-    <div className="flex">
-      <div className="w-1/12 p-4 h-screen sticky top-0 overflow-auto">
-        <Sidebar />
-      </div>
-      <div className="flex-1 flex flex-col p-6 overflow-auto">
-        <Breadcrumbs />
-        <div className="flex-1 p-4">
-          <h1 className="text-3xl font-bold mb-4 center-parent">{name}</h1>
+    <div className="min-h-screen bg-black">
+      {/* Technical Terminal-style Layout */}
+      <div className="max-w-4xl mx-auto p-6">
+        {/* Content Area - White on Black */}
+        <main className="bg-white text-gray-900 min-h-[80vh] p-8">
+          {/* Header Section */}
+          <header className="mb-8 pb-6 border-b border-gray-200">
+            <h1 className="text-4xl font-bold mb-4 text-gray-900 leading-tight">{name}</h1>
+            <p className="text-gray-600 font-mono">// posts in this category</p>
+          </header>
+          
+          {/* Posts List */}
           <CategoryListWithPosts
             posts={posts}
             isLoading={isLoading}
@@ -43,7 +53,7 @@ const CategoryPage = () => {
             setSize={setSize}
             isReachingEnd={isReachingEnd}
           />
-        </div>
+        </main>
       </div>
     </div>
   );

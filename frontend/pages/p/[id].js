@@ -45,25 +45,31 @@ const PostPage = () => {
 
   const { post, isLoading, isError, mutate } = usePostName(id);
 
-  if (isLoading) return <div className="flex justify-center items-center h-screen">Loading...</div>;
-  if (isError) return <div className="flex justify-center items-center h-screen">Failed to load post.</div>;
+  if (isLoading) return (
+    <div className="min-h-screen bg-black flex items-center justify-center p-4">
+      <div className="bg-white text-gray-900 font-mono p-8 max-w-md w-full text-center">
+        <div className="animate-pulse">Loading post...</div>
+      </div>
+    </div>
+  );
+  
+  if (isError) return (
+    <div className="min-h-screen bg-black flex items-center justify-center p-4">
+      <div className="bg-white text-red-600 font-mono p-8 max-w-md w-full text-center">
+        // Failed to load post
+      </div>
+    </div>
+  );
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen">
-      {/* Sidebar bên trái */}
-      <aside className="hidden lg:block lg:w-2/12 p-4">
-        {/* Nội dung sidebar bên trái */}
-      </aside>
-
-      {/* Nội dung chính */}
-      <main className="flex-1 p-4">
-        <PostDetail post={post} />
-      </main>
-
-      {/* Sidebar bên phải */}
-      <aside className="hidden lg:block lg:w-2/12 p-4">
-        {/* Nội dung sidebar bên phải */}
-      </aside>
+    <div className="min-h-screen bg-black">
+      {/* Technical Terminal-style Layout */}
+      <div className="max-w-4xl mx-auto p-6">
+        {/* Content Area - White on Black */}
+        <main className="bg-white text-gray-900 min-h-[80vh]">
+          <PostDetail post={post} />
+        </main>
+      </div>
     </div>
   );
 };

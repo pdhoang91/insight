@@ -31,8 +31,8 @@ const CategoryList = () => {
 
   if (isError) {
     return (
-      <div className="text-red-500 text-center">
-        <p>Không thể tải danh mục. Vui lòng thử lại sau.</p>
+      <div className="text-red-600 text-center">
+        <p className="font-mono">// Unable to load categories</p>
       </div>
     );
   }
@@ -45,8 +45,8 @@ const CategoryList = () => {
       hasMore={!isReachingEnd}
       loader={
         <div className="flex justify-center items-center my-4">
-          <FaSpinner className="animate-spin text-gray-500 mr-2" />
-          <span className="text-gray-500">Đang tải...</span>
+          <FaSpinner className="animate-spin text-blue-500 mr-2" />
+          <span className="text-gray-600 font-mono">Loading categories...</span>
         </div>
       }
       endMessage={

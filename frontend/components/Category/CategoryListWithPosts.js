@@ -13,13 +13,13 @@ const CategoryListWithPosts = ({ posts, isLoading, isError, setSize, isReachingE
   const renderItem = (post) => {
     if (!post || !post.id) {
       console.warn('Post without id:', post);
-      return null; // Hoặc render một component khác để xử lý
+      return null;
     }
-    return <PostItem key={post.id} post={post} />;
+    return <PostItem key={post.id} post={post} variant="compact" />;
   };
 
-  if (isError) return <div className="text-red-500">Failed to load posts</div>;
-  if (isLoading && posts.length === 0) return <div>Loading...</div>;
+  if (isError) return <div className="text-red-600 font-mono">// Failed to load posts</div>;
+  if (isLoading && posts.length === 0) return <div className="text-gray-600 font-mono">Loading posts...</div>;
 
   return (
     <InfiniteScrollWrapper
@@ -27,9 +27,9 @@ const CategoryListWithPosts = ({ posts, isLoading, isError, setSize, isReachingE
       renderItem={renderItem}
       fetchMore={fetchMore}
       hasMore={!isReachingEnd}
-      loader={<div>Loading...</div>}
-      endMessage={<p className="text-center"></p>}
-      className="grid grid-cols-1 md:grid-cols-2 gap-4"
+      loader={<div className="text-gray-600 font-mono text-center py-4">Loading more posts...</div>}
+      endMessage={<p className="text-center text-gray-500 font-mono py-4">// End of posts</p>}
+      className="space-y-4"
     />
   );
 };

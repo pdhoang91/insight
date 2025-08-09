@@ -347,7 +347,7 @@ const PostItem = ({ post, variant = 'default' }) => {
               </Link>
 
               {/* Preview Content */}
-              <p className="text-gray-300 text-sm line-clamp-3 mb-4">
+              <p className="text-white text-sm line-clamp-3 mb-4">
                 <TextUtils html={post.preview_content} maxLength={200} />
               </p>
 
