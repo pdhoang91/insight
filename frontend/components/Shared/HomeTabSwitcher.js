@@ -47,8 +47,8 @@ const HomeTabSwitcher = () => {
         <button
           key={tab.id}
           onClick={() => toggleTab(tab.name)}
-          className={`text-lg pb-2 ${
-            activeTab === tab.name ? 'border-b-2 border-gray-200' : 'text-gray-600'
+          className={`text-lg pb-2 font-mono ${
+            activeTab === tab.name ? 'border-b-2 border-green-400 text-green-400' : 'text-gray-400 hover:text-gray-200'
           } transition-colors duration-200`}
         >
           {tab.name}
@@ -58,7 +58,7 @@ const HomeTabSwitcher = () => {
       {/* Icon thêm tab mới */}
       <button
         onClick={() => setIsAdding(!isAdding)}
-        className="text-lg text-gray-600 hover:text-gray-800 transition-colors duration-200"
+        className="text-lg text-gray-400 hover:text-green-400 transition-colors duration-200"
       >
         <FaPlus />
       </button>
@@ -70,23 +70,23 @@ const HomeTabSwitcher = () => {
             type="text"
             value={newTabName}
             onChange={(e) => setNewTabName(e.target.value)}
-            placeholder="Tên tab mới"
-            className="border border-gray-300 rounded px-2 py-1"
+            placeholder="new_tab"
+            className="border border-gray-600 bg-gray-800 text-white rounded px-2 py-1 text-sm font-mono focus:border-green-400 focus:outline-none"
           />
           <button
             onClick={addTab}
-            className="text-green-500 hover:text-green-700"
+            className="text-green-400 hover:text-green-300 font-mono text-sm"
           >
-            Thêm
+            add()
           </button>
           <button
             onClick={() => {
               setIsAdding(false);
               setNewTabName('');
             }}
-            className="text-red-500 hover:text-red-700"
+            className="text-red-400 hover:text-red-300 font-mono text-sm"
           >
-            Hủy
+            cancel()
           </button>
         </div>
       )}

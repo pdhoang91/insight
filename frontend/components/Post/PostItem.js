@@ -321,19 +321,19 @@ const PostItem = ({ post, variant = 'default' }) => {
   if (variant === 'timeline') {
     return (
       <>
-        <article className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 overflow-hidden">
+        <article className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 hover:shadow-xl hover:border-gray-600 transition-all duration-300 overflow-hidden">
           <div className="flex flex-col md:flex-row">
             {/* Content Section - Left side */}
             <div className="flex-1 p-6">
               {/* Author and Meta */}
               <div className="flex items-center space-x-3 mb-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs font-medium">
+                <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center">
+                  <span className="text-gray-900 text-xs font-mono font-bold">
                     {post.user?.name?.charAt(0)?.toUpperCase() || 'A'}
                   </span>
                 </div>
-                <div className="flex items-center space-x-2 text-sm text-gray-500">
-                  <span className="font-medium text-gray-700">{post.user?.name || 'Anonymous'}</span>
+                <div className="flex items-center space-x-2 text-sm text-gray-400">
+                  <span className="font-medium text-gray-300 font-mono">{post.user?.name || 'Anonymous'}</span>
                   <span>•</span>
                   <TimeAgo timestamp={post.created_at} />
                 </div>
@@ -341,13 +341,13 @@ const PostItem = ({ post, variant = 'default' }) => {
 
               {/* Title */}
               <Link href={`/p/${post.title_name}`}>
-                <h2 className="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors duration-200 line-clamp-2 mb-3">
+                <h2 className="text-xl font-bold text-white hover:text-green-400 transition-colors duration-200 line-clamp-2 mb-3">
                   {post.title}
                 </h2>
               </Link>
 
               {/* Preview Content */}
-              <p className="text-gray-600 text-sm line-clamp-3 mb-4">
+              <p className="text-gray-300 text-sm line-clamp-3 mb-4">
                 <TextUtils html={post.preview_content} maxLength={200} />
               </p>
 
@@ -357,7 +357,7 @@ const PostItem = ({ post, variant = 'default' }) => {
                   <Link
                     key={index}
                     href={`/category/${category.toLowerCase()}`}
-                    className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs font-medium hover:bg-blue-100 transition-colors"
+                    className="px-2 py-1 bg-blue-900/30 text-blue-400 rounded text-xs font-medium hover:bg-blue-900/50 transition-colors"
                   >
                     {category}
                   </Link>
@@ -366,7 +366,7 @@ const PostItem = ({ post, variant = 'default' }) => {
                   <Link
                     key={index}
                     href={`/tag/${tag.toLowerCase()}`}
-                    className="px-2 py-1 bg-gray-50 text-gray-600 rounded text-xs hover:bg-gray-100 transition-colors"
+                    className="px-2 py-1 bg-gray-700 text-gray-300 rounded text-xs hover:bg-gray-600 hover:text-yellow-400 transition-colors"
                   >
                     #{tag}
                   </Link>
@@ -374,30 +374,30 @@ const PostItem = ({ post, variant = 'default' }) => {
               </div>
 
               {/* Actions */}
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+              <div className="flex items-center justify-between pt-4 border-t border-gray-700">
                 <div className="flex items-center space-x-6">
                   {/* Clap Button */}
                   <button
                     onClick={handleClap}
                     disabled={clapsLoading}
-                    className="flex items-center space-x-1 text-gray-600 hover:text-red-500 transition-colors"
+                    className="flex items-center space-x-1 text-gray-400 hover:text-red-400 transition-colors"
                     aria-label="Clap for this post"
                   >
                     <FaHandsClapping className="w-4 h-4" />
-                    <span className="text-sm">{clapsCount}</span>
+                    <span className="text-sm font-mono">{clapsCount}</span>
                   </button>
 
                   {/* Comment Button */}
                   <button
                     onClick={toggleCommentPopup}
-                    className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition-colors"
+                    className="flex items-center space-x-1 text-gray-400 hover:text-blue-400 transition-colors"
                     aria-label="View comments"
                   >
                     <FaComment className="w-4 h-4" />
-                    <span className="text-sm">{totalCommentReply}</span>
+                    <span className="text-sm font-mono">{totalCommentReply}</span>
                   </button>
 
-                  <span className="text-gray-400 text-sm">
+                  <span className="text-gray-500 text-sm font-mono">
                     {post.views || 0} views
                   </span>
                 </div>
@@ -407,7 +407,7 @@ const PostItem = ({ post, variant = 'default' }) => {
                   <button
                     onClick={toggleBookmark}
                     disabled={bookmarkLoading}
-                    className="p-2 text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all"
+                    className="p-2 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded-lg transition-all"
                     aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark this post'}
                   >
                     {isBookmarked ? <FaBookmark className="w-4 h-4" /> : <FaRegBookmark className="w-4 h-4" />}
@@ -417,7 +417,7 @@ const PostItem = ({ post, variant = 'default' }) => {
                   <div className="relative" ref={shareMenuRef}>
                     <button
                       onClick={handleShare}
-                      className="p-2 text-gray-600 hover:text-green-500 hover:bg-green-50 rounded-lg transition-all"
+                      className="p-2 text-gray-400 hover:text-green-400 hover:bg-gray-700 rounded-lg transition-all"
                       aria-label="Share this post"
                     >
                       <FaShareAlt className="w-4 h-4" />
@@ -425,14 +425,14 @@ const PostItem = ({ post, variant = 'default' }) => {
 
                     {/* Share Menu */}
                     {isShareMenuOpen && (
-                      <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-10">
+                      <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-xl py-2 z-10">
                         <button
                           onClick={() => {
                             navigator.clipboard.writeText(shareUrl);
                             setShareMenuOpen(false);
                             alert('Link copied to clipboard!');
                           }}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                          className="w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 transition-colors font-mono"
                         >
                           Copy Link
                         </button>
@@ -440,7 +440,7 @@ const PostItem = ({ post, variant = 'default' }) => {
                           href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(post.title)}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                          className="block w-full text-left px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 transition-colors font-mono"
                           onClick={() => setShareMenuOpen(false)}
                         >
                           Share on Twitter
@@ -449,7 +449,7 @@ const PostItem = ({ post, variant = 'default' }) => {
                     )}
                   </div>
 
-                  <span className="text-gray-400 text-sm">
+                  <span className="text-gray-500 text-sm font-mono">
                     {Math.ceil((post.preview_content?.length || 0) / 200)} min read
                   </span>
                 </div>

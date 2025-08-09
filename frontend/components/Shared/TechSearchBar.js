@@ -1,11 +1,11 @@
 // components/Shared/TechSearchBar.js
 import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { FaSearch, FaCode, FaBolt, FaTimes, FaHistory } from 'react-icons/fa';
+import { FaSearch, FaCode, FaBolt, FaTimes, FaHistory, FaTerminal } from 'react-icons/fa';
 import { useTagSearch } from '../../hooks/useTags';
 import { useCategories } from '../../hooks/useCategories';
 
-const TechSearchBar = ({ placeholder = "Search tutorials, guides, technologies...", className = "" }) => {
+const TechSearchBar = ({ placeholder = "$ search technologies...", className = "" }) => {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -95,33 +95,33 @@ const TechSearchBar = ({ placeholder = "Search tutorials, guides, technologies..
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsOpen(true)}
           placeholder={placeholder}
-          className="w-full pl-12 pr-10 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm bg-white"
+          className="w-full pl-12 pr-10 py-3 border border-gray-600 rounded-lg focus:ring-2 focus:ring-green-400 focus:border-green-400 transition-all text-sm bg-gray-800 text-white placeholder-gray-400 font-mono"
         />
-        <FaSearch className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+        <FaTerminal className="absolute left-4 top-1/2 transform -translate-y-1/2 text-green-400 w-4 h-4" />
         <button
           type="submit"
-          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-blue-600 transition-colors"
+          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-green-400 transition-colors"
         >
           <FaSearch className="w-4 h-4" />
         </button>
       </form>
 
-      {/* Search Dropdown */}
+      {/* Search Dropdown - Terminal Style */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50 max-h-96 overflow-y-auto">
           {/* Recent Searches */}
           {recentSearches.length > 0 && (
-            <div className="p-4 border-b border-gray-100">
+            <div className="p-4 border-b border-gray-700">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center space-x-2">
                   <FaHistory className="w-3 h-3 text-gray-400" />
-                  <span className="text-sm font-medium text-gray-700">Recent Searches</span>
+                  <span className="text-sm font-mono font-medium text-gray-300">recent_searches</span>
                 </div>
                 <button
                   onClick={clearRecentSearches}
-                  className="text-xs text-gray-400 hover:text-gray-600 transition-colors"
+                  className="text-xs text-gray-400 hover:text-gray-300 transition-colors font-mono"
                 >
-                  Clear
+                  clear()
                 </button>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -129,7 +129,7 @@ const TechSearchBar = ({ placeholder = "Search tutorials, guides, technologies..
                   <button
                     key={index}
                     onClick={() => handleSuggestionClick(search)}
-                    className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full hover:bg-blue-100 hover:text-blue-700 transition-colors"
+                    className="px-3 py-1 bg-gray-700 text-gray-300 text-sm rounded-full hover:bg-gray-600 hover:text-green-400 transition-colors font-mono"
                   >
                     {search}
                   </button>
@@ -140,19 +140,19 @@ const TechSearchBar = ({ placeholder = "Search tutorials, guides, technologies..
 
           {/* Tag Suggestions */}
           {tags.length > 0 && (
-            <div className="p-4 border-b border-gray-100">
+            <div className="p-4 border-b border-gray-700">
               <div className="flex items-center space-x-2 mb-3">
-                <FaBolt className="w-3 h-3 text-orange-500" />
-                <span className="text-sm font-medium text-gray-700">Tags</span>
+                <FaBolt className="w-3 h-3 text-yellow-400" />
+                <span className="text-sm font-mono font-medium text-gray-300">tags[]</span>
               </div>
               <div className="space-y-1">
                 {tags.map((tag) => (
                   <button
                     key={tag.id}
                     onClick={() => handleSuggestionClick(tag.name)}
-                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded transition-colors"
+                    className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-yellow-400 rounded transition-colors font-mono"
                   >
-                    <span className="text-orange-500">#</span>{tag.name}
+                    <span className="text-yellow-400">#</span>{tag.name}
                   </button>
                 ))}
               </div>
@@ -161,17 +161,17 @@ const TechSearchBar = ({ placeholder = "Search tutorials, guides, technologies..
 
           {/* Category Suggestions */}
           {categories.length > 0 && (
-            <div className="p-4 border-b border-gray-100">
+            <div className="p-4 border-b border-gray-700">
               <div className="flex items-center space-x-2 mb-3">
-                <FaCode className="w-3 h-3 text-purple-500" />
-                <span className="text-sm font-medium text-gray-700">Categories</span>
+                <FaCode className="w-3 h-3 text-blue-400" />
+                <span className="text-sm font-mono font-medium text-gray-300">categories[]</span>
               </div>
               <div className="space-y-1">
                 {categories.map((category) => (
                   <button
                     key={category.id}
                     onClick={() => handleSuggestionClick(category.name)}
-                    className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded transition-colors"
+                    className="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-blue-400 rounded transition-colors font-mono"
                   >
                     {category.name}
                   </button>
@@ -184,15 +184,15 @@ const TechSearchBar = ({ placeholder = "Search tutorials, guides, technologies..
           {!query && (
             <div className="p-4">
               <div className="flex items-center space-x-2 mb-3">
-                <FaSearch className="w-3 h-3 text-blue-500" />
-                <span className="text-sm font-medium text-gray-700">Popular Technologies</span>
+                <FaSearch className="w-3 h-3 text-green-400" />
+                <span className="text-sm font-mono font-medium text-gray-300">popular_tech[]</span>
               </div>
               <div className="grid grid-cols-2 gap-2">
                 {popularSearches.map((search, index) => (
                   <button
                     key={index}
                     onClick={() => handleSuggestionClick(search)}
-                    className="text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 rounded transition-colors"
+                    className="text-left px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-green-400 rounded transition-colors font-mono"
                   >
                     {search}
                   </button>
@@ -204,8 +204,8 @@ const TechSearchBar = ({ placeholder = "Search tutorials, guides, technologies..
           {/* No Results */}
           {query && !hasResults && (
             <div className="p-4 text-center">
-              <p className="text-sm text-gray-500">
-                No suggestions found. Press Enter to search for "{query}"
+              <p className="text-sm text-gray-400 font-mono">
+                // No suggestions found. Press Enter to search for "{query}"
               </p>
             </div>
           )}

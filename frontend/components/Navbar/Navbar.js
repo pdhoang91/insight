@@ -3,7 +3,20 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaBell, FaUser, FaSignOutAlt, FaUserCircle, FaBookmark, FaCog, FaBars, FaTimes, FaEdit } from 'react-icons/fa';
+import { 
+  FaBell, 
+  FaUser, 
+  FaSignOutAlt, 
+  FaUserCircle, 
+  FaBookmark, 
+  FaCog, 
+  FaBars, 
+  FaTimes, 
+  FaEdit,
+  FaCode,
+  FaTerminal,
+  FaGithub
+} from 'react-icons/fa';
 import { useUser } from '../../context/UserContext';
 import TechSearchBar from '../Shared/TechSearchBar';
 
@@ -34,25 +47,29 @@ const Navbar = () => {
   };
 
   const navigationLinks = [
-    { href: '/explore', label: 'Explore', active: router.pathname === '/explore' },
-    { href: '/category', label: 'Categories', active: router.pathname.startsWith('/category') },
-    { href: '/write', label: 'Write', active: router.pathname === '/write', authRequired: true },
+    { href: '/explore', label: 'Explore', active: router.pathname === '/explore', icon: FaCode },
+    { href: '/category', label: 'Categories', active: router.pathname.startsWith('/category'), icon: FaTerminal },
+    { href: '/write', label: 'Write', active: router.pathname === '/write', authRequired: true, icon: FaEdit },
   ];
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <nav className="bg-gray-900 border-b border-gray-800 sticky top-0 z-50 shadow-lg">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">I</span>
+          {/* Logo - Tech Style */}
+          <Link href="/" className="flex items-center space-x-2">
+            <div className="flex items-center">
+              <span className="text-green-400 font-mono text-xl font-bold">&lt;</span>
+              <span className="text-white font-mono text-xl font-bold mx-1">Insight</span>
+              <span className="text-green-400 font-mono text-xl font-bold">/&gt;</span>
             </div>
-            <span className="text-xl font-bold text-gray-900 hidden sm:block">Insight</span>
+            <div className="hidden sm:block">
+              <span className="text-gray-400 text-xs font-mono">// tech blog</span>
+            </div>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-8">
+          {/* Desktop Navigation - Terminal Style */}
+          <div className="hidden lg:flex items-center space-x-1">
             {navigationLinks.map((link) => {
               if (link.authRequired && !user) return null;
               
@@ -60,16 +77,17 @@ const Navbar = () => {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`relative px-3 py-2 text-sm font-medium transition-colors ${
+                  className={`relative flex items-center space-x-2 px-4 py-2 text-sm font-mono transition-all duration-200 rounded-md ${
                     link.active
-                      ? 'text-blue-600'
-                      : 'text-gray-600 hover:text-gray-900'
+                      ? 'text-green-400 bg-gray-800'
+                      : 'text-gray-300 hover:text-white hover:bg-gray-800'
                   }`}
                 >
-                  {link.label}
+                  <link.icon className="w-4 h-4" />
+                  <span>{link.label}</span>
                   {link.active && (
                     <motion.div
-                      className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600"
+                      className="absolute bottom-0 left-2 right-2 h-0.5 bg-green-400"
                       layoutId="navbar-indicator"
                     />
                   )}
@@ -78,18 +96,18 @@ const Navbar = () => {
             })}
           </div>
 
-          {/* Enhanced Search Bar */}
+          {/* Enhanced Search Bar - Dark Theme */}
           <div className="hidden md:block flex-1 max-w-md mx-8">
-            <TechSearchBar placeholder="Search tutorials, technologies..." />
+            <TechSearchBar placeholder="$ search technologies..." />
           </div>
 
           {/* User Actions */}
           <div className="flex items-center space-x-3">
             {/* Notifications */}
             {user && (
-              <button className="relative p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-all">
+              <button className="relative p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-all">
                 <FaBell className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                <span className="absolute top-1 right-1 w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
               </button>
             )}
 
@@ -98,14 +116,14 @@ const Navbar = () => {
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center space-x-2 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all"
+                  className="flex items-center space-x-2 p-2 text-gray-300 hover:text-white hover:bg-gray-800 rounded-lg transition-all"
                 >
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-medium">
+                  <div className="w-8 h-8 bg-gradient-to-br from-green-400 to-blue-500 rounded-full flex items-center justify-center">
+                    <span className="text-gray-900 text-sm font-mono font-bold">
                       {user.name?.charAt(0)?.toUpperCase() || 'U'}
                     </span>
                   </div>
-                  <span className="hidden sm:block text-sm font-medium">{user.name}</span>
+                  <span className="hidden sm:block text-sm font-mono">{user.name}</span>
                 </button>
 
                 <AnimatePresence>
@@ -114,60 +132,60 @@ const Navbar = () => {
                       initial={{ opacity: 0, y: -10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
-                      className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg py-2"
+                      className="absolute right-0 mt-2 w-64 bg-gray-800 border border-gray-700 rounded-lg shadow-xl py-2"
                     >
                       {/* User Info */}
-                      <div className="px-4 py-3 border-b border-gray-100">
-                        <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                        <p className="text-sm text-gray-500">{user.email}</p>
+                      <div className="px-4 py-3 border-b border-gray-700">
+                        <p className="text-sm font-mono font-medium text-white">{user.name}</p>
+                        <p className="text-sm text-gray-400 font-mono">{user.email}</p>
                       </div>
 
                       {/* Menu Items */}
                       <div className="py-2">
                         <Link
                           href={`/${user.username}`}
-                          className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                          className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors font-mono"
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           <FaUserCircle className="w-4 h-4" />
-                          <span>My Profile</span>
+                          <span>~/profile</span>
                         </Link>
 
                         <Link
                           href="/me/bookmarks"
-                          className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                          className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors font-mono"
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           <FaBookmark className="w-4 h-4" />
-                          <span>Bookmarks</span>
+                          <span>~/bookmarks</span>
                         </Link>
 
                         <Link
                           href="/write"
-                          className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                          className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors font-mono"
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           <FaEdit className="w-4 h-4" />
-                          <span>Write Article</span>
+                          <span>~/write</span>
                         </Link>
 
                         <Link
                           href="/settings"
-                          className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                          className="flex items-center space-x-3 px-4 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors font-mono"
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           <FaCog className="w-4 h-4" />
-                          <span>Settings</span>
+                          <span>~/settings</span>
                         </Link>
                       </div>
 
-                      <div className="border-t border-gray-100 pt-2">
+                      <div className="border-t border-gray-700 pt-2">
                         <button
                           onClick={handleLogout}
-                          className="flex items-center space-x-3 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                          className="flex items-center space-x-3 w-full px-4 py-2 text-sm text-red-400 hover:bg-red-900/20 hover:text-red-300 transition-colors font-mono"
                         >
                           <FaSignOutAlt className="w-4 h-4" />
-                          <span>Sign Out</span>
+                          <span>exit()</span>
                         </button>
                       </div>
                     </motion.div>
@@ -177,16 +195,17 @@ const Navbar = () => {
             ) : (
               <button
                 onClick={() => setModalOpen(true)}
-                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all shadow-sm hover:shadow-md"
+                className="flex items-center space-x-2 px-4 py-2 bg-gray-800 text-green-400 font-mono text-sm border border-gray-700 rounded-lg hover:bg-gray-700 hover:border-green-400 transition-all duration-200 hover:shadow-lg hover:shadow-green-400/20"
               >
-                Sign In
+                <FaTerminal className="w-4 h-4" />
+                <span>login()</span>
               </button>
             )}
 
             {/* Mobile Menu Button */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="lg:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all"
+              className="lg:hidden p-2 text-gray-400 hover:text-white hover:bg-gray-800 rounded-lg transition-all"
             >
               {isMobileMenuOpen ? <FaTimes className="w-5 h-5" /> : <FaBars className="w-5 h-5" />}
             </button>
@@ -195,18 +214,18 @@ const Navbar = () => {
 
         {/* Mobile Search Bar */}
         <div className="md:hidden pb-4">
-          <TechSearchBar placeholder="Search..." />
+          <TechSearchBar placeholder="$ search..." />
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu - Terminal Style */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-white border-t border-gray-200"
+            className="lg:hidden bg-gray-800 border-t border-gray-700"
           >
             <div className="px-4 py-4 space-y-2">
               {navigationLinks.map((link) => {
@@ -216,14 +235,15 @@ const Navbar = () => {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`block px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                    className={`flex items-center space-x-3 px-3 py-2 text-sm font-mono rounded-lg transition-colors ${
                       link.active
-                        ? 'bg-blue-50 text-blue-600'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                        ? 'bg-gray-700 text-green-400'
+                        : 'text-gray-300 hover:text-white hover:bg-gray-700'
                     }`}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    {link.label}
+                    <link.icon className="w-4 h-4" />
+                    <span>{link.label}</span>
                   </Link>
                 );
               })}
@@ -234,9 +254,10 @@ const Navbar = () => {
                     setModalOpen(true);
                     setIsMobileMenuOpen(false);
                   }}
-                  className="w-full mt-4 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all"
+                  className="flex items-center justify-center space-x-2 w-full mt-4 px-4 py-2 bg-gray-700 text-green-400 font-mono border border-gray-600 rounded-lg hover:bg-gray-600 hover:border-green-400 transition-all"
                 >
-                  Sign In
+                  <FaTerminal className="w-4 h-4" />
+                  <span>login()</span>
                 </button>
               )}
             </div>
