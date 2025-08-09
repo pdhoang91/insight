@@ -81,37 +81,6 @@ const BlogSidebar = () => {
         )}
       </div>
 
-      {/* Latest Posts Section - Title Only */}
-      <div className="sidebar">
-        <div className="sidebar-title">
-          <FaClock className="w-4 h-4 text-blue-400" />
-          LATEST POSTS
-        </div>
-        
-        {postsLoading ? (
-          <div className="space-y-3">
-            {Array.from({ length: 5 }).map((_, i) => (
-                             <div key={i} className="animate-pulse">
-                 <div className="h-4 bg-gray-700 rounded"></div>
-               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {latestPosts.map((post, index) => (
-              <div key={post.id}>
-                                 <Link 
-                   href={`/p/${post.title_name}`}
-                   className="block text-sm text-gray-300 hover:text-blue-400 transition-colors line-clamp-2 leading-relaxed"
-                 >
-                   {post.title}
-                 </Link>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
       {/* Categories Widget - Admin Defined */}
       <div className="sidebar">
         <div className="sidebar-title">
@@ -121,31 +90,32 @@ const BlogSidebar = () => {
         <p className="tech-comment mb-3">curated by editors</p>
         
         {categoriesLoading ? (
-          <div className="space-y-2">
-                         {Array.from({ length: 6 }).map((_, i) => (
-               <div key={i} className="animate-pulse">
-                 <div className="h-8 bg-gray-700 rounded"></div>
-               </div>
-             ))}
+          <div className="flex flex-wrap gap-1">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="category-pentagon-tag-skeleton"></div>
+              </div>
+            ))}
           </div>
         ) : (
-          <ul className="space-y-2">
+          <div className="flex flex-wrap gap-1">
             {categories.map((category) => (
-              <li key={category.id}>
-                                 <Link
-                   href={`/category/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
-                   className="flex items-center justify-between py-2 px-3 text-gray-300 hover:text-purple-400 hover:bg-gray-700 rounded-md transition-all group"
-                 >
-                   <span className="group-hover:translate-x-1 transition-transform font-medium">
-                     {category.name}
-                   </span>
-                   <span className="bg-gray-700 text-gray-400 text-xs px-2 py-1 rounded-full group-hover:bg-gray-600 group-hover:text-purple-400">
-                     {category.posts?.length || 0}
-                   </span>
-                 </Link>
-              </li>
+              <Link
+                key={category.id}
+                href={`/category/${category.name.toLowerCase().replace(/\s+/g, '-')}`}
+                className="category-pentagon-tag"
+              >
+                <span>
+                  {category.name}
+                </span>
+                {category.posts?.length > 0 && (
+                  <span className="category-pentagon-tag-count">
+                    {category.posts.length}
+                  </span>
+                )}
+              </Link>
             ))}
-          </ul>
+          </div>
         )}
       </div>
 
@@ -175,6 +145,37 @@ const BlogSidebar = () => {
                >
                  #{tag.name}
                </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
+           {/* Latest Posts Section - Title Only */}
+           <div className="sidebar">
+        <div className="sidebar-title">
+          <FaClock className="w-4 h-4 text-blue-400" />
+          LATEST POSTS
+        </div>
+        
+        {postsLoading ? (
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+                             <div key={i} className="animate-pulse">
+                 <div className="h-4 bg-gray-700 rounded"></div>
+               </div>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {latestPosts.map((post, index) => (
+              <div key={post.id}>
+                                 <Link 
+                   href={`/p/${post.title_name}`}
+                   className="block text-sm text-gray-300 hover:text-blue-400 transition-colors line-clamp-2 leading-relaxed"
+                 >
+                   {post.title}
+                 </Link>
+              </div>
             ))}
           </div>
         )}

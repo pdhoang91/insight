@@ -475,3 +475,85 @@ a:hover {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
+
+/* Pentagon Tag Category Buttons (Rectangle + Triangle) */
+.category-pentagon-tag {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px 6px 18px;
+  margin: 4px;
+  background-color: #4b5563;
+  color: #e5e7eb;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  /* Pentagon shape: rectangle with triangle on left */
+  clip-path: polygon(0 50%, 15px 0, 100% 0, 100% 100%, 15px 100%);
+}
+
+.category-pentagon-tag:hover {
+  background-color: #6b7280;
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+/* Center dot in triangle area */
+.category-pentagon-tag::before {
+  content: '';
+  position: absolute;
+  left: 7.5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  background-color: #e5e7eb;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+}
+
+.category-pentagon-tag:hover::before {
+  background-color: #ffffff;
+}
+
+.category-pentagon-tag-count {
+  position: relative;
+  margin-left: 6px;
+  padding: 1px 6px;
+  background-color: #6b7280;
+  color: #d1d5db;
+  font-size: 0.625rem;
+  font-weight: normal;
+  border-radius: 9999px;
+  transition: all 0.2s ease;
+}
+
+.category-pentagon-tag:hover .category-pentagon-tag-count {
+  background-color: #9ca3af;
+  color: #ffffff;
+}
+
+/* Loading skeleton for pentagon tag */
+.category-pentagon-tag-skeleton {
+  height: 28px;
+  width: 60px;
+  background-color: #374151;
+  clip-path: polygon(0 50%, 15px 0, 100% 0, 100% 100%, 15px 100%);
+  position: relative;
+}
+
+.category-pentagon-tag-skeleton::before {
+  content: '';
+  position: absolute;
+  left: 7.5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  background-color: #6b7280;
+  border-radius: 50%;
+}
