@@ -6,6 +6,7 @@ import { FaHeart, FaReply, FaEdit, FaTrash } from 'react-icons/fa';
 import { Comment } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
 import { useCommentLike } from '@/hooks/useComments';
+import { SafeImage } from '@/components/ui';
 
 interface CommentItemProps {
   comment: Comment;
@@ -85,17 +86,13 @@ const CommentItem: React.FC<CommentItemProps> = ({
     >
       {/* Avatar */}
       <div className="flex-shrink-0">
-        {comment.author.avatar ? (
-          <img
-            src={comment.author.avatar}
-            alt={comment.author.username}
-            className="w-10 h-10 rounded-full object-cover"
-          />
-        ) : (
-          <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium">
-            {comment.author.username.charAt(0).toUpperCase()}
-          </div>
-        )}
+        <SafeImage
+          src={comment.author.avatar}
+          alt={comment.author.username}
+          width={40}
+          height={40}
+          className="w-10 h-10 rounded-full object-cover"
+        />
       </div>
 
       {/* Content */}

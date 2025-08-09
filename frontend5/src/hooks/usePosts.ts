@@ -25,7 +25,14 @@ export const usePosts = (initialPage = 1, initialLimit = 10, initialFilters?: Se
     try {
       setState(prev => ({ ...prev, isLoading: true, error: null }));
       
-      const response = await postService.getPosts(currentPage, currentLimit, currentFilters);
+      // Combine all parameters into filters object
+      const combinedFilters: SearchFilters = {
+        page: currentPage,
+        limit: currentLimit,
+        ...currentFilters,
+      };
+      
+      const response = await postService.getPosts(combinedFilters);
       
       setState(prev => ({
         ...prev,

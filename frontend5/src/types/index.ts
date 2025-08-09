@@ -1,8 +1,52 @@
-// Core entity types
+// Backend response types (matching actual API responses)
+export interface BackendUser {
+  id: string;
+  email: string;
+  name: string;
+  username: string;
+  google_id: string;
+  avatar_url: string;
+  phone: string;
+  dob: string;
+  role: string;
+  email_verified: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface BackendPost {
+  id: string;
+  title: string;
+  image_title?: string;
+  title_name: string;
+  preview_content: string;
+  user_id: string;
+  created_at: string;
+  updated_at: string;
+  views: number;
+  content: string;
+  clap_count: number;
+  comments_count: number;
+  average_rating: number;
+  user: BackendUser;
+  comments: unknown[] | null;
+  categories: unknown[] | null;
+  tags: unknown[] | null;
+  post_content: {
+    id: string;
+    post_id: string;
+    content: string;
+    created_at: string;
+    updated_at: string;
+  };
+}
+
+// Frontend types (for UI components)
 export interface User {
   id: string;
   username: string;
   email: string;
+  name: string;
   avatar?: string;
   bio?: string;
   followersCount: number;
@@ -32,8 +76,8 @@ export interface Post {
   image?: string;
   status: 'draft' | 'published' | 'archived';
   author: User;
-  categories: Category[];
-  tags: string[];
+  categories?: Category[] | null;
+  tags?: string[] | null;
   viewsCount: number;
   likesCount: number;
   commentsCount: number;
@@ -120,10 +164,13 @@ export interface ModalProps {
 
 // Search and Filter types
 export interface SearchFilters {
+  page?: number;
+  limit?: number;
   query?: string;
   search?: string;
   category?: string;
   author?: string;
+  tag?: string;
   tags?: string[];
   dateRange?: {
     from: string;

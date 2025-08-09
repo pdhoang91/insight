@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { PostForm } from '@/types';
 import { Button } from '@/components/ui';
 import { postService } from '@/services/post.service';
+import { SafeImage } from '@/components/ui';
 
 interface PublishModalProps {
   isOpen: boolean;
@@ -158,9 +159,11 @@ const PublishModal: React.FC<PublishModalProps> = ({
               {/* Preview */}
               <div className="mb-6">
                 {postData.image && (
-                  <img
+                  <SafeImage
                     src={typeof postData.image === 'string' ? postData.image : URL.createObjectURL(postData.image)}
                     alt="Post preview"
+                    width={400}
+                    height={128}
                     className="w-full h-32 object-cover rounded-lg mb-4"
                   />
                 )}

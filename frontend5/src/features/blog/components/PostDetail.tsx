@@ -9,8 +9,9 @@ import { useClapsCount } from '@/hooks/useClaps';
 import { useBookmark } from '@/hooks/useBookmark';
 import { useComments } from '@/hooks/useComments';
 import { BASE_FE_URL } from '@/config/api';
-import { LoadingSpinner } from '@/components/ui';
+import { LoadingSpinner, SafeImage } from '@/components/ui';
 import CommentSection from '@/features/comments/components/CommentSection';
+import Link from 'next/link';
 
 interface PostDetailProps {
   post: Post;
@@ -100,18 +101,23 @@ export const PostDetail: React.FC<PostDetailProps> = ({ post }) => {
         
         <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
           <div className="flex items-center space-x-4">
-            {post.author.avatar && (
-              <img
-                src={post.author.avatar}
-                alt={post.author.username}
-                className="w-12 h-12 rounded-full object-cover"
-              />
-            )}
+            <SafeImage
+              src={post.author.avatar}
+              alt={post.author.name}
+              width={48}
+              height={48}
+              className="w-12 h-12 rounded-full object-cover"
+            />
             <div>
-              <div className="font-semibold text-gray-900">{post.author.username}</div>
-              <div className="text-sm text-gray-600">
-                {formatDate(post.publishedAt || post.createdAt)} · {post.readTime} min read
-              </div>
+              <Link 
+                href={`/${post.author.username}`}
+                className="font-semibold text-gray-900 hover:text-blue-600 transition-colors"
+              >
+                {post.author.name}
+              </Link>
+              <p className="text-sm text-gray-600">
+                {formatDate(post.createdAt)} · {post.readTime} min read
+              </p>
             </div>
           </div>
 
@@ -140,10 +146,13 @@ export const PostDetail: React.FC<PostDetailProps> = ({ post }) => {
 
         {post.image && (
           <div className="mb-8">
-            <img
+            <SafeImage
               src={post.image}
               alt={post.title}
+              width={800}
+              height={400}
               className="w-full h-64 md:h-96 object-cover rounded-xl"
+              priority
             />
           </div>
         )}
@@ -257,16 +266,16 @@ export const PostDetail: React.FC<PostDetailProps> = ({ post }) => {
       {/* Author Info */}
       <div className="bg-gray-50 rounded-xl p-6">
         <div className="flex items-start space-x-4">
-          {post.author.avatar && (
-            <img
-              src={post.author.avatar}
-              alt={post.author.username}
-              className="w-16 h-16 rounded-full object-cover"
-            />
-          )}
+          <SafeImage
+            src={post.author.avatar}
+            alt={post.author.name}
+            width={64}
+            height={64}
+            className="w-16 h-16 rounded-full object-cover"
+          />
           <div className="flex-1">
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              {post.author.username}
+              {post.author.name}
             </h3>
             {post.author.bio && (
               <p className="text-gray-600 mb-3">{post.author.bio}</p>

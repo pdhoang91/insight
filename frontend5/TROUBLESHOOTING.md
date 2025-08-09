@@ -288,6 +288,56 @@ node --inspect npm run dev
 3. **Asset Loading** - Check public folder structure
 4. **Memory Limits** - Increase server resources
 
+## Recent Fixes (January 2025)
+
+### Issue: API Endpoint 404 Error and Null Reference Errors
+
+**Problem:**
+1. `Failed to load resource: /posts/featured?limit=6:1 404 (Not Found)`
+2. `TypeError: Cannot read properties of null (reading 'length')` in BlogCard component
+
+**Root Causes:**
+1. Frontend5 was calling `/posts/featured` endpoint which doesn't exist in backend
+2. Backend only has `/posts/populer` endpoint for popular posts
+3. BlogCard component was accessing `post.categories.length` and `post.tags.length` without null checks
+4. Backend returns `categories` and `tags` as `null` instead of empty arrays
+
+**Solutions Applied:**
+
+1. **Fixed API Endpoint:**
+   ```typescript
+   // In src/services/post.service.ts
+   async getFeaturedPosts(limit = 6): Promise<ApiResponse<Post[]>> {
+     // Changed from /posts/featured to /posts/populer
+     const response = await axiosPublicInstance.get(`/posts/populer?limit=${limit}`);
+   }
+   ```
+
+2. **Fixed Null Reference Errors in BlogCard:**
+   ```typescript
+   // Added null checks before accessing .length
+   {showCategories && post.categories && post.categories.length > 0 && (
+   {post.categories && post.categories.length > 2 && (
+   {variant === 'compact' && post.tags && post.tags.length > 0 && (
+   ```
+
+3. **Updated TypeScript Types:**
+   ```typescript
+   // In src/types/index.ts
+   export interface Post {
+     // ... other fields
+     categories?: Category[] | null;  // Made optional and nullable
+     tags?: string[] | null;          // Made optional and nullable
+   }
+   ```
+
+**Verification:**
+- API endpoint now works: `curl http://localhost:81/posts/populer?limit=6`
+- No more null reference errors in BlogCard component
+- Application builds successfully without TypeScript errors
+
+**Date Fixed:** January 9, 2025
+
 ---
 
 **Need more help?** Check the documentation files or create an issue with detailed error logs. 

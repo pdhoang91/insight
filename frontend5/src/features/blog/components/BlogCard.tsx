@@ -79,7 +79,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
 
         <div className={contentPadding[variant]}>
           {/* Categories */}
-          {showCategories && post.categories.length > 0 && (
+          {showCategories && post.categories && post.categories.length > 0 && (
             <div className="flex flex-wrap gap-2 mb-3">
               {post.categories.slice(0, 2).map((category) => (
                 <span
@@ -94,7 +94,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
                   {category.name}
                 </span>
               ))}
-              {post.categories.length > 2 && (
+              {post.categories && post.categories.length > 2 && (
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
                   +{post.categories.length - 2}
                 </span>
@@ -160,7 +160,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
           )}
 
           {/* Tags for compact variant */}
-          {variant === 'compact' && post.tags.length > 0 && (
+          {variant === 'compact' && post.tags && post.tags.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-3">
               {post.tags.slice(0, 3).map((tag) => (
                 <span

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { LoadingSpinner } from '@/components/ui';
+import { SafeImage } from '@/components/ui';
 
 interface AddCommentFormProps {
   onSubmit: (content: string) => void;
@@ -38,17 +39,13 @@ const AddCommentForm: React.FC<AddCommentFormProps> = ({
       <div className="flex space-x-3">
         {/* Avatar */}
         <div className="flex-shrink-0">
-          {user?.avatar ? (
-            <img
-              src={user.avatar}
-              alt={user.username}
-              className="w-10 h-10 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-medium">
-              {user?.username?.charAt(0).toUpperCase() || 'U'}
-            </div>
-          )}
+          <SafeImage
+            src={user?.avatar}
+            alt={user?.username || 'User'}
+            width={40}
+            height={40}
+            className="w-10 h-10 rounded-full object-cover"
+          />
         </div>
 
         {/* Form */}

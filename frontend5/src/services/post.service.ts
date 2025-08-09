@@ -1,5 +1,6 @@
-import { Post, PaginatedResponse, ApiResponse, SearchFilters } from '@/types';
+import { Post, PaginatedResponse, ApiResponse, SearchFilters, BackendPost } from '@/types';
 import { axiosPublicInstance, axiosPrivateInstance } from '@/lib/axios';
+import { transformPosts } from '@/lib/utils';
 
 interface AxiosError extends Error {
   response?: {
@@ -11,40 +12,36 @@ interface AxiosError extends Error {
 }
 
 export const postService = {
-  async getPosts(page = 1, limit = 10, filters?: SearchFilters): Promise<PaginatedResponse<Post>> {
+  async getPosts(filters?: SearchFilters): Promise<PaginatedResponse<Post>> {
     try {
-      let endpoint = `/posts?page=${page}&limit=${limit}`;
+      const params = new URLSearchParams();
       
-      // Add filters to query params
-      if (filters?.sortBy) {
-        endpoint += `&sort=${filters.sortBy}`;
-      }
-      if (filters?.category) {
-        endpoint += `&category=${encodeURIComponent(filters.category)}`;
-      }
-      if (filters?.search) {
-        endpoint += `&q=${encodeURIComponent(filters.search)}`;
-      }
-      if (filters?.tags && filters.tags.length > 0) {
-        endpoint += `&tags=${filters.tags.map(tag => encodeURIComponent(tag)).join(',')}`;
-      }
+      if (filters?.page) params.append('page', filters.page.toString());
+      if (filters?.limit) params.append('limit', filters.limit.toString());
+      if (filters?.search) params.append('search', filters.search);
+      if (filters?.category) params.append('category', filters.category);
+      if (filters?.tag) params.append('tag', filters.tag);
+      if (filters?.author) params.append('author', filters.author);
 
-      const response = await axiosPublicInstance.get(endpoint);
+      const response = await axiosPublicInstance.get(`/posts?${params.toString()}`);
       const data = response.data;
 
       if (!data || !Array.isArray(data.data) || typeof data.total_count !== 'number') {
         throw new Error('Invalid response format for getPosts');
       }
 
+      // Transform backend posts to frontend format
+      const transformedPosts = transformPosts(data.data as BackendPost[]);
+
       return {
-        data: data.data,
+        data: transformedPosts,
         pagination: {
-          currentPage: page,
-          totalPages: Math.ceil(data.total_count / limit),
+          currentPage: filters?.page || 1,
+          totalPages: Math.ceil(data.total_count / (filters?.limit || 10)),
           totalItems: data.total_count,
-          itemsPerPage: limit,
-          hasNext: page < Math.ceil(data.total_count / limit),
-          hasPrev: page > 1,
+          itemsPerPage: filters?.limit || 10,
+          hasNext: (filters?.page || 1) < Math.ceil(data.total_count / (filters?.limit || 10)),
+          hasPrev: (filters?.page || 1) > 1,
         },
       };
     } catch (error) {
@@ -54,25 +51,18 @@ export const postService = {
     }
   },
 
-  async getPopularPosts(page = 1, limit = 10): Promise<PaginatedResponse<Post>> {
+  async getPopularPosts(limit = 10): Promise<ApiResponse<Post[]>> {
     try {
-      const response = await axiosPublicInstance.get(`/posts/popular?page=${page}&limit=${limit}`);
+      const response = await axiosPublicInstance.get(`/posts/populer?limit=${limit}`);
       const data = response.data;
 
-      if (!data || !Array.isArray(data.data) || typeof data.total_count !== 'number') {
-        throw new Error('Invalid response format for getPopularPosts');
-      }
+      // Transform backend posts to frontend format
+      const transformedPosts = transformPosts(Array.isArray(data.data) ? data.data as BackendPost[] : data as BackendPost[]);
 
       return {
-        data: data.data,
-        pagination: {
-          currentPage: page,
-          totalPages: Math.ceil(data.total_count / limit),
-          totalItems: data.total_count,
-          itemsPerPage: limit,
-          hasNext: page < Math.ceil(data.total_count / limit),
-          hasPrev: page > 1,
-        },
+        data: transformedPosts,
+        message: 'Popular posts fetched successfully',
+        status: response.status,
       };
     } catch (error) {
       console.error('Error fetching popular posts:', error);
@@ -83,11 +73,15 @@ export const postService = {
 
   async getFeaturedPosts(limit = 6): Promise<ApiResponse<Post[]>> {
     try {
-      const response = await axiosPublicInstance.get(`/posts/featured?limit=${limit}`);
+      // Use the correct backend endpoint for popular posts instead of featured
+      const response = await axiosPublicInstance.get(`/posts/populer?limit=${limit}`);
       const data = response.data;
 
+      // Transform backend posts to frontend format
+      const transformedPosts = transformPosts(Array.isArray(data.data) ? data.data as BackendPost[] : data as BackendPost[]);
+
       return {
-        data: Array.isArray(data.data) ? data.data : data,
+        data: transformedPosts,
         message: 'Featured posts fetched successfully',
         status: response.status,
       };
@@ -103,8 +97,11 @@ export const postService = {
       const response = await axiosPublicInstance.get(`/posts?limit=${limit}`);
       const data = response.data;
 
+      // Transform backend posts to frontend format
+      const transformedPosts = transformPosts(Array.isArray(data.data) ? data.data as BackendPost[] : data as BackendPost[]);
+
       return {
-        data: Array.isArray(data.data) ? data.data : data,
+        data: transformedPosts,
         message: 'Latest posts fetched successfully',
         status: response.status,
       };

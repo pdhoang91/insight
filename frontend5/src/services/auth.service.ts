@@ -1,6 +1,7 @@
 import { User, LoginForm, RegisterForm, ApiResponse } from '@/types';
 import { axiosPublicInstance, axiosPrivateInstance } from '@/lib/axios';
 import { BASE_API_URL } from '@/config/api';
+import { transformUser } from '@/lib/utils';
 
 interface AxiosError extends Error {
   response?: {
@@ -69,6 +70,7 @@ export const authService = {
                 data: {
                   id: '1',
                   username: 'devuser',
+                  name: 'Development User',
                   email: 'dev@example.com',
                   avatar: '/images/avatar.svg',
                   bio: 'Development User',
@@ -89,7 +91,7 @@ export const authService = {
       const response = await axiosPrivateInstance.get('/api/me');
       
       return {
-        data: response.data,
+        data: transformUser(response.data),
         message: 'User data fetched successfully',
         status: response.status,
       };

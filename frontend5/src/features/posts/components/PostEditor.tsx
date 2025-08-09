@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useRef, useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { PostForm } from '@/types';
+import { SafeImage } from '@/components/ui';
 
 interface PostEditorProps {
   postData: PostForm;
@@ -60,9 +61,11 @@ const PostEditor: React.FC<PostEditorProps> = ({ postData, setPostData }) => {
       {/* Image Upload Section */}
       {postData.image ? (
         <div className="relative">
-          <img
+          <SafeImage
             src={typeof postData.image === 'string' ? postData.image : URL.createObjectURL(postData.image)}
             alt="Post cover"
+            width={800}
+            height={256}
             className="w-full h-64 object-cover"
           />
           <button
