@@ -1,7 +1,7 @@
 // components/Search/SearchResults.js
 import React from 'react';
 import SearchTabs from './SearchTabs';
-import LoadingSpinner from '../Utils/LoadingSpinner';
+import LoadingSpinner from '../Shared/LoadingSpinner';
 import ErrorMessage from '../Utils/ErrorMessage';
 import { useSearch } from '../../hooks/useSearch';
 
