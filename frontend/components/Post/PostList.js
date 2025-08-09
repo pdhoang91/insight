@@ -281,23 +281,6 @@ const PostList = ({ posts, isLoading, isError, setSize, isReachingEnd, variant =
           </div>
         )}
       </InfiniteScroll>
-
-      {/* Posts count info */}
-      <div className="text-center text-sm text-gray-500 bg-gray-50 rounded-lg py-4">
-        <div className="flex items-center justify-center space-x-4">
-          <span>
-            Showing <strong>{posts.length}</strong> {posts.length === 1 ? 'story' : 'stories'}
-          </span>
-          {posts.length > 0 && (
-            <>
-              <span>•</span>
-              <span>
-                by <strong>{new Set(posts.map(p => p.user?.name).filter(Boolean)).size}</strong> authors
-              </span>
-            </>
-          )}
-        </div>
-      </div>
     </div>
   );
 };
