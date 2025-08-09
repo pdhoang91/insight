@@ -242,21 +242,6 @@ const PostList = ({ posts, isLoading, isError, setSize, isReachingEnd, variant =
             </div>
           )
         }
-        endMessage={
-          <div className="text-center py-12">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-full mb-4">
-              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-              </svg>
-            </div>
-            <p className="text-gray-600 font-medium">
-              🎉 You've reached the end! No more posts to load.
-            </p>
-            <p className="text-gray-500 text-sm mt-2">
-              Check back later for new content from our amazing community.
-            </p>
-          </div>
-        }
       >
         {/* Posts Layout */}
         {variant === 'enhanced' ? (
@@ -278,6 +263,13 @@ const PostList = ({ posts, isLoading, isError, setSize, isReachingEnd, variant =
           <div className="space-y-6">
             {posts.map((post, index) => (
               <PostItem key={`${post.id}-${index}`} post={post} variant="list" />
+            ))}
+          </div>
+        ) : variant === 'timeline' ? (
+          // Timeline Layout - Horizontal timeline style
+          <div className="space-y-6">
+            {posts.map((post, index) => (
+              <PostItem key={`${post.id}-${index}`} post={post} variant="timeline" />
             ))}
           </div>
         ) : (

@@ -317,6 +317,178 @@ const PostItem = ({ post, variant = 'default' }) => {
     );
   }
 
+  // Timeline variant for horizontal timeline layout
+  if (variant === 'timeline') {
+    return (
+      <>
+        <article className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300 overflow-hidden">
+          <div className="flex flex-col md:flex-row">
+            {/* Content Section - Left side */}
+            <div className="flex-1 p-6">
+              {/* Author and Meta */}
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-medium">
+                    {post.user?.name?.charAt(0)?.toUpperCase() || 'A'}
+                  </span>
+                </div>
+                <div className="flex items-center space-x-2 text-sm text-gray-500">
+                  <span className="font-medium text-gray-700">{post.user?.name || 'Anonymous'}</span>
+                  <span>•</span>
+                  <TimeAgo timestamp={post.created_at} />
+                </div>
+              </div>
+
+              {/* Title */}
+              <Link href={`/p/${post.title_name}`}>
+                <h2 className="text-xl font-bold text-gray-900 hover:text-blue-600 transition-colors duration-200 line-clamp-2 mb-3">
+                  {post.title}
+                </h2>
+              </Link>
+
+              {/* Preview Content */}
+              <p className="text-gray-600 text-sm line-clamp-3 mb-4">
+                <TextUtils html={post.preview_content} maxLength={200} />
+              </p>
+
+              {/* Categories and Tags */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                {post.categories && post.categories.slice(0, 2).map((category, index) => (
+                  <Link
+                    key={index}
+                    href={`/category/${category.toLowerCase()}`}
+                    className="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs font-medium hover:bg-blue-100 transition-colors"
+                  >
+                    {category}
+                  </Link>
+                ))}
+                {post.tags && post.tags.slice(0, 2).map((tag, index) => (
+                  <Link
+                    key={index}
+                    href={`/tag/${tag.toLowerCase()}`}
+                    className="px-2 py-1 bg-gray-50 text-gray-600 rounded text-xs hover:bg-gray-100 transition-colors"
+                  >
+                    #{tag}
+                  </Link>
+                ))}
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                <div className="flex items-center space-x-6">
+                  {/* Clap Button */}
+                  <button
+                    onClick={handleClap}
+                    disabled={clapsLoading}
+                    className="flex items-center space-x-1 text-gray-600 hover:text-red-500 transition-colors"
+                    aria-label="Clap for this post"
+                  >
+                    <FaHandsClapping className="w-4 h-4" />
+                    <span className="text-sm">{clapsCount}</span>
+                  </button>
+
+                  {/* Comment Button */}
+                  <button
+                    onClick={toggleCommentPopup}
+                    className="flex items-center space-x-1 text-gray-600 hover:text-blue-500 transition-colors"
+                    aria-label="View comments"
+                  >
+                    <FaComment className="w-4 h-4" />
+                    <span className="text-sm">{totalCommentReply}</span>
+                  </button>
+
+                  <span className="text-gray-400 text-sm">
+                    {post.views || 0} views
+                  </span>
+                </div>
+
+                <div className="flex items-center space-x-3">
+                  {/* Bookmark Button */}
+                  <button
+                    onClick={toggleBookmark}
+                    disabled={bookmarkLoading}
+                    className="p-2 text-gray-600 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-all"
+                    aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark this post'}
+                  >
+                    {isBookmarked ? <FaBookmark className="w-4 h-4" /> : <FaRegBookmark className="w-4 h-4" />}
+                  </button>
+
+                  {/* Share Button */}
+                  <div className="relative" ref={shareMenuRef}>
+                    <button
+                      onClick={handleShare}
+                      className="p-2 text-gray-600 hover:text-green-500 hover:bg-green-50 rounded-lg transition-all"
+                      aria-label="Share this post"
+                    >
+                      <FaShareAlt className="w-4 h-4" />
+                    </button>
+
+                    {/* Share Menu */}
+                    {isShareMenuOpen && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg py-2 z-10">
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(shareUrl);
+                            setShareMenuOpen(false);
+                            alert('Link copied to clipboard!');
+                          }}
+                          className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        >
+                          Copy Link
+                        </button>
+                        <a
+                          href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(post.title)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                          onClick={() => setShareMenuOpen(false)}
+                        >
+                          Share on Twitter
+                        </a>
+                      </div>
+                    )}
+                  </div>
+
+                  <span className="text-gray-400 text-sm">
+                    {Math.ceil((post.preview_content?.length || 0) / 200)} min read
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Image Section - Right side on desktop */}
+            {post.image_title && (
+              <div className="w-full md:w-80 h-48 md:h-auto relative">
+                <Link href={`/p/${post.title_name}`}>
+                  <SafeImage
+                    src={post.image_title}
+                    alt={post.title}
+                    fill
+                    className="object-cover hover:scale-105 transition-transform duration-300"
+                    sizes="(max-width: 768px) 100vw, 320px"
+                  />
+                </Link>
+              </div>
+            )}
+          </div>
+        </article>
+
+        {/* Comments Popup */}
+        {isCommentsOpen && (
+          <CommentsPopup
+            postId={post.id}
+            comments={comments}
+            totalCount={totalCount}
+            isLoading={isLoading}
+            isError={isError}
+            mutate={mutate}
+            onClose={closeCommentPopup}
+          />
+        )}
+      </>
+    );
+  }
+
   // Default list variant (original layout) - keeping for backward compatibility
   return (
     <>

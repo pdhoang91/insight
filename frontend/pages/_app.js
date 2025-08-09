@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { PostProvider } from '../context/PostContext'; // Import PostProvider
 import UserContext from '../context/UserContext';
 import Navbar from '../components/Navbar/Navbar';
-import Footer from '../components/Shared/Footer';
 import LoginModal from '../components/Auth/LoginModal';
 import useAuth from '../hooks/useAuth';
 import '../styles/globals.css';
@@ -21,7 +20,6 @@ function MyApp({ Component, pageProps }) {
           <main className="flex-1">
             <Component {...pageProps} />
           </main>
-          <Footer />
         </div>
       </UserContext.Provider>
     </PostProvider>

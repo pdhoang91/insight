@@ -34,7 +34,6 @@ const Navbar = () => {
   };
 
   const navigationLinks = [
-    { href: '/', label: 'Home', active: router.pathname === '/' },
     { href: '/explore', label: 'Explore', active: router.pathname === '/explore' },
     { href: '/category', label: 'Categories', active: router.pathname.startsWith('/category') },
     { href: '/write', label: 'Write', active: router.pathname === '/write', authRequired: true },

@@ -68,6 +68,12 @@ module.exports = {
         hostname: 'www.gravatar.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'insight.storage.s3.amazonaws.com',
+        port: '',
+        pathname: '/**',
       }
     ],
     // Fallback for older Next.js versions
@@ -80,7 +86,8 @@ module.exports = {
       'avatars.githubusercontent.com',
       'lh3.googleusercontent.com',
       'cdn.pixabay.com',
-      'www.gravatar.com'
+      'www.gravatar.com',
+      'insight.storage.s3.amazonaws.com'
     ],
     // Enable dangerous allow all for development (remove in production)
     dangerouslyAllowSVG: true,
