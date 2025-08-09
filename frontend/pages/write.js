@@ -7,17 +7,15 @@ import CategoryTagsPopup from '../components/Category/CategoryTagsPopup';
 import PostForm from '../components/Editor/PostForm';
 import LoadingSpinner from '../components/Shared/LoadingSpinner';
 import Button from '../components/Utils/Button';
+import Navbar from '../components/Navbar/Navbar';
 import { createPost } from '../services/postService';
 import { usePostContext } from '../context/PostContext';
 import { 
   FaRobot, 
   FaArrowLeft, 
   FaEye, 
-  FaSave, 
   FaExpand,
-  FaTimes,
-  FaClock,
-  FaFileAlt
+  FaTimes
 } from 'react-icons/fa';
 
 const Write = () => {
@@ -31,9 +29,6 @@ const Write = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [saveStatus, setSaveStatus] = useState('idle'); // idle, saving, saved, error
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [focusMode, setFocusMode] = useState(false);
-  const [wordCount, setWordCount] = useState(0);
-  const [readingTime, setReadingTime] = useState(0);
 
   // Function definitions
   const handleSaveDraft = async () => {
@@ -61,13 +56,7 @@ const Write = () => {
     setShowPopup(true);
   };
 
-  // Calculate word count and reading time
-  useEffect(() => {
-    const text = content.replace(/<[^>]*>/g, '').trim();
-    const words = text ? text.split(/\s+/).length : 0;
-    setWordCount(words);
-    setReadingTime(Math.ceil(words / 200)); // Average reading speed: 200 words/minute
-  }, [content]);
+
 
   // Auto-save functionality
   useEffect(() => {
@@ -100,19 +89,17 @@ const Write = () => {
         e.preventDefault();
         setIsFullscreen(!isFullscreen);
       }
-      // Escape to exit focus mode or fullscreen
+      // Escape to exit fullscreen
       if (e.key === 'Escape') {
         if (isFullscreen) {
           setIsFullscreen(false);
-        } else if (focusMode) {
-          setFocusMode(false);
         }
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isFullscreen, focusMode, handleSaveDraft, handlePublish]);
+  }, [isFullscreen, handleSaveDraft, handlePublish]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -191,87 +178,12 @@ const Write = () => {
   }
 
   return (
-    <div className={`min-h-screen bg-app transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50 pt-0' : ''}`}>
-      {/* Writing Toolbar - Only show when not in fullscreen */}
-      {!isFullscreen && (
-        <div className={`sticky top-16 z-40 bg-app/95 backdrop-blur-sm transition-all duration-300 ${focusMode ? 'opacity-20 hover:opacity-100' : 'opacity-100'}`}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between h-12">
-              {/* Left Section - Stats */}
-              <div className="flex items-center space-x-6 text-sm text-muted">
-                <div className="flex items-center space-x-2">
-                  <FaFileAlt className="w-4 h-4" />
-                  <span>{wordCount} words</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <FaClock className="w-4 h-4" />
-                  <span>{readingTime} min read</span>
-                </div>
-              </div>
+    <>
+      {/* Custom Navbar with Publish functionality */}
+      {!isFullscreen && <Navbar onPublish={handlePublish} />}
+      
+      <div className={`min-h-screen bg-app transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50 pt-0' : ''}`}>
 
-              {/* Right Section - Tools */}
-              <div className="flex items-center space-x-2">
-                {/* Writing Tools */}
-                <div className="flex items-center space-x-1">
-                  <button
-                    onClick={() => setFocusMode(!focusMode)}
-                    className={`p-2 rounded-lg transition-colors ${focusMode ? 'text-primary bg-primary/10' : 'text-secondary hover:text-primary'}`}
-                    title="Focus mode"
-                  >
-                    <FaEye className="w-4 h-4" />
-                  </button>
-                  
-                  <button
-                    onClick={() => setIsFullscreen(!isFullscreen)}
-                    className="p-2 text-secondary hover:text-primary rounded-lg transition-colors"
-                    title="Toggle fullscreen"
-                  >
-                    <FaExpand className="w-4 h-4" />
-                  </button>
-
-                  <Link 
-                    href="/aiwrite" 
-                    className="p-2 text-secondary hover:text-primary rounded-lg transition-colors" 
-                    title="AI Assistant"
-                  >
-                    <FaRobot className="w-4 h-4" />
-                  </Link>
-                </div>
-
-                {/* Save Status */}
-                <div className="flex items-center space-x-3">
-                  <span className={`text-xs ${getSaveStatusColor()}`}>
-                    {getSaveStatusText()}
-                  </span>
-                  
-                  <Button
-                    onClick={handleSaveDraft}
-                    variant="ghost"
-                    size="sm"
-                    disabled={saveStatus === 'saving'}
-                    className="hidden sm:flex items-center space-x-2 text-xs px-3 py-1.5"
-                  >
-                    {saveStatus === 'saving' ? (
-                      <LoadingSpinner size="sm" />
-                    ) : (
-                      <FaSave className="w-3 h-3" />
-                    )}
-                    <span>Save</span>
-                  </Button>
-                  
-                  <Button
-                    onClick={handlePublish}
-                    size="sm"
-                    className="bg-primary hover:bg-primary-hover text-white px-4 py-1.5 text-sm font-medium"
-                  >
-                    Publish
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Fullscreen Exit Button */}
       {isFullscreen && (
@@ -284,37 +196,26 @@ const Write = () => {
         </button>
       )}
 
-      {/* Main Content */}
-      <main className={`transition-all duration-300 ${focusMode ? 'max-w-4xl mx-auto' : 'max-w-6xl mx-auto'} ${isFullscreen ? 'p-8' : ''}`}>
-        <div className={`px-4 sm:px-6 lg:px-8 ${isFullscreen ? 'py-4' : 'py-8'}`}>
+              {/* Main Content */}
+        <main className={`transition-all duration-300 ${isFullscreen ? 'p-8' : ''}`}>
+          <div className={`px-4 sm:px-6 lg:px-8 ${isFullscreen ? 'py-4' : 'py-8'}`}>
 
-          {/* Editor Container */}
-          <div className={`transition-all duration-300 ${focusMode ? 'bg-transparent' : 'bg-surface rounded-xl'} ${isFullscreen ? 'h-[calc(100vh-3.5rem)]' : ''}`}>
-            <PostForm
-              title={title}
-              setTitle={setTitle}
-              content={content}
-              setContent={setContent}
-              imageTitle={imageTitle}
-              setImageTitle={setImageTitle}
-              focusMode={focusMode}
-              isFullscreen={isFullscreen}
-            />
-          </div>
+            {/* Editor Container */}
+            <div className={`transition-all duration-300 ${isFullscreen ? 'h-[calc(100vh-3.5rem)]' : ''}`}>
+              <PostForm
+                title={title}
+                setTitle={setTitle}
+                content={content}
+                setContent={setContent}
+                imageTitle={imageTitle}
+                setImageTitle={setImageTitle}
+                isFullscreen={isFullscreen}
+              />
+            </div>
 
-          {/* Mobile Stats */}
-          <div className="md:hidden flex items-center justify-center space-x-6 mt-4 text-sm text-muted">
-            <div className="flex items-center space-x-2">
-              <FaFileAlt className="w-4 h-4" />
-              <span>{wordCount} words</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <FaClock className="w-4 h-4" />
-              <span>{readingTime} min read</span>
-            </div>
+ 
           </div>
-        </div>
-      </main>
+        </main>
 
       {/* Publish Modal */}
       {showPopup && (
@@ -327,6 +228,7 @@ const Write = () => {
         />
       )}
     </div>
+    </>
   );
 };
 

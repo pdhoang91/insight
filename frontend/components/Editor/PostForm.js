@@ -35,11 +35,12 @@ import TitleInput from './TitleInput';
 import ContentEditor from './ContentEditor';
 import 'tippy.js/dist/tippy.css';
 
-const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTitle, focusMode = false, isFullscreen = false }) => {
+const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTitle, isFullscreen = false }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [isUploadingTitle, setIsUploadingTitle] = useState(false);
   const [isContentEmpty, setIsContentEmpty] = useState(!content || content.trim() === '');
   const [isPreview, setIsPreview] = useState(false);
+  const [focusMode, setFocusMode] = useState(false);
 
   // Thêm useRef để kiểm soát vòng lặp
   const isGeneratingTOC = useRef(false);
@@ -277,14 +278,14 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         tooltip: 'Clear Format',
       },
       {
-        name: 'preview',
-        icon: isPreview ? FaEyeSlash : FaEye,
-        action: () => setIsPreview((prev) => !prev),
-        isActive: false,
-        tooltip: isPreview ? 'Edit Mode' : 'Preview Mode',
+        name: 'focusMode',
+        icon: FaEye,
+        action: () => setFocusMode((prev) => !prev),
+        isActive: () => focusMode,
+        tooltip: focusMode ? 'Exit Focus Mode' : 'Focus Mode',
       },
     ];
-  }, [editor, isPreview, handleImageUpload, setIsPreview]);
+  }, [editor, focusMode, handleImageUpload]);
 
   const handleSubmit = (e) => {
     if (e) e.preventDefault();

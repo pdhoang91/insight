@@ -4,7 +4,7 @@ import ToolbarButton from './ToolbarButton';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Toolbar = ({ menuBar, editor, isPreview, setIsPreview, compact = false }) => {
-  const essentialTools = ['bold', 'italic', 'heading', 'bulletList', 'orderedList', 'blockquote'];
+  const essentialTools = ['bold', 'italic', 'heading', 'bulletList', 'orderedList', 'blockquote', 'focusMode'];
   
   const filteredMenuBar = compact 
     ? menuBar.filter(item => essentialTools.includes(item.name) || item.essential)

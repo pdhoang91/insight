@@ -13,12 +13,13 @@ import {
   FaTimes, 
   FaEdit,
   FaTerminal,
-  FaGithub
+  FaGithub,
+  FaPaperPlane
 } from 'react-icons/fa';
 import { useUser } from '../../context/UserContext';
 import TechSearchBar from '../Shared/TechSearchBar';
 
-const Navbar = () => {
+const Navbar = ({ onPublish }) => {
   const { user, setUser, setModalOpen } = useUser();
   const router = useRouter();
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -114,18 +115,24 @@ const Navbar = () => {
           <div className="flex items-center space-x-3">
             {user ? (
               <>
-                {/* Write Button - Replaced notification */}
-                <Link
-                  href="/write"
-                  className={`flex items-center space-x-2 px-4 py-2 text-sm font-mono transition-all duration-200 rounded-lg ${
-                    router.pathname === '/write'
-                      ? 'text-primary bg-elevated shadow-sm'
-                      : 'text-secondary hover:text-primary hover:bg-elevated/50'
-                  }`}
-                >
-                  <FaEdit className="w-4 h-4" />
-                  <span>Write</span>
-                </Link>
+                {/* Write/Publish Button */}
+                {router.pathname === '/write' ? (
+                  <button
+                    onClick={onPublish}
+                    className="flex items-center space-x-2 px-4 py-2 text-sm font-mono transition-all duration-200 rounded-lg text-primary bg-elevated shadow-sm hover:bg-elevated/80"
+                  >
+                    <FaPaperPlane className="w-4 h-4" />
+                    <span>Publish</span>
+                  </button>
+                ) : (
+                  <Link
+                    href="/write"
+                    className="flex items-center space-x-2 px-4 py-2 text-sm font-mono transition-all duration-200 rounded-lg text-secondary hover:text-primary hover:bg-elevated/50"
+                  >
+                    <FaEdit className="w-4 h-4" />
+                    <span>Write</span>
+                  </Link>
+                )}
 
                 {/* User Menu */}
                 <div className="relative" ref={userMenuRef}>
@@ -236,20 +243,29 @@ const Navbar = () => {
                 <TechSearchBar placeholder="Search..." />
               </div>
 
-              {/* Write Link for Mobile */}
+              {/* Write/Publish Link for Mobile */}
               {user ? (
-                <Link
-                  href="/write"
-                  className={`flex items-center space-x-3 px-3 py-2 text-sm font-mono rounded-lg transition-colors ${
-                    router.pathname === '/write'
-                      ? 'bg-elevated text-primary'
-                      : 'text-secondary hover:text-primary hover:bg-elevated/50'
-                  }`}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  <FaEdit className="w-4 h-4" />
-                  <span>Write</span>
-                </Link>
+                router.pathname === '/write' ? (
+                  <button
+                    onClick={() => {
+                      onPublish();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="flex items-center space-x-3 px-3 py-2 text-sm font-mono rounded-lg transition-colors bg-elevated text-primary w-full text-left"
+                  >
+                    <FaPaperPlane className="w-4 h-4" />
+                    <span>Publish</span>
+                  </button>
+                ) : (
+                  <Link
+                    href="/write"
+                    className="flex items-center space-x-3 px-3 py-2 text-sm font-mono rounded-lg transition-colors text-secondary hover:text-primary hover:bg-elevated/50"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    <FaEdit className="w-4 h-4" />
+                    <span>Write</span>
+                  </Link>
+                )
               ) : (
                 <button
                   onClick={() => {
