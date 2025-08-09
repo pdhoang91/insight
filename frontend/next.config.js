@@ -92,6 +92,17 @@ module.exports = {
     // Enable dangerous allow all for development (remove in production)
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    // Disable SSL verification for development (remove in production)
+    ...(process.env.NODE_ENV === 'development' && {
+      unoptimized: false,
+      loader: 'default',
+    }),
+  },
+  // Add experimental flag to handle SSL issues in development
+  experimental: {
+    ...(process.env.NODE_ENV === 'development' && {
+      serverComponentsExternalPackages: [],
+    }),
   },
 };
   

@@ -13,14 +13,72 @@ const SafeImage = ({
   sizes,
   ...props 
 }) => {
-  const [imageSrc, setImageSrc] = useState(src);
+  // Transform S3 URLs to avoid SSL certificate issues
+  const transformS3Url = (originalSrc) => {
+    if (!originalSrc || !originalSrc.includes('s3.amazonaws.com')) {
+      return originalSrc;
+    }
+
+    try {
+      // Convert insight.storage.s3.amazonaws.com to s3.amazonaws.com format
+      if (originalSrc.includes('insight.storage.s3.amazonaws.com')) {
+        // Extract the path after the domain
+        const url = new URL(originalSrc);
+        const path = url.pathname;
+        // Convert to standard S3 URL format
+        return `https://s3.amazonaws.com/insight.storage${path}${url.search || ''}`;
+      }
+    } catch (error) {
+      console.log('URL transformation error:', error);
+    }
+    
+    return originalSrc;
+  };
+
+  // Use proxy for S3 images in development to bypass SSL issues
+  const getProxiedSrc = (originalSrc) => {
+    if (!originalSrc) return originalSrc;
+
+    // First try to transform the URL
+    const transformedSrc = transformS3Url(originalSrc);
+    
+    if (process.env.NODE_ENV === 'development' && transformedSrc?.includes('s3.amazonaws.com')) {
+      return `/api/image-proxy?url=${encodeURIComponent(transformedSrc)}`;
+    }
+    return transformedSrc;
+  };
+
+  const [imageSrc, setImageSrc] = useState(getProxiedSrc(src));
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
 
   const handleError = () => {
+    console.log('Image loading error for:', imageSrc);
+    
+    // Try to retry with different approach for S3 images
+    if (retryCount < 2 && src && src.includes('s3.amazonaws.com')) {
+      setRetryCount(prev => prev + 1);
+      
+      if (retryCount === 0) {
+        // First retry: try direct S3 URL without proxy
+        const directUrl = transformS3Url(src);
+        console.log('Retry 1: Direct S3 URL:', directUrl);
+        setImageSrc(directUrl);
+        return;
+      } else if (retryCount === 1) {
+        // Second retry: try with timestamp
+        const timestampedUrl = getProxiedSrc(`${src}${src.includes('?') ? '&' : '?'}t=${Date.now()}`);
+        console.log('Retry 2: Timestamped URL:', timestampedUrl);
+        setImageSrc(timestampedUrl);
+        return;
+      }
+    }
+
     if (imageSrc !== fallbackSrc) {
       setImageSrc(fallbackSrc);
       setHasError(false);
+      setRetryCount(0);
     } else {
       setHasError(true);
     }
@@ -30,6 +88,7 @@ const SafeImage = ({
   const handleLoad = () => {
     setIsLoading(false);
     setHasError(false);
+    setRetryCount(0);
   };
 
   // If there's an error with the fallback image, show a placeholder div
@@ -67,6 +126,10 @@ const SafeImage = ({
     onLoad: handleLoad,
     priority,
     className: `${className} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`,
+    // Add unoptimized for S3 images with SSL issues in development
+    ...(process.env.NODE_ENV === 'development' && imageSrc?.includes('s3.amazonaws.com') && {
+      unoptimized: true
+    }),
     ...props
   };
 

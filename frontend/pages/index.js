@@ -26,10 +26,6 @@ const Home = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Content Area */}
           <div className="lg:col-span-3">
-            {/* Tab Switcher */}
-            <div className="mb-8">
-              <TabSwitcher activeTab={activeTab} toggleTab={toggleTab} user={user} />
-            </div>
 
             {/* Timeline Post List */}
             <PostList

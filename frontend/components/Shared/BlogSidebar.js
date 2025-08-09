@@ -1,17 +1,17 @@
 import React from 'react';
 import Link from 'next/link';
-import { FaCode, FaRocket, FaBolt } from 'react-icons/fa';
+import { FaCode, FaRocket, FaBolt, FaFire, FaClock } from 'react-icons/fa';
 import { useCategories } from '../../hooks/useCategories';
 import { usePopularTags } from '../../hooks/useTags';
 import { useRecentPosts } from '../../hooks/useRecentPosts';
 import CompactPostItem from '../Post/CompactPostItem';
+import SafeImage from '../Utils/SafeImage';
 
 const BlogSidebar = () => {
-
   // Real API data
   const { categories, isLoading: categoriesLoading } = useCategories(1, 8);
   const { tags, isLoading: tagsLoading } = usePopularTags(15);
-  const { posts: recentPosts, isLoading: postsLoading } = useRecentPosts(4);
+  const { posts: recentPosts, isLoading: postsLoading } = useRecentPosts(10);
 
   // Tech blog specific stats (these should come from API in production)
   const blogStats = {
@@ -21,14 +21,102 @@ const BlogSidebar = () => {
     comments: '3.4K',
   };
 
+  // Split posts for different sections
+  // Both sections use same API for now, will be separated later
+  const topPosts = recentPosts?.slice(0, 5) || [];
+  const latestPosts = recentPosts?.slice(0, 5) || []; // Same data as topPosts for now
+
   return (
     <aside className="space-y-6">
+      {/* Top Posts Section */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center space-x-2 mb-4">
+          <FaFire className="w-4 h-4 text-red-600" />
+          <h3 className="text-lg font-semibold text-gray-900">TOP POSTS</h3>
+        </div>
+        
+        {postsLoading ? (
+          <div className="space-y-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="flex space-x-3">
+                  <div className="w-16 h-12 bg-gray-200 rounded"></div>
+                  <div className="flex-1">
+                    <div className="h-3 bg-gray-200 rounded mb-1"></div>
+                    <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {topPosts.map((post, index) => (
+              <div key={post.id} className="flex space-x-3 group">
+                {/* Image */}
+                <div className="w-16 h-12 flex-shrink-0 relative overflow-hidden rounded">
+                  <Link href={`/p/${post.title_name}`}>
+                    <SafeImage
+                      src={post.image_title}
+                      alt={post.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      sizes="64px"
+                    />
+                  </Link>
+                </div>
+                
+                {/* Title */}
+                <div className="flex-1">
+                  <Link 
+                    href={`/p/${post.title_name}`}
+                    className="text-sm font-medium text-gray-900 hover:text-blue-600 transition-colors line-clamp-2 leading-tight"
+                  >
+                    {post.title}
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Latest Posts Section - Title Only */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="flex items-center space-x-2 mb-4">
+          <FaClock className="w-4 h-4 text-blue-600" />
+          <h3 className="text-lg font-semibold text-gray-900">LATEST POSTS</h3>
+        </div>
+        
+        {postsLoading ? (
+          <div className="space-y-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className="animate-pulse">
+                <div className="h-4 bg-gray-200 rounded"></div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {latestPosts.map((post, index) => (
+              <div key={post.id}>
+                <Link 
+                  href={`/p/${post.title_name}`}
+                  className="block text-sm text-gray-700 hover:text-blue-600 transition-colors line-clamp-2 leading-relaxed"
+                >
+                  {post.title}
+                </Link>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Categories Widget - Admin Defined */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="flex items-center space-x-2 mb-4">
           <FaCode className="w-4 h-4 text-purple-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Categories</h3>
+          <h3 className="text-lg font-semibold text-gray-900">CATEGORIES</h3>
         </div>
         <p className="text-xs text-gray-500 mb-3">Curated by our editors</p>
         
@@ -61,60 +149,11 @@ const BlogSidebar = () => {
         )}
       </div>
 
-      {/* Recent Posts Widget with Enhanced Cards */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center space-x-2 mb-4">
-          <FaRocket className="w-4 h-4 text-green-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Latest Posts</h3>
-        </div>
-        
-        {postsLoading ? (
-          <div className="space-y-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="flex space-x-3">
-                  <div className="w-16 h-16 bg-gray-200 rounded-lg"></div>
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-gray-200 rounded"></div>
-                    <div className="h-3 bg-gray-200 rounded w-2/3"></div>
-                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {recentPosts.map((post) => (
-              <CompactPostItem 
-                key={post.id} 
-                post={post} 
-                showImage={true} 
-                showStats={true} 
-              />
-            ))}
-          </div>
-        )}
-
-        {/* View all posts link */}
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          <Link 
-            href="/explore" 
-            className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
-          >
-            <span>View all posts</span>
-            <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </Link>
-        </div>
-      </div>
-
       {/* Popular Tags Widget - User Generated */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div className="flex items-center space-x-2 mb-4">
           <FaBolt className="w-4 h-4 text-orange-600" />
-          <h3 className="text-lg font-semibold text-gray-900">Popular Tags</h3>
+          <h3 className="text-lg font-semibold text-gray-900">POPULAR TAGS</h3>
         </div>
         <p className="text-xs text-gray-500 mb-3">Created by our community</p>
         
@@ -141,10 +180,8 @@ const BlogSidebar = () => {
         )}
       </div>
 
-
-
-
-    </aside>
+ 
+      </aside>
   );
 };
 
