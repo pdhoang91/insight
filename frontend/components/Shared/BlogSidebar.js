@@ -32,6 +32,7 @@ const BlogSidebar = () => {
 
   // Split posts for different sections
   const topPosts = recentPosts?.slice(0, 5) || [];
+  const latestPosts = recentPosts?.slice(5, 10) || [];
 
   // Tech icons mapping for categories
   const getTechIcon = (categoryName) => {
@@ -66,16 +67,6 @@ const BlogSidebar = () => {
                     <h4 className="text-sm font-medium text-text-primary hover:text-matrix-green transition-colors line-clamp-2">
                       {post.title}
                     </h4>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-text-muted">
-                      <div className="flex items-center gap-1">
-                        <FaEye className="w-3 h-3" />
-                        <span>{post.views || 0}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <FaComment className="w-3 h-3" />
-                        <span>{post.comments_count || 0}</span>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </Link>
@@ -116,6 +107,21 @@ const BlogSidebar = () => {
         </div>
       )}
 
+      {/* Latest Posts */}
+      {!postsLoading && latestPosts.length > 0 && (
+        <div className="bg-terminal-gray rounded-lg border border-terminal-border p-6">
+          <h3 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+            <FaClock className="w-4 h-4 text-hacker-blue" />
+            Latest Posts
+          </h3>
+          <div className="space-y-3">
+            {latestPosts.map((post) => (
+              <CompactPostItem key={post.id} post={post} minimal={true} />
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Popular Tags */}
       {!tagsLoading && tags && tags.length > 0 && (
         <div className="bg-terminal-gray rounded-lg border border-terminal-border p-6">
@@ -136,28 +142,6 @@ const BlogSidebar = () => {
           </div>
         </div>
       )}
-
-      {/* Recent Activity */}
-      <div className="bg-terminal-gray rounded-lg border border-terminal-border p-6">
-        <h3 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
-          <FaClock className="w-4 h-4 text-matrix-cyan" />
-          Recent Activity
-        </h3>
-        <div className="space-y-3 text-sm">
-          <div className="flex items-center gap-2 text-text-muted">
-            <div className="w-2 h-2 bg-matrix-green rounded-full"></div>
-            <span>New posts published</span>
-          </div>
-          <div className="flex items-center gap-2 text-text-muted">
-            <div className="w-2 h-2 bg-hacker-yellow rounded-full"></div>
-            <span>Comments updated</span>
-          </div>
-          <div className="flex items-center gap-2 text-text-muted">
-            <div className="w-2 h-2 bg-matrix-cyan rounded-full"></div>
-            <span>Categories refreshed</span>
-          </div>
-        </div>
-      </div>
     </aside>
   );
 };

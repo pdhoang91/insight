@@ -8,7 +8,7 @@ import TimeAgo from '../Utils/TimeAgo';
 import SafeImage from '../Utils/SafeImage';
 import TextUtils from '../Utils/TextUtils';
 
-const CompactPostItem = ({ post, showImage = true, showStats = true }) => {
+const CompactPostItem = ({ post, showImage = true, showStats = true, minimal = false }) => {
   if (!post) return null;
 
   // Calculate reading time
@@ -39,6 +39,41 @@ const CompactPostItem = ({ post, showImage = true, showStats = true }) => {
 
   const readingTime = calculateReadingTime(post.content || post.preview_content);
   const difficulty = getDifficultyLevel(post.tags, post.categories);
+
+  // Minimal version for Latest Posts
+  if (minimal) {
+    return (
+      <Link href={`/p/${post.title_name}`}>
+        <div className="flex items-start gap-3 p-3 rounded hover:bg-terminal-light transition-colors group cursor-pointer">
+          {showImage && (
+            <div className="flex-shrink-0 w-12 h-12 relative">
+              {post.image_title ? (
+                <SafeImage
+                  src={post.image_title}
+                  alt={post.title}
+                  fill
+                  className="object-cover rounded group-hover:scale-110 transition-transform duration-300"
+                  sizes="48px"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-matrix-green/20 to-hacker-blue/20 flex items-center justify-center rounded">
+                  <FaCode className="w-4 h-4 text-matrix-green" />
+                </div>
+              )}
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <h4 className="text-sm font-medium text-text-primary hover:text-matrix-green transition-colors line-clamp-2 mb-1">
+              {post.title}
+            </h4>
+            <p className="text-xs text-text-secondary line-clamp-2">
+              <TextUtils html={post.preview_content} maxLength={80} />
+            </p>
+          </div>
+        </div>
+      </Link>
+    );
+  }
 
   return (
     <motion.article 
