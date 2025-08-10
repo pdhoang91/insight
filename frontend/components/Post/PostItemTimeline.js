@@ -120,12 +120,6 @@ const PostItemTimeline = ({ post }) => {
 
             {/* Action Icons - Bottom of left content */}
             <div className="flex items-center gap-4">
-              {/* Views */}
-              <div className="flex items-center gap-1 text-muted">
-                <FaEye className="w-4 h-4" />
-                <span className="text-sm">{post.views || 0}</span>
-              </div>
-
               {/* Claps */}
               <button
                 onClick={handleClap}
@@ -144,6 +138,12 @@ const PostItemTimeline = ({ post }) => {
                 <FaComment className="w-4 h-4" />
                 <span className="text-sm">{post.comments_count || 0}</span>
               </button>
+
+              {/* Views */}
+              <div className="flex items-center gap-1 text-muted">
+                <FaEye className="w-4 h-4" />
+                <span className="text-sm">{post.views || 0}</span>
+              </div>
             </div>
           </div>
 
