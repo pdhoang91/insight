@@ -2,7 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { FaEye, FaClock, FaComment, FaStar, FaCode } from 'react-icons/fa';
+import { FaEye, FaClock, FaComment, FaCode } from 'react-icons/fa';
 import { FaHandsClapping } from 'react-icons/fa6';
 import TimeAgo from '../Utils/TimeAgo';
 import SafeImage from '../Utils/SafeImage';
@@ -143,12 +143,6 @@ const CompactPostItem = ({ post, showImage = true, showStats = true }) => {
                   <FaComment className="w-3 h-3" />
                   <span>{post.comments_count || 0}</span>
                 </div>
-                {post.average_rating > 0 && (
-                  <div className="flex items-center space-x-1">
-                    <FaStar className="w-3 h-3 text-yellow-500" />
-                    <span>{post.average_rating.toFixed(1)}</span>
-                  </div>
-                )}
               </div>
               
               {/* Category indicator */}

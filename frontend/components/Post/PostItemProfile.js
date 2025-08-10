@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { FaEye, FaEdit, FaTrash, FaComment } from 'react-icons/fa';
 import { FaHandsClapping } from "react-icons/fa6";
 import CommentsPopup from '../Comment/CommentsPopup';
-import Rating from './Rating';
 import TextUtils from '../Utils/TextUtils';
 import SafeImage from '../Utils/SafeImage';
 import { useUser } from '../../context/UserContext';
@@ -188,12 +187,7 @@ const PostItemProfile = ({ post, isOwner }) => {
           />
         )}
 
-        {/* Rating Section */}
-        {user && (
-          <div className="px-6 pb-6">
-            <Rating postId={post.id} userId={user.id} />
-          </div>
-        )}
+        {/* Rating Section removed */}
       </article>
     </div>
   );

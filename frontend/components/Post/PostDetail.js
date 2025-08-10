@@ -5,7 +5,6 @@ import { FaHandsClapping } from 'react-icons/fa6';
 import { useUser } from '../../context/UserContext';
 import { clapPost } from '../../services/activityService';
 import CommentSection from '../Comment/CommentSection';
-import Rating from './Rating';
 
 export const PostDetail = ({ post }) => {
   const commentSectionRef = useRef(null);
@@ -110,12 +109,6 @@ export const PostDetail = ({ post }) => {
                 className="prose prose-invert max-w-none text-text-secondary leading-relaxed"
                 dangerouslySetInnerHTML={{ __html: post.content }}
               />
-            </div>
-
-            {/* Rating Section */}
-            <div className="p-6 md:p-8 border-t border-matrix-green/20">
-              <h3 className="text-xl font-semibold text-text-primary mb-4">Rate this article</h3>
-              <Rating postId={post.id} />
             </div>
 
             {/* Comments Section */}
