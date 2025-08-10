@@ -148,8 +148,6 @@ const PostItemTimeline = ({ post }) => {
                     <FaClock className="w-3 h-3 flex-shrink-0" />
                     <TimeAgo timestamp={post.created_at} />
                   </div>
-                  <span>•</span>
-                  <span>5 min read</span>
                 </div>
               </div>
             </div>
