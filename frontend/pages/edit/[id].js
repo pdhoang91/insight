@@ -122,8 +122,7 @@ const EditPost = () => {
     }
 
     try {
-      const res = await updatePost(id, {
-        id: post.id,
+      const res = await updatePost(post.id, {
         title,
         content,
         image_title: imageTitle,
@@ -135,7 +134,7 @@ const EditPost = () => {
       console.error('Failed to update post:', error);
       alert('Failed to update post.');
     }
-  }, [user, title, content, imageTitle, id, post?.id, router]);
+  }, [user, title, content, imageTitle, post?.id, router]);
 
   useEffect(() => {
     setHandleUpdate(() => updateFunction);

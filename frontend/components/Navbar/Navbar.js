@@ -115,7 +115,7 @@ const Navbar = ({ onPublish }) => {
             {user ? (
               <>
                 {/* Write/Publish Button */}
-                {router.pathname === '/write' ? (
+                {(router.pathname === '/write' || router.pathname.startsWith('/edit/')) ? (
                   <button
                     onClick={onPublish}
                     className="flex items-center space-x-2 px-4 py-2 text-sm font-mono transition-all duration-200 rounded-lg text-primary bg-elevated shadow-sm hover:bg-elevated/80"
@@ -236,7 +236,7 @@ const Navbar = ({ onPublish }) => {
 
               {/* Write/Publish Link for Mobile */}
               {user ? (
-                router.pathname === '/write' ? (
+                (router.pathname === '/write' || router.pathname.startsWith('/edit/')) ? (
                   <button
                     onClick={() => {
                       onPublish();
