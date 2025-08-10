@@ -7,6 +7,7 @@ import { clapPost } from '../../services/activityService';
 import { useComments } from '../../hooks/useComments';
 import CommentSection from '../Comment/CommentSection';
 import Rating from './Rating';
+import { Container, ContentArea, Card } from '../UI';
 
 export const PostDetail = ({ post }) => {
   const commentSectionRef = useRef(null);
@@ -45,81 +46,89 @@ export const PostDetail = ({ post }) => {
   };
 
   return (
-    <div className="flex flex-col p-8 bg-surface text-primary">
-      {/* Header Section - Technical Style */}
-      <header className="mb-8 pb-6 border-b border-border-primary">
-        <h1 className="text-4xl font-bold text-primary mb-4 line-height-tight">{post.title}</h1>
-        
-        {/* Meta Information */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-sm text-secondary">
-          <div className="flex items-center space-x-4">
-            <span className="font-mono">Published on {new Date(post.created_at).toLocaleDateString()}</span>
-          </div>
-          <div className="flex items-center space-x-4 mt-2 sm:mt-0 font-mono text-xs text-muted">
-            <div className="flex items-center gap-1">
-              <FaEye className="w-3 h-3" />
-              <span>{post.views || 0} views</span>
+    <Container>
+      <ContentArea>
+        <Card variant="surface" className="post-detail">
+          {/* Header Section */}
+          <header className="post-detail-header">
+            <h1 className="post-detail-title">{post.title}</h1>
+            
+            {/* Meta Information */}
+            <div className="post-detail-meta">
+              <div className="post-detail-meta-primary">
+                <span>Published on {new Date(post.created_at).toLocaleDateString()}</span>
+              </div>
+              <div className="post-detail-meta-secondary">
+                <div className="flex items-center gap-1">
+                  <FaEye className="w-3 h-3" />
+                  <span>{post.views || 0} views</span>
+                </div>
+                <span>~{Math.ceil(post.content?.replace(/<[^>]*>/g, '').length / 200) || 1} min read</span>
+              </div>
             </div>
-            <span>~{Math.ceil(post.content?.replace(/<[^>]*>/g, '').length / 200) || 1} min read</span>
+          </header>
+
+          {/* Interaction Section */}
+          <div className="post-detail-interactions">
+            {/* Claps */}
+            <button
+              onClick={handleClap}
+              disabled={clapLoading}
+              className="post-detail-interaction-btn"
+            >
+              <FaHandsClapping className="w-4 h-4" /> 
+              <span>{currentClapCount} claps</span>
+            </button>
+
+            {/* Comments */}
+            <button 
+              onClick={scrollToComments} 
+              className="post-detail-interaction-btn"
+            >
+              <FaComment className="w-4 h-4" /> 
+              <span>{post.comments_count || 0} comments</span>
+            </button>
           </div>
-        </div>
-      </header>
 
-      {/* Interaction Section - Technical Style */}
-      <div className="flex flex-wrap items-center text-secondary mb-8 pb-4 border-border-primary pt-4 space-x-6">
-        {/* Claps */}
-        <button
-          onClick={handleClap}
-          disabled={clapLoading}
-          className="flex items-center text-secondary hover:text-primary transition-colors font-mono"
-        >
-          <FaHandsClapping className="mr-2 w-4 h-4" /> 
-          <span>{currentClapCount} claps</span>
-        </button>
+          {/* Post Content */}
+          <div className="post-detail-content">
+            {/* Featured Image */}
+            {post.image_title && (
+              <img
+                src={post.image_title}
+                alt={post.title}
+                className="post-detail-image"
+              />
+            )}
 
-        {/* Comments */}
-        <button 
-          onClick={scrollToComments} 
-          className="flex items-center text-secondary hover:text-primary transition-colors font-mono"
-        >
-          <FaComment className="mr-2 w-4 h-4" /> 
-          <span>{post.comments_count || 0} comments</span>
-        </button>
-      </div>
+            {/* Content */}
+            <div 
+              className="post-detail-prose" 
+              dangerouslySetInnerHTML={{ __html: post.content }}
+            />
+          </div>
 
-      {/* Post Content */}
-      <div className="mb-8">
-        {/* Featured Image */}
-        <img
-          src={post.image_title}
-          alt={post.title}
-          className="w-full h-64 object-cover rounded-lg mb-6"
-        />
+          {/* Rating Section */}
+          <div className="post-detail-section">
+            <h3 className="post-detail-section-title">Rate this article</h3>
+            <Rating postId={post.id} />
+          </div>
 
-        {/* Content */}
-        <div 
-          className="prose prose-lg max-w-none text-primary" 
-          dangerouslySetInnerHTML={{ __html: post.content }}
-        />
-      </div>
-
-      {/* Rating Section */}
-      <div className="mb-8">
-        <Rating postId={post.id} />
-      </div>
-
-      {/* Comments Section */}
-      <div ref={commentSectionRef}>
-        <CommentSection
-          postId={post.id}
-          comments={comments}
-          totalCount={totalCount}
-          isLoading={isLoading}
-          isError={isError}
-          mutate={mutate}
-        />
-      </div>
-    </div>
+          {/* Comments Section */}
+          <div className="post-detail-section" ref={commentSectionRef}>
+            <h3 className="post-detail-section-title">Comments ({post.comments_count || 0})</h3>
+            <CommentSection
+              postId={post.id}
+              comments={comments}
+              totalCount={totalCount}
+              isLoading={isLoading}
+              isError={isError}
+              mutate={mutate}
+            />
+          </div>
+        </Card>
+      </ContentArea>
+    </Container>
   );
 };
 
