@@ -1,20 +1,16 @@
 // components/Post/PostItemProfile.js
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { FaEye, FaShareAlt, FaRegBookmark, FaBookmark, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
 import { FaHandsClapping, FaRegComments } from "react-icons/fa6";
 import CommentsPopup from '../Comment/CommentsPopup';
 import Rating from './Rating';
 import TextUtils from '../Utils/TextUtils';
-import AuthorInfo from '../Auth/AuthorInfo';
+
 import { useUser } from '../../context/UserContext';
-import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapPost } from '../../services/activityService';
-import useBookmark from '../../hooks/useBookmark';
 import { useComments } from '../../hooks/useComments';
-import ShareMenu from '../Utils/ShareMenu';
 import TimeAgo from '../Utils/TimeAgo';
-import { BASE_FE_URL } from '../../config/api';
 import { useRouter } from 'next/router';
 import { deletePost } from '../../services/postService'; // Hàm API xóa bài viết
 import { FaComment } from 'react-icons/fa';
@@ -24,13 +20,10 @@ const PostItemProfile = ({ post, isOwner }) => {
     return <div>Đang tải bài viết...</div>;
   }
 
-  const { clapsCount, loading: clapsLoading, mutate: mutateClaps } = useClapsCount('post', post.id);
   const { user } = useUser();
-  const { isBookmarked, toggleBookmark, loading: bookmarkLoading } = useBookmark(post.id);
   const [isCommentsOpen, setCommentsOpen] = useState(false);
-  const [isShareMenuOpen, setShareMenuOpen] = useState(false);
-  const shareMenuRef = useRef();
-  const router = useRouter();
+  const [clapLoading, setClapLoading] = useState(false);
+  const [currentClapCount, setCurrentClapCount] = useState(post.clap_count || 0);
 
   const { comments, totalCommentReply, totalCount, isLoading, isError, mutate } = useComments(post.id, true, 1, 10);
 
@@ -51,13 +44,17 @@ const PostItemProfile = ({ post, isOwner }) => {
       alert('Bạn cần đăng nhập để clap.');
       return;
     }
+    if (clapLoading) return;
+    
+    setClapLoading(true);
     try {
       await clapPost(post.id);
-      mutateClaps();
+      setCurrentClapCount(prev => prev + 1);
     } catch (error) {
       console.error('Failed to clap:', error);
-      mutateClaps();
       alert('Đã xảy ra lỗi khi clap. Vui lòng thử lại sau.');
+    } finally {
+      setClapLoading(false);
     }
   };
 
@@ -69,11 +66,7 @@ const PostItemProfile = ({ post, isOwner }) => {
     setCommentsOpen(false);
   };
 
-  const shareUrl = `${BASE_FE_URL}/p/${post.title_name}`;
 
-  const handleShare = () => {
-    setShareMenuOpen((prev) => !prev);
-  };
 
   // Hàm xử lý xóa bài viết
   const handleDelete = async () => {
@@ -95,8 +88,7 @@ const PostItemProfile = ({ post, isOwner }) => {
       <div className="flex flex-col md:flex-row">
         {/* Post Section */}
         <div className="w-full md:w-2/3 pr-0 md:pr-4">
-          {/* Author Information */}
-          <AuthorInfo author={post.user} />
+
 
           {/* Post Title */}
           <Link href={`/p/${post.title_name}`} className="block">
@@ -122,7 +114,7 @@ const PostItemProfile = ({ post, isOwner }) => {
                 className="flex items-center text-gray-600 hover:text-red-500 transition-colors"
                 aria-label="Clap for this post"
               >
-                <FaHandsClapping className="mr-1" /> {clapsCount}
+                <FaHandsClapping className="mr-1" /> {currentClapCount}
               </button>
 
               {/* Nút Comment */}
@@ -131,7 +123,7 @@ const PostItemProfile = ({ post, isOwner }) => {
                 className="flex items-center text-gray-600 hover:text-blue-500 transition-colors"
                 aria-label="View comments"
               >
-                <FaComment className="mr-1" /> {totalCommentReply}
+                <FaComment className="mr-1" /> {post.comments_count || 0}
               </button>
 
               {/* Số lượng View */}
@@ -142,36 +134,6 @@ const PostItemProfile = ({ post, isOwner }) => {
             </div>
 
             <div className="flex items-center space-x-4">
-              {/* Nút Bookmark */}
-              <button
-                onClick={toggleBookmark}
-                className="flex items-center text-gray-600 hover:text-yellow-500 transition-colors"
-                disabled={bookmarkLoading}
-                aria-label="Bookmark this post"
-              >
-                {isBookmarked ? <FaBookmark className="mr-1" /> : <FaRegBookmark className="mr-1" />}
-                {bookmarkLoading && <span className="text-sm">...</span>}
-              </button>
-
-              {/* Nút Share */}
-              <div ref={shareMenuRef} className="relative">
-                <button
-                  onClick={handleShare}
-                  className="flex items-center text-gray-600 hover:text-green-500 transition-colors"
-                  aria-label="Share this post"
-                >
-                  <FaShareAlt className="mr-1" />
-                </button>
-
-                {isShareMenuOpen && (
-                  <ShareMenu
-                    shareUrl={shareUrl}
-                    title={post.title}
-                    onClose={() => setShareMenuOpen(false)}
-                  />
-                )}
-              </div>
-
               {/* Nút Edit và Delete - Chỉ hiển thị nếu là chủ sở hữu */}
               {isOwner && (
                 <>

@@ -2,7 +2,7 @@
 import React from 'react';
 import Link from 'next/link';
 import TextUtils from '../Utils/TextUtils';
-import AuthorInfo from '../Auth/AuthorInfo';
+
 import TimeAgo from '../Utils/TimeAgo';
 import { motion } from 'framer-motion';
 import { FaChevronRight } from 'react-icons/fa';
@@ -20,7 +20,6 @@ const PostItemSmall = ({ post }) => {
     >
       {/* Content */}
       <div className="flex-1">
-        <AuthorInfo author={post.user} />
         <Link href={`/p/${post.title_name}`}>
           <h5 className="text-lg text-gray-800 hover:text-blue-600 transition-colors duration-200 line-clamp-2">
             {post.title}

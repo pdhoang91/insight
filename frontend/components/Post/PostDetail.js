@@ -1,30 +1,22 @@
 // components/Post/PostDetail.js
 import React, { useRef } from 'react';
+import { FaComment } from 'react-icons/fa';
+import { FaHandsClapping } from 'react-icons/fa6';
 import { useUser } from '../../context/UserContext';
-import { FaHandsClapping, FaRegComments } from "react-icons/fa6";
-import { FaEye, FaShareAlt, FaRegBookmark, FaBookmark, FaCommentDots, FaComment } from 'react-icons/fa';
-
-import CommentSection from '../Comment/CommentSection';
-import Rating from './Rating';
-import AuthorInfo from '../Auth/AuthorInfo';
 import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapPost } from '../../services/activityService';
-import useBookmark from '../../hooks/useBookmark';
 import { useComments } from '../../hooks/useComments';
-import { BASE_FE_URL } from '../../config/api';
+import CommentSection from '../Comment/CommentSection';
+import Rating from './Rating';
 
 export const PostDetail = ({ post }) => {
   const commentSectionRef = useRef(null);
-
-  if (!post) {
-    return <div className="flex justify-center items-center h-64 text-gray-300 font-mono">// Loading post...</div>;
-  }
-  const { clapsCount: postClapsCount, loading: postLoading, hasClapped: hasClapped, mutate: mutateClaps } = useClapsCount('post', post.id);
-
-//  const { clapsCount: postClapsCount, loading: postLoading, hasClapped, mutate: mutateClaps } = useClapsCount('post', post.id);
+  const { clapsCount, loading: clapsLoading, mutate: mutateClaps } = useClapsCount('post', post.id);
   const { user } = useUser();
-  const { isBookmarked, toggleBookmark, loading: isBookmarkLoading } = useBookmark(post.id);
-  const { comments, totalCount, totalCommentReply, isLoading, isError, mutate: mutateComments } = useComments(post.id, true, 1, 10);
+  const [postClapsCount, setPostClapsCount] = React.useState(clapsCount);
+  const [hasClapped, setHasClapped] = React.useState(false);
+
+  const { comments, totalCommentReply, totalCount, isLoading, isError, mutate } = useComments(post.id, true, 1, 10);
 
   const handleClap = async () => {
     if (!user) {
@@ -50,18 +42,7 @@ export const PostDetail = ({ post }) => {
     }
   };
 
-  const shareUrl = `${BASE_FE_URL}/p/${post.title_name}`;
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: post.title,
-        url: shareUrl,
-      });
-    } else {
-      alert('Trình duyệt của bạn không hỗ trợ chia sẻ.');
-    }
-  };
 
   return (
     <div className="flex flex-col p-8 bg-surface text-primary">
@@ -85,8 +66,7 @@ export const PostDetail = ({ post }) => {
         {/* Meta Information */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between text-sm text-secondary">
           <div className="flex items-center space-x-4">
-            {post.user && <AuthorInfo author={post.user} />}
-            <span className="font-mono">{new Date(post.created_at).toLocaleDateString()}</span>
+            <span className="font-mono">Published on {new Date(post.created_at).toLocaleDateString()}</span>
           </div>
           <div className="flex items-center space-x-4 mt-2 sm:mt-0 font-mono text-xs text-muted">
             <span>{post.views} views</span>
@@ -110,22 +90,6 @@ export const PostDetail = ({ post }) => {
         {/* Comments */}
         <button onClick={scrollToComments} className="flex items-center text-secondary hover:text-primary transition-colors font-mono">
           <FaComment className="mr-1" /> {totalCommentReply} comments
-        </button>
-
-        {/* Bookmark */}
-        <button onClick={toggleBookmark} className="flex items-center text-secondary hover:text-primary transition-colors font-mono" disabled={isBookmarkLoading}>
-          {isBookmarked ? (
-            <FaBookmark className="mr-1 text-primary" />
-          ) : (
-            <FaRegBookmark className="mr-1" />
-          )}
-          {isBookmarked ? 'saved' : 'save'}
-          {isBookmarkLoading && <span className="ml-1 text-sm">...</span>}
-        </button>
-
-        {/* Share */}
-        <button onClick={handleShare} className="flex items-center text-secondary hover:text-primary transition-colors font-mono">
-          <FaShareAlt className="mr-1" /> share
         </button>
       </div>
 

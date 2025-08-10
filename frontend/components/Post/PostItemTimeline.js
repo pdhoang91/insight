@@ -1,12 +1,10 @@
 // components/Post/PostItemTimeline.js
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { FaComment, FaBookmark, FaRegBookmark, FaShareAlt, FaEllipsisH } from 'react-icons/fa';
+import { FaComment, FaEye } from 'react-icons/fa';
 import { FaHandsClapping } from 'react-icons/fa6';
 import { useUser } from '../../context/UserContext';
-import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapPost } from '../../services/activityService';
-import useBookmark from '../../hooks/useBookmark';
 import { useInfiniteComments } from '../../hooks/useInfiniteComments';
 import AddCommentForm from '../Comment/AddCommentForm';
 import CommentItem from '../Comment/CommentItem';
@@ -14,19 +12,16 @@ import { addComment } from '../../services/commentService';
 import TextUtils from '../Utils/TextUtils';
 import TimeAgo from '../Utils/TimeAgo';
 import SafeImage from '../Utils/SafeImage';
-import { BASE_FE_URL } from '../../config/api';
 
 const PostItemTimeline = ({ post }) => {
   if (!post) {
     return <div>Loading post...</div>;
   }
 
-  const { clapsCount, loading: clapsLoading, mutate: mutateClaps } = useClapsCount('post', post.id);
   const { user } = useUser();
-  const { isBookmarked, toggleBookmark, loading: bookmarkLoading } = useBookmark(post.id);
   const [isCommentsOpen, setCommentsOpen] = useState(false);
-  const [isShareMenuOpen, setShareMenuOpen] = useState(false);
-  const shareMenuRef = useRef();
+  const [clapLoading, setClapLoading] = useState(false);
+  const [currentClapCount, setCurrentClapCount] = useState(post.clap_count || 0);
   
   // Get comments data with infinite loading
   const { 
@@ -39,35 +34,26 @@ const PostItemTimeline = ({ post }) => {
     mutate 
   } = useInfiniteComments(post.id, isCommentsOpen, 2);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (shareMenuRef.current && !shareMenuRef.current.contains(event.target)) {
-        setShareMenuOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
   const handleClap = async () => {
     if (!user) {
       alert('You need to login to clap.');
       return;
     }
+    if (clapLoading) return;
+    
+    setClapLoading(true);
     try {
       await clapPost(post.id);
-      mutateClaps();
+      setCurrentClapCount(prev => prev + 1);
     } catch (error) {
       console.error('Failed to clap:', error);
-      mutateClaps();
       alert('An error occurred while clapping. Please try again.');
+    } finally {
+      setClapLoading(false);
     }
   };
 
   const toggleCommentPopup = () => setCommentsOpen((prev) => !prev);
-  const closeCommentPopup = () => setCommentsOpen(false);
 
   const handleAddComment = async (content) => {
     if (!user) {
@@ -86,8 +72,6 @@ const PostItemTimeline = ({ post }) => {
       alert('Gửi bình luận thất bại. Vui lòng thử lại.');
     }
   };
-  const shareUrl = `${BASE_FE_URL}/p/${post.title_name}`;
-  const handleShare = () => setShareMenuOpen((prev) => !prev);
 
   return (
     <div className="w-full">
@@ -136,58 +120,30 @@ const PostItemTimeline = ({ post }) => {
 
             {/* Action Icons - Bottom of left content */}
             <div className="flex items-center gap-4">
+              {/* Views */}
+              <div className="flex items-center gap-1 text-muted">
+                <FaEye className="w-4 h-4" />
+                <span className="text-sm">{post.views || 0}</span>
+              </div>
+
+              {/* Claps */}
               <button
                 onClick={handleClap}
-                disabled={clapsLoading}
+                disabled={clapLoading}
                 className="flex items-center gap-1 text-muted hover:text-primary transition-colors"
               >
                 <FaHandsClapping className="w-4 h-4" />
-                {clapsCount > 0 && <span className="text-sm">{clapsCount}</span>}
+                <span className="text-sm">{currentClapCount}</span>
               </button>
 
+              {/* Comments */}
               <button
                 onClick={toggleCommentPopup}
                 className="flex items-center gap-1 text-muted hover:text-primary transition-colors"
               >
                 <FaComment className="w-4 h-4" />
-                {totalCount > 0 && <span className="text-sm">{totalCount}</span>}
+                <span className="text-sm">{post.comments_count || 0}</span>
               </button>
-
-              <button
-                onClick={toggleBookmark}
-                disabled={bookmarkLoading}
-                className="text-muted hover:text-primary transition-colors"
-              >
-                {isBookmarked ? (
-                  <FaBookmark className="w-4 h-4" />
-                ) : (
-                  <FaRegBookmark className="w-4 h-4" />
-                )}
-              </button>
-
-              <div className="relative" ref={shareMenuRef}>
-                <button
-                  onClick={handleShare}
-                  className="text-muted hover:text-primary transition-colors"
-                >
-                  <FaEllipsisH className="w-4 h-4" />
-                </button>
-
-                {isShareMenuOpen && (
-                  <div className="absolute right-0 top-8 bg-surface border border-border-primary rounded-lg shadow-lg py-2 w-48 z-10">
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(shareUrl);
-                        setShareMenuOpen(false);
-                      }}
-                      className="w-full px-4 py-2 text-left text-sm text-secondary hover:text-primary hover:bg-elevated transition-colors flex items-center gap-2"
-                    >
-                      <FaShareAlt className="w-3 h-3" />
-                      Copy link
-                    </button>
-                  </div>
-                )}
-              </div>
             </div>
           </div>
 
@@ -268,6 +224,7 @@ const PostItemTimeline = ({ post }) => {
             </div>
           </div>
         )}
+        
       </article>
     </div>
   );

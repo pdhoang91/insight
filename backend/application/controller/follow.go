@@ -128,6 +128,9 @@ func GetFollowingPosts(c *gin.Context) {
 		return
 	}
 
+	// Calculate clap_count and comments_count for each post
+	calculatePostCounts(posts)
+
 	// Thêm log để kiểm tra danh sách posts
 	fmt.Println("Posts:", posts)
 

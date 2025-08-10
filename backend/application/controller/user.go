@@ -104,6 +104,9 @@ func GetUserPosts(c *gin.Context) {
 				Offset(offset).
 				Find(&posts)
 
+	// Calculate clap_count and comments_count for each post
+	calculatePostCounts(posts)
+
 	c.JSON(http.StatusOK, gin.H{
 		"data":        posts,
 		"total_count": total,
@@ -245,6 +248,9 @@ func GetPublicUserPosts(c *gin.Context) {
 				Limit(limit).
 				Offset(offset).
 				Find(&posts)
+
+	// Calculate clap_count and comments_count for each post
+	calculatePostCounts(posts)
 
 	c.JSON(http.StatusOK, gin.H{
 		"data":        posts,

@@ -2,10 +2,10 @@
 import useSWRInfinite from 'swr/infinite';
 import {
   getPosts,
-  fetchUserPosts,
   getFollowingPosts,
   getPostsByCategory, // Giả sử các tab bổ sung là các category
 } from '../services/postService';
+import { getUserPosts } from '../services/userService';
 
 export const useInfiniteUserPosts = (activeTab, username) => {
   const PAGE_SIZE = 10; // Số lượng bài post mỗi trang
@@ -15,7 +15,7 @@ export const useInfiniteUserPosts = (activeTab, username) => {
     try {
       if (type === 'YourPosts' || type === 'UserPosts') {
         // Giả sử 'YourPosts' và 'UserPosts' đều sử dụng getPosts
-        const data = await fetchUserPosts(username, page, limit);
+        const data = await getUserPosts(username, page, limit);
         return { posts: data.posts, totalCount: data.totalCount };
       } else if (type === 'ForYou') {
         const data = await getPosts(page, limit);

@@ -7,7 +7,7 @@ const SafeImage = ({
   width, 
   height, 
   className = '', 
-  fallbackSrc = '/images/placeholder.svg',
+  fallbackSrc = '/favicon.png',
   priority = false,
   fill = false,
   sizes,
@@ -46,6 +46,11 @@ const SafeImage = ({
       return `/api/image-proxy?url=${encodeURIComponent(transformedSrc)}`;
     }
     return transformedSrc;
+  };
+
+  // Check if image is SVG
+  const isSvg = (imageSrc) => {
+    return imageSrc?.includes('.svg') || imageSrc?.includes('data:image/svg');
   };
 
   const [imageSrc, setImageSrc] = useState(getProxiedSrc(src));
@@ -126,8 +131,8 @@ const SafeImage = ({
     onLoad: handleLoad,
     priority,
     className: `${className} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`,
-    // Add unoptimized for S3 images with SSL issues in development
-    ...(process.env.NODE_ENV === 'development' && imageSrc?.includes('s3.amazonaws.com') && {
+    // Add unoptimized for SVG images and S3 images with SSL issues in development
+    ...((isSvg(imageSrc) || (process.env.NODE_ENV === 'development' && imageSrc?.includes('s3.amazonaws.com'))) && {
       unoptimized: true
     }),
     ...props

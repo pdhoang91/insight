@@ -2,48 +2,36 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { 
-  FaComment, 
-  FaBookmark, 
-  FaRegBookmark, 
-  FaShareAlt, 
-  FaCalendar, 
-  FaUser, 
+import {
+  FaComment,
+  FaCalendar,
+  FaUser,
   FaEye,
   FaClock,
-  FaCode,
-  FaHeart,
-  FaRegHeart,
-  FaStar,
-  FaChevronRight,
-  FaPlay
+  FaTag,
+  FaChartLine,
 } from 'react-icons/fa';
 import { FaHandsClapping } from 'react-icons/fa6';
 import { useUser } from '../../context/UserContext';
-import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapPost } from '../../services/activityService';
-import useBookmark from '../../hooks/useBookmark';
 import { useComments } from '../../hooks/useComments';
 import CommentsPopup from '../Comment/CommentsPopup';
-import AuthorInfo from '../Auth/AuthorInfo';
+
 import TextUtils from '../Utils/TextUtils';
 import TimeAgo from '../Utils/TimeAgo';
 import SafeImage from '../Utils/SafeImage';
-import { BASE_FE_URL } from '../../config/api';
 
 const EnhancedPostItem = ({ post, variant = 'enhanced', showFullContent = false }) => {
   if (!post) {
     return <div>Loading post...</div>;
   }
 
-  const { clapsCount, loading: clapsLoading, mutate: mutateClaps } = useClapsCount('post', post.id);
   const { user } = useUser();
-  const { isBookmarked, toggleBookmark, loading: bookmarkLoading } = useBookmark(post.id);
   const [isCommentsOpen, setCommentsOpen] = useState(false);
-  const [isShareMenuOpen, setIsShareMenuOpen] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
   const [showReadMore, setShowReadMore] = useState(false);
-  const shareMenuRef = useRef();
+  const [clapLoading, setClapLoading] = useState(false);
+  const [currentClapCount, setCurrentClapCount] = useState(post.clap_count || 0);
 
   const { comments, totalCommentReply, totalCount, isLoading, isError, mutate } = useComments(post.id, true, 1, 10);
 
@@ -59,13 +47,13 @@ const EnhancedPostItem = ({ post, variant = 'enhanced', showFullContent = false 
   const getDifficultyLevel = (tags = [], categories = []) => {
     const beginnerKeywords = ['tutorial', 'beginner', 'intro', 'getting-started', 'basics'];
     const advancedKeywords = ['advanced', 'expert', 'deep-dive', 'architecture', 'optimization'];
-    
+
     // Safely extract names from tags and categories - handle null/undefined arrays
     const tagNames = (tags || []).map(tag => typeof tag === 'string' ? tag : tag?.name || '').filter(Boolean);
     const categoryNames = (categories || []).map(cat => typeof cat === 'string' ? cat : cat?.name || '').filter(Boolean);
-    
+
     const allKeywords = [...tagNames, ...categoryNames].join(' ').toLowerCase();
-    
+
     if (advancedKeywords.some(keyword => allKeywords.includes(keyword))) {
       return { level: 'Advanced', color: 'text-red-600 bg-red-50' };
     } else if (beginnerKeywords.some(keyword => allKeywords.includes(keyword))) {
@@ -93,26 +81,28 @@ const EnhancedPostItem = ({ post, variant = 'enhanced', showFullContent = false 
       alert('You need to login to clap.');
       return;
     }
+    if (clapLoading) return;
+    
+    setClapLoading(true);
     try {
       await clapPost(post.id);
-      mutateClaps();
+      setCurrentClapCount(prev => prev + 1);
     } catch (error) {
       console.error('Failed to clap:', error);
-      mutateClaps();
       alert('An error occurred while clapping. Please try again.');
+    } finally {
+      setClapLoading(false);
     }
   };
 
   const toggleCommentPopup = () => setCommentsOpen((prev) => !prev);
   const closeCommentPopup = () => setCommentsOpen(false);
-  const shareUrl = `${BASE_FE_URL}/p/${post.title_name}`;
-  const handleShare = () => setIsShareMenuOpen((prev) => !prev);
 
   // Enhanced variant with horizontal layout
   if (variant === 'enhanced') {
     return (
       <>
-        <motion.article 
+        <motion.article
           className="bg-surface rounded-xl shadow-sm border border-border-primary overflow-hidden hover:shadow-lg transition-all duration-500 hover:-translate-y-1 group"
           whileHover={{ scale: 1.01 }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -130,7 +120,7 @@ const EnhancedPostItem = ({ post, variant = 'enhanced', showFullContent = false 
                     sizes="(max-width: 768px) 192px, (max-width: 1024px) 224px, 256px"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/10" />
-                  
+
                   {/* Reading time badge */}
                   <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-sm text-white px-2 py-1 rounded flex items-center space-x-1">
                     <FaClock className="w-2 h-2" />
@@ -195,14 +185,20 @@ const EnhancedPostItem = ({ post, variant = 'enhanced', showFullContent = false 
               {/* Actions Bar - Bottom */}
               <div className="flex items-center justify-between pt-3 border-t border-border-primary">
                 <div className="flex items-center space-x-4">
+                  {/* Views */}
+                  <div className="flex items-center space-x-1 text-muted">
+                    <FaEye className="w-4 h-4" />
+                    <span className="text-sm font-medium">{post.views || 0}</span>
+                  </div>
+
                   <button
                     onClick={handleClap}
-                    disabled={clapsLoading}
+                    disabled={clapLoading}
                     className="flex items-center space-x-1 text-muted hover:text-primary transition-colors"
                     aria-label="Clap for this post"
                   >
                     <FaHandsClapping className="w-4 h-4" />
-                    <span className="text-sm font-medium">{clapsCount}</span>
+                    <span className="text-sm font-medium">{currentClapCount}</span>
                   </button>
 
                   <button
@@ -211,7 +207,7 @@ const EnhancedPostItem = ({ post, variant = 'enhanced', showFullContent = false 
                     aria-label="View comments"
                   >
                     <FaComment className="w-4 h-4" />
-                    <span className="text-sm font-medium">{totalCommentReply}</span>
+                    <span className="text-sm font-medium">{post.comments_count || 0}</span>
                   </button>
                 </div>
 
@@ -315,14 +311,20 @@ const EnhancedPostItem = ({ post, variant = 'enhanced', showFullContent = false 
               {/* Actions Bar */}
               <div className="flex items-center justify-between pt-3 border-t border-border-primary">
                 <div className="flex items-center space-x-4">
+                  {/* Views */}
+                  <div className="flex items-center space-x-1 text-muted">
+                    <FaEye className="w-4 h-4" />
+                    <span className="text-sm font-medium">{post.views || 0}</span>
+                  </div>
+
                   <button
                     onClick={handleClap}
-                    disabled={clapsLoading}
+                    disabled={clapLoading}
                     className="flex items-center space-x-1 text-muted hover:text-primary transition-colors"
                     aria-label="Clap for this post"
                   >
                     <FaHandsClapping className="w-4 h-4" />
-                    <span className="text-sm font-medium">{clapsCount}</span>
+                    <span className="text-sm font-medium">{currentClapCount}</span>
                   </button>
 
                   <button
@@ -331,7 +333,7 @@ const EnhancedPostItem = ({ post, variant = 'enhanced', showFullContent = false 
                     aria-label="View comments"
                   >
                     <FaComment className="w-4 h-4" />
-                    <span className="text-sm font-medium">{totalCommentReply}</span>
+                    <span className="text-sm font-medium">{post.comments_count || 0}</span>
                   </button>
                 </div>
 

@@ -1,58 +1,45 @@
 // components/Post/PostItem.js
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { FaComment, FaBookmark, FaRegBookmark, FaShareAlt, FaCalendar, FaUser, FaEllipsisH } from 'react-icons/fa';
+import { FaComment, FaCalendar, FaUser, FaEye } from 'react-icons/fa';
 import { FaHandsClapping } from 'react-icons/fa6';
 import { useUser } from '../../context/UserContext';
-import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapPost } from '../../services/activityService';
-import useBookmark from '../../hooks/useBookmark';
 import { useComments } from '../../hooks/useComments';
 import CommentsPopup from '../Comment/CommentsPopup';
-import AuthorInfo from '../Auth/AuthorInfo';
+
 import TextUtils from '../Utils/TextUtils';
 import TimeAgo from '../Utils/TimeAgo';
 import SafeImage from '../Utils/SafeImage';
-import { BASE_FE_URL } from '../../config/api';
 
 const PostItem = ({ post, variant = 'default' }) => {
   if (!post) {
     return <div>Loading post...</div>;
   }
 
-  const { clapsCount, loading: clapsLoading, mutate: mutateClaps } = useClapsCount('post', post.id);
   const { user } = useUser();
-  const { isBookmarked, toggleBookmark, loading: bookmarkLoading } = useBookmark(post.id);
   const [isCommentsOpen, setCommentsOpen] = useState(false);
-  const [isShareMenuOpen, setShareMenuOpen] = useState(false);
-  const shareMenuRef = useRef();
+  const [clapLoading, setClapLoading] = useState(false);
+  const [currentClapCount, setCurrentClapCount] = useState(post.clap_count || 0);
 
   const { comments, totalCommentReply, totalCount, isLoading, isError, mutate } = useComments(post.id, true, 1, 10);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (shareMenuRef.current && !shareMenuRef.current.contains(event.target)) {
-        setShareMenuOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
 
   const handleClap = async () => {
     if (!user) {
       alert('You need to login to clap.');
       return;
     }
+    if (clapLoading) return;
+    
+    setClapLoading(true);
     try {
       await clapPost(post.id);
-      mutateClaps();
+      setCurrentClapCount(prev => prev + 1);
     } catch (error) {
       console.error('Failed to clap:', error);
-      mutateClaps();
       alert('An error occurred while clapping. Please try again.');
+    } finally {
+      setClapLoading(false);
     }
   };
 
@@ -62,12 +49,6 @@ const PostItem = ({ post, variant = 'default' }) => {
 
   const closeCommentPopup = () => {
     setCommentsOpen(false);
-  };
-
-  const shareUrl = `${BASE_FE_URL}/p/${post.title_name}`;
-
-  const handleShare = () => {
-    setShareMenuOpen((prev) => !prev);
   };
 
   // Compact variant for smaller spaces
@@ -108,13 +89,19 @@ const PostItem = ({ post, variant = 'default' }) => {
 
               {/* Actions - Compact */}
               <div className="flex items-center gap-3">
+                {/* Views */}
+                <div className="flex items-center gap-1 text-gray-500">
+                  <FaEye className="w-3 h-3" />
+                  <span className="text-xs">{post.views || 0}</span>
+                </div>
+
                 <button
                   onClick={handleClap}
-                  disabled={clapsLoading}
+                  disabled={clapLoading}
                   className="flex items-center gap-1 text-gray-500 hover:text-gray-700 transition-colors"
                 >
                   <FaHandsClapping className="w-3 h-3" />
-                  {clapsCount > 0 && <span className="text-xs">{clapsCount}</span>}
+                  <span className="text-xs">{currentClapCount}</span>
                 </button>
 
                 <button
@@ -122,19 +109,7 @@ const PostItem = ({ post, variant = 'default' }) => {
                   className="flex items-center gap-1 text-gray-500 hover:text-gray-700 transition-colors"
                 >
                   <FaComment className="w-3 h-3" />
-                  {totalCount > 0 && <span className="text-xs">{totalCount}</span>}
-                </button>
-
-                <button
-                  onClick={toggleBookmark}
-                  disabled={bookmarkLoading}
-                  className="text-gray-500 hover:text-gray-700 transition-colors"
-                >
-                  {isBookmarked ? (
-                    <FaBookmark className="w-3 h-3" />
-                  ) : (
-                    <FaRegBookmark className="w-3 h-3" />
-                  )}
+                  <span className="text-xs">{post.comments_count || 0}</span>
                 </button>
               </div>
             </div>
@@ -225,14 +200,20 @@ const PostItem = ({ post, variant = 'default' }) => {
 
               {/* Action Icons */}
               <div className="flex items-center gap-3 md:gap-4">
+                {/* Views */}
+                <div className="flex items-center gap-1 text-gray-500">
+                  <FaEye className="w-4 h-4" />
+                  <span className="text-sm">{post.views || 0}</span>
+                </div>
+
                 {/* Clap */}
                 <button
                   onClick={handleClap}
-                  disabled={clapsLoading}
+                  disabled={clapLoading}
                   className="flex items-center gap-1 text-gray-500 hover:text-gray-700 transition-colors"
                 >
                   <FaHandsClapping className="w-4 h-4" />
-                  {clapsCount > 0 && <span className="text-sm">{clapsCount}</span>}
+                  <span className="text-sm">{currentClapCount}</span>
                 </button>
 
                 {/* Comment */}
@@ -241,46 +222,8 @@ const PostItem = ({ post, variant = 'default' }) => {
                   className="flex items-center gap-1 text-gray-500 hover:text-gray-700 transition-colors"
                 >
                   <FaComment className="w-4 h-4" />
-                  {totalCount > 0 && <span className="text-sm">{totalCount}</span>}
+                  <span className="text-sm">{post.comments_count || 0}</span>
                 </button>
-
-                {/* Bookmark */}
-                <button
-                  onClick={toggleBookmark}
-                  disabled={bookmarkLoading}
-                  className="text-gray-500 hover:text-gray-700 transition-colors"
-                >
-                  {isBookmarked ? (
-                    <FaBookmark className="w-4 h-4" />
-                  ) : (
-                    <FaRegBookmark className="w-4 h-4" />
-                  )}
-                </button>
-
-                {/* Share Menu */}
-                <div className="relative" ref={shareMenuRef}>
-                  <button
-                    onClick={handleShare}
-                    className="text-gray-500 hover:text-gray-700 transition-colors"
-                  >
-                    <FaEllipsisH className="w-4 h-4" />
-                  </button>
-
-                  {isShareMenuOpen && (
-                    <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg py-2 w-48 z-10">
-                      <button
-                        onClick={() => {
-                          navigator.clipboard.writeText(shareUrl);
-                          setShareMenuOpen(false);
-                        }}
-                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
-                      >
-                        <FaShareAlt className="w-3 h-3" />
-                        Copy link
-                      </button>
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
           </div>

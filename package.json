@@ -1,0 +1,35 @@
+{
+  "name": "insight-project",
+  "version": "1.0.0",
+  "description": "Insight Blog Platform",
+  "private": true,
+  "scripts": {
+    "dev": "cd frontend && npm run dev",
+    "build": "cd frontend && npm run build",
+    "start": "cd frontend && npm start",
+    "lint": "cd frontend && npm run lint",
+    "frontend:install": "cd frontend && npm install",
+    "backend:up": "docker-compose up -d",
+    "backend:down": "docker-compose down",
+    "backend:logs": "docker-compose logs -f",
+    "full:dev": "docker-compose up -d && cd frontend && npm run dev"
+  },
+  "workspaces": [
+    "frontend"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/your-username/insight.git"
+  },
+  "keywords": [
+    "blog",
+    "nextjs",
+    "golang",
+    "docker"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+} 

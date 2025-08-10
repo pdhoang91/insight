@@ -5,7 +5,7 @@ import axiosPublicInstance from '../utils/axiosPublicInstance';
 // Gửi clap cho bài viết
 export const clapPost = async (postID) => {
   try {
-    const response = await axiosPrivateInstance.post(`/api/posts/${postID}/claps`);
+    const response = await axiosPrivateInstance.post(`/api/post/${postID}/clap`);
     return response.data;
   } catch (error) {
     console.error('Error clapping post:', error);
@@ -15,38 +15,44 @@ export const clapPost = async (postID) => {
 
 // Unclap bài viết
 export const unclapPost = async (postId) => {
-  const response = await axiosPrivateInstance.post(`/api/posts/${postId}/unclap`);
-  return response.data;
+  try {
+    const response = await axiosPrivateInstance.post(`/api/post/${postId}/unclap`);
+    return response.data;
+  } catch (error) {
+    console.error('Error unclappping post:', error);
+    throw error;
+  }
 };
 
 // Gửi clap cho comment
 export const clapComment = async (commentID) => {
-  const response = await axiosPrivateInstance.post(`/api/comment/${commentID}/clap`);
-  return response.data;
+  try {
+    const response = await axiosPrivateInstance.post(`/api/comment/${commentID}/clap`);
+    return response.data;
+  } catch (error) {
+    console.error('Error clapping comment:', error);
+    throw error;
+  }
 };
 
 // Gửi clap cho reply
 export const clapReply = async (replyId) => {
-  const response = await axiosPrivateInstance.post(`/api/reply/${replyId}/clap`); // Pass token if necessary
-  return response.data;
+  try {
+    const response = await axiosPrivateInstance.post(`/api/reply/${replyId}/clap`);
+    return response.data;
+  } catch (error) {
+    console.error('Error clapping reply:', error);
+    throw error;
+  }
 };
 
 // Lấy số lượng claps
 export const getClapsCount = async (type, id) => {
   try {
-    let url = '';
-    if (type === 'post') {
-      url = `/posts/${id}/claps`;
-    } else if (type === 'comment') {
-      url = `/comments/${id}/claps`;
-    } else {
-      throw new Error('Invalid type for claps');
-    }
-
-    const response = await axiosPublicInstance.get(url);
+    const response = await axiosPublicInstance.get(`/claps?type=${type}&id=${id}`);
     const data = response.data;
     
-    return data.count || 0;
+    return data.clap_count || 0;
   } catch (error) {
     console.error(`Error fetching claps count for ${type} ${id}:`, error);
     return 0;

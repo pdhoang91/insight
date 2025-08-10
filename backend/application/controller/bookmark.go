@@ -166,6 +166,9 @@ func GetBookmarks(c *gin.Context) {
 		//}
 	}
 
+	// Calculate clap_count and comments_count for each post
+	calculatePostCounts(posts)
+
 	c.JSON(http.StatusOK, gin.H{
 		"username":    user.Username,
 		"data":        posts,

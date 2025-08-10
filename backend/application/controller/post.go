@@ -21,6 +21,77 @@ import (
 	"gorm.io/gorm"
 )
 
+// calculatePostCounts calculates clap_count and comments_count for a slice of posts
+func calculatePostCounts(posts []models.Post) {
+	if len(posts) == 0 {
+		return
+	}
+
+	// Extract post IDs for bulk queries
+	postIDs := make([]uuid.UUID, len(posts))
+	for i, post := range posts {
+		postIDs[i] = post.ID
+	}
+
+	// Bulk query for clap counts
+	type ClapCountResult struct {
+		PostID    uuid.UUID `json:"post_id"`
+		ClapCount int64     `json:"clap_count"`
+	}
+	var clapCounts []ClapCountResult
+	database.DB.Model(&models.UserActivity{}).
+		Select("post_id, COUNT(*) as clap_count").
+		Where("post_id IN ? AND action_type = ?", postIDs, "clap_post").
+		Group("post_id").
+		Scan(&clapCounts)
+
+	// Bulk query for comment counts
+	type CommentCountResult struct {
+		PostID       uuid.UUID `json:"post_id"`
+		CommentCount int64     `json:"comment_count"`
+	}
+	var commentCounts []CommentCountResult
+	database.DB.Model(&models.Comment{}).
+		Select("post_id, COUNT(*) as comment_count").
+		Where("post_id IN ?", postIDs).
+		Group("post_id").
+		Scan(&commentCounts)
+
+	// Create maps for quick lookup
+	clapCountMap := make(map[uuid.UUID]int64)
+	for _, cc := range clapCounts {
+		clapCountMap[cc.PostID] = cc.ClapCount
+	}
+
+	commentCountMap := make(map[uuid.UUID]int64)
+	for _, cc := range commentCounts {
+		commentCountMap[cc.PostID] = cc.CommentCount
+	}
+
+	// Assign counts to posts
+	for i := range posts {
+		posts[i].ClapCount = uint64(clapCountMap[posts[i].ID])
+		posts[i].CommentsCount = uint64(commentCountMap[posts[i].ID])
+	}
+}
+
+// calculateSinglePostCounts calculates clap_count and comments_count for a single post
+func calculateSinglePostCounts(post *models.Post) {
+	// Get clap count
+	var clapCount int64
+	database.DB.Model(&models.UserActivity{}).
+		Where("post_id = ? AND action_type = ?", post.ID, "clap_post").
+		Count(&clapCount)
+	post.ClapCount = uint64(clapCount)
+
+	// Get comment count
+	var commentCount int64
+	database.DB.Model(&models.Comment{}).
+		Where("post_id = ?", post.ID).
+		Count(&commentCount)
+	post.CommentsCount = uint64(commentCount)
+}
+
 // GetPosts lấy danh sách các bài viết với phân trang
 func GetPosts(c *gin.Context) {
 	var posts []models.Post
@@ -54,6 +125,9 @@ func GetPosts(c *gin.Context) {
 		return
 	}
 
+	// Calculate clap_count and comments_count for each post
+	calculatePostCounts(posts)
+
 	c.JSON(http.StatusOK, gin.H{
 		"data":        posts,
 		"total_count": total,
@@ -80,6 +154,9 @@ func GetPostByID(c *gin.Context) {
 
 	// Tăng số lượt xem
 	database.DB.Model(&post).UpdateColumn("views", gorm.Expr("views + ?", 1))
+
+	// Calculate clap_count and comments_count for the post
+	calculateSinglePostCounts(&post)
 
 	// Kiểm tra xem người dùng đã clap post này chưa
 	userIDInterface, exists := c.Get("userID")
@@ -135,6 +212,9 @@ func GetMostViewedPosts(c *gin.Context) {
 		return
 	}
 
+	// Calculate clap_count and comments_count for each post
+	calculatePostCounts(posts)
+
 	// Trả về kết quả
 	c.JSON(http.StatusOK, gin.H{
 		"data":        posts,
@@ -162,6 +242,9 @@ func GetPostByName(c *gin.Context) {
 
 	// Tăng số lượt xem
 	database.DB.Model(&post).UpdateColumn("views", gorm.Expr("views + ?", 1))
+
+	// Calculate clap_count and comments_count for the post
+	calculateSinglePostCounts(&post)
 
 	// Kiểm tra xem người dùng đã "clap" bài viết chưa
 	//userIDInterface, exists := c.Get("userID")
@@ -831,6 +914,9 @@ func GetPostsByCategory(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 		return
 	}
+
+	// Calculate clap_count and comments_count for each post
+	calculatePostCounts(posts)
 
 	c.JSON(http.StatusOK, gin.H{
 		"data":        posts,
