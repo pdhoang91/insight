@@ -1,22 +1,17 @@
 // pages/index.js
-import React, { useRef, useEffect } from 'react';
-import { useUser } from '../context/UserContext';
+import React from 'react';
 import { useInfinitePosts } from '../hooks/useInfinitePosts';
-import { useTabSwitcher } from '../hooks/useTabSwitcher';
 import BlogSidebar from '../components/Shared/BlogSidebar';
 import PostList from '../components/Post/PostList';
 
 const Home = () => {
-  const { activeTab, toggleTab } = useTabSwitcher();
-  const { user } = useUser();
-  
   const {
     posts,
     isLoading,
     isError,
     setSize,
     isReachingEnd,
-  } = useInfinitePosts(activeTab);
+  } = useInfinitePosts();
 
   return (
     <div className="min-h-screen bg-app">

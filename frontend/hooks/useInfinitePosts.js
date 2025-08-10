@@ -1,31 +1,17 @@
-// // hooks/useInfinitePosts.js
 // hooks/useInfinitePosts.js
 import useSWRInfinite from 'swr/infinite';
-import {
-  getPosts,
-  getFollowingPosts,
-  getPostsByCategory, // Giả sử các tab bổ sung là các category
-} from '../services/postService';
+import { getPosts } from '../services/postService';
 
-export const useInfinitePosts = (activeTab, user) => {
+export const useInfinitePosts = () => {
   const PAGE_SIZE = 10; // Số lượng bài post mỗi trang
 
-  // Fetcher function với async/await và định dạng lại dữ liệu trả về
-  const fetcher = async (type, page, limit) => {
+  // Fetcher function - chỉ sử dụng getPosts
+  const fetcher = async (page, limit) => {
     try {
-      if (type === 'ForYou') {
-        const data = await getPosts(page, limit);
-        return { posts: data.posts, totalCount: data.totalCount };
-      } else if (type === 'Following') {
-        const data = await getFollowingPosts(page, limit);
-        return { posts: data.posts, totalCount: data.totalCount };
-      } else {
-        // Giả sử các tab bổ sung là các category
-        const data = await getPostsByCategory(type, page, limit);
-        return { posts: data.posts, totalCount: data.totalCount };
-      }
+      const data = await getPosts(page, limit);
+      return { posts: data.posts, totalCount: data.totalCount };
     } catch (error) {
-      console.error(`Error fetching ${type} posts:`, error);
+      console.error('Error fetching posts:', error);
       throw error;
     }
   };
@@ -34,22 +20,14 @@ export const useInfinitePosts = (activeTab, user) => {
   const getKey = (pageIndex, previousPageData) => {
     // Nếu đã không còn dữ liệu để tải thêm, trả về null
     if (previousPageData && (previousPageData.posts?.length ?? 0) < PAGE_SIZE) return null;
-
-    if (activeTab === 'ForYou') {
-      return ['ForYou', pageIndex + 1, PAGE_SIZE];
-    } else if (activeTab === 'Following' && user) {
-      return ['Following', pageIndex + 1, PAGE_SIZE];
-    } else if (activeTab) {
-      return [activeTab, pageIndex + 1, PAGE_SIZE];
-    } else {
-      return null;
-    }
+    
+    return ['posts', pageIndex + 1, PAGE_SIZE];
   };
 
   // Sử dụng useSWRInfinite để lấy dữ liệu
   const { data, error, size, setSize } = useSWRInfinite(
     getKey,
-    ([type, page, limit]) => fetcher(type, page, limit)
+    ([, page, limit]) => fetcher(page, limit)
   );
 
   // Các trạng thái loading và error
