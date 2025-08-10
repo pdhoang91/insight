@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import BlogSidebar from '../../components/Shared/BlogSidebar';
 import CategoryListWithPosts from '../../components/Category/CategoryListWithPosts';
 import { useInfinitePostByCategory } from '../../hooks/useInfinitePostByCategory';
+import { Container, ContentArea, Card, StandardPageTitle, StandardPageSubtitle, LoadingSpinner } from '../../components/UI';
 
 const CategoryPage = () => {
   const router = useRouter();
@@ -11,11 +12,12 @@ const CategoryPage = () => {
 
   if (!name) {
     return (
-      <div className="min-h-screen bg-app flex items-center justify-center">
+      <Container variant="loading">
         <div className="loading-card">
-          <div className="animate-pulse text-secondary">Loading category...</div>
+          <LoadingSpinner size="lg" />
+          <p className="mt-4 text-secondary font-mono">Loading category...</p>
         </div>
-      </div>
+      </Container>
     );
   }
 
@@ -29,34 +31,32 @@ const CategoryPage = () => {
   } = useInfinitePostByCategory(name);
 
   return (
-    <div className="min-h-screen bg-app">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <Container>
+      <ContentArea>
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Content Area */}
           <div className="lg:col-span-3">
-            <main className="bg-surface rounded-xl p-6 md:p-8 border border-border-primary">
-              <header className="mb-6 md:mb-8 pb-4 md:pb-6 border-b border-border-primary">
-                <h1 className="text-3xl md:text-4xl font-bold text-primary mb-3 md:mb-4 line-height-tight">
-                  {name}
-                </h1>
-                <p className="text-secondary font-mono text-sm md:text-base">
+            <Card variant="surface">
+              <header className="standard-page-header">
+                <StandardPageTitle>{name}</StandardPageTitle>
+                <StandardPageSubtitle>
                   posts in this category
                   {totalCount > 0 && (
                     <span className="ml-2 px-2 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-medium">
                       {totalCount}
                     </span>
                   )}
-                </p>
+                </StandardPageSubtitle>
               </header>
             
-            <CategoryListWithPosts
-              posts={posts}
-              isLoading={isLoading}
-              isError={isError}
-              setSize={setSize}
-              isReachingEnd={isReachingEnd}
-            />
-            </main>
+              <CategoryListWithPosts
+                posts={posts}
+                isLoading={isLoading}
+                isError={isError}
+                setSize={setSize}
+                isReachingEnd={isReachingEnd}
+              />
+            </Card>
           </div>
 
           {/* Sidebar */}
@@ -66,8 +66,8 @@ const CategoryPage = () => {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </ContentArea>
+    </Container>
   );
 };
 

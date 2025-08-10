@@ -2,26 +2,23 @@
 import React from 'react';
 import BlogSidebar from '../../components/Shared/BlogSidebar';
 import CategoryList from '../../components/Category/CategoryList';
+import { Container, ContentArea, Card, StandardPageTitle, StandardPageSubtitle } from '../../components/UI';
 
 const CategoryPage = () => {
   return (
-    <div className="min-h-screen bg-app">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <Container>
+      <ContentArea>
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Main Content Area */}
           <div className="lg:col-span-3">
-            <main className="bg-surface rounded-xl p-6 md:p-8 border border-border-primary">
-              <header className="mb-6 md:mb-8 pb-4 md:pb-6 border-b border-border-primary">
-                <h1 className="text-3xl md:text-4xl font-bold text-primary mb-3 md:mb-4 line-height-tight">
-                  Categories
-                </h1>
-                <p className="text-secondary font-mono text-sm md:text-base">
-                  explore stories by category
-                </p>
+            <Card variant="surface">
+              <header className="standard-page-header">
+                <StandardPageTitle>Categories</StandardPageTitle>
+                <StandardPageSubtitle>explore stories by category</StandardPageSubtitle>
               </header>
             
-            <CategoryList />
-            </main>
+              <CategoryList />
+            </Card>
           </div>
 
           {/* Sidebar */}
@@ -31,8 +28,8 @@ const CategoryPage = () => {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </ContentArea>
+    </Container>
   );
 };
 

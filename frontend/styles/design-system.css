@@ -525,10 +525,10 @@
 
 /* Post Styles */
 .post-item {
-  background-color: var(--bg-content);
+  background-color: var(--bg-surface);
   padding: var(--space-6);
   margin-bottom: var(--space-6);
-  border-bottom: 1px solid var(--border-content);
+  border-bottom: 1px solid var(--border-primary);
   border-radius: 0.5rem;
   box-shadow: var(--shadow-sm);
 }
@@ -541,14 +541,14 @@
   font-size: var(--text-2xl);
   font-weight: 700;
   margin-bottom: var(--space-2);
-  color: var(--text-content);
+  color: var(--text-primary);
 }
 
 .post-meta {
   display: flex;
   align-items: center;
   gap: var(--space-4);
-  color: var(--text-content-secondary);
+  color: var(--text-secondary);
   font-size: var(--text-sm);
   margin-bottom: var(--space-4);
 }

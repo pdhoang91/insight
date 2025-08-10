@@ -110,10 +110,10 @@ const PostItemTimeline = ({ post }) => {
               {post.categories && post.categories.slice(0, 2).map((category, index) => (
                 <Link
                   key={index}
-                  href={`/category/${category.toLowerCase()}`}
+                  href={`/category/${(category.name || category).toLowerCase()}`}
                   className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium hover:bg-primary/20 transition-colors"
                 >
-                  {category}
+                  {category.name || category}
                 </Link>
               ))}
             </div>

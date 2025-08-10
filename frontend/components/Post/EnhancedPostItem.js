@@ -173,11 +173,11 @@ const EnhancedPostItem = ({ post, variant = 'enhanced', showFullContent = false 
                   {post.categories.slice(0, 3).map((category, index) => (
                     <Link
                       key={index}
-                      href={`/category/${category.toLowerCase()}`}
+                      href={`/category/${(category.name || category).toLowerCase()}`}
                       className="inline-flex items-center space-x-1 px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium hover:bg-primary/20 transition-colors"
                     >
                       <FaTag className="w-3 h-3" />
-                      <span>{category}</span>
+                      <span>{category.name || category}</span>
                     </Link>
                   ))}
                 </div>

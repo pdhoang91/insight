@@ -1,7 +1,8 @@
 // components/Category/CategoryListWithPosts.js
 import React from 'react';
-import PostItem from '../Post/PostItem';
+import PostItemCategories from '../Post/PostItemCategories';
 import InfiniteScrollWrapper from '../Utils/InfiniteScrollWrapper';
+import { FaExclamationTriangle, FaFileAlt, FaSpinner } from 'react-icons/fa';
 
 const CategoryListWithPosts = ({ posts, isLoading, isError, setSize, isReachingEnd }) => {
   const fetchMore = () => {
@@ -16,24 +17,22 @@ const CategoryListWithPosts = ({ posts, isLoading, isError, setSize, isReachingE
       return null;
     }
     return (
-      <div key={post.id} className="border-b border-border-primary/50 pb-6 last:border-b-0 last:pb-0">
-        <PostItem post={post} variant="default" />
+      <div key={post.id} className="border-b border-border-primary/30 pb-6 last:border-b-0 last:pb-0">
+        <PostItemCategories post={post} />
       </div>
     );
   };
 
   if (isError) {
     return (
-      <div className="text-center py-12 md:py-16">
-        <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
-          <svg className="w-8 h-8 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+      <div className="text-center py-12">
+        <div className="inline-flex items-center gap-3 p-6 border border-danger/20 rounded-lg bg-danger/5">
+          <FaExclamationTriangle className="w-6 h-6 text-danger" />
+          <div>
+            <h3 className="font-mono text-danger font-semibold">// Failed to Load Posts</h3>
+            <p className="text-muted text-sm mt-1">Unable to load posts for this category. Please try again later.</p>
+          </div>
         </div>
-        <h3 className="text-lg font-semibold text-primary mb-2">Failed to Load Posts</h3>
-        <p className="text-secondary font-mono text-sm">
-          Unable to load posts for this category. Please try again later.
-        </p>
       </div>
     );
   }
@@ -43,17 +42,52 @@ const CategoryListWithPosts = ({ posts, isLoading, isError, setSize, isReachingE
       <div className="space-y-6">
         {[...Array(3)].map((_, index) => (
           <div key={index} className="animate-pulse">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-6 h-6 bg-muted/20 rounded-full"></div>
-              <div className="h-4 bg-muted/20 rounded w-32"></div>
-              <div className="h-4 bg-muted/20 rounded w-24"></div>
+            <div className="bg-surface rounded-lg border border-border-primary/30 p-6">
+              {/* Header skeleton */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-8 h-8 bg-elevated rounded-full"></div>
+                <div className="flex items-center gap-2">
+                  <div className="h-4 bg-elevated rounded w-24"></div>
+                  <div className="w-1 h-1 bg-elevated rounded-full"></div>
+                  <div className="h-4 bg-elevated rounded w-16"></div>
+                  <div className="w-1 h-1 bg-elevated rounded-full"></div>
+                  <div className="h-4 bg-elevated rounded w-20"></div>
+                </div>
+              </div>
+              
+              <div className="flex gap-6">
+                {/* Content skeleton */}
+                <div className="flex-1">
+                  <div className="h-7 bg-elevated rounded w-4/5 mb-3"></div>
+                  <div className="space-y-2 mb-4">
+                    <div className="h-4 bg-elevated rounded w-full"></div>
+                    <div className="h-4 bg-elevated rounded w-3/4"></div>
+                    <div className="h-4 bg-elevated rounded w-2/3"></div>
+                  </div>
+                  {/* Categories skeleton */}
+                  <div className="flex gap-2 mb-4">
+                    <div className="h-7 bg-elevated rounded-full w-20"></div>
+                    <div className="h-7 bg-elevated rounded-full w-24"></div>
+                  </div>
+                </div>
+                
+                {/* Image skeleton */}
+                <div className="w-32 md:w-40 lg:w-48 flex-shrink-0">
+                  <div className="w-full h-24 md:h-32 lg:h-36 bg-elevated rounded-lg"></div>
+                </div>
+              </div>
+              
+              {/* Action bar skeleton */}
+              <div className="flex items-center justify-between pt-4 border-t border-border-primary/20">
+                <div className="flex items-center gap-6">
+                  <div className="h-4 bg-elevated rounded w-12"></div>
+                  <div className="h-4 bg-elevated rounded w-12"></div>
+                  <div className="h-4 bg-elevated rounded w-12"></div>
+                </div>
+                <div className="h-4 bg-elevated rounded w-20"></div>
+              </div>
             </div>
-            <div className="h-6 bg-muted/20 rounded w-3/4 mb-3"></div>
-            <div className="space-y-2">
-              <div className="h-4 bg-muted/20 rounded w-full"></div>
-              <div className="h-4 bg-muted/20 rounded w-2/3"></div>
-            </div>
-            <div className="border-b border-border-primary/50 mt-6"></div>
+            <div className="border-b border-border-primary/30 mt-6"></div>
           </div>
         ))}
       </div>
@@ -62,16 +96,14 @@ const CategoryListWithPosts = ({ posts, isLoading, isError, setSize, isReachingE
 
   if (posts.length === 0) {
     return (
-      <div className="text-center py-12 md:py-16">
-        <div className="w-16 h-16 mx-auto mb-4 bg-muted/10 rounded-full flex items-center justify-center">
-          <svg className="w-8 h-8 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
+      <div className="text-center py-12">
+        <div className="inline-flex items-center gap-3 p-6 border border-border-primary rounded-lg bg-elevated/50">
+          <FaFileAlt className="w-6 h-6 text-muted" />
+          <div>
+            <h3 className="font-mono text-primary font-semibold">// No Posts Found</h3>
+            <p className="text-muted text-sm mt-1">No articles available in this category yet. Check back later for new content.</p>
+          </div>
         </div>
-        <h3 className="text-lg font-semibold text-primary mb-2">No Posts Found</h3>
-        <p className="text-secondary font-mono text-sm">
-          No articles available in this category yet. Check back later for new content.
-        </p>
       </div>
     );
   }
@@ -79,9 +111,9 @@ const CategoryListWithPosts = ({ posts, isLoading, isError, setSize, isReachingE
   return (
     <div className="space-y-6">
       {/* Results summary */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between border-b border-border-primary/30 pb-3">
         <p className="text-sm text-secondary font-mono">
-          {posts.length} {posts.length === 1 ? 'article' : 'articles'}
+          // Found {posts.length} {posts.length === 1 ? 'article' : 'articles'}
         </p>
       </div>
 
@@ -91,17 +123,17 @@ const CategoryListWithPosts = ({ posts, isLoading, isError, setSize, isReachingE
         fetchMore={fetchMore}
         hasMore={!isReachingEnd}
         loader={
-          <div className="text-center py-6">
-            <div className="inline-flex items-center space-x-2 text-secondary font-mono text-sm">
-              <div className="animate-spin w-4 h-4 border-2 border-primary border-t-transparent rounded-full"></div>
-              <span>Loading more posts...</span>
+          <div className="flex justify-center py-8">
+            <div className="flex items-center gap-3 p-4 border border-border-primary rounded-lg bg-elevated">
+              <FaSpinner className="animate-spin text-primary w-5 h-5" />
+              <span className="text-secondary font-mono">Loading more posts...</span>
             </div>
           </div>
         }
         endMessage={
-          <p className="text-center text-muted font-mono py-6 text-sm">
-            // End of posts in this category
-          </p>
+          <div className="text-center py-8">
+            <p className="text-muted font-mono text-sm">// End of posts in this category</p>
+          </div>
         }
         className="space-y-6"
       />
