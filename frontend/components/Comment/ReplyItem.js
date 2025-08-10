@@ -1,6 +1,6 @@
 // src/components/Comment/ReplyItem.js
 import React from 'react';
-import { FaHandsClapping, FaUser, FaReply } from "react-icons/fa6";
+import { FaHandsClapping, FaUser } from "react-icons/fa6";
 import Mention from './Mention';
 import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapReply } from '../../services/activityService';
@@ -13,7 +13,7 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
 
   const handleClap = async () => {
     if (!user) {
-      alert('Authentication required: Please login to clap.');
+      alert('Please login to clap.');
       return;
     }
     try {
@@ -21,7 +21,7 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
       mutateClaps(); // Refetch clap count
     } catch (error) {
       console.error('Failed to clap:', error);
-      alert(error.message || 'Error: Unable to process clap request.');
+      alert(error.message || 'Failed to clap. Please try again.');
     }
   };
 
@@ -51,66 +51,50 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
   };
 
   return (
-    <div className="bg-terminal-light border border-matrix-green/20 rounded p-3 hover:border-matrix-green/40 transition-all duration-300">
-      {/* Reply Header */}
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-2">
-          <FaReply className="w-3 h-3 text-matrix-cyan" />
-          <span className="text-xs font-mono text-matrix-green">reply@{reply.id}</span>
-        </div>
-        <div className="text-xs text-text-muted font-mono">
-          <TimeAgo timestamp={reply.created_at} />
-        </div>
-      </div>
-
-      {/* Author Info with Avatar */}
+    <div className="bg-terminal-light border border-matrix-green/20 rounded-lg p-3 hover:border-matrix-green/40 transition-all duration-300">
+      {/* Author Info */}
       <div className="flex items-center gap-2 mb-2">
-        <div className="w-6 h-6 bg-terminal-gray rounded border border-matrix-green/50 flex items-center justify-center flex-shrink-0">
+        <div className="w-6 h-6 bg-terminal-gray rounded-full border border-matrix-green/50 flex items-center justify-center flex-shrink-0">
           {reply.user?.avatar ? (
             <img
               src={reply.user.avatar}
               alt={reply.user.name}
-              className="w-full h-full rounded object-cover"
+              className="w-full h-full rounded-full object-cover"
             />
           ) : (
             <FaUser className="w-3 h-3 text-matrix-green" />
           )}
         </div>
-        <div className="flex items-center gap-1 text-sm font-mono">
-          <span className="text-matrix-cyan">@</span>
-          <span className="font-medium text-text-primary">
-            {reply.user?.name || 'anonymous'}
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-text-primary text-sm">
+            {reply.user?.name || 'Anonymous'}
+          </span>
+          <span className="text-text-muted text-xs">
+            <TimeAgo timestamp={reply.created_at} />
           </span>
         </div>
       </div>
 
       {/* Reply Content */}
       <div className="pl-8 mb-2">
-        <div className="text-text-secondary font-mono text-sm leading-relaxed">
-          <span className="text-text-muted">//</span> {renderContent(reply.content)}
+        <div className="text-text-secondary text-sm leading-relaxed">
+          {renderContent(reply.content)}
         </div>
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-between pl-8">
-        <div className="flex items-center space-x-3">
-          {/* Clap Button */}
-          <button
-            onClick={handleClap}
-            className={`flex items-center gap-1 text-sm font-mono transition-all hover:scale-110 ${
-              hasClapped ? 'text-hacker-yellow' : 'text-text-muted hover:text-hacker-yellow'
-            }`}
-            disabled={clapsLoading}
-            aria-label="Clap for this reply"
-          >
-            <FaHandsClapping className={`w-3 h-3 ${clapsLoading ? 'animate-pulse' : ''}`} />
-            <span>{clapsCountDisplay(clapsCount, clapsLoading)}</span>
-          </button>
-        </div>
-
-        <div className="text-xs text-text-muted font-mono">
-          Size: {reply.content?.length || 0} chars
-        </div>
+      <div className="flex items-center pl-8">
+        <button
+          onClick={handleClap}
+          className={`flex items-center gap-1 text-sm transition-colors ${
+            hasClapped ? 'text-hacker-yellow' : 'text-text-muted hover:text-hacker-yellow'
+          }`}
+          disabled={clapsLoading}
+          aria-label="Clap for this reply"
+        >
+          <FaHandsClapping className={`w-3 h-3 ${clapsLoading ? 'animate-pulse' : ''}`} />
+          <span>{clapsCountDisplay(clapsCount, clapsLoading)}</span>
+        </button>
       </div>
     </div>
   );

@@ -17,22 +17,22 @@ module.exports = {
           'border': '#363b42',
         },
         
-        // Matrix/Neon Colors
+        // Matrix/Neon Colors (Softer)
         'matrix': {
-          'green': '#00ff00',
-          'dark-green': '#00cc00',
-          'light-green': '#39ff14',
-          'cyan': '#00ffff',
-          'blue': '#0080ff',
+          'green': '#4ade80',
+          'dark-green': '#22c55e',
+          'light-green': '#86efac',
+          'cyan': '#22d3ee',
+          'blue': '#3b82f6',
         },
         
-        // Hacker Theme Colors
+        // Hacker Theme Colors (Softer)
         'hacker': {
-          'red': '#ff0040',
-          'orange': '#ff8c00',
-          'yellow': '#ffff00',
-          'purple': '#bf00ff',
-          'pink': '#ff00ff',
+          'red': '#ef4444',
+          'orange': '#f97316',
+          'yellow': '#eab308',
+          'purple': '#a855f7',
+          'pink': '#ec4899',
         },
         
         // App backgrounds
@@ -45,20 +45,20 @@ module.exports = {
         'text-primary': '#f0f6fc',
         'text-secondary': '#7d8590',
         'text-muted': '#656d76',
-        'text-accent': '#00ff00',
-        'text-warning': '#ffff00',
-        'text-danger': '#ff0040',
+        'text-accent': '#4ade80',
+        'text-warning': '#eab308',
+        'text-danger': '#ef4444',
         
         // Border colors  
         'border-primary': '#30363d',
         'border-secondary': '#21262d',
-        'border-accent': '#00ff00',
+        'border-accent': '#4ade80',
         
-        // Brand colors - Matrix green theme
-        'brand-primary': '#00ff00',
-        'brand-primary-hover': '#00cc00',
-        'brand-secondary': '#00ffff',
-        'brand-accent': '#39ff14',
+        // Brand colors - Softer green theme
+        'brand-primary': '#4ade80',
+        'brand-primary-hover': '#22c55e',
+        'brand-secondary': '#22d3ee',
+        'brand-accent': '#86efac',
       },
       fontFamily: {
         'mono': ['JetBrains Mono', 'Fira Code', 'Monaco', 'Consolas', 'Courier New', 'monospace'],
