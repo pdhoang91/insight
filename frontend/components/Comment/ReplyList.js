@@ -5,19 +5,19 @@ import ReplyItem from './ReplyItem';
 const ReplyList = ({ replies, commentId, mutate }) => {
   if (!Array.isArray(replies)) {
     console.error('Replies data is not an array:', replies);
-    return <div className="text-red-500">Dữ liệu trả lời không hợp lệ.</div>;
+    return (
+      <div className="text-hacker-red text-sm font-mono">
+        <span className="text-hacker-red">ERROR:</span> Invalid replies data format
+      </div>
+    );
   }
 
-  // if (replies.length === 0) {
-  //   return <p className="text-gray-600"></p>;
-  // }
-
   return (
-    <ul className="space-y-4">
+    <div className="space-y-3">
       {[...replies].reverse().map((reply) => (
         <ReplyItem key={reply.id} reply={reply} commentId={commentId} mutate={mutate} />
       ))}
-    </ul>
+    </div>
   );
 };
 

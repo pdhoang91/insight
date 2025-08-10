@@ -1,21 +1,19 @@
 // src/components/Comment/ReplyItem.js
 import React from 'react';
+import { FaHandsClapping, FaUser, FaReply } from "react-icons/fa6";
 import Mention from './Mention';
-import AuthorInfo from '../Auth/AuthorInfo';
 import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapReply } from '../../services/activityService';
 import { useUser } from '../../context/UserContext';
 import TimeAgo from '../Utils/TimeAgo';
-import { FaHandsClapping } from "react-icons/fa6";
 
 const ReplyItem = ({ reply, commentId, mutate }) => {
   const { user } = useUser();
-
   const { clapsCount, loading: clapsLoading, hasClapped, mutate: mutateClaps } = useClapsCount('reply', reply.id);
 
   const handleClap = async () => {
     if (!user) {
-      alert('Bạn cần đăng nhập để clap.');
+      alert('Authentication required: Please login to clap.');
       return;
     }
     try {
@@ -23,11 +21,11 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
       mutateClaps(); // Refetch clap count
     } catch (error) {
       console.error('Failed to clap:', error);
-      alert(error.message || 'Đã xảy ra lỗi khi clap.');
+      alert(error.message || 'Error: Unable to process clap request.');
     }
   };
 
-  // Function to highlight mentions
+  // Function to highlight mentions with terminal styling
   const renderContent = (content) => {
     const regex = /@(\w+)/g;
     const parts = [];
@@ -44,41 +42,78 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
     return parts;
   };
 
+  // Helper function to display clap count with loading state
+  const clapsCountDisplay = (count, loading) => {
+    if (loading) {
+      return '...';
+    }
+    return count;
+  };
+
   return (
-    <li className="p-4 rounded bg-white border border-gray-200 transition hover:shadow-lg">
-      {/* Author Info */}
-      <AuthorInfo author={reply.user} />
+    <div className="bg-terminal-light border border-matrix-green/20 rounded p-3 hover:border-matrix-green/40 transition-all duration-300">
+      {/* Reply Header */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <FaReply className="w-3 h-3 text-matrix-cyan" />
+          <span className="text-xs font-mono text-matrix-green">reply@{reply.id}</span>
+        </div>
+        <div className="text-xs text-text-muted font-mono">
+          <TimeAgo timestamp={reply.created_at} />
+        </div>
+      </div>
+
+      {/* Author Info with Avatar */}
+      <div className="flex items-center gap-2 mb-2">
+        <div className="w-6 h-6 bg-terminal-gray rounded border border-matrix-green/50 flex items-center justify-center flex-shrink-0">
+          {reply.user?.avatar ? (
+            <img
+              src={reply.user.avatar}
+              alt={reply.user.name}
+              className="w-full h-full rounded object-cover"
+            />
+          ) : (
+            <FaUser className="w-3 h-3 text-matrix-green" />
+          )}
+        </div>
+        <div className="flex items-center gap-1 text-sm font-mono">
+          <span className="text-matrix-cyan">@</span>
+          <span className="font-medium text-text-primary">
+            {reply.user?.name || 'anonymous'}
+          </span>
+        </div>
+      </div>
 
       {/* Reply Content */}
-      <p className="text-gray-700 mt-2">{renderContent(reply.content)}</p>
-
-      {/* Timestamp */}
-      {/* <p className="text-sm text-gray-500 mt-1">{new Date(reply.created_at).toLocaleString()}</p> */}
-      {/* <TimeAgo timestamp={reply.created_at} /> */}
+      <div className="pl-8 mb-2">
+        <div className="text-text-secondary font-mono text-sm leading-relaxed">
+          <span className="text-text-muted">//</span> {renderContent(reply.content)}
+        </div>
+      </div>
 
       {/* Actions */}
-      <div className="flex items-center mt-2 space-x-4">
-        {/* Clap Button */}
-        <button
-          onClick={handleClap}
-          className={`flex items-center text-sm font-medium text-gray-600 hover:text-red-500 transition-colors`}
-          disabled={clapsLoading}
-          aria-label="Clap for this reply"
-        >
-          <FaHandsClapping className="mr-1" /> {clapsCountDisplay(clapsCount, clapsLoading)}
-        </button>
-        <TimeAgo timestamp={reply.created_at} />
-      </div>
-    </li>
-  );
-};
+      <div className="flex items-center justify-between pl-8">
+        <div className="flex items-center space-x-3">
+          {/* Clap Button */}
+          <button
+            onClick={handleClap}
+            className={`flex items-center gap-1 text-sm font-mono transition-all hover:scale-110 ${
+              hasClapped ? 'text-hacker-yellow' : 'text-text-muted hover:text-hacker-yellow'
+            }`}
+            disabled={clapsLoading}
+            aria-label="Clap for this reply"
+          >
+            <FaHandsClapping className={`w-3 h-3 ${clapsLoading ? 'animate-pulse' : ''}`} />
+            <span>{clapsCountDisplay(clapsCount, clapsLoading)}</span>
+          </button>
+        </div>
 
-// Helper function to display clap count with loading state
-const clapsCountDisplay = (count, loading) => {
-  if (loading) {
-    return '...';
-  }
-  return count;
+        <div className="text-xs text-text-muted font-mono">
+          Size: {reply.content?.length || 0} chars
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export default ReplyItem;

@@ -4,10 +4,11 @@ import Link from 'next/link';
 
 const Mention = ({ username, className }) => {
   return (
-    <Link href={`/@${username}`}>
-      <a className={`font-semibold ${className}`}>
-        @{username}
-      </a>
+    <Link 
+      href={`/@${username}`}
+      className={`font-mono font-semibold text-matrix-cyan hover:text-matrix-green transition-colors hover:underline ${className || ''}`}
+    >
+      @{username}
     </Link>
   );
 };
