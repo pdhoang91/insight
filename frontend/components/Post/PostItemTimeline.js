@@ -208,78 +208,78 @@ const PostItemTimeline = ({ post }) => {
             </div>
           )}
         </div>
+
+        {/* Compact Comments Section - Inside the article */}
+        {isCommentsOpen && (
+          <div className="border-t border-border-primary">
+            {/* Compact Header */}
+            <div className="flex items-center justify-between p-3 border-b border-border-primary">
+              <span className="text-sm font-medium text-secondary font-mono">
+                {totalCount} comments
+              </span>
+              <button
+                onClick={closeCommentPopup}
+                className="text-muted hover:text-primary transition-colors text-sm"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Compact Add Comment */}
+            <div className="p-3 border-b border-border-primary">
+              {user ? (
+                <AddCommentForm onAddComment={handleAddComment} />
+              ) : (
+                <div className="text-center py-2">
+                  <span className="text-muted text-sm font-mono">Login to comment</span>
+                </div>
+              )}
+            </div>
+
+            {/* Compact Comments List */}
+            <div className="p-3">
+              {isError && (
+                <div className="text-red-400 text-sm font-mono text-center py-2">
+                  Failed to load comments
+                </div>
+              )}
+              
+              {isLoading && comments.length === 0 && (
+                <div className="flex justify-center items-center py-4">
+                  <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin mr-2"></div>
+                  <span className="text-secondary text-sm font-mono">Loading...</span>
+                </div>
+              )}
+
+              {comments && comments.length > 0 && (
+                <div className="space-y-3">
+                  {comments.map((comment) => (
+                    <CommentItem key={comment.id} comment={comment} postId={post.id} mutate={mutate} />
+                  ))}
+                  
+                  {canLoadMore && (
+                    <div className="text-center pt-2">
+                      <button
+                        onClick={loadMore}
+                        disabled={isLoading}
+                        className="text-sm text-primary hover:text-primary-hover font-mono disabled:opacity-50"
+                      >
+                        {isLoading ? 'Loading...' : `Load more (${totalCount - comments.length} left)`}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {!isLoading && !isError && comments.length === 0 && (
+                <div className="text-center py-4">
+                  <span className="text-muted text-sm font-mono">No comments yet</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </article>
-
-      {/* Compact Comments Section */}
-      {isCommentsOpen && (
-        <div className="bg-elevated border-t border-border-primary mt-2">
-          {/* Compact Header */}
-          <div className="flex items-center justify-between p-3 border-b border-border-primary">
-            <span className="text-sm font-medium text-secondary font-mono">
-              {totalCount} comments
-            </span>
-            <button
-              onClick={closeCommentPopup}
-              className="text-muted hover:text-primary transition-colors text-sm"
-            >
-              ✕
-            </button>
-          </div>
-
-          {/* Compact Add Comment */}
-          <div className="p-3 border-b border-border-primary">
-            {user ? (
-              <AddCommentForm onAddComment={handleAddComment} />
-            ) : (
-              <div className="text-center py-2">
-                <span className="text-muted text-sm font-mono">Login to comment</span>
-              </div>
-            )}
-          </div>
-
-          {/* Compact Comments List */}
-          <div className="p-3">
-            {isError && (
-              <div className="text-red-400 text-sm font-mono text-center py-2">
-                Failed to load comments
-              </div>
-            )}
-            
-            {isLoading && comments.length === 0 && (
-              <div className="flex justify-center items-center py-4">
-                <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin mr-2"></div>
-                <span className="text-secondary text-sm font-mono">Loading...</span>
-              </div>
-            )}
-
-            {comments && comments.length > 0 && (
-              <div className="space-y-3">
-                {comments.map((comment) => (
-                  <CommentItem key={comment.id} comment={comment} postId={post.id} mutate={mutate} />
-                ))}
-                
-                {canLoadMore && (
-                  <div className="text-center pt-2">
-                    <button
-                      onClick={loadMore}
-                      disabled={isLoading}
-                      className="text-sm text-primary hover:text-primary-hover font-mono disabled:opacity-50"
-                    >
-                      {isLoading ? 'Loading...' : `Load more (${totalCount - comments.length} left)`}
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {!isLoading && !isError && comments.length === 0 && (
-              <div className="text-center py-4">
-                <span className="text-muted text-sm font-mono">No comments yet</span>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
