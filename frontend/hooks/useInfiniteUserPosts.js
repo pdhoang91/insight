@@ -90,5 +90,3 @@ export const useInfiniteUserPosts = (activeTab, username) => {
     totalCount,
   };
 };
-
-export default useInfiniteUserPosts;

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useUser } from '../context/UserContext';
 import useProfile from '../hooks/useProfile';
-import useInfiniteUserPosts from '../hooks/useInfiniteUserPosts';
+import { useInfiniteUserPosts } from '../hooks/useInfiniteUserPosts';
 import ProfileUpdateForm from '../components/Profile/ProfileUpdateForm';
 import UserPostsSection from '../components/Profile/UserPostsSection';
 import LoadingSpinner from '../components/Shared/LoadingSpinner';
