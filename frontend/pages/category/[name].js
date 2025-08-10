@@ -43,14 +43,6 @@ const CategoryPage = () => {
                   <h1 className="text-3xl md:text-4xl font-bold text-text-primary mb-3 md:mb-4 capitalize">
                     {name}
                   </h1>
-                  <p className="text-text-secondary text-sm md:text-base">
-                    Posts in this category
-                    {totalCount > 0 && (
-                      <span className="ml-2 px-2 py-0.5 bg-matrix-green/10 text-matrix-green rounded-full text-xs font-medium">
-                        {totalCount}
-                      </span>
-                    )}
-                  </p>
                 </header>
               
                 <CategoryListWithPosts

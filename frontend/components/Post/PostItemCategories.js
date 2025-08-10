@@ -57,22 +57,6 @@ const PostItemCategories = ({ post }) => {
       <article className="bg-surface rounded-lg hover:shadow-lg transition-all duration-300 border border-border-primary/30 overflow-hidden">
         <div className="p-6">
           {/* Header with author and meta info */}
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-primary text-sm font-bold">
-                {post.user?.name?.charAt(0)?.toUpperCase() || 'A'}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-muted min-w-0">
-              <span className="font-medium text-secondary truncate">
-                {post.user?.name || 'Anonymous'}
-              </span>
-              <span>•</span>
-              <TimeAgo timestamp={post.created_at} />
-              <span>•</span>
-              <span className="hidden sm:inline">{Math.ceil((post.content?.replace(/<[^>]*>/g, '').length || 0) / 200) || 1} min read</span>
-            </div>
-          </div>
 
           <div className="flex gap-6">
             {/* Left Side - Content */}
