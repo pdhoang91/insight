@@ -8,7 +8,9 @@ import {
   FaClock, 
   FaEye,
   FaComment,
-  FaHeart
+  FaHeart,
+  FaFolder,
+  FaFolderOpen
 } from 'react-icons/fa';
 import { 
   SiReact, 
@@ -34,17 +36,19 @@ const BlogSidebar = () => {
   const topPosts = recentPosts?.slice(0, 5) || [];
   const latestPosts = recentPosts?.slice(5, 10) || [];
 
-  // Tech icons mapping for categories
-  const getTechIcon = (categoryName) => {
-    const name = categoryName.toLowerCase();
-    if (name.includes('react')) return SiReact;
-    if (name.includes('javascript') || name.includes('js')) return SiJavascript;
-    if (name.includes('python')) return SiPython;
-    if (name.includes('docker')) return SiDocker;
-    if (name.includes('kubernetes')) return SiKubernetes;
-    if (name.includes('linux')) return SiLinux;
-    if (name.includes('git')) return SiGit;
-    return FaCode;
+  // Simple category colors for technical look
+  const getCategoryColor = (index) => {
+    const colors = [
+      'matrix-green',
+      'hacker-blue', 
+      'hacker-orange',
+      'hacker-yellow',
+      'purple-500',
+      'cyan-500',
+      'pink-500',
+      'red-500'
+    ];
+    return colors[index % colors.length];
   };
 
   return (
@@ -56,20 +60,9 @@ const BlogSidebar = () => {
             <FaFire className="w-4 h-4 text-hacker-orange" />
             Popular Posts
           </h3>
-          <div className="space-y-4">
-            {topPosts.map((post, index) => (
-              <Link key={post.id} href={`/p/${post.title_name}`}>
-                <div className="flex items-start gap-3 p-3 rounded hover:bg-terminal-light transition-colors">
-                  <span className="text-matrix-green/70 text-sm font-mono min-w-[1.5rem]">
-                    {(index + 1).toString().padStart(2, '0')}
-                  </span>
-                  <div className="flex-1">
-                    <h4 className="text-sm font-medium text-text-primary hover:text-matrix-green transition-colors line-clamp-2">
-                      {post.title}
-                    </h4>
-                  </div>
-                </div>
-              </Link>
+          <div className="space-y-3">
+            {topPosts.map((post) => (
+              <CompactPostItem key={post.id} post={post} minimal={true} />
             ))}
           </div>
         </div>
@@ -83,23 +76,27 @@ const BlogSidebar = () => {
             Categories
           </h3>
           <div className="space-y-2">
-            {categories.slice(0, 8).map((category) => {
-              const IconComponent = getTechIcon(category.name);
+            {categories.slice(0, 8).map((category, index) => {
+              const colorClass = getCategoryColor(index);
               return (
                 <Link
                   key={category.id}
                   href={`/category/${category.name.toLowerCase()}`}
-                  className="flex items-center justify-between p-2 rounded hover:bg-terminal-light transition-colors group"
+                  className="group block"
                 >
-                  <div className="flex items-center gap-2">
-                    <IconComponent className="w-4 h-4 text-matrix-green/70 group-hover:text-matrix-green" />
-                    <span className="text-sm text-text-secondary group-hover:text-text-primary">
-                      {category.name}
-                    </span>
-                  </div>
-                  <span className="text-xs text-text-muted bg-terminal-light px-2 py-1 rounded">
-                    {category.post_count || 0}
-                  </span>
+                                      {/* Folder style */}
+                    <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-terminal-light transition-colors">
+                      {/* Folder icon */}
+                      <div className="relative">
+                        <FaFolder className={`w-5 h-5 text-${colorClass} group-hover:hidden transition-all`} />
+                        <FaFolderOpen className={`w-5 h-5 text-${colorClass} hidden group-hover:block transition-all`} />
+                      </div>
+                      
+                      {/* Folder name */}
+                      <span className="text-sm font-medium text-text-primary group-hover:text-matrix-green transition-colors">
+                        {category.name}
+                      </span>
+                    </div>
                 </Link>
               );
             })}
