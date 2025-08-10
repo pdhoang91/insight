@@ -5,6 +5,7 @@ import CommentList from './CommentList';
 import AddCommentForm from './AddCommentForm';
 import { useComments } from '../../hooks/useComments';
 import { useUser } from '../../context/UserContext';
+import { addComment } from '../../services/commentService';
 
 const CommentContainer = ({ postId }) => {
   const { user } = useUser();
@@ -12,19 +13,19 @@ const CommentContainer = ({ postId }) => {
 
   const handleAddComment = async (content) => {
     if (!user) {
-      alert('Bạn cần đăng nhập để bình luận.');
+      alert('You need to login to comment.');
       return;
     }
     if (!content.trim()) {
-      alert('Nội dung bình luận không được để trống.');
+      alert('Comment content cannot be empty.');
       return;
     }
     try {
-      await addComment(postId, content, user.id);
-      mutate(); // Tải lại dữ liệu sau khi thêm comment
+      await addComment(postId, content); // Only pass postId and content
+      mutate(); // Refresh comments after adding
     } catch (err) {
       console.error('Failed to add comment:', err);
-      alert('Gửi bình luận thất bại. Vui lòng thử lại.');
+      alert('Failed to add comment. Please try again.');
     }
   };
 
@@ -36,7 +37,7 @@ const CommentContainer = ({ postId }) => {
       {user ? (
         <AddCommentForm onAddComment={handleAddComment} />
       ) : (
-        <p className="text-gray-600">Bạn cần đăng nhập để bình luận.</p>
+        <p className="text-gray-600">You need to login to comment.</p>
       )}
       <CommentList comments={comments} postId={postId} mutate={mutate} />
     </div>

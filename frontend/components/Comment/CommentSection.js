@@ -22,19 +22,19 @@ const CommentSection = ({ postId, user }) => {
 
   const handleAddComment = async (content) => {
     if (!user) {
-      alert('Bạn cần đăng nhập để bình luận.');
+      alert('You need to login to comment.');
       return;
     }
     if (!content.trim()) {
-      alert('Nội dung bình luận không được để trống.');
+      alert('Comment content cannot be empty.');
       return;
     }
     try {
-      await addComment(postId, content, user.id);
-      mutate();
+      await addComment(postId, content); // Only pass postId and content
+      mutate(); // Refresh comments
     } catch (err) {
       console.error('Failed to add comment:', err);
-      alert('Gửi bình luận thất bại. Vui lòng thử lại.');
+      alert('Failed to add comment. Please try again.');
     }
   };
 

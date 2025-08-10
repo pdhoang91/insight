@@ -13,7 +13,7 @@ export const getCommentsForPost = async (postId, page = 1, limit = 10) => {
     };
   };
 
-// Thêm comment mới
+// Add comment - only needs postId and content (user is from auth token)
 export const addComment = async (postId, content) => {
   const response = await axiosPrivateInstance.post(`/api/posts/${postId}/comments`, {
     post_id: postId,
@@ -22,7 +22,7 @@ export const addComment = async (postId, content) => {
   return response.data;
 };
 
-// Thêm reply cho comment
+// Add reply to comment
 export const addReply = async (commentID, content) => {
   const response = await axiosPrivateInstance.post(`/api/comments/${commentID}/replies`, {
     comment_id: commentID,

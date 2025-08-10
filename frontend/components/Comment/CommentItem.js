@@ -40,22 +40,20 @@ const CommentItem = ({ comment, postId, mutate }) => {
 
   const handleReply = async (content, commentID) => {
     if (!user) {
-      alert('Bạn cần đăng nhập để trả lời.');
+      alert('You need to login to reply.');
       return;
     }
     if (!content.trim()) {
-      alert('Nội dung trả lời không được để trống.');
+      alert('Reply content cannot be empty.');
       return;
     }
 
     try {
-      await addReply(commentID, content, user.id);
-      mutate();
-      //setShowReplyForm(false);
-      //setShowReplyForm(false);
+      await addReply(commentID, content); // Only pass commentID and content
+      mutate(); // Refresh comments
     } catch (err) {
       console.error('Failed to add reply:', err);
-      alert('Gửi trả lời thất bại. Vui lòng thử lại.');
+      alert('Failed to add reply. Please try again.');
     }
   };
 

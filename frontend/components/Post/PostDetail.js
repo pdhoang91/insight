@@ -4,7 +4,6 @@ import { FaComment, FaEye } from 'react-icons/fa';
 import { FaHandsClapping } from 'react-icons/fa6';
 import { useUser } from '../../context/UserContext';
 import { clapPost } from '../../services/activityService';
-import { useComments } from '../../hooks/useComments';
 import CommentSection from '../Comment/CommentSection';
 import Rating from './Rating';
 import { Container, ContentArea, Card } from '../UI';
@@ -14,8 +13,6 @@ export const PostDetail = ({ post }) => {
   const { user } = useUser();
   const [clapLoading, setClapLoading] = useState(false);
   const [currentClapCount, setCurrentClapCount] = useState(post.clap_count || 0);
-
-  const { comments, totalCommentReply, totalCount, isLoading, isError, mutate } = useComments(post.id, true, 1, 10);
 
   const handleClap = async () => {
     if (!user) {
@@ -116,15 +113,7 @@ export const PostDetail = ({ post }) => {
 
           {/* Comments Section */}
           <div className="post-detail-section" ref={commentSectionRef}>
-            <h3 className="post-detail-section-title">Comments ({post.comments_count || 0})</h3>
-            <CommentSection
-              postId={post.id}
-              comments={comments}
-              totalCount={totalCount}
-              isLoading={isLoading}
-              isError={isError}
-              mutate={mutate}
-            />
+            <CommentSection postId={post.id} user={user} />
           </div>
         </Card>
       </ContentArea>

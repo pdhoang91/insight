@@ -1,13 +1,12 @@
 // hooks/useInfiniteUserPosts.js
 import useSWRInfinite from 'swr/infinite';
-import {
-  getPosts,
-  getFollowingPosts,
-  getPostsByCategory, // Giả sử các tab bổ sung là các category
-} from '../services/postService';
-import { fetchUserPosts } from '../services/userService';
+import { useUser } from '../context/UserContext';
+import { fetchUserPosts, getUserPosts } from '../services/userService';
+import { getPosts, getFollowingPosts } from '../services/postService';
+import { getPostsByCategory } from '../services/categoryService';
 
 export const useInfiniteUserPosts = (activeTab, username) => {
+  const { user } = useUser();
   const PAGE_SIZE = 10; // Số lượng bài post mỗi trang
 
   // Fetcher function với async/await và định dạng lại dữ liệu trả về
@@ -30,13 +29,17 @@ export const useInfiniteUserPosts = (activeTab, username) => {
       }
     } catch (error) {
       console.error(`Error fetching ${type} posts for user ${username}:`, error);
-      // Return empty data instead of throwing to prevent crash
-      return { posts: [], totalCount: 0 };
+      return { posts: [], totalCount: 0 }; // Return empty data on error
     }
   };
 
-  // Xác định key cho mỗi trang
+  // Hàm để tạo key cho mỗi trang
   const getKey = (pageIndex, previousPageData) => {
+    // Don't fetch if username is undefined (router not ready yet)
+    if ((activeTab === 'posts' || activeTab === 'YourPosts' || activeTab === 'UserPosts') && !username) {
+      return null;
+    }
+
     // Nếu đã không còn dữ liệu để tải thêm, trả về null
     if (previousPageData && (previousPageData.posts?.length ?? 0) < PAGE_SIZE) return null;
 
@@ -44,6 +47,8 @@ export const useInfiniteUserPosts = (activeTab, username) => {
       return ['YourPosts', pageIndex + 1, PAGE_SIZE];
     } else if (activeTab === 'UserPosts') {
       return ['UserPosts', pageIndex + 1, PAGE_SIZE];
+    } else if (activeTab === 'posts') {
+      return ['posts', pageIndex + 1, PAGE_SIZE];
     } else if (activeTab === 'ForYou') {
       return ['ForYou', pageIndex + 1, PAGE_SIZE];
     } else if (activeTab === 'Following' && user) {
