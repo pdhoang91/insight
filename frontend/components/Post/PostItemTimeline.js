@@ -213,17 +213,6 @@ const PostItemTimeline = ({ post }) => {
         {isCommentsOpen && (
           <div className="border-t border-border-primary">
             {/* Compact Header */}
-            <div className="flex items-center justify-between p-3 border-b border-border-primary">
-              <span className="text-sm font-medium text-secondary font-mono">
-                {totalCount} comments
-              </span>
-              <button
-                onClick={closeCommentPopup}
-                className="text-muted hover:text-primary transition-colors text-sm"
-              >
-                ✕
-              </button>
-            </div>
 
             {/* Compact Add Comment */}
             <div className="p-3 border-b border-border-primary">
