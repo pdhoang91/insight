@@ -1,9 +1,8 @@
 // components/Post/PostItemTimeline.js
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { FaComment, FaEye, FaCode, FaClock } from 'react-icons/fa';
+import { FaComment, FaEye, FaClock } from 'react-icons/fa';
 import { FaHandsClapping } from 'react-icons/fa6';
-import { SiReact, SiJavascript, SiPython, SiDocker } from 'react-icons/si';
 import { useUser } from '../../context/UserContext';
 import { clapPost } from '../../services/activityService';
 import { useInfiniteComments } from '../../hooks/useInfiniteComments';
@@ -39,17 +38,7 @@ const PostItemTimeline = ({ post }) => {
     mutate 
   } = useInfiniteComments(post.id, isCommentsOpen, 2);
 
-  // Get tech icon based on content
-  const getTechIcon = () => {
-    const content = (post.title + ' ' + post.preview_content).toLowerCase();
-    if (content.includes('react')) return SiReact;
-    if (content.includes('python')) return SiPython;
-    if (content.includes('javascript') || content.includes('js')) return SiJavascript;
-    if (content.includes('docker')) return SiDocker;
-    return FaCode;
-  };
-
-  const TechIcon = getTechIcon();
+  // Removed TechIcon to improve performance
 
   const handleClap = async () => {
     if (!user) {
@@ -92,7 +81,7 @@ const PostItemTimeline = ({ post }) => {
 
   return (
     <div className="w-full">
-      <article className="bg-terminal-gray rounded-lg border border-matrix-green/30 hover:border-matrix-green/50 hover:shadow-neon-green/10 transition-all duration-300 mb-6">
+      <article className="bg-terminal-gray rounded-lg border border-matrix-green/30  transition-colors duration-300 mb-6">
         <div className="p-6">
           <div className="flex gap-6">
             {/* Left Side - Content */}
@@ -172,7 +161,7 @@ const PostItemTimeline = ({ post }) => {
                       src={post.image_title}
                       alt={post.title}
                       fill
-                      className="object-cover hover:scale-105 transition-transform duration-300 rounded border border-matrix-green/30 hover:border-matrix-green/50"
+                      className="object-cover rounded border border-matrix-green/30 hover:border-matrix-green/50 transition-colors duration-300"
                       sizes="(max-width: 768px) 33vw, (max-width: 1024px) 33vw, 33vw"
                     />
                   </div>

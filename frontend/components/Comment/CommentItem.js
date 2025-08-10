@@ -56,7 +56,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
 
   return (
     <motion.div
-      className="bg-terminal-dark border border-matrix-green/20 rounded-lg hover:border-matrix-green/40 transition-all duration-300 p-4"
+      className="bg-terminal-dark border border-matrix-green/20 rounded-lg hover:border-matrix-green/40 transition-colors duration-300 p-4"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}

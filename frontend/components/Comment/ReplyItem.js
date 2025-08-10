@@ -51,7 +51,7 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
   };
 
   return (
-    <div className="bg-terminal-light border border-matrix-green/20 rounded-lg p-3 hover:border-matrix-green/40 transition-all duration-300">
+    <div className="bg-terminal-light border border-matrix-green/20 rounded-lg p-3 hover:border-matrix-green/40 transition-colors duration-300">
       {/* Author Info */}
       <div className="flex items-center gap-2 mb-2">
         <div className="w-6 h-6 bg-terminal-gray rounded-full border border-matrix-green/50 flex items-center justify-center flex-shrink-0">

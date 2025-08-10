@@ -33,19 +33,19 @@ body {
   --terminal-light: #30363d;
   --terminal-border: #363b42;
   
-  /* Matrix/Neon Colors */
-  --matrix-green: #00ff00;
-  --matrix-dark-green: #00cc00;
-  --matrix-light-green: #39ff14;
-  --matrix-cyan: #00ffff;
-  --matrix-blue: #0080ff;
+  /* Matrix/Neon Colors (Softer) */
+  --matrix-green: #4ade80;
+  --matrix-dark-green: #22c55e;
+  --matrix-light-green: #86efac;
+  --matrix-cyan: #22d3ee;
+  --matrix-blue: #3b82f6;
   
-  /* Hacker Theme Colors */
-  --hacker-red: #ff0040;
-  --hacker-orange: #ff8c00;
-  --hacker-yellow: #ffff00;
-  --hacker-purple: #bf00ff;
-  --hacker-pink: #ff00ff;
+  /* Hacker Theme Colors (Softer) */
+  --hacker-red: #ef4444;
+  --hacker-orange: #f97316;
+  --hacker-yellow: #eab308;
+  --hacker-purple: #a855f7;
+  --hacker-pink: #ec4899;
   
   /* Tech Theme Colors (Enhanced) */
   --color-tech-green: #00ff00;
@@ -252,11 +252,7 @@ a:hover {
   text-shadow: 0 0 5px var(--matrix-green);
 }
 
-a:hover::before {
-  content: '> ';
-  color: var(--matrix-green);
-  animation: terminal-blink 1s infinite;
-}
+/* Removed a:hover::before rule that was causing > icon to appear on hover */
 
 /* Terminal/Hacker Gradient Utilities */
 @layer utilities {
@@ -784,4 +780,34 @@ a:hover::before {
   white-space: pre;
   font-size: 0.75rem;
   line-height: 1;
+}
+
+/* Prevent unwanted pseudo-elements and improve performance */
+* {
+  box-sizing: border-box;
+}
+
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Optimize transitions for better performance */
+.transition-colors {
+  transition-property: color, background-color, border-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Prevent layout shifts from hover effects */
+button, a, [role="button"] {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Smooth scrolling optimization */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }

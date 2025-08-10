@@ -116,7 +116,7 @@ const TechSearchBar = ({ placeholder = "$ grep -r 'search' --include='*.tech'", 
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setIsOpen(true)}
             placeholder={placeholder}
-            className="w-full pl-12 pr-12 py-3 border border-matrix-green/30 rounded-lg focus:ring-2 focus:ring-matrix-green/50 focus:border-matrix-green transition-all duration-300 text-sm bg-terminal-dark text-text-primary placeholder-text-muted font-mono shadow-terminal hover:border-matrix-green/50 hover:shadow-neon-green/20"
+            className="w-full pl-12 pr-12 py-3 border border-matrix-green/30 rounded-lg focus:ring-2 focus:ring-matrix-green/50 focus:border-matrix-green transition-colors duration-300 text-sm bg-terminal-dark text-text-primary placeholder-text-muted hover:border-matrix-green/50"
           />
           
           {/* Terminal Prompt Icon */}
@@ -127,7 +127,7 @@ const TechSearchBar = ({ placeholder = "$ grep -r 'search' --include='*.tech'", 
           {/* Search Button with Animation */}
           <button
             type="submit"
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-text-muted hover:text-matrix-green transition-all duration-300 hover:scale-110"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-text-muted hover:text-matrix-green transition-colors duration-300"
           >
             <FaSearch className={`w-4 h-4 ${isTyping ? 'animate-pulse' : ''}`} />
           </button>
@@ -141,7 +141,7 @@ const TechSearchBar = ({ placeholder = "$ grep -r 'search' --include='*.tech'", 
 
       {/* Enhanced Search Dropdown - Terminal Window Style */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-terminal-dark border border-matrix-green rounded-lg shadow-neon-green z-50 max-h-96 overflow-hidden">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-terminal-dark border border-matrix-green rounded-lg shadow-lg z-50 max-h-96 overflow-hidden">
           {/* Terminal Window Header */}
           <div className="bg-terminal-gray px-4 py-2 border-b border-matrix-green/30">
             <div className="flex items-center justify-between">
@@ -180,7 +180,7 @@ const TechSearchBar = ({ placeholder = "$ grep -r 'search' --include='*.tech'", 
                     <button
                       key={index}
                       onClick={() => handleSuggestionClick(search)}
-                      className="px-3 py-1 bg-terminal-gray text-text-secondary text-sm rounded border border-matrix-green/30 hover:bg-terminal-light hover:text-matrix-green hover:border-matrix-green transition-all duration-300 font-mono hover:shadow-neon-green/20"
+                      className="px-3 py-1 bg-terminal-gray text-text-secondary text-sm rounded border border-matrix-green/30 hover:bg-terminal-light hover:text-matrix-green hover:border-matrix-green transition-colors duration-300"
                     >
                       {search}
                     </button>

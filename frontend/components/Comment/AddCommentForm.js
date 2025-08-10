@@ -38,7 +38,7 @@ const AddCommentForm = ({ onAddComment, parentId = null, placeholder }) => {
         className={`absolute right-3 bottom-3 p-2 rounded transition-all duration-300 ${
           isSubmitting 
             ? 'bg-terminal-light text-text-muted cursor-not-allowed' 
-            : 'bg-matrix-green/20 text-matrix-green hover:bg-matrix-green hover:text-terminal-black hover:shadow-neon-green/30'
+            : 'bg-matrix-green/20 text-matrix-green hover:bg-matrix-green hover:text-terminal-black'
         }`}
         disabled={isSubmitting || !content.trim()}
         aria-label="Submit comment"

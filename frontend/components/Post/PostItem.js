@@ -1,9 +1,8 @@
 // components/Post/PostItem.js
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { FaEye, FaComment, FaTerminal, FaCode, FaUser, FaClock } from 'react-icons/fa';
+import { FaEye, FaComment, FaUser, FaClock } from 'react-icons/fa';
 import { FaHandsClapping } from 'react-icons/fa6';
-import { SiJavascript, SiReact, SiPython, SiDocker } from 'react-icons/si';
 import { useUser } from '../../context/UserContext';
 import { clapPost } from '../../services/activityService';
 import { useComments } from '../../hooks/useComments';
@@ -59,23 +58,13 @@ const PostItem = ({ post, variant = 'default' }) => {
     setCommentsOpen(false);
   };
 
-  // Get tech icon based on content or categories
-  const getTechIcon = () => {
-    const content = (post.title + ' ' + post.preview_content).toLowerCase();
-    if (content.includes('react')) return SiReact;
-    if (content.includes('python')) return SiPython;
-    if (content.includes('javascript') || content.includes('js')) return SiJavascript;
-    if (content.includes('docker')) return SiDocker;
-    return FaCode;
-  };
-
-  const TechIcon = getTechIcon();
+  // Removed TechIcon to improve performance
 
   // Compact variant for smaller spaces
   if (variant === 'compact') {
     return (
       <>
-        <article className="bg-terminal-gray rounded-lg border border-matrix-green/30 hover:border-matrix-green hover:shadow-neon-green/20 transition-all duration-300">
+        <article className="bg-terminal-gray rounded-lg border border-matrix-green/30 hover:border-matrix-green transition-colors duration-300">
           {/* Terminal Header */}
           <div className="bg-terminal-light px-3 py-2 border-b border-matrix-green/30 rounded-t-lg">
             <div className="flex items-center justify-between text-xs font-mono">
@@ -156,7 +145,7 @@ const PostItem = ({ post, variant = 'default' }) => {
                       alt={post.title}
                       width={80}
                       height={80}
-                      className="w-full h-full object-cover rounded border border-matrix-green/30 hover:border-matrix-green hover:shadow-neon-green/20 transition-all"
+                      className="w-full h-full object-cover rounded border border-matrix-green/30 hover:border-matrix-green transition-colors"
                       sizes="80px"
                     />
                   </Link>
@@ -185,7 +174,7 @@ const PostItem = ({ post, variant = 'default' }) => {
   // Default variant - Terminal window style
   return (
     <>
-      <article className="bg-terminal-gray border border-matrix-green/30 hover:border-matrix-green hover:shadow-neon-green/20 transition-all duration-300 mb-4 rounded-lg overflow-hidden">
+      <article className="bg-terminal-gray border border-matrix-green/30 hover:border-matrix-green transition-colors duration-300 mb-4 rounded-lg overflow-hidden">
         {/* Terminal Window Header */}
         <div className="bg-terminal-light px-4 py-2 border-b border-matrix-green/30">
           <div className="flex items-center justify-between">
@@ -195,7 +184,6 @@ const PostItem = ({ post, variant = 'default' }) => {
                 <span className="w-2 h-2 bg-hacker-yellow rounded-full"></span>
                 <span className="w-2 h-2 bg-matrix-green rounded-full"></span>
               </span>
-              <TechIcon className="w-3 h-3 text-matrix-cyan" />
               <span className="text-matrix-green">post@{post.id}</span>
             </div>
             <div className="flex items-center space-x-3 text-xs font-mono text-text-muted">
@@ -293,7 +281,7 @@ const PostItem = ({ post, variant = 'default' }) => {
                       alt={post.title}
                       width={128}
                       height={128}
-                      className="w-full h-full object-cover rounded border border-matrix-green/50 hover:border-matrix-green hover:shadow-neon-green/30 transition-all"
+                      className="w-full h-full object-cover rounded border border-matrix-green/50 hover:border-matrix-green transition-colors"
                       sizes="(max-width: 768px) 96px, 128px"
                     />
                     {/* Terminal Image Overlay */}
