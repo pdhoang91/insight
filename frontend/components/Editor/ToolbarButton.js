@@ -23,6 +23,7 @@ const ToolbarButton = ({ icon: Icon, onClick, isActive, tooltip, disabled, child
   const buttonClasses = `
     ${compact ? 'p-1.5' : 'p-2'} 
     rounded-lg transition-all duration-200 
+    flex items-center justify-center
     ${isActive 
       ? 'bg-primary text-white shadow-sm' 
       : 'text-secondary hover:text-primary hover:bg-elevated/50'

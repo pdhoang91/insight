@@ -39,8 +39,6 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
   const [isUploading, setIsUploading] = useState(false);
   const [isUploadingTitle, setIsUploadingTitle] = useState(false);
   const [isContentEmpty, setIsContentEmpty] = useState(!content || content.trim() === '');
-  const [isPreview, setIsPreview] = useState(false);
-  const [focusMode, setFocusMode] = useState(false);
 
   // Thêm useRef để kiểm soát vòng lặp
   const isGeneratingTOC = useRef(false);
@@ -277,15 +275,8 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         isActive: false,
         tooltip: 'Clear Format',
       },
-      {
-        name: 'focusMode',
-        icon: FaEye,
-        action: () => setFocusMode((prev) => !prev),
-        isActive: () => focusMode,
-        tooltip: focusMode ? 'Exit Focus Mode' : 'Focus Mode',
-      },
     ];
-  }, [editor, focusMode, handleImageUpload]);
+  }, [editor, handleImageUpload]);
 
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
@@ -304,8 +295,8 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
   };
 
   return (
-    <div className={`w-full transition-all duration-300 ${focusMode ? 'max-w-4xl mx-auto' : 'max-w-6xl mx-auto'}`}>
-      <div className={`${focusMode ? 'px-4' : 'p-6'}`}>
+    <div className={`w-full transition-all duration-300 max-w-6xl mx-auto`}>
+      <div className={`p-6`}>
         {/* Title Input Section */}
         <div className="mb-6">
           <TitleInput
@@ -315,20 +306,16 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
             setImageTitle={setImageTitle}
             handleImageTitleUpload={handleImageTitleUpload}
             isUploadingTitle={isUploadingTitle}
-            focusMode={focusMode}
           />
         </div>
 
         {/* Editor Section */}
         <div className={`transition-all duration-300 ${isFullscreen ? 'h-[calc(100vh-8rem)]' : 'min-h-[70vh]'}`}>
           {/* Toolbar - Only show in non-focus mode or on hover in focus mode */}
-          <div className={`transition-all duration-300 ${focusMode ? 'opacity-30 hover:opacity-100 mb-2' : 'mb-4'}`}>
+          <div className={`transition-all duration-300 mb-4`}>
             <Toolbar 
               menuBar={menuBar} 
               editor={editor} 
-              isPreview={isPreview} 
-              setIsPreview={setIsPreview}
-              compact={focusMode}
             />
           </div>
 
@@ -336,10 +323,10 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
           <div className={`transition-all duration-300 ${isFullscreen ? 'h-[calc(100%-4rem)]' : ''} overflow-y-auto`}>
             <ContentEditor
               editor={editor}
-              isPreview={isPreview}
+              isPreview={false}
               content={content}
               isUploading={isUploading}
-              focusMode={focusMode}
+              focusMode={false}
               isFullscreen={isFullscreen}
             />
           </div>
