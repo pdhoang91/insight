@@ -85,34 +85,36 @@ const PostItemTimeline = ({ post }) => {
         <div className="p-6">
           <div className="flex gap-6">
             {/* Left Side - Content */}
-            <div className="flex-1">
-              {/* Title */}
-              <Link href={`/p/${post.title_name}`}>
-                <h2 className="text-xl md:text-2xl font-bold text-text-primary hover:text-matrix-green transition-colors duration-300 line-clamp-2 mb-4">
-                  {post.title}
-                </h2>
-              </Link>
+            <div className="flex-1 flex flex-col">
+              <div className="flex-1">
+                {/* Title */}
+                <Link href={`/p/${post.title_name}`}>
+                  <h2 className="text-base md:text-lg font-bold text-text-primary hover:text-matrix-green transition-colors duration-300 line-clamp-2 mb-3">
+                    {post.title}
+                  </h2>
+                </Link>
 
-              {/* Content Preview */}
-              <div className="text-text-secondary text-sm md:text-base line-clamp-3 mb-4 leading-relaxed">
-                <TextUtils html={post.preview_content} maxLength={200} />
-              </div>
+                {/* Content Preview */}
+                <div className="text-text-secondary text-sm md:text-base line-clamp-27 mb-4 leading-relaxed">
+                  <TextUtils html={post.preview_content} maxLength={800} />
+                </div>
 
-              {/* Categories */}
-              <div className="flex flex-wrap gap-2 mb-6">
-                {post.categories && post.categories.slice(0, 2).map((category, index) => (
-                  <Link
-                    key={index}
-                    href={`/category/${(category.name || category).toLowerCase()}`}
-                    className="px-3 py-1 bg-matrix-green/10 text-matrix-green rounded-full text-xs font-medium hover:bg-matrix-green/20 transition-colors"
-                  >
-                    {category.name || category}
-                  </Link>
-                ))}
+                {/* Categories */}
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {post.categories && post.categories.slice(0, 2).map((category, index) => (
+                    <Link
+                      key={index}
+                      href={`/category/${(category.name || category).toLowerCase()}`}
+                      className="px-3 py-1 bg-matrix-green/10 text-matrix-green rounded-full text-xs font-medium hover:bg-matrix-green/20 transition-colors"
+                    >
+                      {category.name || category}
+                    </Link>
+                  ))}
+                </div>
               </div>
 
               {/* Action Bar */}
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between mt-auto">
                 <div className="flex items-center gap-6">
                   {/* Claps */}
                   <button
@@ -143,7 +145,7 @@ const PostItemTimeline = ({ post }) => {
                 {/* Time Info */}
                 <div className="flex items-center gap-3 text-xs text-text-muted">
                   <div className="flex items-center gap-1">
-                    <FaClock className="w-3 h-3" />
+                    <FaClock className="w-3 h-3 flex-shrink-0" />
                     <TimeAgo timestamp={post.created_at} />
                   </div>
                   <span>•</span>

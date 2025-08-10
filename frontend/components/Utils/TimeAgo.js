@@ -34,12 +34,12 @@ export const timeAgo = (date) => {
 // Component TimeAgo
 const TimeAgo = ({ timestamp }) => {
   return (
-    <p
-      className="text-sm text-gray-600 mt-1 inline-flex items-center space-x-1"
+    <span
+      className="text-sm text-gray-600 inline-flex items-center space-x-1"
       style={{ fontFamily: 'inherit' }} // Ensures consistent font-family
     >
       <span>{timeAgo(timestamp)}</span>
-    </p>
+    </span>
   );
 };
 
