@@ -13,8 +13,8 @@ export const getPostById = async (id) => {
 };
 
 export const getPostByTitleName = async (titleName) => {
-  const response = await axiosPublicInstance.get(`/posts/title_name/${titleName}`);
-  return response.data;
+  const response = await axiosPublicInstance.get(`/p/${titleName}`);
+  return response.data.data.post;
 };
 
 export const updatePost = async (id, postData) => {

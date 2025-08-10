@@ -5,7 +5,6 @@ import { useInfinitePosts } from '../hooks/useInfinitePosts';
 import { useTabSwitcher } from '../hooks/useTabSwitcher';
 import BlogSidebar from '../components/Shared/BlogSidebar';
 import PostList from '../components/Post/PostList';
-import TabSwitcher from '../components/Shared/HomeTabSwitcher';
 
 const Home = () => {
   const { activeTab, toggleTab } = useTabSwitcher();
