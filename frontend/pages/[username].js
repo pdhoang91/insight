@@ -64,10 +64,10 @@ const UserProfilePage = () => {
   // Show loading while checking authentication
   if (loadingUser || loadingOwner) {
     return (
-      <div className="min-h-screen bg-app flex items-center justify-center">
+      <div className="min-h-screen bg-terminal-black flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-secondary">Loading profile...</p>
+          <p className="mt-4 text-text-secondary">Loading profile...</p>
         </div>
       </div>
     );
@@ -76,10 +76,10 @@ const UserProfilePage = () => {
   // Don't render anything if user is not authorized (will redirect)
   if (!loggedUser || loggedUser.username !== username) {
     return (
-      <div className="min-h-screen bg-app flex items-center justify-center">
+      <div className="min-h-screen bg-terminal-black flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-secondary">Redirecting...</p>
+          <p className="mt-4 text-text-secondary">Redirecting...</p>
         </div>
       </div>
     );
@@ -87,17 +87,17 @@ const UserProfilePage = () => {
 
   if (ownerError) {
     return (
-      <div className="min-h-screen bg-app flex items-center justify-center">
+      <div className="min-h-screen bg-terminal-black flex items-center justify-center">
         <div className="text-center">
-          <div className="text-danger font-mono mb-2">Error loading profile</div>
-          <p className="text-muted">{ownerError}</p>
+          <div className="text-hacker-red mb-2">Error loading profile</div>
+          <p className="text-text-muted">{ownerError}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-app">
+    <div className="min-h-screen bg-terminal-black">
       {/* Main Content Container - Match other pages */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         

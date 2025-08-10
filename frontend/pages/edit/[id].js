@@ -171,10 +171,10 @@ const EditPost = () => {
 
   if (!router.isReady || isLoading || loading) {
     return (
-      <div className="min-h-screen bg-app flex items-center justify-center">
+      <div className="min-h-screen bg-terminal-black flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-secondary">Loading editor...</p>
+          <p className="mt-4 text-text-secondary">Loading editor...</p>
         </div>
       </div>
     );
@@ -182,10 +182,10 @@ const EditPost = () => {
 
   if (isError) {
     return (
-      <div className="min-h-screen bg-app flex items-center justify-center">
+      <div className="min-h-screen bg-terminal-black flex items-center justify-center">
         <div className="text-center">
-          <div className="text-danger font-mono mb-2">Failed to load post</div>
-          <p className="text-muted">The post you're trying to edit could not be found.</p>
+          <div className="text-hacker-red mb-2">Failed to load post</div>
+          <p className="text-text-muted">The post you're trying to edit could not be found.</p>
         </div>
       </div>
     );
@@ -200,13 +200,13 @@ const EditPost = () => {
       {/* Custom Navbar with Update functionality */}
       {!isFullscreen && <Navbar onPublish={handleUpdate} />}
       
-      <div className={`min-h-screen bg-app transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50 pt-0' : ''}`}>
+      <div className={`min-h-screen bg-terminal-black transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50 pt-0' : ''}`}>
 
         {/* Fullscreen Exit Button */}
         {isFullscreen && (
           <button
             onClick={() => setIsFullscreen(false)}
-            className="fixed top-4 right-4 z-50 p-2 bg-surface/80 backdrop-blur-sm text-secondary hover:text-primary rounded-lg transition-colors"
+            className="fixed top-4 right-4 z-50 p-2 bg-terminal-gray/80 backdrop-blur-sm text-text-secondary hover:text-text-primary rounded-lg transition-colors"
             title="Exit fullscreen"
           >
             <FaTimes className="w-5 h-5" />

@@ -182,14 +182,14 @@ const Write = () => {
       {/* Custom Navbar with Publish functionality */}
       {!isFullscreen && <Navbar onPublish={handlePublish} />}
       
-      <div className={`min-h-screen bg-app transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50 pt-0' : ''}`}>
+      <div className={`min-h-screen bg-terminal-black transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50 pt-0' : ''}`}>
 
 
       {/* Fullscreen Exit Button */}
       {isFullscreen && (
         <button
           onClick={() => setIsFullscreen(false)}
-          className="fixed top-4 right-4 z-50 p-2 bg-surface/80 backdrop-blur-sm text-secondary hover:text-primary rounded-lg transition-colors"
+          className="fixed top-4 right-4 z-50 p-2 bg-terminal-gray/80 backdrop-blur-sm text-text-secondary hover:text-text-primary rounded-lg transition-colors"
           title="Exit fullscreen"
         >
           <FaTimes className="w-5 h-5" />

@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import BlogSidebar from '../../components/Shared/BlogSidebar';
 import CategoryListWithPosts from '../../components/Category/CategoryListWithPosts';
 import { useInfinitePostByCategory } from '../../hooks/useInfinitePostByCategory';
-import { Container, ContentArea, Card, StandardPageTitle, StandardPageSubtitle, LoadingSpinner } from '../../components/UI';
+import { LoadingSpinner } from '../../components/UI';
 
 const CategoryPage = () => {
   const router = useRouter();
@@ -12,12 +12,12 @@ const CategoryPage = () => {
 
   if (!name) {
     return (
-      <Container variant="loading">
-        <div className="loading-card">
+      <div className="min-h-screen bg-terminal-black flex items-center justify-center">
+        <div className="text-center">
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-secondary font-mono">Loading category...</p>
+          <p className="mt-4 text-text-secondary">Loading category...</p>
         </div>
-      </Container>
+      </div>
     );
   }
 
@@ -31,43 +31,48 @@ const CategoryPage = () => {
   } = useInfinitePostByCategory(name);
 
   return (
-    <Container>
-      <ContentArea>
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Main Content Area */}
-          <div className="lg:col-span-3">
-            <Card variant="surface">
-              <header className="standard-page-header">
-                <StandardPageTitle>{name}</StandardPageTitle>
-                <StandardPageSubtitle>
-                  posts in this category
-                  {totalCount > 0 && (
-                    <span className="ml-2 px-2 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-medium">
-                      {totalCount}
-                    </span>
-                  )}
-                </StandardPageSubtitle>
-              </header>
-            
-              <CategoryListWithPosts
-                posts={posts}
-                isLoading={isLoading}
-                isError={isError}
-                setSize={setSize}
-                isReachingEnd={isReachingEnd}
-              />
-            </Card>
-          </div>
+    <div className="min-h-screen bg-terminal-black">
+      {/* Main Content */}
+      <div className="pt-24 pb-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* Main Content Area */}
+            <div className="lg:col-span-3">
+              <div className="bg-terminal-gray rounded-lg p-6 md:p-8 border border-matrix-green/30">
+                <header className="mb-6 md:mb-8 pb-4 md:pb-6 border-b border-matrix-green/20">
+                  <h1 className="text-3xl md:text-4xl font-bold text-text-primary mb-3 md:mb-4 capitalize">
+                    {name}
+                  </h1>
+                  <p className="text-text-secondary text-sm md:text-base">
+                    Posts in this category
+                    {totalCount > 0 && (
+                      <span className="ml-2 px-2 py-0.5 bg-matrix-green/10 text-matrix-green rounded-full text-xs font-medium">
+                        {totalCount}
+                      </span>
+                    )}
+                  </p>
+                </header>
+              
+                <CategoryListWithPosts
+                  posts={posts}
+                  isLoading={isLoading}
+                  isError={isError}
+                  setSize={setSize}
+                  isReachingEnd={isReachingEnd}
+                />
+              </div>
+            </div>
 
-          {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="sticky top-24">
-              <BlogSidebar />
+            {/* Sidebar */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-24">
+                <BlogSidebar />
+              </div>
             </div>
           </div>
         </div>
-      </ContentArea>
-    </Container>
+      </div>
+    </div>
   );
 };
 

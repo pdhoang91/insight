@@ -95,16 +95,18 @@ const Navbar = ({ onPublish }) => {
 
             {/* Navigation Links */}
             <div className="flex items-center space-x-6">
-              {/* Write Button */}
-              <button
-                onClick={handleWriteClick}
-                className="flex items-center space-x-2 px-4 py-2 bg-matrix-green/10 text-matrix-green border border-matrix-green/30 rounded-lg hover:bg-matrix-green hover:text-terminal-black transition-all duration-300"
-              >
-                <FaEdit className="w-4 h-4" />
-                <span className="font-medium">Write</span>
-              </button>
+              {/* Write Button - Hide on write/edit pages */}
+              {router.pathname !== '/write' && !router.pathname.startsWith('/edit/') && (
+                <button
+                  onClick={handleWriteClick}
+                  className="flex items-center space-x-2 px-4 py-2 bg-matrix-green/10 text-matrix-green border border-matrix-green/30 rounded-lg hover:bg-matrix-green hover:text-terminal-black transition-all duration-300"
+                >
+                  <FaEdit className="w-4 h-4" />
+                  <span className="font-medium">Write</span>
+                </button>
+              )}
 
-              {/* Publish Button (only show on write page) */}
+              {/* Publish Button (show on write page) */}
               {router.pathname === '/write' && onPublish && (
                 <button
                   onClick={handlePublishClick}
@@ -112,6 +114,17 @@ const Navbar = ({ onPublish }) => {
                 >
                   <FaPaperPlane className="w-4 h-4" />
                   <span className="font-medium">Publish</span>
+                </button>
+              )}
+
+              {/* Update Button (show on edit page) */}
+              {router.pathname.startsWith('/edit/') && onPublish && (
+                <button
+                  onClick={handlePublishClick}
+                  className="flex items-center space-x-2 px-4 py-2 bg-matrix-cyan/10 text-matrix-cyan border border-matrix-cyan/30 rounded-lg hover:bg-matrix-cyan hover:text-terminal-black transition-all duration-300"
+                >
+                  <FaPaperPlane className="w-4 h-4" />
+                  <span className="font-medium">Update</span>
                 </button>
               )}
 
@@ -235,13 +248,38 @@ const Navbar = ({ onPublish }) => {
 
                 {/* Actions */}
                 <div className="space-y-2">
-                  <button
-                    onClick={handleWriteClick}
-                    className="w-full flex items-center space-x-2 p-3 text-matrix-green hover:bg-terminal-gray rounded-lg transition-colors"
-                  >
-                    <FaEdit className="w-4 h-4" />
-                    <span>Write</span>
-                  </button>
+                  {/* Write Button - Hide on write/edit pages */}
+                  {router.pathname !== '/write' && !router.pathname.startsWith('/edit/') && (
+                    <button
+                      onClick={handleWriteClick}
+                      className="w-full flex items-center space-x-2 p-3 text-matrix-green hover:bg-terminal-gray rounded-lg transition-colors"
+                    >
+                      <FaEdit className="w-4 h-4" />
+                      <span>Write</span>
+                    </button>
+                  )}
+
+                  {/* Publish Button (show on write page) */}
+                  {router.pathname === '/write' && onPublish && (
+                    <button
+                      onClick={handlePublishClick}
+                      className="w-full flex items-center space-x-2 p-3 text-hacker-yellow hover:bg-terminal-gray rounded-lg transition-colors"
+                    >
+                      <FaPaperPlane className="w-4 h-4" />
+                      <span>Publish</span>
+                    </button>
+                  )}
+
+                  {/* Update Button (show on edit page) */}
+                  {router.pathname.startsWith('/edit/') && onPublish && (
+                    <button
+                      onClick={handlePublishClick}
+                      className="w-full flex items-center space-x-2 p-3 text-matrix-cyan hover:bg-terminal-gray rounded-lg transition-colors"
+                    >
+                      <FaPaperPlane className="w-4 h-4" />
+                      <span>Update</span>
+                    </button>
+                  )}
 
                   {user ? (
                     <>

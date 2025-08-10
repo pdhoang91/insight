@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import React from 'react';
 import { usePostName } from '../../hooks/usePost';
 import PostDetail from '../../components/Post/PostDetail';
-import { Container, LoadingSpinner } from '../../components/UI';
+import { LoadingSpinner } from '../../components/UI';
 
 const PostPage = () => {
   const router = useRouter();
@@ -12,21 +12,21 @@ const PostPage = () => {
   const { post, isLoading, isError, mutate } = usePostName(id);
 
   if (isLoading) return (
-    <Container variant="loading">
-      <div className="loading-card">
+    <div className="min-h-screen bg-terminal-black flex items-center justify-center">
+      <div className="text-center">
         <LoadingSpinner size="lg" />
-        <p className="mt-4 text-secondary font-mono">Loading post...</p>
+        <p className="mt-4 text-text-secondary">Loading post...</p>
       </div>
-    </Container>
+    </div>
   );
   
   if (isError) return (
-    <Container variant="loading">
-      <div className="error-card">
-        <div className="font-mono">Failed to load post</div>
-        <p className="mt-2 text-sm">Please try again later</p>
+    <div className="min-h-screen bg-terminal-black flex items-center justify-center">
+      <div className="text-center">
+        <div className="text-hacker-red mb-2">Failed to load post</div>
+        <p className="text-text-muted text-sm">Please try again later</p>
       </div>
-    </Container>
+    </div>
   );
 
   return <PostDetail post={post} />;

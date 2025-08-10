@@ -16,7 +16,7 @@ function MyApp({ Component, pageProps }) {
     <ThemeProvider>
       <PostProvider>
         <UserContext.Provider value={{ user, setUser, setModalOpen, loading }}>
-          <div className="min-h-screen bg-app">
+          <div className="min-h-screen bg-terminal-black">
             <Navbar />
             <LoginModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
             <main className="pt-16">
