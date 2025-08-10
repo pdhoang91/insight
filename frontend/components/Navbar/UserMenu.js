@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useUser } from '../../context/UserContext';
 import { useRouter } from 'next/router';
 import axios from 'axios';
-import { FaUser, FaRightFromBracket } from "react-icons/fa6";
+import { FaRightFromBracket } from "react-icons/fa6";
 
 const UserMenu = ({ isMobile, onClose }) => {
   const { user, setUser, setModalOpen, loading } = useUser();
@@ -20,12 +20,6 @@ const UserMenu = ({ isMobile, onClose }) => {
     setUser(null);
     setDropdownOpen(false);
     router.push('/');
-    if (isMobile && onClose) onClose();
-  };
-
-  const handleViewProfile = () => {
-    setDropdownOpen(false);
-    router.push(`/${user.username}`);
     if (isMobile && onClose) onClose();
   };
 
@@ -48,7 +42,7 @@ const UserMenu = ({ isMobile, onClose }) => {
     return (
       <button
         onClick={() => setModalOpen(true)}
-        className="px-2 py-2 bg-gray-200 text-gray-700 rounded-full hover:bg-gray-300 transition-colors whitespace-nowrap"
+        className="px-4 py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors whitespace-nowrap border border-primary/20"
       >
         Sign In
       </button>
@@ -57,20 +51,13 @@ const UserMenu = ({ isMobile, onClose }) => {
 
   if (isMobile) {
     return (
-      <div className="flex flex-col space-y-2">
-        <button
-          onClick={handleViewProfile}
-          className="block w-full text-left px-2 py-2 text-gray-800 hover:bg-gray-200 rounded flex items-center gap-2"
-        >
-          <FaUser className="text-gray-600" />
-          View Profile
-        </button>
+      <div className="flex flex-col">
         <button
           onClick={handleLogout}
-          className="w-full text-left px-2 py-2 text-gray-800 hover:bg-gray-200 rounded flex items-center gap-2"
+          className="w-full text-left px-4 py-3 text-secondary hover:bg-surface rounded-lg flex items-center gap-3 transition-colors"
         >
-          <FaRightFromBracket className="text-gray-600" />
-          Logout
+          <FaRightFromBracket className="text-muted" />
+          Sign Out
         </button>
       </div>
     );
@@ -81,24 +68,17 @@ const UserMenu = ({ isMobile, onClose }) => {
       <img
         src={`${user.avatar_url || '/default-avatar.png'}?t=${new Date().getTime()}`}
         alt="User Avatar"
-        className="w-8 h-8 rounded-full cursor-pointer"
+        className="w-8 h-8 rounded-full cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all"
         onClick={handleAvatarClick}
       />
       {dropdownOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white border rounded-md shadow-lg z-20">
-          <button
-            onClick={handleViewProfile}
-            className="block w-full text-left px-2 py-2 text-gray-800 hover:bg-gray-200 flex items-center gap-2"
-          >
-            <FaUser className="text-gray-600" />
-            View Profile
-          </button>
+        <div className="absolute right-0 mt-2 w-48 bg-surface border border-border-primary rounded-lg shadow-lg z-20 py-2">
           <button
             onClick={handleLogout}
-            className="w-full text-left px-2 py-2 text-gray-800 hover:bg-gray-200 flex items-center gap-2"
+            className="w-full text-left px-4 py-3 text-secondary hover:bg-primary/5 flex items-center gap-3 transition-colors"
           >
-            <FaRightFromBracket className="text-gray-600" />
-            Logout
+            <FaRightFromBracket className="text-muted" />
+            Sign Out
           </button>
         </div>
       )}

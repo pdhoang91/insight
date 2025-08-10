@@ -5,7 +5,7 @@ import {
   getFollowingPosts,
   getPostsByCategory, // Giả sử các tab bổ sung là các category
 } from '../services/postService';
-import { getUserPosts } from '../services/userService';
+import { fetchUserPosts } from '../services/userService';
 
 export const useInfiniteUserPosts = (activeTab, username) => {
   const PAGE_SIZE = 10; // Số lượng bài post mỗi trang
@@ -13,24 +13,25 @@ export const useInfiniteUserPosts = (activeTab, username) => {
   // Fetcher function với async/await và định dạng lại dữ liệu trả về
   const fetcher = async (type, page, limit) => {
     try {
-      if (type === 'YourPosts' || type === 'UserPosts') {
-        // Giả sử 'YourPosts' và 'UserPosts' đều sử dụng getPosts
-        const data = await getUserPosts(username, page, limit);
-        return { posts: data.posts, totalCount: data.totalCount };
+      if (type === 'posts' || type === 'YourPosts' || type === 'UserPosts') {
+        // Handle user posts - use username to get specific user's posts
+        const data = await fetchUserPosts(username, page, limit);
+        return { posts: data.posts || data.data || [], totalCount: data.totalCount || data.total_count || 0 };
       } else if (type === 'ForYou') {
         const data = await getPosts(page, limit);
-        return { posts: data.posts, totalCount: data.totalCount };
+        return { posts: data.posts || data.data || [], totalCount: data.totalCount || data.total_count || 0 };
       } else if (type === 'Following') {
         const data = await getFollowingPosts(page, limit);
-        return { posts: data.posts, totalCount: data.totalCount };
+        return { posts: data.posts || data.data || [], totalCount: data.totalCount || data.total_count || 0 };
       } else {
         // Giả sử các tab bổ sung là các category
         const data = await getPostsByCategory(type, page, limit);
-        return { posts: data.posts, totalCount: data.totalCount };
+        return { posts: data.posts || data.data || [], totalCount: data.totalCount || data.total_count || 0 };
       }
     } catch (error) {
-      console.error(`Error fetching ${type} posts:`, error);
-      throw error;
+      console.error(`Error fetching ${type} posts for user ${username}:`, error);
+      // Return empty data instead of throwing to prevent crash
+      return { posts: [], totalCount: 0 };
     }
   };
 
