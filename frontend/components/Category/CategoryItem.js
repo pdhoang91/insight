@@ -13,9 +13,6 @@ const CategoryItem = ({ category }) => {
       {/* Category Header */}
       <header className="mb-6">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center">
-            <FaFolder className="w-4 h-4 text-primary" />
-          </div>
           <h2 className="text-2xl font-bold text-primary">
             <Link 
               href={`/category/${encodeURIComponent(category.name)}`} 

@@ -71,7 +71,9 @@ const BlogSidebar = () => {
         <div className="bg-terminal-gray rounded-lg border border-terminal-border p-6">
           <h3 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
             <FaCode className="w-4 h-4 text-matrix-green" />
-            Categories
+            <Link href="/category" className="hover:text-matrix-green transition-colors">
+              Categories
+            </Link>
           </h3>
           <div className="flex flex-wrap gap-2">
             {categories.slice(0, 8).map((category, index) => {
