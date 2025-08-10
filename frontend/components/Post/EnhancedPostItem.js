@@ -1,5 +1,5 @@
 // components/Post/EnhancedPostItem.js
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -45,36 +45,14 @@ const EnhancedPostItem = ({ post, variant = 'enhanced', showFullContent = false 
 
   // Determine difficulty level based on tags
   const getDifficultyLevel = (tags = [], categories = []) => {
-    const beginnerKeywords = ['tutorial', 'beginner', 'intro', 'getting-started', 'basics'];
-    const advancedKeywords = ['advanced', 'expert', 'deep-dive', 'architecture', 'optimization'];
-
-    // Safely extract names from tags and categories - handle null/undefined arrays
-    const tagNames = (tags || []).map(tag => typeof tag === 'string' ? tag : tag?.name || '').filter(Boolean);
-    const categoryNames = (categories || []).map(cat => typeof cat === 'string' ? cat : cat?.name || '').filter(Boolean);
-
-    const allKeywords = [...tagNames, ...categoryNames].join(' ').toLowerCase();
-
-    if (advancedKeywords.some(keyword => allKeywords.includes(keyword))) {
-      return { level: 'Advanced', color: 'text-red-600 bg-red-50' };
-    } else if (beginnerKeywords.some(keyword => allKeywords.includes(keyword))) {
-      return { level: 'Beginner', color: 'text-green-600 bg-green-50' };
-    }
-    return { level: 'Intermediate', color: 'text-blue-600 bg-blue-50' };
+    const allTags = [...(tags || []), ...(categories || [])];
+    const beginnerTags = ['beginner', 'tutorial', 'basics', 'intro'];
+    const advancedTags = ['advanced', 'expert', 'complex', 'deep-dive'];
+    
+    if (allTags.some(tag => beginnerTags.includes(tag.toLowerCase()))) return 'Beginner';
+    if (allTags.some(tag => advancedTags.includes(tag.toLowerCase()))) return 'Advanced';
+    return 'Intermediate';
   };
-
-  const readingTime = calculateReadingTime(post.content || post.preview_content);
-  const difficulty = getDifficultyLevel(post.tags, post.categories);
-
-  // Close share menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (shareMenuRef.current && !shareMenuRef.current.contains(event.target)) {
-        setIsShareMenuOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const handleClap = async () => {
     if (!user) {
@@ -109,214 +87,105 @@ const EnhancedPostItem = ({ post, variant = 'enhanced', showFullContent = false 
         >
           <div className="flex">
             {/* Left Side - Image with Overlay */}
-            {post.image_title && (
-              <div className="w-48 md:w-56 lg:w-64 flex-shrink-0 relative">
-                <div className="relative h-32 md:h-36 lg:h-40 w-full overflow-hidden">
+            <div className="w-2/5 relative">
+              <Link href={`/p/${post.title_name}`}>
+                <div className="relative h-80 overflow-hidden">
                   <SafeImage
-                    src={post.image_title}
+                    src={post.image_title || '/images/placeholder.svg'}
                     alt={post.title}
                     fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-500 rounded-l-xl"
-                    sizes="(max-width: 768px) 192px, (max-width: 1024px) 224px, 256px"
+                    className="object-cover group-hover:scale-110 transition-transform duration-700"
+                    sizes="(max-width: 768px) 40vw, (max-width: 1024px) 30vw, 25vw"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/10" />
-
-                  {/* Reading time badge */}
-                  <div className="absolute top-2 right-2 bg-black/70 backdrop-blur-sm text-white px-2 py-1 rounded flex items-center space-x-1">
-                    <FaClock className="w-2 h-2" />
-                    <span className="text-xs font-medium">{readingTime}m</span>
+                  
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  
+                  {/* Floating Stats */}
+                  <div className="absolute top-4 left-4 flex space-x-2">
+                    <div className="bg-black/20 backdrop-blur-sm rounded-full px-2 py-1 flex items-center space-x-1">
+                      <FaEye className="w-3 h-3 text-white" />
+                      <span className="text-white text-xs font-medium">{post.views || 0}</span>
+                    </div>
+                    <div className="bg-black/20 backdrop-blur-sm rounded-full px-2 py-1 flex items-center space-x-1">
+                      <FaClock className="w-3 h-3 text-white" />
+                      <span className="text-white text-xs font-medium">{calculateReadingTime(post.content)} min</span>
+                    </div>
                   </div>
 
-                  {/* Category badge */}
-                  {post.categories && post.categories.length > 0 && (
-                    <div className="absolute bottom-2 left-2">
-                      <span className="px-2 py-1 bg-primary/90 text-white rounded text-xs font-medium">
-                        {post.categories[0].name || post.categories[0]}
-                      </span>
-                    </div>
-                  )}
+                  {/* Difficulty Badge */}
+                  <div className="absolute top-4 right-4">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm ${
+                      getDifficultyLevel(post.tags, post.categories) === 'Beginner' 
+                        ? 'bg-green-500/20 text-green-300' 
+                        : getDifficultyLevel(post.tags, post.categories) === 'Advanced'
+                        ? 'bg-red-500/20 text-red-300'
+                        : 'bg-yellow-500/20 text-yellow-300'
+                    }`}>
+                      {getDifficultyLevel(post.tags, post.categories)}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            )}
+              </Link>
+            </div>
 
             {/* Right Side - Content */}
-            <div className="flex-1 p-5">
-              {/* Compact Author and Meta Info */}
-              <div className="flex items-center space-x-2 mb-3">
-                <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center">
-                  <span className="text-primary text-xs font-bold">
-                    {post.user?.name?.charAt(0)?.toUpperCase() || 'A'}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-2 text-xs text-muted">
-                  <span className="font-medium text-secondary">{post.user?.name || 'Anonymous'}</span>
-                  <span>•</span>
-                  <TimeAgo timestamp={post.created_at} />
-                </div>
-              </div>
-
-              {/* Title - More prominent */}
-              <Link href={`/p/${post.title_name}`}>
-                <h3 className="text-lg md:text-xl font-bold text-primary mb-3 hover:text-primary-hover transition-colors leading-tight line-clamp-2 cursor-pointer">
-                  {post.title}
-                </h3>
-              </Link>
-
-              {/* Content Preview - Compact for horizontal layout */}
-              <div className="text-secondary text-sm leading-relaxed mb-4 line-clamp-2">
-                <TextUtils html={post.preview_content} maxLength={150} />
-              </div>
-
-              {/* Additional Categories - Compact */}
-              {post.categories && post.categories.length > 1 && (
-                <div className="flex flex-wrap gap-1 mb-4">
-                  {post.categories.slice(1, 3).map((category, index) => (
-                    <Link
-                      key={index}
-                      href={`/category/${category.toLowerCase()}`}
-                      className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium hover:bg-primary/20 transition-colors"
-                    >
-                      {category}
-                    </Link>
-                  ))}
-                </div>
-              )}
-
-              {/* Actions Bar - Bottom */}
-              <div className="flex items-center justify-between pt-3 border-t border-border-primary">
-                <div className="flex items-center space-x-4">
-                  {/* Views */}
-                  <div className="flex items-center space-x-1 text-muted">
-                    <FaEye className="w-4 h-4" />
-                    <span className="text-sm font-medium">{post.views || 0}</span>
+            <div className="w-3/5 p-6 flex flex-col">
+              {/* Author & Date */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
+                    <FaUser className="w-4 h-4 text-primary" />
                   </div>
-
-                  <button
-                    onClick={handleClap}
-                    disabled={clapLoading}
-                    className="flex items-center space-x-1 text-muted hover:text-primary transition-colors"
-                    aria-label="Clap for this post"
-                  >
-                    <FaHandsClapping className="w-4 h-4" />
-                    <span className="text-sm font-medium">{currentClapCount}</span>
-                  </button>
-
-                  <button
-                    onClick={toggleCommentPopup}
-                    className="flex items-center space-x-1 text-muted hover:text-primary transition-colors"
-                    aria-label="View comments"
-                  >
-                    <FaComment className="w-4 h-4" />
-                    <span className="text-sm font-medium">{post.comments_count || 0}</span>
-                  </button>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={toggleBookmark}
-                    disabled={bookmarkLoading}
-                    className="p-1 text-muted hover:text-primary transition-colors"
-                    aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark this post'}
-                  >
-                    {isBookmarked ? <FaBookmark className="w-4 h-4" /> : <FaRegBookmark className="w-4 h-4" />}
-                  </button>
-
-                  <div className="relative" ref={shareMenuRef}>
-                    <button
-                      onClick={handleShare}
-                      className="p-1 text-muted hover:text-primary transition-colors"
-                      aria-label="Share this post"
-                    >
-                      <FaShareAlt className="w-4 h-4" />
-                    </button>
-
-                    {/* Share Menu */}
-                    {isShareMenuOpen && (
-                      <div className="absolute right-0 bottom-full mb-2 w-32 bg-surface border border-border-primary rounded-lg shadow-lg py-1 z-10">
-                        <button
-                          onClick={() => {
-                            navigator.clipboard.writeText(shareUrl);
-                            setIsShareMenuOpen(false);
-                          }}
-                          className="w-full text-left px-3 py-1 text-xs text-secondary hover:text-primary hover:bg-elevated transition-colors"
-                        >
-                          Copy Link
-                        </button>
-                        <button
-                          onClick={() => {
-                            window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(post.title)}`, '_blank');
-                            setIsShareMenuOpen(false);
-                          }}
-                          className="w-full text-left px-3 py-1 text-xs text-secondary hover:text-primary hover:bg-elevated transition-colors"
-                        >
-                          Twitter
-                        </button>
-                      </div>
-                    )}
+                  <div>
+                    <p className="text-sm font-medium text-primary">{post.user?.name || 'Anonymous'}</p>
+                    <div className="flex items-center space-x-2 text-xs text-muted">
+                      <FaCalendar className="w-3 h-3" />
+                      <TimeAgo timestamp={post.created_at} />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Layout for posts without images */}
-          {!post.image_title && (
-            <div className="p-5">
-              {/* Compact Author and Meta Info */}
-              <div className="flex items-center space-x-2 mb-3">
-                <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center">
-                  <span className="text-primary text-xs font-bold">
-                    {post.user?.name?.charAt(0)?.toUpperCase() || 'A'}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-2 text-xs text-muted">
-                  <span className="font-medium text-secondary">{post.user?.name || 'Anonymous'}</span>
-                  <span>•</span>
-                  <TimeAgo timestamp={post.created_at} />
-                  <span>•</span>
-                  <div className="flex items-center space-x-1">
-                    <FaClock className="w-2 h-2" />
-                    <span>{readingTime}m read</span>
+                
+                {/* Trending Indicator */}
+                {post.views > 100 && (
+                  <div className="flex items-center space-x-1 text-orange-500">
+                    <FaChartLine className="w-4 h-4" />
+                    <span className="text-xs font-medium">Trending</span>
                   </div>
-                </div>
+                )}
               </div>
 
               {/* Title */}
               <Link href={`/p/${post.title_name}`}>
-                <h3 className="text-lg md:text-xl font-bold text-primary mb-3 hover:text-primary-hover transition-colors leading-tight line-clamp-2 cursor-pointer">
+                <h3 className="text-xl font-bold text-primary hover:text-primary-hover transition-colors line-clamp-2 mb-3 group-hover:text-primary-hover">
                   {post.title}
                 </h3>
               </Link>
 
               {/* Content Preview */}
-              <div className="text-secondary text-sm leading-relaxed mb-4 line-clamp-3">
-                <TextUtils html={post.preview_content} maxLength={200} />
+              <div className="text-secondary text-sm line-clamp-3 mb-4 flex-1">
+                <TextUtils html={post.preview_content} maxLength={150} />
               </div>
 
-              {/* Categories */}
+              {/* Tags */}
               {post.categories && post.categories.length > 0 && (
-                <div className="flex flex-wrap gap-1 mb-4">
+                <div className="flex flex-wrap gap-2 mb-4">
                   {post.categories.slice(0, 3).map((category, index) => (
                     <Link
                       key={index}
                       href={`/category/${category.toLowerCase()}`}
-                      className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium hover:bg-primary/20 transition-colors"
+                      className="inline-flex items-center space-x-1 px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium hover:bg-primary/20 transition-colors"
                     >
-                      {category}
+                      <FaTag className="w-3 h-3" />
+                      <span>{category}</span>
                     </Link>
                   ))}
                 </div>
               )}
 
-              {/* Actions Bar */}
-              <div className="flex items-center justify-between pt-3 border-t border-border-primary">
+              {/* Action Bar */}
+              <div className="flex items-center justify-between pt-4 border-t border-border-primary">
                 <div className="flex items-center space-x-4">
-                  {/* Views */}
-                  <div className="flex items-center space-x-1 text-muted">
-                    <FaEye className="w-4 h-4" />
-                    <span className="text-sm font-medium">{post.views || 0}</span>
-                  </div>
-
                   <button
                     onClick={handleClap}
                     disabled={clapLoading}
@@ -337,48 +206,68 @@ const EnhancedPostItem = ({ post, variant = 'enhanced', showFullContent = false 
                   </button>
                 </div>
 
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={toggleBookmark}
-                    disabled={bookmarkLoading}
-                    className="p-1 text-muted hover:text-primary transition-colors"
-                    aria-label={isBookmarked ? 'Remove bookmark' : 'Bookmark this post'}
-                  >
-                    {isBookmarked ? <FaBookmark className="w-4 h-4" /> : <FaRegBookmark className="w-4 h-4" />}
-                  </button>
+                {/* Read More Button */}
+                <Link
+                  href={`/p/${post.title_name}`}
+                  className="text-sm text-primary hover:text-primary-hover font-medium transition-colors"
+                >
+                  Read More →
+                </Link>
+              </div>
+            </div>
+          </div>
 
-                  <div className="relative" ref={shareMenuRef}>
-                    <button
-                      onClick={handleShare}
-                      className="p-1 text-muted hover:text-primary transition-colors"
-                      aria-label="Share this post"
-                    >
-                      <FaShareAlt className="w-4 h-4" />
-                    </button>
+          {/* Compact variant (when space is limited) */}
+          {variant === 'compact' && (
+            <div className="p-4">
+              <div className="flex space-x-4">
+                {/* Small Image */}
+                <div className="w-20 h-20 flex-shrink-0">
+                  <Link href={`/p/${post.title_name}`}>
+                    <SafeImage
+                      src={post.image_title || '/images/placeholder.svg'}
+                      alt={post.title}
+                      width={80}
+                      height={80}
+                      className="object-cover rounded-lg hover:scale-105 transition-transform duration-300"
+                    />
+                  </Link>
+                </div>
 
-                    {/* Share Menu */}
-                    {isShareMenuOpen && (
-                      <div className="absolute right-0 bottom-full mb-2 w-32 bg-surface border border-border-primary rounded-lg shadow-lg py-1 z-10">
-                        <button
-                          onClick={() => {
-                            navigator.clipboard.writeText(shareUrl);
-                            setIsShareMenuOpen(false);
-                          }}
-                          className="w-full text-left px-3 py-1 text-xs text-secondary hover:text-primary hover:bg-elevated transition-colors"
-                        >
-                          Copy Link
-                        </button>
-                        <button
-                          onClick={() => {
-                            window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(post.title)}`, '_blank');
-                            setIsShareMenuOpen(false);
-                          }}
-                          className="w-full text-left px-3 py-1 text-xs text-secondary hover:text-primary hover:bg-elevated transition-colors"
-                        >
-                          Twitter
-                        </button>
-                      </div>
-                    )}
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                  <Link href={`/p/${post.title_name}`}>
+                    <h4 className="font-semibold text-primary hover:text-primary-hover transition-colors line-clamp-2 mb-2">
+                      {post.title}
+                    </h4>
+                  </Link>
+                  
+                  <div className="flex items-center space-x-4 text-xs text-muted mb-2">
+                    <span>{post.user?.name || 'Anonymous'}</span>
+                    <TimeAgo timestamp={post.created_at} />
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <button
+                        onClick={handleClap}
+                        disabled={clapLoading}
+                        className="flex items-center space-x-1 text-muted hover:text-primary transition-colors"
+                        aria-label="Clap for this post"
+                      >
+                        <FaHandsClapping className="w-4 h-4" />
+                        <span className="text-sm font-medium">{currentClapCount}</span>
+                      </button>
+
+                      <button
+                        onClick={toggleCommentPopup}
+                        className="flex items-center space-x-1 text-muted hover:text-primary transition-colors"
+                        aria-label="View comments"
+                      >
+                        <FaComment className="w-4 h-4" />
+                        <span className="text-sm font-medium">{post.comments_count || 0}</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

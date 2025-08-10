@@ -6,7 +6,6 @@ export const usePublicProfile = (username) => {
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
   const [folows, setFolows] = useState([]);
-  const [bookmarks, setBookmarks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -20,7 +19,7 @@ export const usePublicProfile = (username) => {
 
         const userPosts = await fetchUserPosts(username, 1, 10);
         setPosts(userPosts.posts || []);
-        // Nếu có bookmarks API, gọi và setBookmarks
+        
         const userFolows = await fetchUserFolow(username, 1, 10)
         console.log("userFolows", userFolows)
         setFolows(userFolows.peoples || [])
@@ -34,7 +33,7 @@ export const usePublicProfile = (username) => {
     getProfileAndPosts();
   }, [username]);
 
-  return { profile, posts, folows , bookmarks, loading, error };
+  return { profile, posts, folows, loading, error };
 };
 
 export default usePublicProfile;

@@ -7,7 +7,6 @@ import {
   FaUser, 
   FaSignOutAlt, 
   FaUserCircle, 
-  FaBookmark, 
   FaCog, 
   FaBars, 
   FaTimes, 
@@ -169,14 +168,6 @@ const Navbar = ({ onPublish }) => {
                           >
                             <FaUser className="w-4 h-4" />
                             <span>Profile</span>
-                          </Link>
-                          <Link
-                            href="/me/following"
-                            className="flex items-center space-x-3 px-4 py-2 text-sm text-secondary hover:text-primary hover:bg-elevated transition-colors"
-                            onClick={() => setIsUserMenuOpen(false)}
-                          >
-                            <FaBookmark className="w-4 h-4" />
-                            <span>Bookmarks</span>
                           </Link>
                           <div className="border-t border-border-primary my-1"></div>
                           <button
