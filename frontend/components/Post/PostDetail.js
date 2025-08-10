@@ -54,56 +54,55 @@ export const PostDetail = ({ post }) => {
               
               {/* Meta Information */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm text-text-secondary">
-                <div>
-                  <span>Published on {new Date(post.created_at).toLocaleDateString()}</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-1">
-                    <FaEye className="w-3 h-3" />
-                    <span>{post.views || 0} views</span>
+                {/* Left side - Action buttons grouped together */}
+                <div className="flex items-center gap-6">
+                  {/* Claps */}
+                  <button
+                    onClick={handleClap}
+                    disabled={clapLoading}
+                    className="flex items-center gap-2 text-text-muted hover:text-hacker-yellow transition-colors disabled:opacity-50"
+                  >
+                    <FaHandsClapping className={`w-4 h-4 ${clapLoading ? 'animate-pulse' : ''}`} /> 
+                    <span>{currentClapCount}</span>
+                  </button>
+
+                  {/* Comments */}
+                  <button 
+                    onClick={scrollToComments} 
+                    className="flex items-center gap-2 text-text-muted hover:text-matrix-green transition-colors"
+                  >
+                    <FaComment className="w-4 h-4" /> 
+                    <span>{post.comments_count || 0}</span>
+                  </button>
+
+                  {/* Views */}
+                  <div className="flex items-center gap-2 text-text-muted">
+                    <FaEye className="w-4 h-4" />
+                    <span>{post.views || 0}</span>
                   </div>
+                </div>
+
+                {/* Right side - Date and reading time */}
+                <div className="flex items-center gap-4">
+                  <span>Published on {new Date(post.created_at).toLocaleDateString()}</span>
                   <span>~{Math.ceil(post.content?.replace(/<[^>]*>/g, '').length / 200) || 1} min read</span>
                 </div>
               </div>
             </header>
 
-            {/* Interaction Section */}
-            <div className="p-6 md:p-8 border-b border-matrix-green/20">
-              <div className="flex items-center gap-6">
-                {/* Claps */}
-                <button
-                  onClick={handleClap}
-                  disabled={clapLoading}
-                  className="flex items-center gap-2 px-4 py-2 bg-matrix-green/10 text-matrix-green rounded-lg hover:bg-matrix-green/20 transition-colors disabled:opacity-50"
-                >
-                  <FaHandsClapping className={`w-4 h-4 ${clapLoading ? 'animate-pulse' : ''}`} /> 
-                  <span>{currentClapCount} claps</span>
-                </button>
-
-                {/* Comments */}
-                <button 
-                  onClick={scrollToComments} 
-                  className="flex items-center gap-2 px-4 py-2 bg-terminal-light text-text-secondary rounded-lg hover:bg-terminal-dark hover:text-text-primary transition-colors"
-                >
-                  <FaComment className="w-4 h-4" /> 
-                  <span>{post.comments_count || 0} comments</span>
-                </button>
+            {/* Featured Image - Cover Style */}
+            {post.image_title && (
+              <div className="relative w-full h-40 md:h-52 lg:h-64 overflow-hidden">
+                <img
+                  src={post.image_title}
+                  alt={post.title}
+                  className="w-full h-full object-cover"
+                />
               </div>
-            </div>
+            )}
 
             {/* Post Content */}
             <div className="p-6 md:p-8">
-              {/* Featured Image */}
-              {post.image_title && (
-                <div className="mb-8">
-                  <img
-                    src={post.image_title}
-                    alt={post.title}
-                    className="w-full max-h-96 object-cover rounded-lg border border-matrix-green/30"
-                  />
-                </div>
-              )}
-
               {/* Content */}
               <div 
                 className="prose prose-invert max-w-none text-text-secondary leading-relaxed"
