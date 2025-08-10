@@ -8,9 +8,7 @@ import {
   FaClock, 
   FaEye,
   FaComment,
-  FaHeart,
-  FaFolder,
-  FaFolderOpen
+  FaHeart
 } from 'react-icons/fa';
 import { 
   SiReact, 
@@ -75,28 +73,17 @@ const BlogSidebar = () => {
             <FaCode className="w-4 h-4 text-matrix-green" />
             Categories
           </h3>
-          <div className="space-y-2">
+          <div className="flex flex-wrap gap-2">
             {categories.slice(0, 8).map((category, index) => {
               const colorClass = getCategoryColor(index);
               return (
                 <Link
                   key={category.id}
                   href={`/category/${category.name.toLowerCase()}`}
-                  className="group block"
+                  className={`inline-flex items-center gap-1.5 px-3 py-1.5 bg-${colorClass}/10 text-${colorClass} rounded-full text-xs font-medium hover:bg-${colorClass}/20 transition-colors border border-${colorClass}/20`}
                 >
-                                      {/* Folder style */}
-                    <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-terminal-light transition-colors">
-                      {/* Folder icon */}
-                      <div className="relative">
-                        <FaFolder className={`w-5 h-5 text-${colorClass} group-hover:hidden transition-all`} />
-                        <FaFolderOpen className={`w-5 h-5 text-${colorClass} hidden group-hover:block transition-all`} />
-                      </div>
-                      
-                      {/* Folder name */}
-                      <span className="text-sm font-medium text-text-primary group-hover:text-matrix-green transition-colors">
-                        {category.name}
-                      </span>
-                    </div>
+                  <FaCode className="w-3 h-3" />
+                  <span>{category.name}</span>
                 </Link>
               );
             })}
