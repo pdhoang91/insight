@@ -141,7 +141,7 @@ const EnhancedPostItem = ({ post, variant = 'enhanced', showFullContent = false 
                   {post.categories && post.categories.length > 0 && (
                     <div className="absolute bottom-2 left-2">
                       <span className="px-2 py-1 bg-primary/90 text-white rounded text-xs font-medium">
-                        {post.categories[0]}
+                        {post.categories[0].name || post.categories[0]}
                       </span>
                     </div>
                   )}

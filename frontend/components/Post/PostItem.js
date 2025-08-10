@@ -194,10 +194,10 @@ const PostItem = ({ post, variant = 'default' }) => {
                 <span className="text-gray-400 hidden sm:inline">in</span>
                 {post.categories && post.categories.length > 0 && (
                   <Link
-                    href={`/category/${post.categories[0].toLowerCase()}`}
+                    href={`/category/${(post.categories[0].name || post.categories[0]).toLowerCase()}`}
                     className="text-gray-600 hover:text-gray-900 font-medium truncate hidden sm:inline"
                   >
-                    {post.categories[0]}
+                    {post.categories[0].name || post.categories[0]}
                   </Link>
                 )}
               </div>

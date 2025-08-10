@@ -2,7 +2,7 @@
 //pages/me/following.js
 import React, { useEffect, useState } from 'react';
 import { useUser } from '../../context/UserContext';
-import Sidebar from '../../components/Shared/Sidebar';
+import BlogSidebar from '../../components/Shared/BlogSidebar';
 import SidebarRight from '../../components/Shared/SidebarRight';
 import FollowList from '../../components/Explore/FollowList';
 import { useTabSwitcher } from '../../hooks/useTabSwitcher';
@@ -118,7 +118,7 @@ const Following = () => {
     <div className="flex flex-col md:flex-row">
       {/* Sidebar Left */}
       <aside className="lg:w-1/12 p-4 sticky top-4 h-fit">
-        <Sidebar />
+        <BlogSidebar />
       </aside>
 
       {/* Main Content */}

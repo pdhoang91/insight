@@ -1,22 +1,49 @@
 // services/userService.js
-import axiosPrivateInstance from '../utils/axiosPrivateInstance';
 import axiosPublicInstance from '../utils/axiosPublicInstance';
+import axiosPrivateInstance from '../utils/axiosPrivateInstance';
 
+// Get current user profile (authenticated)
 export const getUserProfile = async () => {
   const response = await axiosPrivateInstance.get('/api/me');
   return response.data;
 };
 
-
+// Update user profile
 export const updateUserProfile = async (userId, profileData) => {
   const response = await axiosPrivateInstance.put(`/api/users/${userId}`, profileData);
   return response.data;
 };
 
+// Get authenticated user's posts
 export const getUserPosts = async (userId) => {
   const response = await axiosPrivateInstance.get(`/api/users/${userId}/posts`);
   const data = response.data;
   return data.data;
+};
+
+// Fetches public posts for a user by username
+export const fetchUserPosts = async (username, page = 1, limit = 10) => {
+  try {
+    const response = await axiosPublicInstance.get(`/public/${username}/posts`, {
+      params: { page, limit },
+    });
+
+    const data = response.data;
+    if (!data || !Array.isArray(data.data)) {
+      return {
+        posts: [],
+        totalCount: 0,
+      };
+    }
+
+    return {
+      posts: data.data,
+      totalCount: data.total_count || 0,
+    };
+  } catch (error) {
+    console.error(`Error fetching posts for ${username}":`, error);
+    throw error;
+  }
 };
 
 // Fetches public profile info for a user by username
@@ -30,41 +57,6 @@ export const fetchUserProfile = async (username) => {
   }
 };
 
-export const fetchUserPosts = async (username, page = 1, limit = 10) => {
-  try {
-    const response = await axiosPublicInstance.get(`/public/${username}/posts`, {
-      params: { page, limit },
-    });
-    const data = response.data;
-
-    if (!data || !Array.isArray(data.data) || typeof data.total_count !== 'number') {
-      throw new Error('Invalid response format for getUserPosts');
-    }
-
-    return {
-      posts: data.data,
-      totalCount: data.total_count,
-    };
-  } catch (error) {
-    console.error(`Error fetching posts for user "${username}":`, error);
-    throw error;
-  }
-};
-
-
-// Lấy các người dùng được gợi ý
-export const fetchSuggestedProfiles = async (page = 1, limit = 10) => {
-  try {
-    const response = await axiosPrivateInstance.get('/api/follow/suggested-profiles', {
-      params: { page, limit },
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching suggested profiles:', error);
-    throw error;
-  }
-};
-
 // Lấy các người dùng đã folow
 export const fetchUserFolow = async (username, page = 1, limit = 10) => {
   try {
@@ -72,19 +64,20 @@ export const fetchUserFolow = async (username, page = 1, limit = 10) => {
       params: { page, limit },
     });
 
-    console.log("response", response)
     const data = response.data;
-
-    // if (!data || !Array.isArray(data) || typeof data.total_count !== 'number') {
-    //   throw new Error('Invalid response format for fetchUserFolow');
-    // }
+    if (!data || !Array.isArray(data.data)) {
+      return {
+        follows: [],
+        totalCount: 0,
+      };
+    }
 
     return {
-      peoples: data.data,
-      totalCount: data.total_count,
+      follows: data.data,
+      totalCount: data.total_count || 0,
     };
   } catch (error) {
-    console.error(`Error fetching user folow for user "${username}":`, error);
+    console.error(`Error fetching follows for ${username}:`, error);
     throw error;
   }
 };
