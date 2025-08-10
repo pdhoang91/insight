@@ -188,14 +188,6 @@ const Navbar = ({ onPublish }) => {
                             <FaUserCircle className="w-4 h-4" />
                             <span>Profile</span>
                           </Link>
-                          <Link
-                            href="/settings"
-                            className="flex items-center space-x-3 px-4 py-2 text-text-secondary hover:text-text-primary hover:bg-terminal-light transition-colors"
-                            onClick={() => setIsUserMenuOpen(false)}
-                          >
-                            <FaCog className="w-4 h-4" />
-                            <span>Settings</span>
-                          </Link>
                           <button
                             onClick={handleLogout}
                             className="w-full flex items-center space-x-3 px-4 py-2 text-hacker-red hover:bg-terminal-light transition-colors"
