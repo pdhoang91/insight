@@ -45,7 +45,7 @@ export const PostDetail = ({ post }) => {
       {/* Main Content */}
       <div className="pb-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <article className="bg-terminal-gray rounded-lg border border-matrix-green/30">
+          <article className="rounded-lg border border-matrix-green/30">
             {/* Header Section */}
             <header className="p-6 md:p-8 border-b border-matrix-green/20">
               <h1 className="text-3xl md:text-4xl font-bold text-text-primary mb-4 leading-tight">

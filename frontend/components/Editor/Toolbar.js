@@ -10,12 +10,12 @@ const Toolbar = ({ menuBar, editor, compact = false }) => {
     : menuBar;
 
   return (
-    <div className={`sticky top-0 z-10 bg-surface/80 backdrop-blur-sm rounded-lg transition-all duration-300 ${
-      compact ? 'p-2' : 'p-3'
+    <div className={`sticky top-0 z-10  backdrop-blur-sm  rounded-md transition-all duration-300 ${
+      compact ? 'p-2' : 'p-2.5'
     }`}>
       <div className="flex items-center justify-center">
         {/* Main Toolbar */}
-        <div className={`flex items-center ${compact ? 'space-x-1' : 'space-x-2'} flex-wrap`}>
+        <div className={`flex items-center ${compact ? 'space-x-0.5' : 'space-x-1'} flex-wrap`}>
           {filteredMenuBar.map((item, index) => {
             if (item.children) {
               // Dropdown menu button

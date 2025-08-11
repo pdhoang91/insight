@@ -21,15 +21,15 @@ const ToolbarButton = ({ icon: Icon, onClick, isActive, tooltip, disabled, child
   }, []);
 
   const buttonClasses = `
-    ${compact ? 'p-1.5' : 'p-2'} 
-    rounded-lg transition-all duration-200 
+    ${compact ? 'p-1' : 'p-1.5'} 
+    rounded-md transition-all duration-200 
     flex items-center justify-center
     ${isActive 
       ? 'bg-primary text-white shadow-sm' 
       : 'text-secondary hover:text-primary hover:bg-elevated/50'
     } 
     ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-    focus:outline-none focus:ring-2 focus:ring-primary/20
+    focus:outline-none
   `;
 
   if (children) {
@@ -44,7 +44,7 @@ const ToolbarButton = ({ icon: Icon, onClick, isActive, tooltip, disabled, child
             aria-label={tooltip}
             title={tooltip}
           >
-            <Icon className={compact ? 'w-4 h-4' : 'w-5 h-5'} />
+            <Icon className={compact ? 'w-3.5 h-3.5' : 'w-4 h-4'} />
           </button>
         </Tippy>
         {isOpen && (
@@ -68,7 +68,7 @@ const ToolbarButton = ({ icon: Icon, onClick, isActive, tooltip, disabled, child
         aria-label={tooltip}
         title={tooltip}
       >
-        <Icon className={compact ? 'w-4 h-4' : 'w-5 h-5'} />
+        <Icon className={compact ? 'w-3.5 h-3.5' : 'w-4 h-4'} />
       </button>
     </Tippy>
   );

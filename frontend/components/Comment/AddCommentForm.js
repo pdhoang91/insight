@@ -23,7 +23,7 @@ const AddCommentForm = ({ onAddComment, parentId = null, placeholder }) => {
   return (
     <form onSubmit={handleSubmit} className="relative">
       <textarea
-        className="w-full bg-terminal-gray border border-matrix-green/30 rounded-lg text-text-primary placeholder-text-muted p-3 pr-12 resize-none focus:outline-none focus:ring-2 focus:ring-matrix-green/50 focus:border-matrix-green transition-all duration-300 hover:border-matrix-green/50"
+        className="w-full border border-matrix-green/30 rounded-lg text-text-primary placeholder-text-muted p-3 pr-12 resize-none focus:outline-none focus:ring-2 focus:ring-matrix-green/50 focus:border-matrix-green transition-all duration-300 hover:border-matrix-green/50"
         placeholder={placeholder || defaultPlaceholder}
         value={content}
         onChange={(e) => setContent(e.target.value)}

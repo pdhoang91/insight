@@ -39,7 +39,7 @@ const CommentSection = ({ postId, user }) => {
   };
 
   return (
-    <div className="mt-12 border-t border-primary pt-8 bg-surface">
+    <div className="mt-12 border-t border-primary">
       {/* Header */}
       <div className="mb-6 px-8">
         <h2 className="text-2xl font-bold text-primary font-mono mb-2">

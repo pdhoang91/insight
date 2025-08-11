@@ -563,28 +563,48 @@ a:hover {
   display: none;
 }
 
-/* ProseMirror Customizations - Terminal Theme */
+/* ProseMirror Customizations - Clean Theme */
 .ProseMirror {
   border: none !important;
   outline: none !important;
-  color: var(--color-gray-300);
+  color: var(--text-primary);
   line-height: 1.7;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-primary);
+  font-size: 1rem;
+  padding: 1rem;
+  min-height: 300px;
 }
 
 .ProseMirror:focus {
   border: none !important;
   outline: none !important;
+  box-shadow: none !important;
 }
 
-/* TipTap Placeholder Styles - Hacker Theme */
+/* Remove default focus rings globally for editor components */
+.ProseMirror *:focus,
+input:focus,
+textarea:focus,
+button:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Override Tailwind's default focus ring */
+*:focus {
+  --tw-ring-shadow: none !important;
+  box-shadow: none !important;
+}
+
+/* TipTap Placeholder Styles - Clean Theme */
 .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
-  color: var(--color-gray-500);
+  color: var(--text-muted);
   pointer-events: none;
   height: 0;
-  font-style: italic;
+  font-style: normal;
+  opacity: 0.6;
 }
 
 /* Terminal Scrollbar */
