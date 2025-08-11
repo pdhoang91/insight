@@ -34,8 +34,7 @@ func GetUserProfile(c *gin.Context) {
 		"email":      user.Email,
 		"name":       user.Name,
 		"avatar_url": user.AvatarURL,
-		"phone":      user.Phone,
-		"dob":        user.Dob,
+		"bio":        user.Bio,
 	})
 }
 
@@ -43,8 +42,7 @@ func GetUserProfile(c *gin.Context) {
 func UpdateUser(c *gin.Context) {
 	var input struct {
 		Name   string `json:"name"`
-		Phone  string `json:"phone"`
-		Dob    string `json:"dob"`
+		Bio    string `json:"bio"`
 		Avatar string `json:"avatar_url"`
 	}
 
@@ -67,8 +65,7 @@ func UpdateUser(c *gin.Context) {
 	}
 
 	user.Name = input.Name
-	user.Phone = input.Phone
-	user.Dob = input.Dob
+	user.Bio = input.Bio
 	user.AvatarURL = input.Avatar
 
 	if err := database.DB.Save(&user).Error; err != nil {
@@ -135,8 +132,8 @@ func SearchUsers(c *gin.Context) {
 	// Tạo query cơ bản cho bảng User
 	db := database.DB.Model(&models.User{})
 
-	// Thêm điều kiện tìm kiếm dựa trên tiêu chí name, email, và phone
-	db = db.Where("name ILIKE ? OR email ILIKE ? OR phone ILIKE ?", "%"+query+"%", "%"+query+"%", "%"+query+"%")
+	// Thêm điều kiện tìm kiếm dựa trên tiêu chí name, email, và bio
+	db = db.Where("name ILIKE ? OR email ILIKE ? OR bio ILIKE ?", "%"+query+"%", "%"+query+"%", "%"+query+"%")
 
 	// Đếm tổng số người dùng phù hợp với tiêu chí tìm kiếm
 	if err := db.Count(&total).Error; err != nil {
@@ -162,7 +159,7 @@ func SearchUsers(c *gin.Context) {
 		Name      string    `json:"name"`
 		UserName  string    `json:"username"`
 		Email     string    `json:"email"`
-		Phone     string    `json:"phone"`
+		Bio       string    `json:"bio"`
 		AvatarURL string    `json:"avatar_url"`
 	}
 
@@ -173,7 +170,7 @@ func SearchUsers(c *gin.Context) {
 			UserName:  user.Username,
 			Name:      user.Name,
 			Email:     user.Email,
-			Phone:     user.Phone,
+			Bio:       user.Bio,
 			AvatarURL: user.AvatarURL,
 		})
 	}

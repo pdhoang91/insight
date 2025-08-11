@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@tailwindcss/line-clamp": "^0.4.4",
     "@tailwindcss/typography": "^0.5.15",
     "@tippyjs/react": "^4.2.6",
     "@tiptap/extension-image": "^2.9.1",

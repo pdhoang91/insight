@@ -2,20 +2,19 @@
 
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaUpload, FaTimes, FaUser, FaPhone, FaBirthdayCake } from 'react-icons/fa';
+import { FaUpload, FaTimes, FaUser, FaFileAlt } from 'react-icons/fa';
 import { uploadImage } from '../../services/imageService';
 
 const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
   const [name, setName] = useState(userProfile.name || '');
-  const [phone, setPhone] = useState(userProfile.phone || '');
-  const [dob, setDob] = useState(userProfile.dob || '');
+  const [bio, setBio] = useState(userProfile.bio || '');
   const [avatarUrl, setAvatarUrl] = useState(userProfile.avatar_url || '');
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onUpdate({ name, phone, dob, avatar_url: avatarUrl });
+    onUpdate({ name, bio, avatar_url: avatarUrl });
   };
 
   const handleAvatarUploadClick = () => {
@@ -128,8 +127,8 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
               </div>
 
               {/* Name Field */}
-              <div className="form-group">
-                <label className="form-label font-mono flex items-center gap-2">
+              <div className="space-y-2">
+                <label className="block text-sm font-mono text-primary flex items-center gap-2">
                   <FaUser className="text-primary" size={14} />
                   name
                 </label>
@@ -137,39 +136,27 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="form-input font-mono bg-elevated border-primary text-primary placeholder-muted focus:border-secondary"
+                  className="w-full px-4 py-3 font-mono bg-elevated border border-primary text-primary placeholder-muted focus:border-secondary rounded-lg focus:outline-none transition-colors"
                   placeholder="your_name"
                   required
                 />
               </div>
 
-              {/* Phone Field */}
-              <div className="form-group">
-                <label className="form-label font-mono flex items-center gap-2">
-                  <FaPhone className="text-primary" size={14} />
-                  phone
+              {/* Bio Field */}
+              <div className="space-y-2">
+                <label className="block text-sm font-mono text-primary flex items-center gap-2">
+                  <FaFileAlt className="text-primary" size={14} />
+                  bio
                 </label>
-                <input
-                  type="text"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="form-input font-mono bg-elevated border-primary text-primary placeholder-muted focus:border-secondary"
-                  placeholder="your_phone_number"
+                <textarea
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  className="w-full px-4 py-3 font-mono bg-elevated border border-primary text-primary placeholder-muted focus:border-secondary rounded-lg resize-none focus:outline-none transition-colors"
+                  placeholder="tell_us_about_yourself"
+                  rows={4}
+                  maxLength={500}
                 />
-              </div>
-
-              {/* Date of Birth Field */}
-              <div className="form-group">
-                <label className="form-label font-mono flex items-center gap-2">
-                  <FaBirthdayCake className="text-primary" size={14} />
-                  date_of_birth
-                </label>
-                <input
-                  type="date"
-                  value={dob}
-                  onChange={(e) => setDob(e.target.value)}
-                  className="form-input font-mono bg-elevated border-primary text-primary focus:border-secondary"
-                />
+                <p className="text-muted text-xs font-mono mt-1">// max 500 characters ({bio.length}/500)</p>
               </div>
 
               {/* Action Buttons */}

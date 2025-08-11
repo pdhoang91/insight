@@ -24,8 +24,7 @@ type User struct {
 	Password               string    `json:"-"`                                               // Loại bỏ trường Password khỏi JSON
 	GoogleID               string    `json:"google_id"`                                       // ID từ Google
 	AvatarURL              string    `json:"avatar_url"`                                      // URL avatar của người dùng
-	Phone                  string    `json:"phone"`                                           // Số điện thoại
-	Dob                    string    `json:"dob"`                                             // Ngày sinh
+	Bio                    string    `json:"bio"`                                             // Tiểu sử của người dùng
 	Role                   UserRole  `json:"role" gorm:"default:user"`
 	EmailVerified          bool      `json:"email_verified" gorm:"default:false"`
 	VerificationToken      string    `json:"-"` // Token for email verification
