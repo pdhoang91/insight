@@ -64,9 +64,9 @@ const CommentItem = ({ comment, postId, mutate }) => {
       {/* Author Info */}
       <div className="flex items-center gap-3 mb-3">
         <div className="w-8 h-8 bg-terminal-gray rounded-full border border-matrix-green/50 flex items-center justify-center flex-shrink-0">
-          {comment.user?.avatar ? (
+          {comment.user?.avatar_url ? (
             <img
-              src={comment.user.avatar}
+              src={comment.user.avatar_url}
               alt={comment.user.name}
               className="w-full h-full rounded-full object-cover"
             />

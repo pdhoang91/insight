@@ -55,9 +55,9 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
       {/* Author Info */}
       <div className="flex items-center gap-2 mb-2">
         <div className="w-6 h-6 bg-terminal-gray rounded-full border border-matrix-green/50 flex items-center justify-center flex-shrink-0">
-          {reply.user?.avatar ? (
+          {reply.user?.avatar_url ? (
             <img
-              src={reply.user.avatar}
+              src={reply.user.avatar_url}
               alt={reply.user.name}
               className="w-full h-full rounded-full object-cover"
             />
