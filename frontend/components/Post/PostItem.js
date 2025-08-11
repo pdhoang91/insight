@@ -80,14 +80,14 @@ const PostItem = ({ post, variant = 'default' }) => {
             </div>
           </div>
 
-          <div className="p-4">
-            <div className="flex gap-4">
+          <div className="py-3 sm:py-4 px-3 sm:px-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               {/* Left Side - Content */}
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 order-2 sm:order-1">
                 {/* Author Info */}
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="w-5 h-5 bg-matrix-green/20 rounded border border-matrix-green/50 flex items-center justify-center flex-shrink-0">
-                    <FaTerminal className="w-2 h-2 text-matrix-green" />
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 bg-matrix-green/20 rounded border border-matrix-green/50 flex items-center justify-center flex-shrink-0">
+                    <FaTerminal className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-matrix-green" />
                   </div>
                   <div className="flex items-center gap-1 text-xs text-text-secondary min-w-0 font-mono">
                     <span className="text-matrix-green">$</span>
@@ -100,54 +100,79 @@ const PostItem = ({ post, variant = 'default' }) => {
 
                 {/* Title */}
                 <Link href={`/p/${post.title_name}`}>
-                  <h3 className="text-base font-semibold text-text-primary mb-2 hover:text-matrix-green transition-colors leading-tight line-clamp-2 font-mono">
-                    <span className="text-hacker-yellow">&gt;</span> {post.title}
+                  <h3 className="text-sm sm:text-base font-bold text-text-primary hover:text-matrix-green transition-colors line-clamp-2 mb-2 cursor-pointer">
+                    {post.title}
                   </h3>
                 </Link>
 
                 {/* Content Preview */}
-                <div className="text-text-secondary text-sm mb-3 leading-relaxed font-mono">
-                  <span className="text-text-muted">//</span> <TextUtils html={post.preview_content} maxLength={60} />
+                <div className="text-text-secondary text-xs sm:text-sm line-clamp-2 sm:line-clamp-3 mb-3 leading-relaxed">
+                  <TextUtils html={post.preview_content} maxLength={200} />
                 </div>
 
-                {/* Actions */}
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-1 text-text-muted hover:text-matrix-cyan transition-colors">
-                    <FaEye className="w-3 h-3" />
-                    <span className="text-xs font-mono">{post.views || 0}</span>
+                {/* Categories */}
+                <div className="flex flex-wrap gap-1 sm:gap-1.5 mb-3">
+                  {post.categories && post.categories.slice(0, 2).map((category, index) => (
+                    <Link
+                      key={index}
+                      href={`/category/${(category.name || category).toLowerCase()}`}
+                      className="px-2 py-0.5 bg-matrix-green/10 text-matrix-green rounded text-xs font-medium hover:bg-matrix-green/20 transition-colors border border-matrix-green/20"
+                    >
+                      {category.name || category}
+                    </Link>
+                  ))}
+                </div>
+
+                {/* Action Bar */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3 sm:gap-4">
+                    {/* Claps */}
+                    <button
+                      onClick={handleClap}
+                      disabled={clapLoading}
+                      className="flex items-center gap-1 text-text-muted hover:text-hacker-yellow transition-colors font-mono"
+                    >
+                      <FaHandsClapping className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${clapLoading ? 'animate-pulse' : ''}`} />
+                      <span className="text-xs sm:text-sm">{currentClapCount}</span>
+                    </button>
+
+                    {/* Comments */}
+                    <button
+                      onClick={toggleCommentPopup}
+                      className="flex items-center gap-1 text-text-muted hover:text-matrix-green transition-colors font-mono"
+                    >
+                      <FaComment className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                      <span className="text-xs sm:text-sm">{post.comments_count || 0}</span>
+                    </button>
+
+                    {/* Views */}
+                    <div className="flex items-center gap-1 text-text-muted font-mono">
+                      <FaEye className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                      <span className="text-xs sm:text-sm">{post.views || 0}</span>
+                    </div>
                   </div>
 
-                  <button
-                    onClick={handleClap}
-                    disabled={clapLoading}
-                    className="flex items-center gap-1 text-text-muted hover:text-hacker-yellow transition-colors"
-                  >
-                    <FaHandsClapping className="w-3 h-3" />
-                    <span className="text-xs font-mono">{currentClapCount}</span>
-                  </button>
-
-                  <button
-                    onClick={toggleCommentPopup}
-                    className="flex items-center gap-1 text-text-muted hover:text-matrix-green transition-colors"
-                  >
-                    <FaComment className="w-3 h-3" />
-                    <span className="text-xs font-mono">{post.comments_count || 0}</span>
-                  </button>
+                  {/* Reading Time */}
+                  <div className="flex items-center gap-1 text-xs text-text-muted font-mono">
+                    <FaClock className="w-3 h-3" />
+                    <span>{Math.ceil(post.content?.replace(/<[^>]*>/g, '').length / 200) || 1}m</span>
+                  </div>
                 </div>
               </div>
 
               {/* Right Side - Image */}
               {post.image_title && (
-                <div className="w-20 h-20 flex-shrink-0">
+                <div className="w-full sm:w-1/3 order-1 sm:order-2 flex-shrink-0">
                   <Link href={`/p/${post.title_name}`}>
-                    <SafeImage
-                      src={post.image_title}
-                      alt={post.title}
-                      width={80}
-                      height={80}
-                      className="w-full h-full object-cover rounded border border-matrix-green/30 hover:border-matrix-green transition-colors"
-                      sizes="80px"
-                    />
+                    <div className="relative w-full h-32 sm:h-24 md:h-28 overflow-hidden rounded border border-matrix-green/30">
+                      <SafeImage
+                        src={post.image_title}
+                        alt={post.title}
+                        fill
+                        className="object-cover hover:scale-105 transition-transform duration-300"
+                        sizes="(max-width: 640px) 100vw, 33vw"
+                      />
+                    </div>
                   </Link>
                 </div>
               )}
@@ -155,18 +180,17 @@ const PostItem = ({ post, variant = 'default' }) => {
           </div>
         </article>
 
-        {/* Comments Popup */}
-        {isCommentsOpen && (
-          <CommentsPopup
-            postId={post.id}
-            comments={comments}
-            totalCount={totalCount}
-            isLoading={isLoading}
-            isError={isError}
-            mutate={mutate}
-            onClose={closeCommentPopup}
-          />
-        )}
+        {/* Comments Modal */}
+        <CommentsPopup
+          isOpen={isCommentsOpen}
+          onClose={closeCommentPopup}
+          post={post}
+          comments={comments}
+          totalCount={totalCount}
+          isLoading={isLoading}
+          isError={isError}
+          mutate={mutate}
+        />
       </>
     );
   }

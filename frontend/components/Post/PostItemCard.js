@@ -74,53 +74,53 @@ const PostItemCard = ({ post }) => {
       <article className="hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
         {/* Featured Image */}
         {post.image_title && (
-          <div className="relative h-44 w-full">
+          <div className="relative h-40 sm:h-44 lg:h-48 w-full">
             <SafeImage
               src={post.image_title}
               alt={post.title}
               fill
               className="object-cover rounded-t-xl"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-t-xl" />
           </div>
         )}
 
-        <div className="p-5">
+        <div className="py-4 sm:py-5 px-4 sm:px-5">
           {/* Compact Author Info */}
           <div className="flex items-center space-x-2 mb-3">
-            <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center">
+            <div className="w-5 h-5 sm:w-6 sm:h-6 bg-primary/20 rounded-full flex items-center justify-center">
               <span className="text-primary text-xs font-bold">
                 {post.user?.name?.charAt(0)?.toUpperCase() || 'A'}
               </span>
             </div>
             <div className="flex items-center space-x-2 text-xs text-muted">
               <span className="font-medium">{post.user?.name || 'Anonymous'}</span>
-              <span>•</span>
+              <span className="hidden sm:inline">•</span>
               <TimeAgo timestamp={post.created_at} />
             </div>
           </div>
 
           {/* Title */}
           <Link href={`/p/${post.title_name}`}>
-            <h3 className="text-lg font-bold text-primary mb-2 hover:text-primary-hover transition-colors leading-tight line-clamp-2">
+            <h3 className="text-base sm:text-lg font-bold text-primary hover:text-primary-hover transition-colors line-clamp-2 mb-2 sm:mb-3 leading-tight">
               {post.title}
             </h3>
           </Link>
 
           {/* Content Preview */}
-          <div className="text-secondary text-sm mb-4 leading-relaxed">
-            <TextUtils html={post.preview_content} maxLength={150} />
+          <div className="text-secondary text-sm line-clamp-2 sm:line-clamp-3 mb-3 sm:mb-4 leading-relaxed">
+            <TextUtils html={post.preview_content} maxLength={120} />
           </div>
 
-          {/* Categories - Compact */}
+          {/* Categories */}
           {post.categories && post.categories.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-4">
+            <div className="flex flex-wrap gap-1.5 mb-3 sm:mb-4">
               {post.categories.slice(0, 2).map((category, index) => (
                 <Link
                   key={index}
-                                      href={`/category/${(category.name || category).toLowerCase()}`}
-                  className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium hover:bg-primary/20 transition-colors"
+                  href={`/category/${(category.name || category).toLowerCase()}`}
+                  className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium hover:bg-primary/20 transition-colors"
                 >
                   {category.name || category}
                 </Link>
@@ -128,71 +128,73 @@ const PostItemCard = ({ post }) => {
             </div>
           )}
 
-          {/* Actions - Compact */}
-          <div className="flex items-center justify-between pt-3">
-            <div className="flex items-center space-x-3">
-              {/* Views */}
-              <div className="flex items-center space-x-1 text-muted">
-                <FaEye className="w-3 h-3" />
-                <span className="text-xs font-medium">{post.views || 0}</span>
-              </div>
-
+          {/* Stats and Actions */}
+          <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-border-primary/20">
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              {/* Claps */}
               <button
                 onClick={handleClap}
                 disabled={clapLoading}
                 className="flex items-center space-x-1 text-muted hover:text-primary transition-colors"
-                aria-label="Clap for this post"
               >
-                <FaHandsClapping className="w-3 h-3" />
-                <span className="text-xs font-medium">{currentClapCount}</span>
+                <FaHandsClapping className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${clapLoading ? 'animate-pulse' : ''}`} />
+                <span className="text-xs sm:text-sm font-medium">{currentClapCount}</span>
               </button>
 
+              {/* Comments */}
               <button
                 onClick={toggleCommentPopup}
                 className="flex items-center space-x-1 text-muted hover:text-primary transition-colors"
-                aria-label="View comments"
               >
-                <FaComment className="w-3 h-3" />
-                <span className="text-xs font-medium">{post.comments_count || 0}</span>
+                <FaComment className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="text-xs sm:text-sm font-medium">{post.comments_count || 0}</span>
               </button>
+
+              {/* Views */}
+              <div className="flex items-center space-x-1 text-muted">
+                <FaEye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="text-xs sm:text-sm font-medium">{post.views || 0}</span>
+              </div>
             </div>
 
-            <div className="flex items-center space-x-1">
-              
+            {/* Reading Time */}
+            <div className="text-xs text-muted">
+              {Math.ceil((post.content?.replace(/<[^>]*>/g, '').length || 0) / 200) || 1} min read
             </div>
           </div>
         </div>
-        {/* Comments Section - Inline */}
+
+        {/* Comments Section */}
         {isCommentsOpen && (
-          <div className="border-t border-border-primary bg-surface-secondary">
+          <div className="border-t border-border-primary/20 bg-surface-secondary">
             {/* Add Comment Form */}
-            <div className="p-4 border-b border-border-secondary">
+            <div className="py-4 sm:py-5 px-4 sm:px-5 border-b border-border-secondary">
               {user ? (
                 <AddCommentForm onAddComment={handleAddComment} />
               ) : (
-                <div className="text-center py-4">
+                <div className="text-center py-3 sm:py-4">
                   <span className="text-muted text-sm">Please login to comment</span>
                 </div>
               )}
             </div>
 
             {/* Comments List */}
-            <div className="p-4">
+            <div className="py-4 sm:py-5 px-4 sm:px-5">
               {isError && (
-                <div className="text-danger text-sm text-center py-4">
+                <div className="text-danger text-sm text-center py-3 sm:py-4">
                   Failed to load comments
                 </div>
               )}
               
               {isLoading && comments.length === 0 && (
-                <div className="flex justify-center items-center py-6">
+                <div className="flex justify-center items-center py-4 sm:py-6">
                   <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin mr-2"></div>
                   <span className="text-secondary text-sm">Loading comments...</span>
                 </div>
               )}
 
               {comments && comments.length > 0 && (
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   {comments.map((comment) => (
                     <CommentItem key={comment.id} comment={comment} postId={post.id} mutate={mutate} />
                   ))}
@@ -200,7 +202,7 @@ const PostItemCard = ({ post }) => {
               )}
 
               {!isLoading && !isError && comments.length === 0 && (
-                <div className="text-center py-6">
+                <div className="text-center py-4 sm:py-6">
                   <span className="text-muted text-sm">No comments yet</span>
                 </div>
               )}

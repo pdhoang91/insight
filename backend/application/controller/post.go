@@ -363,10 +363,10 @@ func CreatePost(c *gin.Context) {
 	re := regexp.MustCompile(`<[^>]*>`)
 	cleanContent := re.ReplaceAllString(input.Content, "")
 
-	// Extract first 20 words for PreviewContent
+	// Extract first 50 words for PreviewContent
 	words := strings.Fields(cleanContent)
-	if len(words) > 20 {
-		cleanContent = strings.Join(words[:20], " ") + "..."
+	if len(words) > 55 {
+		cleanContent = strings.Join(words[:55], " ") + "..."
 	}
 
 	// Create slug from Title
