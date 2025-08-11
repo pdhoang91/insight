@@ -13,16 +13,7 @@ export const clapPost = async (postID) => {
   }
 };
 
-// Unclap bài viết
-export const unclapPost = async (postId) => {
-  try {
-    const response = await axiosPrivateInstance.post(`/api/post/${postId}/unclap`);
-    return response.data;
-  } catch (error) {
-    console.error('Error unclappping post:', error);
-    throw error;
-  }
-};
+
 
 // Gửi clap cho comment
 export const clapComment = async (commentID) => {
@@ -56,19 +47,6 @@ export const getClapsCount = async (type, id) => {
   } catch (error) {
     console.error(`Error fetching claps count for ${type} ${id}:`, error);
     return 0;
-  }
-};
-
-// Lấy activities của người dùng
-export const getUserActivities = async (userId, page = 1, limit = 10) => {
-  try {
-    const response = await axiosPublicInstance.get(`/users/${userId}/activities`, {
-      params: { page, limit },
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching user activities:', error);
-    throw error;
   }
 };
 

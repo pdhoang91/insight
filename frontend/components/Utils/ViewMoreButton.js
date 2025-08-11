@@ -1,5 +1,4 @@
-// // components/Utils/ViewMoreButton.js
-//components/Utils/ViewMoreButton.js
+// components/Utils/ViewMoreButton.js
 import React from 'react';
 
 export const ViewMoreButton = ({ onClick, className = '', children = 'see more' }) => {
