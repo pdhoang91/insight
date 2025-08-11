@@ -50,7 +50,7 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
         onClick={onCancel}
       >
         <motion.div 
-          className="bg-surface rounded-xl shadow-xl border border-primary w-full max-w-lg mx-4 relative overflow-hidden"
+          className="bg-terminal-gray rounded-xl shadow-xl border border-primary w-full max-w-lg mx-4 relative overflow-hidden"
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           exit={{ scale: 0.8, opacity: 0 }}
@@ -170,7 +170,7 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
                 <button 
                   type="button" 
                   onClick={onCancel} 
-                  className="flex-1 bg-elevated text-secondary border border-primary py-3 rounded-lg font-mono text-sm font-semibold hover:bg-surface transition-colors"
+                  className="flex-1 bg-elevated text-secondary border border-primary py-3 rounded-lg font-mono text-sm font-semibold hover:bg-terminal-light transition-colors"
                 >
                   cancel()
                 </button>

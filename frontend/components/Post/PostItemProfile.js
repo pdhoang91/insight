@@ -87,8 +87,8 @@ const PostItemProfile = ({ post, isOwner }) => {
 
   return (
     <div className="w-full">
-      <article className="bg-surface rounded-xl hover:shadow-lg transition-all duration-300 border border-border-primary">
-        <div className="flex p-6">
+      <article className="rounded-xl hover:shadow-lg transition-all duration-300">
+        <div className="flex py-6 border-b border-border-primary/20">
           {/* Left Side - Content (2/3) */}
           <div className="flex-1 pr-6">
             {/* Post Title */}

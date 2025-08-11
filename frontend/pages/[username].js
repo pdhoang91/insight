@@ -107,7 +107,7 @@ const UserProfilePage = () => {
         />
 
         {/* Posts Section */}
-        <div className="bg-surface rounded-xl shadow-sm border border-border-primary p-8">
+        <div className="p-8">
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-primary mb-2">My Posts</h2>
             <p className="text-muted">Manage and view all your published articles</p>

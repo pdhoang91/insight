@@ -6,7 +6,7 @@ import { motion } from 'framer-motion';
 const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate }) => {
   return (
     <motion.div 
-      className="mb-6 bg-surface rounded-xl shadow-sm border border-border-primary overflow-hidden"
+      className="mb-6 overflow-hidden"
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
@@ -68,7 +68,7 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate }) => {
 
         {/* Bio Section - Full Width for longer bios */}
         {bio && bio.length > 100 && (
-          <div className="mt-6 pt-6 border-t border-border-primary">
+          <div className="mt-6 pt-6 border-t border-gray-600/10">
             <div className="mb-2">
               <span className="text-xs font-mono text-secondary uppercase tracking-wider">
                 // bio
