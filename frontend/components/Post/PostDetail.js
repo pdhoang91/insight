@@ -111,7 +111,7 @@ export const PostDetail = ({ post }) => {
             </div>
 
             {/* Comments Section */}
-            <div className="p-6 md:p-8 border-t border-matrix-green/20" ref={commentSectionRef}>
+            <div ref={commentSectionRef}>
               <CommentSection postId={post.id} user={user} />
             </div>
           </article>
