@@ -41,14 +41,14 @@ const CommentSection = ({ postId, user }) => {
   return (
     <div className="mt-12">
       {/* Header */}
-      <div className="mb-6 px-8">
+      <div>
         <h2 className="text-2xl font-bold text-primary font-mono mb-2">
           Comments ({totalComments})
         </h2>
       </div>
 
       {/* Add Comment Form */}
-      <div className="mb-8 px-8">
+      <div>
         {user ? (
           <AddCommentForm onAddComment={handleAddComment} />
         ) : (
@@ -59,7 +59,7 @@ const CommentSection = ({ postId, user }) => {
       </div>
 
       {/* Comments List */}
-      <div className="px-8">
+      <div className="">
         {isError && (
           <div className="text-red-400 font-mono mb-4">// Failed to load comments</div>
         )}

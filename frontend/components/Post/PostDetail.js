@@ -47,7 +47,7 @@ export const PostDetail = ({ post }) => {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <article className="rounded-lg">
             {/* Header Section */}
-            <header className="p-6 md:p-8">
+            <header>
               <h1 className="text-3xl md:text-4xl font-bold text-text-primary mb-4 leading-tight">
                 {post.title}
               </h1>
@@ -102,7 +102,7 @@ export const PostDetail = ({ post }) => {
             )}
 
             {/* Post Content */}
-            <div className="p-6 md:p-8">
+            <div>
               {/* Content */}
               <div 
                 className="prose prose-invert max-w-none text-text-secondary leading-relaxed"
