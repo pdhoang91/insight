@@ -35,6 +35,8 @@ func GetUserProfile(c *gin.Context) {
 		"name":       user.Name,
 		"avatar_url": user.AvatarURL,
 		"bio":        user.Bio,
+		"phone":      user.Phone,
+		"dob":        user.Dob,
 	})
 }
 
@@ -43,6 +45,8 @@ func UpdateUser(c *gin.Context) {
 	var input struct {
 		Name   string `json:"name"`
 		Bio    string `json:"bio"`
+		Phone  string `json:"phone"`
+		Dob    string `json:"dob"`
 		Avatar string `json:"avatar_url"`
 	}
 
@@ -66,6 +70,8 @@ func UpdateUser(c *gin.Context) {
 
 	user.Name = input.Name
 	user.Bio = input.Bio
+	user.Phone = input.Phone
+	user.Dob = input.Dob
 	user.AvatarURL = input.Avatar
 
 	if err := database.DB.Save(&user).Error; err != nil {

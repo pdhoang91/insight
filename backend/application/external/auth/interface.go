@@ -25,6 +25,7 @@ type UserProfile struct {
 	Email     string    `json:"email"`
 	Name      string    `json:"name"`
 	AvatarURL string    `json:"avatar_url"`
+	Bio       string    `json:"bio"`
 	Phone     string    `json:"phone"`
 	Dob       string    `json:"dob"`
 	Role      string    `json:"role"`
