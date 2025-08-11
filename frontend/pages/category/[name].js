@@ -33,13 +33,13 @@ const CategoryPage = () => {
   return (
     <div className="min-h-screen bg-terminal-black">
       {/* Main Content */}
-      <div className="pt-24 pb-8">
+      <div className="pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Main Content Area */}
             <div className="lg:col-span-3">
-              <div className="bg-terminal-gray rounded-lg p-6 md:p-8 border border-matrix-green/30">
-                <header className="mb-6 md:mb-8 pb-4 md:pb-6 border-b border-matrix-green/20">
+              <div className="bg-terminal-black rounded-lg p-6 md:p-8">
+                <header className="mb-2 md:mb-4 pb-4 md:pb-6 border-b border-matrix-green/20">
                   <h1 className="text-3xl md:text-4xl font-bold text-text-primary mb-3 md:mb-4 capitalize">
                     {name}
                   </h1>

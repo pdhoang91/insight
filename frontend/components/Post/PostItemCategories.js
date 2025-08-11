@@ -76,7 +76,7 @@ const PostItemCategories = ({ post }) => {
 
   return (
     <>
-      <article className="bg-surface rounded-lg hover:shadow-lg transition-all duration-300 border border-border-primary/30 overflow-hidden">
+      <article className="hover:shadow-lg transition-all duration-300 overflow-hidden">
         <div>
           {/* Header with author and meta info */}
 
