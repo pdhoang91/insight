@@ -51,7 +51,7 @@ const CategoryList = () => {
       hasMore={!isReachingEnd}
       loader={
         <div className="flex justify-center items-center py-8">
-          <div className="flex items-center gap-3 p-4 border border-border-primary rounded-lg bg-elevated">
+          <div className="flex items-center gap-3 rounded-lg bg-elevated">
             <FaSpinner className="animate-spin text-primary w-5 h-5" />
             <span className="text-secondary font-mono">Loading categories...</span>
           </div>
