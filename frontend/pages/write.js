@@ -1,22 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { useUser } from '../context/UserContext';
 import CategoryTagsPopup from '../components/Category/CategoryTagsPopup';
 import PostForm from '../components/Editor/PostForm';
 import LoadingSpinner from '../components/Shared/LoadingSpinner';
-import Button from '../components/Utils/Button';
 import Navbar from '../components/Navbar/Navbar';
 import { createPost } from '../services/postService';
 import { usePostContext } from '../context/PostContext';
-import { 
-  FaRobot, 
-  FaArrowLeft, 
-  FaEye, 
-  FaExpand,
-  FaTimes
-} from 'react-icons/fa';
+import { FaTimes } from 'react-icons/fa';
 
 const Write = () => {
   const router = useRouter();

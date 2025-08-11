@@ -1,7 +1,6 @@
 // pages/edit/[id].js
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
-import { motion } from 'framer-motion';
 import { useUser } from '../../context/UserContext';
 import CategoryTagsPopup from '../../components/Category/CategoryTagsPopup';
 import PostForm from '../../components/Editor/PostForm';
