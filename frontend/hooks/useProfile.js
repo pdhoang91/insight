@@ -1,6 +1,6 @@
 // hooks/useProfile.js
 import { useState, useEffect } from 'react';
-import { getUserProfile, updateUserProfile as updateUserProfileService, getUserPosts } from '../services/userService';
+import { updateUserProfile as updateUserProfileService, getUserPosts } from '../services/userService';
 import { useUser } from '../context/UserContext';
 
 const useProfile = () => {
@@ -13,20 +13,11 @@ const useProfile = () => {
 
   useEffect(() => {
     if (user) {
-      // Lấy profile người dùng
-      const fetchProfile = async () => {
-        try {
-          const data = await getUserProfile();
-          setProfile(data);
-        } catch (err) {
-          console.error('Failed to fetch user profile:', err);
-          setError('Failed to load profile.');
-        } finally {
-          setLoadingProfile(false);
-        }
-      };
+      // Use user data from context instead of fetching again
+      setProfile(user);
+      setLoadingProfile(false);
 
-      // Lấy posts của người dùng
+      // Only fetch posts
       const fetchPosts = async () => {
         try {
           const data = await getUserPosts(user.id);
@@ -39,7 +30,6 @@ const useProfile = () => {
         }
       };
 
-      fetchProfile();
       fetchPosts();
     }
   }, [user]);

@@ -35,8 +35,8 @@ export const useInfiniteUserPosts = (activeTab, username) => {
 
   // Hàm để tạo key cho mỗi trang
   const getKey = (pageIndex, previousPageData) => {
-    // Don't fetch if username is undefined (router not ready yet)
-    if ((activeTab === 'posts' || activeTab === 'YourPosts' || activeTab === 'UserPosts') && !username) {
+    // Don't fetch if username is undefined or empty (router not ready yet)
+    if ((activeTab === 'posts' || activeTab === 'YourPosts' || activeTab === 'UserPosts') && (!username || username.trim() === '')) {
       return null;
     }
 
@@ -44,11 +44,11 @@ export const useInfiniteUserPosts = (activeTab, username) => {
     if (previousPageData && (previousPageData.posts?.length ?? 0) < PAGE_SIZE) return null;
 
     if (activeTab === 'YourPosts') {
-      return ['YourPosts', pageIndex + 1, PAGE_SIZE];
+      return ['YourPosts', pageIndex + 1, PAGE_SIZE, username]; // Include username in key
     } else if (activeTab === 'UserPosts') {
-      return ['UserPosts', pageIndex + 1, PAGE_SIZE];
+      return ['UserPosts', pageIndex + 1, PAGE_SIZE, username]; // Include username in key
     } else if (activeTab === 'posts') {
-      return ['posts', pageIndex + 1, PAGE_SIZE];
+      return ['posts', pageIndex + 1, PAGE_SIZE, username]; // Include username in key
     } else if (activeTab === 'ForYou') {
       return ['ForYou', pageIndex + 1, PAGE_SIZE];
     } else if (activeTab === 'Following' && user) {
@@ -63,7 +63,12 @@ export const useInfiniteUserPosts = (activeTab, username) => {
   // Sử dụng useSWRInfinite để lấy dữ liệu
   const { data, error, size, setSize } = useSWRInfinite(
     getKey,
-    ([type, page, limit]) => fetcher(type, page, limit)
+    ([type, page, limit]) => fetcher(type, page, limit),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 5000, // Prevent duplicate requests within 5 seconds
+    }
   );
 
   // Các trạng thái loading và error

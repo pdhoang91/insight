@@ -1,19 +1,25 @@
 // components/Post/PostItemCard.js
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { FaComment, FaEye } from 'react-icons/fa';
-import { FaHandsClapping } from 'react-icons/fa6';
+import { FaEye, FaComment } from 'react-icons/fa';
+import { FaHandsClapping } from "react-icons/fa6";
+import AddCommentForm from '../Comment/AddCommentForm';
+import CommentItem from '../Comment/CommentItem';
+import TextUtils from '../Utils/TextUtils';
+import SafeImage from '../Utils/SafeImage';
 import { useUser } from '../../context/UserContext';
 import { clapPost } from '../../services/activityService';
 import { useComments } from '../../hooks/useComments';
-import CommentsPopup from '../Comment/CommentsPopup';
-import TextUtils from '../Utils/TextUtils';
+import { addComment } from '../../services/commentService';
 import TimeAgo from '../Utils/TimeAgo';
-import SafeImage from '../Utils/SafeImage';
 
 const PostItemCard = ({ post }) => {
   if (!post) {
-    return <div>Loading post...</div>;
+    return (
+      <div className="bg-surface rounded-xl p-6 border border-border-primary animate-pulse">
+        <div className="text-muted">Loading post...</div>
+      </div>
+    );
   }
 
   const { user } = useUser();
@@ -21,7 +27,8 @@ const PostItemCard = ({ post }) => {
   const [clapLoading, setClapLoading] = useState(false);
   const [currentClapCount, setCurrentClapCount] = useState(post.clap_count || 0);
 
-  const { comments, totalCommentReply, totalCount, isLoading, isError, mutate } = useComments(post.id, true, 1, 10);
+  // Only load comments when the popup is actually open
+  const { comments, totalCommentReply, totalCount, isLoading, isError, mutate } = useComments(post.id, isCommentsOpen, 1, 10);
 
   const handleClap = async () => {
     if (!user) {
@@ -33,7 +40,7 @@ const PostItemCard = ({ post }) => {
     setClapLoading(true);
     try {
       await clapPost(post.id);
-      setCurrentClapCount((prev) => prev + 1);
+      setCurrentClapCount(prev => prev + 1);
     } catch (error) {
       console.error('Failed to clap:', error);
       alert('An error occurred while clapping. Please try again.');
@@ -43,7 +50,24 @@ const PostItemCard = ({ post }) => {
   };
 
   const toggleCommentPopup = () => setCommentsOpen((prev) => !prev);
-  const closeCommentPopup = () => setCommentsOpen(false);
+
+  const handleAddComment = async (content) => {
+    if (!user) {
+      alert('Please login to comment.');
+      return;
+    }
+    if (!content.trim()) {
+      alert('Comment cannot be empty.');
+      return;
+    }
+    try {
+      await addComment(post.id, content);
+      mutate(); // Refresh comments
+    } catch (err) {
+      console.error('Failed to add comment:', err);
+      alert('Failed to add comment. Please try again.');
+    }
+  };
 
   return (
     <>
@@ -138,20 +162,52 @@ const PostItemCard = ({ post }) => {
             </div>
           </div>
         </div>
-      </article>
+        {/* Comments Section - Inline */}
+        {isCommentsOpen && (
+          <div className="border-t border-border-primary bg-surface-secondary">
+            {/* Add Comment Form */}
+            <div className="p-4 border-b border-border-secondary">
+              {user ? (
+                <AddCommentForm onAddComment={handleAddComment} />
+              ) : (
+                <div className="text-center py-4">
+                  <span className="text-muted text-sm">Please login to comment</span>
+                </div>
+              )}
+            </div>
 
-      {/* Comments Popup */}
-      {isCommentsOpen && (
-        <CommentsPopup
-          postId={post.id}
-          comments={comments}
-          totalCount={totalCount}
-          isLoading={isLoading}
-          isError={isError}
-          mutate={mutate}
-          onClose={closeCommentPopup}
-        />
-      )}
+            {/* Comments List */}
+            <div className="p-4">
+              {isError && (
+                <div className="text-danger text-sm text-center py-4">
+                  Failed to load comments
+                </div>
+              )}
+              
+              {isLoading && comments.length === 0 && (
+                <div className="flex justify-center items-center py-6">
+                  <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin mr-2"></div>
+                  <span className="text-secondary text-sm">Loading comments...</span>
+                </div>
+              )}
+
+              {comments && comments.length > 0 && (
+                <div className="space-y-4">
+                  {comments.map((comment) => (
+                    <CommentItem key={comment.id} comment={comment} postId={post.id} mutate={mutate} />
+                  ))}
+                </div>
+              )}
+
+              {!isLoading && !isError && comments.length === 0 && (
+                <div className="text-center py-6">
+                  <span className="text-muted text-sm">No comments yet</span>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </article>
     </>
   );
 };

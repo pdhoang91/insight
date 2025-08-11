@@ -9,12 +9,12 @@ import useAuth from '../hooks/useAuth';
 import '../styles/globals.css';
 
 function MyApp({ Component, pageProps }) {
-  const { user, setUser, loading } = useAuth();
+  const { user, setUser, loading, mutate } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
     <PostProvider>
-      <UserContext.Provider value={{ user, setUser, setModalOpen, loading }}>
+      <UserContext.Provider value={{ user, setUser, setModalOpen, loading, mutate }}>
         <div className="min-h-screen bg-terminal-black">
           <Navbar />
           <LoginModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />

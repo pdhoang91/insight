@@ -6,9 +6,11 @@ import { useUser } from '../../context/UserContext';
 import SafeImage from '../Utils/SafeImage';
 import TimeAgo from '../Utils/TimeAgo';
 import TextUtils from '../Utils/TextUtils';
-import CommentsPopup from '../Comment/CommentsPopup';
+import AddCommentForm from '../Comment/AddCommentForm';
+import CommentItem from '../Comment/CommentItem';
 import { useComments } from '../../hooks/useComments';
 import { clapPost } from '../../services/activityService';
+import { addComment } from '../../services/commentService';
 
 const PostItemCategories = ({ post }) => {
   const { user } = useUser();
@@ -41,6 +43,26 @@ const PostItemCategories = ({ post }) => {
       alert('Failed to clap post. Please try again.');
     } finally {
       setClapLoading(false);
+    }
+  };
+
+  const handleAddComment = async (commentText) => {
+    if (!user) {
+      alert('You need to login to comment.');
+      return;
+    }
+
+    if (!commentText.trim()) {
+      alert('Comment cannot be empty.');
+      return;
+    }
+
+    try {
+      await addComment(post.id, commentText);
+      mutate(); // Refresh comments
+    } catch (err) {
+      console.error('Failed to add comment:', err);
+      alert('Failed to add comment. Please try again.');
     }
   };
 
@@ -145,21 +167,54 @@ const PostItemCategories = ({ post }) => {
               Read more →
             </Link>
           </div>
+
+          {/* Comments Section - Inline */}
+          {isCommentsOpen && (
+            <div className="border-t border-border-primary bg-surface-secondary">
+              {/* Add Comment Form */}
+              <div className="p-6 border-b border-border-secondary">
+                {user ? (
+                  <AddCommentForm onAddComment={handleAddComment} />
+                ) : (
+                  <div className="text-center py-4">
+                    <span className="text-muted text-sm">Please login to comment</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Comments List */}
+              <div className="p-6">
+                {isError && (
+                  <div className="text-danger text-sm text-center py-4">
+                    Failed to load comments
+                  </div>
+                )}
+                
+                {isLoading && comments.length === 0 && (
+                  <div className="flex justify-center items-center py-6">
+                    <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin mr-2"></div>
+                    <span className="text-secondary text-sm">Loading comments...</span>
+                  </div>
+                )}
+
+                {comments && comments.length > 0 && (
+                  <div className="space-y-4">
+                    {comments.map((comment) => (
+                      <CommentItem key={comment.id} comment={comment} postId={post.id} mutate={mutate} />
+                    ))}
+                  </div>
+                )}
+
+                {!isLoading && !isError && comments.length === 0 && (
+                  <div className="text-center py-6">
+                    <span className="text-muted text-sm">No comments yet</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </article>
-
-      {/* Comments Popup */}
-      {isCommentsOpen && (
-        <CommentsPopup
-          postId={post.id}
-          comments={comments}
-          totalCount={totalCount}
-          isLoading={isLoading}
-          isError={isError}
-          mutate={mutate}
-          onClose={closeCommentPopup}
-        />
-      )}
     </>
   );
 };

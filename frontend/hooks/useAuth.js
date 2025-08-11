@@ -1,11 +1,23 @@
 
 // hooks/useAuth.js
 import { useState, useEffect } from 'react';
+import useSWR from 'swr';
 import { getUserProfile } from '../services/userService';
 
 const useAuth = () => {
-  const [user, setUser] = useState(null); // Quản lý trạng thái người dùng tại đây
-  const [loading, setLoading] = useState(true); // Quản lý trạng thái tải dữ liệu
+  const [user, setUser] = useState(null);
+  const [initialized, setInitialized] = useState(false);
+
+  // Use SWR to cache the /api/me request
+  const { data: userData, error, mutate } = useSWR(
+    initialized ? '/api/me' : null,
+    getUserProfile,
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 10000, // Prevent duplicate requests within 10 seconds
+    }
+  );
 
   const initializeUser = async () => {
     try {
@@ -18,36 +30,44 @@ const useAuth = () => {
         // Lưu token vào localStorage
         localStorage.setItem('token', token);
 
-        // Gọi API để lấy thông tin người dùng
-        const userProfile = await getUserProfile();
-        setUser(userProfile);
-
         // Loại bỏ fragment từ URL
         window.history.replaceState({}, document.title, window.location.pathname);
-      } else {
-        // Nếu không có token trong URL, kiểm tra token trong localStorage
-        const existingToken = localStorage.getItem('token');
-        if (existingToken) {
-          const userProfile = await getUserProfile();
-          setUser(userProfile);
-        }
+      }
+
+      // Check if we have a token in localStorage
+      const existingToken = localStorage.getItem('token');
+      if (existingToken) {
+        setInitialized(true); // This will trigger SWR to fetch user data
       }
     } catch (error) {
       console.error('Error during authentication:', error);
-      // Xóa token nếu có lỗi
       localStorage.removeItem('token');
       setUser(null);
-      alert('Đăng nhập thất bại. Vui lòng thử lại.');
-    } finally {
-      setLoading(false);
     }
   };
 
+  // Initialize on mount
   useEffect(() => {
     initializeUser();
   }, []);
 
-  return { user, setUser, loading };
+  // Update user state when SWR data changes
+  useEffect(() => {
+    if (userData) {
+      setUser(userData);
+    } else if (error) {
+      console.error('Error fetching user profile:', error);
+      localStorage.removeItem('token');
+      setUser(null);
+    }
+  }, [userData, error]);
+
+  return { 
+    user, 
+    setUser, 
+    loading: !initialized || (!userData && !error),
+    mutate // Expose mutate for manual revalidation
+  };
 };
 
 export default useAuth;

@@ -13,7 +13,7 @@ import SafeImage from '../components/Utils/SafeImage';
 const UserProfilePage = () => {
   const router = useRouter();
   const { username } = router.query;
-  const { user: loggedUser, loading: loadingUser, mutate: mutateUser } = useUser();
+  const { user: loggedUser, loading: loadingUser, mutate } = useUser();
 
   const [showPopup, setShowPopup] = useState(false);
 
@@ -48,8 +48,8 @@ const UserProfilePage = () => {
     try {
       await updateProfile(profileData);
       setShowPopup(false);
-      if (mutateUser) {
-        await mutateUser();
+      if (mutate) {
+        await mutate();
       }
     } catch (err) {
       console.error("Failed to update profile:", err);
