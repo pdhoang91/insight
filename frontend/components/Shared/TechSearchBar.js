@@ -6,7 +6,7 @@ import { SiVim, SiPython, SiJavascript, SiReact, SiDocker } from 'react-icons/si
 import { useTagSearch } from '../../hooks/useTags';
 import { useCategories } from '../../hooks/useCategories';
 
-const TechSearchBar = ({ placeholder = "$ grep -r 'search' --include='*.tech'", className = "", onSearch }) => {
+const TechSearchBar = ({ placeholder = "Search articles, tags, categories...", className = "", onSearch }) => {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -121,65 +121,38 @@ const TechSearchBar = ({ placeholder = "$ grep -r 'search' --include='*.tech'", 
             onChange={(e) => setQuery(e.target.value)}
             onFocus={() => setIsOpen(true)}
             placeholder={placeholder}
-            className="w-full pl-12 pr-12 py-3 border border-matrix-green/30 rounded-lg focus:ring-2 focus:ring-matrix-green/50 focus:border-matrix-green transition-colors duration-300 text-sm bg-terminal-dark text-text-primary placeholder-text-muted hover:border-matrix-green/50"
+            className="w-full pl-10 pr-4 py-2 border border-matrix-green/30 rounded-md focus:ring-2 focus:ring-matrix-green/50 focus:border-matrix-green transition-colors duration-300 text-sm bg-terminal-dark text-text-primary placeholder-text-muted hover:border-matrix-green/50"
           />
           
-          {/* Terminal Prompt Icon */}
-          <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-matrix-green">
-            <FaTerminal className="w-4 h-4" />
-          </div>
+                                {/* Search Icon */}
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-text-muted">
+              <FaSearch className="w-3 h-3" />
+            </div>
           
-          {/* Search Button with Animation */}
-          <button
-            type="submit"
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-text-muted hover:text-matrix-green transition-colors duration-300"
-          >
-            <FaSearch className={`w-4 h-4 ${isTyping ? 'animate-pulse' : ''}`} />
-          </button>
-          
-          {/* Terminal Cursor Effect */}
-          {isOpen && (
-            <div className="absolute right-8 top-1/2 transform -translate-y-1/2 w-2 h-4 bg-matrix-green animate-terminal-blink"></div>
-          )}
+                     
         </div>
       </form>
 
-      {/* Enhanced Search Dropdown - Terminal Window Style */}
-      {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-terminal-dark border border-matrix-green rounded-lg shadow-lg z-50 max-h-96 overflow-hidden">
-          {/* Terminal Window Header */}
-          <div className="bg-terminal-gray px-4 py-2 border-b border-matrix-green/30">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2 text-xs font-mono text-matrix-green">
-                <span className="flex space-x-1">
-                  <span className="w-2 h-2 bg-hacker-red rounded-full"></span>
-                  <span className="w-2 h-2 bg-hacker-yellow rounded-full"></span>
-                  <span className="w-2 h-2 bg-matrix-green rounded-full"></span>
-                </span>
-                <span>search@terminal</span>
-              </div>
-              <div className="text-text-muted text-xs">
-                {query && `"${query}"`}
-              </div>
-            </div>
-          </div>
+             {/* Search Dropdown */}
+       {isOpen && (
+         <div className="absolute top-full left-0 right-0 mt-1 bg-terminal-dark border border-matrix-green/30 rounded-md shadow-lg z-50 max-h-64 overflow-hidden">
 
-          <div className="max-h-80 overflow-y-auto custom-scrollbar">
+                      <div className="max-h-60 overflow-y-auto custom-scrollbar">
             {/* Recent Searches */}
             {recentSearches.length > 0 && (
-              <div className="p-4 border-b border-matrix-green/20">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-2">
-                    <FaHistory className="w-3 h-3 text-matrix-cyan" />
-                    <span className="text-sm font-mono font-medium text-matrix-green">recent_searches[]</span>
+                             <div className="p-2.5 border-b border-matrix-green/20">
+                                   <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center space-x-2">
+                      <FaHistory className="w-3 h-3 text-text-muted" />
+                      <span className="text-sm font-medium text-text-secondary">Recent</span>
+                    </div>
+                    <button
+                      onClick={clearRecentSearches}
+                      className="text-xs text-text-muted hover:text-hacker-red transition-colors"
+                    >
+                      Clear
+                    </button>
                   </div>
-                  <button
-                    onClick={clearRecentSearches}
-                    className="text-xs text-text-muted hover:text-hacker-red transition-colors font-mono hover:animate-glitch"
-                  >
-                    rm -rf *
-                  </button>
-                </div>
                 <div className="flex flex-wrap gap-2">
                   {recentSearches.map((search, index) => (
                     <button
@@ -206,10 +179,9 @@ const TechSearchBar = ({ placeholder = "$ grep -r 'search' --include='*.tech'", 
                     <button
                       key={tag.id}
                       onClick={() => handleSuggestionClick(tag.name)}
-                      className="w-full text-left px-3 py-2 text-sm text-text-secondary hover:bg-terminal-gray hover:text-hacker-yellow rounded transition-all duration-300 font-mono border border-transparent hover:border-hacker-yellow/30"
+                      className="w-full text-left px-3 py-2 text-sm text-text-secondary hover:bg-terminal-gray hover:text-text-primary rounded transition-colors"
                     >
-                      <span className="text-hacker-yellow">#</span>
-                      <span className="ml-1">{tag.name}</span>
+                      <span>{tag.name}</span>
                       <span className="ml-2 text-text-muted text-xs">({tag.count || 0})</span>
                     </button>
                   ))}
@@ -217,35 +189,34 @@ const TechSearchBar = ({ placeholder = "$ grep -r 'search' --include='*.tech'", 
               </div>
             )}
 
-            {/* Category Suggestions */}
-            {categories.length > 0 && (
-              <div className="p-4 border-b border-matrix-green/20">
-                <div className="flex items-center space-x-2 mb-3">
-                  <FaCode className="w-3 h-3 text-matrix-cyan" />
-                  <span className="text-sm font-mono font-medium text-matrix-green">categories[]</span>
-                </div>
+                          {/* Category Suggestions */}
+              {categories.length > 0 && (
+                <div className="p-2.5 border-b border-matrix-green/20">
+                                   <div className="flex items-center space-x-2 mb-2">
+                   <FaCode className="w-3 h-3 text-text-muted" />
+                   <span className="text-sm font-medium text-text-secondary">Categories</span>
+                 </div>
                 <div className="space-y-1">
                   {categories.map((category) => (
                     <button
                       key={category.id}
                       onClick={() => handleSuggestionClick(category.name)}
-                      className="w-full text-left px-3 py-2 text-sm text-text-secondary hover:bg-terminal-gray hover:text-matrix-cyan rounded transition-all duration-300 font-mono border border-transparent hover:border-matrix-cyan/30"
+                      className="w-full text-left px-3 py-2 text-sm text-text-secondary hover:bg-terminal-gray hover:text-text-primary rounded transition-colors"
                     >
-                      <span className="text-matrix-cyan">./</span>
-                      <span className="ml-1">{category.name}</span>
+                      <span>{category.name}</span>
                     </button>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Popular Searches with Icons */}
-            {!query && (
-              <div className="p-4">
-                <div className="flex items-center space-x-2 mb-3">
-                  <FaSearch className="w-3 h-3 text-matrix-green animate-neon-pulse" />
-                  <span className="text-sm font-mono font-medium text-matrix-green">popular_tech[]</span>
-                </div>
+                                        {/* Popular Searches */}
+              {!query && (
+                 <div className="p-2.5">
+                   <div className="flex items-center space-x-2 mb-2">
+                    <FaSearch className="w-3 h-3 text-text-muted" />
+                    <span className="text-sm font-medium text-text-secondary">Popular</span>
+                   </div>
                 <div className="grid grid-cols-2 gap-2">
                   {popularSearches.map((search, index) => {
                     const IconComponent = search.icon;

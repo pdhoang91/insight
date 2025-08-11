@@ -85,45 +85,45 @@ const Navbar = ({ onPublish }) => {
         : 'bg-terminal-black/80 backdrop-blur-sm'
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-14">
           {/* Logo */}
           <Link 
             href="/" 
             className="flex items-center space-x-3"
             onClick={() => setIsMobileMenuOpen(false)}
           >
-            <div className="text-xl font-bold text-matrix-green hover:text-matrix-light-green transition-colors">
+            <div className="text-lg font-bold text-matrix-green hover:text-matrix-light-green transition-colors">
               INSIGHT
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-4 lg:space-x-8">
+          <div className="hidden md:flex items-center space-x-3 lg:space-x-6">
             {/* Search Bar */}
-            <div className="w-64 lg:w-96">
+            <div className="w-56 lg:w-80">
               <TechSearchBar />
             </div>
 
             {/* Navigation Links */}
-            <div className="flex items-center space-x-3 lg:space-x-6">
+            <div className="flex items-center space-x-2 lg:space-x-4">
               {/* Write Button - Hide on write/edit pages */}
               {router.pathname !== '/write' && !router.pathname.startsWith('/edit/') && (
-                <button
-                  onClick={handleWriteClick}
-                  className="flex items-center space-x-2 px-4 py-2 bg-matrix-green/10 text-matrix-green border border-matrix-green/30 rounded-lg hover:bg-matrix-green hover:text-terminal-black transition-all duration-300"
-                >
-                  <FaEdit className="w-4 h-4" />
-                  <span className="font-medium">Write</span>
-                </button>
+                                  <button
+                    onClick={handleWriteClick}
+                    className="flex items-center space-x-1.5 px-3 py-1.5 bg-matrix-green/10 text-matrix-green border border-matrix-green/30 rounded-md hover:bg-matrix-green hover:text-terminal-black transition-all duration-300 text-sm"
+                  >
+                    <FaEdit className="w-3 h-3" />
+                    <span className="font-medium">Write</span>
+                  </button>
               )}
 
               {/* Publish Button (show on write page) */}
               {router.pathname === '/write' && onPublish && (
                 <button
                   onClick={handlePublishClick}
-                  className="flex items-center space-x-2 px-4 py-2 bg-hacker-yellow/10 text-hacker-yellow border border-hacker-yellow/30 rounded-lg hover:bg-hacker-yellow hover:text-terminal-black transition-all duration-300"
+                  className="flex items-center space-x-1.5 px-3 py-1.5 bg-hacker-yellow/10 text-hacker-yellow border border-hacker-yellow/30 rounded-md hover:bg-hacker-yellow hover:text-terminal-black transition-all duration-300 text-sm"
                 >
-                  <FaPaperPlane className="w-4 h-4" />
+                  <FaPaperPlane className="w-3 h-3" />
                   <span className="font-medium">Publish</span>
                 </button>
               )}
@@ -132,9 +132,9 @@ const Navbar = ({ onPublish }) => {
               {router.pathname.startsWith('/edit/') && onPublish && (
                 <button
                   onClick={handlePublishClick}
-                  className="flex items-center space-x-2 px-4 py-2 bg-matrix-cyan/10 text-matrix-cyan border border-matrix-cyan/30 rounded-lg hover:bg-matrix-cyan hover:text-terminal-black transition-all duration-300"
+                  className="flex items-center space-x-1.5 px-3 py-1.5 bg-matrix-cyan/10 text-matrix-cyan border border-matrix-cyan/30 rounded-md hover:bg-matrix-cyan hover:text-terminal-black transition-all duration-300 text-sm"
                 >
-                  <FaPaperPlane className="w-4 h-4" />
+                  <FaPaperPlane className="w-3 h-3" />
                   <span className="font-medium">Update</span>
                 </button>
               )}
@@ -144,9 +144,9 @@ const Navbar = ({ onPublish }) => {
                 <div className="relative" ref={userMenuRef}>
                   <button
                     onClick={toggleUserMenu}
-                    className="flex items-center space-x-2 p-2 rounded-lg hover:bg-terminal-gray transition-colors"
+                    className="flex items-center space-x-1.5 p-1.5 rounded-md hover:bg-terminal-gray transition-colors"
                   >
-                    <div className="w-8 h-8 bg-matrix-green/20 rounded-full flex items-center justify-center">
+                    <div className="w-7 h-7 bg-matrix-green/20 rounded-full flex items-center justify-center">
                       {user.avatar ? (
                         <img
                           src={user.avatar}
@@ -154,7 +154,7 @@ const Navbar = ({ onPublish }) => {
                           className="w-full h-full rounded-full object-cover"
                         />
                       ) : (
-                        <FaUser className="w-4 h-4 text-matrix-green" />
+                        <FaUser className="w-3 h-3 text-matrix-green" />
                       )}
                     </div>
                   </button>
@@ -210,7 +210,7 @@ const Navbar = ({ onPublish }) => {
               ) : (
                 <button
                   onClick={() => setModalOpen(true)}
-                  className="px-4 py-2 text-text-secondary hover:text-matrix-green border border-matrix-green/30 rounded-lg hover:border-matrix-green/50 transition-all"
+                  className="px-3 py-1.5 text-sm text-text-secondary hover:text-matrix-green border border-matrix-green/30 rounded-md hover:border-matrix-green/50 transition-all"
                 >
                   Sign In
                 </button>
@@ -221,12 +221,12 @@ const Navbar = ({ onPublish }) => {
           {/* Mobile Menu Button */}
           <button
             onClick={toggleMobileMenu}
-            className="md:hidden p-2 rounded-lg hover:bg-terminal-gray transition-colors"
+            className="md:hidden p-1 rounded-md hover:bg-terminal-gray transition-colors"
           >
             {isMobileMenuOpen ? (
-              <FaTimes className="w-5 h-5 text-text-primary" />
+              <FaTimes className="w-4 h-4 text-text-primary" />
             ) : (
-              <FaBars className="w-5 h-5 text-text-primary" />
+              <FaBars className="w-4 h-4 text-text-primary" />
             )}
           </button>
         </div>

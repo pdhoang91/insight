@@ -43,7 +43,7 @@ export const PostDetail = ({ post }) => {
   return (
     <div className="min-h-screen bg-terminal-black">
       {/* Main Content */}
-      <div className="pt-24 pb-8">
+      <div className="pb-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <article className="bg-terminal-gray rounded-lg border border-matrix-green/30">
             {/* Header Section */}

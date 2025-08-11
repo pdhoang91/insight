@@ -16,9 +16,9 @@ const Home = () => {
   return (
     <div className="min-h-screen bg-terminal-black">
       {/* Main Content */}
-      <div className="pt-24 pb-8">
+      <div className="pb-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Posts Area */}
             <div className="lg:col-span-3">
               <PostList
@@ -33,7 +33,7 @@ const Home = () => {
 
             {/* Sidebar */}
             <div className="lg:col-span-1">
-              <div className="sticky top-24">
+              <div className="sticky top-12">
                 <BlogSidebar />
               </div>
             </div>

@@ -50,15 +50,15 @@ const BlogSidebar = () => {
   };
 
   return (
-    <aside className="space-y-8">
+    <aside className="space-y-6">
       {/* Popular Posts */}
       {!postsLoading && topPosts.length > 0 && (
-        <div className="bg-terminal-gray rounded-lg border border-terminal-border p-6">
-          <h3 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+        <div className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
+          <h3 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
             <FaFire className="w-4 h-4 text-hacker-orange" />
             Popular Posts
           </h3>
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {topPosts.map((post) => (
               <CompactPostItem key={post.id} post={post} minimal={true} />
             ))}
@@ -68,8 +68,8 @@ const BlogSidebar = () => {
 
       {/* Categories */}
       {!categoriesLoading && categories && categories.length > 0 && (
-        <div className="bg-terminal-gray rounded-lg border border-terminal-border p-6">
-          <h3 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+        <div className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
+          <h3 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
             <FaCode className="w-4 h-4 text-matrix-green" />
             <Link href="/category" className="hover:text-matrix-green transition-colors">
               Categories
@@ -95,12 +95,12 @@ const BlogSidebar = () => {
 
       {/* Latest Posts */}
       {!postsLoading && latestPosts.length > 0 && (
-        <div className="bg-terminal-gray rounded-lg border border-terminal-border p-6">
-          <h3 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+        <div className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
+          <h3 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
             <FaClock className="w-4 h-4 text-hacker-blue" />
             Latest Posts
           </h3>
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {latestPosts.map((post) => (
               <CompactPostItem key={post.id} post={post} minimal={true} />
             ))}
@@ -110,8 +110,8 @@ const BlogSidebar = () => {
 
       {/* Popular Tags */}
       {!tagsLoading && tags && tags.length > 0 && (
-        <div className="bg-terminal-gray rounded-lg border border-terminal-border p-6">
-          <h3 className="text-lg font-semibold text-text-primary mb-4 flex items-center gap-2">
+        <div className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
+          <h3 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
             <FaBolt className="w-4 h-4 text-hacker-yellow" />
             Popular Tags
           </h3>

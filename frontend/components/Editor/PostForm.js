@@ -296,7 +296,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
 
   return (
     <div className={`w-full transition-all duration-300 max-w-6xl mx-auto`}>
-      <div className={`p-6`}>
+      <div className={`p-1`}>
         {/* Title Input Section */}
         <div className="mb-6">
           <TitleInput

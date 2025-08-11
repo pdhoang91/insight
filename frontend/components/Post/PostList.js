@@ -212,32 +212,32 @@ const PostList = ({ posts, isLoading, isError, setSize, isReachingEnd, variant =
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <InfiniteScroll
         dataLength={posts.length}
         next={fetchMore}
         hasMore={!isReachingEnd}
         loader={
           variant === 'enhanced' ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8 mt-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6 mt-6">
               {Array.from({ length: 3 }).map((_, index) => (
                 <PostSkeleton key={`loading-${index}`} variant="enhanced" />
               ))}
             </div>
           ) : variant === 'list' ? (
-            <div className="space-y-6 mt-8">
+            <div className="space-y-4 mt-6">
               {Array.from({ length: 3 }).map((_, index) => (
                 <PostSkeleton key={`loading-${index}`} variant="list" />
               ))}
             </div>
           ) : variant === 'compact' ? (
-            <div className="space-y-4 mt-8">
+            <div className="space-y-3 mt-6">
               {Array.from({ length: 3 }).map((_, index) => (
                 <PostSkeleton key={`loading-${index}`} variant="compact" />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
               {Array.from({ length: 3 }).map((_, index) => (
                 <PostSkeleton key={`loading-${index}`} variant="card" />
               ))}
@@ -248,35 +248,35 @@ const PostList = ({ posts, isLoading, isError, setSize, isReachingEnd, variant =
         {/* Posts Layout */}
         {variant === 'enhanced' ? (
           // Enhanced Layout - Rich cards with more content
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             {posts.map((post, index) => (
               <EnhancedPostItem key={`${post.id}-${index}`} post={post} variant="enhanced" />
             ))}
           </div>
         ) : variant === 'compact' ? (
           // Compact Layout - For sidebar or dense listings
-          <div className="space-y-4">
+          <div className="space-y-3">
             {posts.map((post, index) => (
               <CompactPostItem key={`${post.id}-${index}`} post={post} />
             ))}
           </div>
         ) : variant === 'list' ? (
           // List Layout - Traditional blog style
-          <div className="space-y-6">
+          <div className="space-y-4">
             {posts.map((post, index) => (
               <PostItemList key={`${post.id}-${index}`} post={post} />
             ))}
           </div>
         ) : variant === 'timeline' ? (
           // Timeline Layout - Horizontal timeline style
-          <div className="space-y-6">
+          <div className="space-y-4">
             {posts.map((post, index) => (
               <PostItemTimeline key={`${post.id}-${index}`} post={post} />
             ))}
           </div>
         ) : (
           // Grid Layout - Modern card style (fallback)
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {posts.map((post, index) => (
               <PostItemCard key={`${post.id}-${index}`} post={post} />
             ))}
