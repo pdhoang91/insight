@@ -23,6 +23,7 @@ const Navbar = ({ onPublish }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const userMenuRef = useRef();
+  const mobileMenuRef = useRef();
 
   // Handle scroll effect
   useEffect(() => {
@@ -35,11 +36,14 @@ const Navbar = ({ onPublish }) => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close user menu when clicking outside
+  // Close menus when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
         setIsUserMenuOpen(false);
+      }
+      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
+        setIsMobileMenuOpen(false);
       }
     };
 
@@ -51,10 +55,12 @@ const Navbar = ({ onPublish }) => {
     localStorage.removeItem('token');
     setUser(null);
     setIsUserMenuOpen(false);
+    setIsMobileMenuOpen(false); // Close mobile menu
     router.push('/');
   };
 
   const handleWriteClick = () => {
+    setIsMobileMenuOpen(false); // Close mobile menu
     if (!user) {
       setModalOpen(true);
     } else {
@@ -63,6 +69,7 @@ const Navbar = ({ onPublish }) => {
   };
 
   const handlePublishClick = () => {
+    setIsMobileMenuOpen(false); // Close mobile menu
     if (onPublish) {
       onPublish();
     }
@@ -80,21 +87,25 @@ const Navbar = ({ onPublish }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-3">
+          <Link 
+            href="/" 
+            className="flex items-center space-x-3"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
             <div className="text-xl font-bold text-matrix-green hover:text-matrix-light-green transition-colors">
               INSIGHT
             </div>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-4 lg:space-x-8">
             {/* Search Bar */}
-            <div className="w-96">
+            <div className="w-64 lg:w-96">
               <TechSearchBar />
             </div>
 
             {/* Navigation Links */}
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-3 lg:space-x-6">
               {/* Write Button - Hide on write/edit pages */}
               {router.pathname !== '/write' && !router.pathname.startsWith('/edit/') && (
                 <button
@@ -157,8 +168,12 @@ const Navbar = ({ onPublish }) => {
                         transition={{ duration: 0.2 }}
                         className="absolute right-0 mt-2 w-64 bg-terminal-gray border border-matrix-green/30 rounded-lg shadow-lg overflow-hidden"
                       >
-                        {/* User Info */}
-                        <div className="p-4 border-b border-matrix-green/20">
+                        {/* User Info - Clickable to go to profile */}
+                        <Link
+                          href={`/${user.username}`}
+                          className="block p-4 border-b border-matrix-green/20 hover:bg-terminal-light transition-colors"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
                           <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 bg-matrix-green/20 rounded-full flex items-center justify-center">
                               {user.avatar ? (
@@ -176,18 +191,10 @@ const Navbar = ({ onPublish }) => {
                               <div className="text-sm text-text-muted">{user.email}</div>
                             </div>
                           </div>
-                        </div>
+                        </Link>
 
                         {/* Menu Items */}
                         <div className="py-2">
-                          <Link
-                            href={`/${user.username}`}
-                            className="flex items-center space-x-3 px-4 py-2 text-text-secondary hover:text-text-primary hover:bg-terminal-light transition-colors"
-                            onClick={() => setIsUserMenuOpen(false)}
-                          >
-                            <FaUserCircle className="w-4 h-4" />
-                            <span>Profile</span>
-                          </Link>
                           <button
                             onClick={handleLogout}
                             className="w-full flex items-center space-x-3 px-4 py-2 text-hacker-red hover:bg-terminal-light transition-colors"
@@ -228,6 +235,7 @@ const Navbar = ({ onPublish }) => {
         <AnimatePresence>
           {isMobileMenuOpen && (
             <motion.div
+              ref={mobileMenuRef}
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
@@ -236,7 +244,7 @@ const Navbar = ({ onPublish }) => {
             >
               <div className="p-4 space-y-4">
                 {/* Search Bar */}
-                <TechSearchBar />
+                <TechSearchBar onSearch={() => setIsMobileMenuOpen(false)} />
 
                 {/* Actions */}
                 <div className="space-y-2">
@@ -275,14 +283,31 @@ const Navbar = ({ onPublish }) => {
 
                   {user ? (
                     <>
+                      {/* User Info - Clickable to go to profile */}
                       <Link
                         href={`/${user.username}`}
-                        className="w-full flex items-center space-x-2 p-3 text-text-secondary hover:text-text-primary hover:bg-terminal-gray rounded-lg transition-colors"
+                        className="w-full p-3 border border-matrix-green/20 rounded-lg hover:bg-terminal-gray transition-colors"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
-                        <FaUserCircle className="w-4 h-4" />
-                        <span>Profile</span>
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-matrix-green/20 rounded-full flex items-center justify-center">
+                            {user.avatar ? (
+                              <img
+                                src={user.avatar}
+                                alt={user.name}
+                                className="w-full h-full rounded-full object-cover"
+                              />
+                            ) : (
+                              <FaUser className="w-5 h-5 text-matrix-green" />
+                            )}
+                          </div>
+                          <div>
+                            <div className="font-medium text-text-primary">{user.name}</div>
+                            <div className="text-sm text-text-muted">{user.email}</div>
+                          </div>
+                        </div>
                       </Link>
+                      
                       <button
                         onClick={handleLogout}
                         className="w-full flex items-center space-x-2 p-3 text-hacker-red hover:bg-terminal-gray rounded-lg transition-colors"
@@ -293,7 +318,10 @@ const Navbar = ({ onPublish }) => {
                     </>
                   ) : (
                     <button
-                      onClick={() => setModalOpen(true)}
+                      onClick={() => {
+                        setModalOpen(true);
+                        setIsMobileMenuOpen(false);
+                      }}
                       className="w-full p-3 text-text-secondary hover:text-matrix-green border border-matrix-green/30 rounded-lg hover:border-matrix-green/50 transition-all"
                     >
                       Sign In

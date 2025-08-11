@@ -6,7 +6,7 @@ import { SiVim, SiPython, SiJavascript, SiReact, SiDocker } from 'react-icons/si
 import { useTagSearch } from '../../hooks/useTags';
 import { useCategories } from '../../hooks/useCategories';
 
-const TechSearchBar = ({ placeholder = "$ grep -r 'search' --include='*.tech'", className = "" }) => {
+const TechSearchBar = ({ placeholder = "$ grep -r 'search' --include='*.tech'", className = "", onSearch }) => {
   const router = useRouter();
   const [query, setQuery] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -75,6 +75,11 @@ const TechSearchBar = ({ placeholder = "$ grep -r 'search' --include='*.tech'", 
     router.push(`/search?q=${encodeURIComponent(trimmedQuery)}`);
     setIsOpen(false);
     setQuery('');
+    
+    // Call onSearch callback if provided (for closing mobile menu)
+    if (onSearch) {
+      onSearch(trimmedQuery);
+    }
   };
 
   const handleSubmit = (e) => {
