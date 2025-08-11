@@ -16,7 +16,7 @@ import TimeAgo from '../Utils/TimeAgo';
 const PostItemCard = ({ post }) => {
   if (!post) {
     return (
-      <div className="bg-surface rounded-xl p-6 border border-border-primary animate-pulse">
+      <div className="p-6 animate-pulse">
         <div className="text-muted">Loading post...</div>
       </div>
     );
@@ -71,7 +71,7 @@ const PostItemCard = ({ post }) => {
 
   return (
     <>
-      <article className="bg-surface rounded-xl hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
+      <article className="hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
         {/* Featured Image */}
         {post.image_title && (
           <div className="relative h-44 w-full">

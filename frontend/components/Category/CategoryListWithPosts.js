@@ -42,7 +42,7 @@ const CategoryListWithPosts = ({ posts, isLoading, isError, setSize, isReachingE
       <div className="space-y-6">
         {[...Array(3)].map((_, index) => (
           <div key={index} className="animate-pulse">
-            <div className="bg-surface rounded-lg border border-border-primary/30 p-6">
+            <div className="p-6">
               {/* Header skeleton */}
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-8 h-8 bg-elevated rounded-full"></div>

@@ -102,7 +102,7 @@ const PostItemCategories = ({ post }) => {
                     <Link
                       key={index}
                       href={`/category/${(category.name || category).toLowerCase()}`}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-medium hover:bg-primary/20 transition-colors border border-primary/20"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-medium hover:bg-primary/20 transition-colors"
                     >
                       <FaTag className="w-3 h-3" />
                       <span>{category.name || category}</span>
@@ -131,7 +131,7 @@ const PostItemCategories = ({ post }) => {
           </div>
 
           {/* Action Bar */}
-          <div className="flex items-center justify-between pt-4 border-t border-border-primary/20">
+          <div className="flex items-center justify-between pt-4">
             <div className="flex items-center gap-6">
               {/* Views */}
               <div className="flex items-center gap-2 text-muted">

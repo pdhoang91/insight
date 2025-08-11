@@ -9,7 +9,7 @@ const CategoryItem = ({ category }) => {
   const { posts, isLoading, isError } = usePostsByCategory(category.name, 2);
 
   return (
-    <div className="bg-surface rounded-lg p-6 border border-border-primary/30 shadow-sm">
+    <div className="p-6">
       {/* Category Header */}
       <header className="mb-6">
         <div className="flex items-center gap-3 mb-3">
@@ -41,7 +41,7 @@ const CategoryItem = ({ category }) => {
             <span className="text-secondary font-mono text-sm">Loading posts...</span>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="space-y-6 border-b border-border-primary/20">
             {posts.length > 0 ? (
               posts.map(post => (
                 <PostItemCategories key={post.id} post={post} />

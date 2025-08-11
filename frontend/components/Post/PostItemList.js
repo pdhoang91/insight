@@ -67,7 +67,7 @@ const PostItemList = ({ post }) => {
 
   return (
     <>
-      <article className="bg-surface rounded-xl hover:shadow-md transition-all duration-300">
+      <article className="hover:shadow-md transition-all duration-300">
         <div className="flex">
           {/* Left Side - Content */}
           <div className="flex-1 p-6">

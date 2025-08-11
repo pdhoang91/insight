@@ -12,7 +12,7 @@ const SearchResults = ({ query }) => {
         {/* Loading posts skeleton */}
         <div className="space-y-6">
           {[...Array(3)].map((_, index) => (
-            <div key={index} className="bg-surface rounded-xl p-6 animate-pulse">
+            <div key={index} className="p-6 animate-pulse">
               <div className="flex items-center space-x-3 mb-4">
                 <div className="w-6 h-6 bg-muted/20 rounded-full"></div>
                 <div className="h-4 bg-muted/20 rounded w-32"></div>
@@ -76,7 +76,7 @@ const SearchResults = ({ query }) => {
       {/* Articles list */}
       <div className="space-y-6">
         {stories.map((story) => (
-          <div key={story.id} className="border-b border-border-primary/50 pb-6 last:border-b-0 last:pb-0">
+          <div key={story.id} className="pb-6 border-b border-gray-600/10 last:border-b-0 last:pb-0">
             <PostItem post={story} variant="default" />
           </div>
         ))}
@@ -85,7 +85,7 @@ const SearchResults = ({ query }) => {
       {/* Load more placeholder */}
       {stories.length >= 10 && (
         <div className="text-center pt-6">
-          <button className="px-6 py-3 bg-surface border border-border-primary rounded-lg text-secondary hover:bg-muted/5 hover:text-primary transition-colors font-mono text-sm">
+          <button className="px-6 py-3 text-secondary hover:text-primary transition-colors font-mono text-sm">
             Load more articles
           </button>
         </div>

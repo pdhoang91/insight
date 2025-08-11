@@ -81,8 +81,8 @@ const PostItemTimeline = ({ post }) => {
 
   return (
     <div className="w-full">
-      <article className="bg-terminal-gray rounded-lg border border-matrix-green/30  transition-colors duration-300 mb-6">
-        <div className="p-6">
+      <article className="mb-6 pb-6">
+        <div className="p-6  border-b border-border-primary/20">
           <div className="flex gap-6">
             {/* Left Side - Content */}
             <div className="flex-1 flex flex-col">
@@ -161,7 +161,7 @@ const PostItemTimeline = ({ post }) => {
                       src={post.image_title}
                       alt={post.title}
                       fill
-                      className="object-cover rounded border border-matrix-green/30 hover:border-matrix-green/50 transition-colors duration-300"
+                      className="object-cover rounded"
                       sizes="(max-width: 768px) 33vw, (max-width: 1024px) 33vw, 33vw"
                     />
                   </div>
@@ -173,9 +173,9 @@ const PostItemTimeline = ({ post }) => {
 
         {/* Comments Section */}
         {isCommentsOpen && (
-          <div className="border-t border-matrix-green/30 bg-terminal-dark">
+          <div className="mt-4">
             {/* Add Comment Form */}
-            <div className="p-6 border-b border-matrix-green/20">
+            <div className="p-6">
               {user ? (
                 <AddCommentForm onAddComment={handleAddComment} />
               ) : (
