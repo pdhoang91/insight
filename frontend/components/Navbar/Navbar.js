@@ -147,9 +147,9 @@ const Navbar = ({ onPublish }) => {
                     className="flex items-center space-x-1.5 p-1.5 rounded-md hover:bg-terminal-gray transition-colors"
                   >
                     <div className="w-7 h-7 bg-matrix-green/20 rounded-full flex items-center justify-center">
-                      {user.avatar ? (
+                      {user.avatar_url ? (
                         <img
-                          src={user.avatar}
+                          src={user.avatar_url}
                           alt={user.name}
                           className="w-full h-full rounded-full object-cover"
                         />
@@ -176,9 +176,9 @@ const Navbar = ({ onPublish }) => {
                         >
                           <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 bg-matrix-green/20 rounded-full flex items-center justify-center">
-                              {user.avatar ? (
+                              {user.avatar_url ? (
                                 <img
-                                  src={user.avatar}
+                                  src={user.avatar_url}
                                   alt={user.name}
                                   className="w-full h-full rounded-full object-cover"
                                 />
@@ -291,9 +291,9 @@ const Navbar = ({ onPublish }) => {
                       >
                         <div className="flex items-center space-x-3">
                           <div className="w-10 h-10 bg-matrix-green/20 rounded-full flex items-center justify-center">
-                            {user.avatar ? (
+                            {user.avatar_url ? (
                               <img
-                                src={user.avatar}
+                                src={user.avatar_url}
                                 alt={user.name}
                                 className="w-full h-full rounded-full object-cover"
                               />

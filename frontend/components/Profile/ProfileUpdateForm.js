@@ -1,9 +1,9 @@
 // components/Profile/ProfileUpdateForm.js
 
 import React, { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { FaUpload } from 'react-icons/fa'; // Import icon upload
-import { uploadImage } from '../../services/imageService'; // Điều chỉnh đường dẫn nếu cần
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaUpload, FaTimes, FaUser, FaPhone, FaBirthdayCake } from 'react-icons/fa';
+import { uploadImage } from '../../services/imageService';
 
 const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
   const [name, setName] = useState(userProfile.name || '');
@@ -30,7 +30,7 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
 
     setIsUploading(true);
     try {
-      const imageUrl = await uploadImage(file,"avatar");
+      const imageUrl = await uploadImage(file, "avatar");
       setAvatarUrl(imageUrl);
     } catch (error) {
       console.error("Failed to upload avatar:", error);
@@ -41,121 +41,158 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-      <motion.div 
-        className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg"
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: 'spring', stiffness: 300 }}
+    <AnimatePresence>
+      <motion.div
+        className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
+        onClick={onCancel}
       >
-        <h3 className="text-xl font-semibold mb-4">Update Profile</h3>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Avatar Section */}
-          <div className="flex items-center space-x-4">
-            <div>
-              <img 
-                src={avatarUrl} 
-                alt="Avatar" 
-                className="w-16 h-16 rounded-full object-cover" 
-              />
-            </div>
-            <div className="relative">
-              <button
-                type="button"
-                onClick={handleAvatarUploadClick}
-                className="bg-blue-500 text-white px-3 py-2 rounded hover:bg-blue-600 transition flex items-center"
-                aria-label="Upload Avatar"
-                title="Tải lên avatar"
-              >
-                {isUploading ? (
-                  <svg className="animate-spin h-5 w-5 mr-2 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle 
-                      className="opacity-25" 
-                      cx="12" 
-                      cy="12" 
-                      r="10" 
-                      stroke="currentColor" 
-                      strokeWidth="4">
-                    </circle>
-                    <path 
-                      className="opacity-75" 
-                      fill="currentColor" 
-                      d="M4 12a8 8 0 018-8v8H4z">
-                    </path>
-                  </svg>
-                ) : (
-                  <>
-                    <FaUpload size={16} className="mr-2" />
-                    Upload Avatar
-                  </>
-                )}
-              </button>
-              {/* Input File Ẩn */}
-              <input
-                type="file"
-                accept="image/*"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                className="hidden"
-              />
-            </div>
-          </div>
-
-          {/* Name */}
-          <div className="flex items-center">
-            <span className="mr-2">👤</span>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Name"
-              required
-            />
-          </div>
-
-          {/* Phone */}
-          <div className="flex items-center">
-            <span className="mr-2">📞</span>
-            <input
-              type="text"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Phone Number"
-            />
-          </div>
-
-          {/* Date of Birth */}
-          <div className="flex items-center">
-            <span className="mr-2">🎂</span>
-            <input
-              type="date"
-              value={dob}
-              onChange={(e) => setDob(e.target.value)}
-              className="w-full p-2 border border-gray-300 rounded-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          {/* Buttons */}
-          <div className="flex justify-end space-x-2">
-            <button 
-              type="submit" 
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition"
+        <motion.div 
+          className="bg-surface rounded-xl shadow-xl border border-primary w-full max-w-lg mx-4 relative overflow-hidden"
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          exit={{ scale: 0.8, opacity: 0 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between p-6 border-b border-primary">
+            <h2 className="text-2xl font-bold text-primary font-mono">update_profile()</h2>
+            <button
+              className="p-2 text-muted hover:text-secondary rounded-lg hover:bg-elevated transition-colors"
+              onClick={onCancel}
+              aria-label="Close"
             >
-              Update
-            </button>
-            <button 
-              type="button" 
-              onClick={onCancel} 
-              className="bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition"
-            >
-              Cancel
+              <FaTimes className="w-5 h-5" />
             </button>
           </div>
-        </form>
+
+          {/* Form Content */}
+          <div className="p-6">
+            <p className="text-secondary mb-6 font-mono text-sm tech-comment">
+              update your profile information
+            </p>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Avatar Section */}
+              <div className="flex items-center space-x-4 p-4 bg-elevated rounded-lg border border-primary">
+                <div className="relative">
+                  <img 
+                    src={avatarUrl || '/images/placeholder.svg'} 
+                    alt="Avatar" 
+                    className="w-16 h-16 rounded-full object-cover border-2 border-primary" 
+                  />
+                  {isUploading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
+                      <svg className="animate-spin h-6 w-6 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle 
+                          className="opacity-25" 
+                          cx="12" 
+                          cy="12" 
+                          r="10" 
+                          stroke="currentColor" 
+                          strokeWidth="4">
+                        </circle>
+                        <path 
+                          className="opacity-75" 
+                          fill="currentColor" 
+                          d="M4 12a8 8 0 018-8v8H4z">
+                        </path>
+                      </svg>
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <button
+                    type="button"
+                    onClick={handleAvatarUploadClick}
+                    disabled={isUploading}
+                    className="bg-primary hover:bg-primary-hover text-white px-4 py-2 rounded-lg font-mono text-sm transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Upload Avatar"
+                  >
+                    <FaUpload size={14} />
+                    {isUploading ? 'uploading...' : 'upload_avatar()'}
+                  </button>
+                  <p className="text-muted text-xs font-mono mt-1">// jpg, png, gif (max 5MB)</p>
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+              </div>
+
+              {/* Name Field */}
+              <div className="form-group">
+                <label className="form-label font-mono flex items-center gap-2">
+                  <FaUser className="text-primary" size={14} />
+                  name
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="form-input font-mono bg-elevated border-primary text-primary placeholder-muted focus:border-secondary"
+                  placeholder="your_name"
+                  required
+                />
+              </div>
+
+              {/* Phone Field */}
+              <div className="form-group">
+                <label className="form-label font-mono flex items-center gap-2">
+                  <FaPhone className="text-primary" size={14} />
+                  phone
+                </label>
+                <input
+                  type="text"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="form-input font-mono bg-elevated border-primary text-primary placeholder-muted focus:border-secondary"
+                  placeholder="your_phone_number"
+                />
+              </div>
+
+              {/* Date of Birth Field */}
+              <div className="form-group">
+                <label className="form-label font-mono flex items-center gap-2">
+                  <FaBirthdayCake className="text-primary" size={14} />
+                  date_of_birth
+                </label>
+                <input
+                  type="date"
+                  value={dob}
+                  onChange={(e) => setDob(e.target.value)}
+                  className="form-input font-mono bg-elevated border-primary text-primary focus:border-secondary"
+                />
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-4">
+                <button 
+                  type="submit" 
+                  className="flex-1 bg-gradient-to-r from-primary to-secondary text-white py-3 rounded-lg font-mono text-sm font-semibold shadow-md transition-transform transform hover:scale-105 active:scale-95 hover:shadow-xl"
+                >
+                  update()
+                </button>
+                <button 
+                  type="button" 
+                  onClick={onCancel} 
+                  className="flex-1 bg-elevated text-secondary border border-primary py-3 rounded-lg font-mono text-sm font-semibold hover:bg-surface transition-colors"
+                >
+                  cancel()
+                </button>
+              </div>
+            </form>
+          </div>
+        </motion.div>
       </motion.div>
-    </div>
+    </AnimatePresence>
   );
 };
 
