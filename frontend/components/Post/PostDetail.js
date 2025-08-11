@@ -44,7 +44,7 @@ export const PostDetail = ({ post }) => {
     <div className="min-h-screen bg-terminal-black">
       {/* Main Content */}
       <div className="py-4 sm:py-6 lg:py-8">
-        <div className="max-w-4xl mx-auto py-3 sm:py-4 lg:py-8">
+        <div className="max-w-4xl mx-auto p-3 sm:p-3 lg:p-4">
           <article className="rounded-lg">
             {/* Header Section */}
             <header>
