@@ -9,7 +9,7 @@ const CategoryItem = ({ category }) => {
   const { posts, isLoading, isError } = usePostsByCategory(category.name, 2);
 
   return (
-    <div className="p-6">
+    <div className="py-6">
       {/* Category Header */}
       <header className="mb-6">
         <div className="flex items-center gap-3 mb-3">

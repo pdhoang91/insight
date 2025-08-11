@@ -18,7 +18,7 @@ import { deletePost } from '../../services/postService';
 const PostItemProfile = ({ post, isOwner }) => {
   if (!post) {
     return (
-      <div className="bg-surface rounded-xl py-4 sm:py-6 px-4 sm:px-6 border border-border-primary">
+      <div className="bg-surface rounded-xl py-4 sm:py-6 border border-border-primary">
         <div className="text-muted">Loading post...</div>
       </div>
     );

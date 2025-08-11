@@ -32,7 +32,7 @@ const CategoryList = () => {
   if (isError) {
     return (
       <div className="text-center py-12">
-        <div className="inline-flex items-center gap-3 p-6 border border-danger/20 rounded-lg bg-danger/5">
+        <div className="inline-flex items-center gap-3 py-6 border border-danger/20 rounded-lg bg-danger/5">
           <FaExclamationTriangle className="w-6 h-6 text-danger" />
           <div>
             <p className="font-mono text-danger font-semibold">// Unable to load categories</p>

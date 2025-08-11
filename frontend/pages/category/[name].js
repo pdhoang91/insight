@@ -38,7 +38,7 @@ const CategoryPage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* Main Content Area */}
             <div className="lg:col-span-3">
-              <div className="p-6 md:p-8">
+              <div className="py-6 md:py-8">
                 <header className="mb-2 md:mb-4 pb-4 md:pb-6">
                   <h1 className="text-3xl md:text-4xl font-bold text-text-primary mb-3 md:mb-4 capitalize">
                     {name}

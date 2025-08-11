@@ -82,7 +82,7 @@ const PostItemTimeline = ({ post }) => {
   return (
     <div className="w-full">
       <article className="mb-4 sm:mb-6 pb-4 sm:pb-6">
-        <div className="py-4 sm:py-6 px-4 sm:px-6 border-b border-border-primary/20">
+        <div className="py-4 sm:py-6 border-b border-border-primary/20">
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
             {/* Left Side - Content */}
             <div className="flex-1 flex flex-col order-2 sm:order-1">
