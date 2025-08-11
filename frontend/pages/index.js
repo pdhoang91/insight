@@ -2,7 +2,7 @@
 import React from 'react';
 import { useInfinitePosts } from '../hooks/useInfinitePosts';
 import BlogSidebar from '../components/Shared/BlogSidebar';
-import PostList from '../components/Post/PostList';
+import PostListTimeline from '../components/Post/PostListTimeline';
 
 const Home = () => {
   const {
@@ -21,13 +21,12 @@ const Home = () => {
                       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Posts Area */}
             <div className="lg:col-span-3">
-              <PostList
+              <PostListTimeline
                 posts={posts}
                 isLoading={isLoading}
                 isError={isError}
                 setSize={setSize}
                 isReachingEnd={isReachingEnd}
-                variant="timeline"
               />
             </div>
 
