@@ -8,7 +8,6 @@ import ProfileUpdateForm from '../components/Profile/ProfileUpdateForm';
 import ProfileHeader from '../components/Profile/ProfileHeader';
 import UserPostsSection from '../components/Profile/UserPostsSection';
 import LoadingSpinner from '../components/Shared/LoadingSpinner';
-import SafeImage from '../components/Utils/SafeImage';
 
 const UserProfilePage = () => {
   const router = useRouter();
@@ -42,7 +41,7 @@ const UserProfilePage = () => {
     isError: isErrorPosts,
     setSize: setSizePosts,
     isReachingEnd: isReachingEndPosts,
-  } = useInfiniteUserPosts('posts', username);
+  } = useInfiniteUserPosts(username);
 
   const handleUpdateProfile = async (profileData) => {
     try {
@@ -55,11 +54,6 @@ const UserProfilePage = () => {
       console.error("Failed to update profile:", err);
       alert("Failed to update profile. Please try again.");
     }
-  };
-
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
   };
 
   // Show loading while checking authentication

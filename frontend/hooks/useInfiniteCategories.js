@@ -1,4 +1,3 @@
-// //hooks/useInfiniteCategories.js
 // hooks/useInfiniteCategories.js
 import useSWRInfinite from 'swr/infinite';
 import { getCategories } from '../services/categoryService';
@@ -11,16 +10,6 @@ export const useInfiniteCategories = () => {
     return data;
   };
 
-  // const getKey = (pageIndex, previousPageData) => {
-  //   if (previousPageData && previousPageData.categories.length === 0) return null;
-  //   return [pageIndex + 1, PAGE_SIZE];
-  // };
-  // const getKey = (pageIndex, previousPageData) => {
-  //   if (!previousPageData || !previousPageData.categories || previousPageData.categories.length === 0) {
-  //     return null;
-  //   }
-  //   return [pageIndex + 1, PAGE_SIZE];
-  // };
   const getKey = (pageIndex, previousPageData) => {
     // Nếu là page đầu tiên, luôn lấy dữ liệu
     if (pageIndex === 0) return [pageIndex + 1, PAGE_SIZE];
