@@ -99,7 +99,7 @@ const PostItemProfile = ({ post, isOwner }) => {
             </Link>
 
             {/* Content Preview */}
-            <div className="text-secondary text-sm md:text-base line-clamp-2 mb-4">
+            <div className="text-text-secondary text-sm sm:text-base line-clamp-3 sm:line-clamp-4 lg:line-clamp-6 mb-3 sm:mb-4 leading-relaxed">
               <TextUtils html={post.preview_content || post.content} maxLength={200} />
             </div>
 
@@ -119,7 +119,7 @@ const PostItemProfile = ({ post, isOwner }) => {
             )}
 
             {/* Meta Info & Actions */}
-            <div className="flex items-center justify-between text-sm text-muted mb-4">
+            <div className="flex text-text-secondary items-center justify-between text-sm text-muted mb-4">
               <div className="flex items-center space-x-4">
                 <TimeAgo timestamp={post.created_at} />
                 <span>•</span>
@@ -128,7 +128,7 @@ const PostItemProfile = ({ post, isOwner }) => {
             </div>
 
             {/* Action Bar - Bottom of left content */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between text-text-secondary">
               <div className="flex items-center gap-4">
                 {/* Claps */}
                 <button
@@ -158,15 +158,15 @@ const PostItemProfile = ({ post, isOwner }) => {
 
               {/* Owner Actions */}
               {isOwner && (
-                <div className="flex items-center space-x-2">
+                <div className="flex text-text-secondary items-center space-x-2">
                   <Link href={`/edit/${post.title_name}`}>
                     <button className="p-2 text-muted hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Edit post">
-                      <FaEdit className="w-4 h-4" />
+                      <FaEdit className="w-4 h-4 text-text-secondary" />
                     </button>
                   </Link>
                   <button
                     onClick={handleDelete}
-                    className="p-2 text-muted hover:text-danger hover:bg-danger/10 rounded-lg transition-colors"
+                    className="p-2 text-text-secondary text-muted hover:text-danger hover:bg-danger/10 rounded-lg transition-colors"
                     title="Delete post"
                   >
                     <FaTrash className="w-4 h-4" />
@@ -178,7 +178,7 @@ const PostItemProfile = ({ post, isOwner }) => {
 
           {/* Right Side - Image (1/3) - Match PostItemTimeline */}
           {post.image_title && (
-            <div className="w-1/3 flex items-end">
+            <div className="w-1/3 flex  items-end">
               <Link href={`/p/${post.title_name}`} className="w-full">
                 <div className="relative w-full h-32 md:h-40 lg:h-48">
                   <SafeImage

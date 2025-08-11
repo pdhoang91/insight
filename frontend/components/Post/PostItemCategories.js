@@ -13,6 +13,14 @@ import { clapPost } from '../../services/activityService';
 import { addComment } from '../../services/commentService';
 
 const PostItemCategories = ({ post }) => {
+  if (!post) {
+    return (
+      <div className="bg-surface rounded-xl py-4 sm:py-6 border border-border-primary animate-pulse">
+        <div className="text-text-muted font-mono">Loading post...</div>
+      </div>
+    );
+  }
+
   const { user } = useUser();
   const [currentClapCount, setCurrentClapCount] = useState(post.clap_count || 0);
   const [clapLoading, setClapLoading] = useState(false);
@@ -28,7 +36,7 @@ const PostItemCategories = ({ post }) => {
 
   const handleClap = async () => {
     if (!user) {
-      alert('You need to login to clap.');
+      alert('Authentication required: Please login to clap.');
       return;
     }
 
@@ -39,8 +47,8 @@ const PostItemCategories = ({ post }) => {
       await clapPost(post.id);
       setCurrentClapCount(prev => prev + 1);
     } catch (err) {
-      console.error('Failed to clap post:', err);
-      alert('Failed to clap post. Please try again.');
+      console.error('Clap error:', err);
+      alert('Error: Unable to process clap request.');
     } finally {
       setClapLoading(false);
     }
@@ -48,7 +56,7 @@ const PostItemCategories = ({ post }) => {
 
   const handleAddComment = async (commentText) => {
     if (!user) {
-      alert('You need to login to comment.');
+      alert('Authentication required: Please login to comment.');
       return;
     }
 
@@ -85,13 +93,13 @@ const PostItemCategories = ({ post }) => {
             <div className="flex-1 min-w-0 order-2 lg:order-1">
               {/* Title */}
               <Link href={`/p/${post.title_name}`}>
-                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-primary hover:text-primary-hover transition-colors duration-200 line-clamp-2 mb-3 leading-tight">
+                <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-text-primary hover:text-matrix-green transition-colors duration-200 line-clamp-2 mb-3 leading-tight">
                   {post.title}
                 </h2>
               </Link>
 
               {/* Content Preview */}
-              <div className="text-secondary text-sm sm:text-base line-clamp-3 sm:line-clamp-4 lg:line-clamp-5 mb-3 sm:mb-4 leading-relaxed">
+              <div className="text-text-secondary text-sm sm:text-base line-clamp-3 sm:line-clamp-4 lg:line-clamp-5 mb-3 sm:mb-4 leading-relaxed">
                 <TextUtils html={post.preview_content || post.content} maxLength={200} />
               </div>
 
@@ -109,7 +117,7 @@ const PostItemCategories = ({ post }) => {
                     </Link>
                   ))}
                   {post.categories.length > 3 && (
-                    <span className="px-2 sm:px-3 py-1 bg-muted/20 text-muted rounded-full text-xs">
+                    <span className="px-2 sm:px-3 py-1 bg-muted/20 text-text-muted rounded-full text-xs">
                       +{post.categories.length - 3} more
                     </span>
                   )}
@@ -124,15 +132,15 @@ const PostItemCategories = ({ post }) => {
                       {post.user?.name?.charAt(0)?.toUpperCase() || 'A'}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs sm:text-sm text-muted">
-                    <span className="font-medium text-primary">{post.user?.name || 'Anonymous'}</span>
+                  <div className="flex items-center gap-2 text-xs sm:text-sm text-text-muted">
+                    <span className="font-medium text-text-primary">{post.user?.name || 'Anonymous'}</span>
                     <span className="hidden sm:inline">•</span>
                     <TimeAgo timestamp={post.created_at} />
                   </div>
                 </div>
                 
                 {/* Reading time and difficulty (desktop only) */}
-                <div className="hidden sm:flex items-center gap-3 text-xs text-muted">
+                <div className="hidden sm:flex items-center gap-3 text-xs text-text-muted">
                   <span>{Math.ceil((post.content?.replace(/<[^>]*>/g, '').length || 0) / 200) || 1} min read</span>
                 </div>
               </div>
@@ -157,13 +165,13 @@ const PostItemCategories = ({ post }) => {
           </div>
 
           {/* Action Bar */}
-          <div className="flex items-center justify-between pt-4 sm:pt-6 border-t border-border-primary/20 mt-4 sm:mt-6">
+          <div className="flex items-center text-text-secondary justify-between pt-4 sm:pt-6 border-t border-border-primary/20 mt-4 sm:mt-6">
             <div className="flex items-center gap-4 sm:gap-6">
               {/* Claps */}
               <button
                 onClick={handleClap}
                 disabled={clapLoading}
-                className="flex items-center gap-1.5 sm:gap-2 text-muted hover:text-primary transition-colors"
+                className="flex items-center gap-1.5 sm:gap-2 text-text-muted hover:text-hacker-yellow transition-colors font-mono"
               >
                 <FaHandsClappingRegular className={`w-4 h-4 sm:w-5 sm:h-5 ${clapLoading ? 'animate-pulse' : ''}`} />
                 <span className="text-sm sm:text-base font-medium">{currentClapCount}</span>
@@ -172,21 +180,21 @@ const PostItemCategories = ({ post }) => {
               {/* Comments */}
               <button
                 onClick={toggleCommentPopup}
-                className="flex items-center gap-1.5 sm:gap-2 text-muted hover:text-primary transition-colors"
+                className="flex items-center gap-1.5 sm:gap-2 text-text-muted hover:text-matrix-green transition-colors font-mono"
               >
                 <FaComment className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span className="text-sm sm:text-base font-medium">{post.comments_count || 0}</span>
               </button>
 
               {/* Views */}
-              <div className="flex items-center gap-1.5 sm:gap-2 text-muted">
+              <div className="flex items-center gap-1.5 sm:gap-2 text-text-muted font-mono">
                 <FaEye className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span className="text-sm sm:text-base font-medium">{post.views || 0}</span>
               </div>
             </div>
 
             {/* Reading time (mobile only) */}
-            <div className="sm:hidden flex items-center gap-2 text-xs text-muted">
+            <div className="sm:hidden flex items-center gap-2 text-xs text-text-muted">
               <span>{Math.ceil((post.content?.replace(/<[^>]*>/g, '').length || 0) / 200) || 1}m</span>
             </div>
 
@@ -209,7 +217,7 @@ const PostItemCategories = ({ post }) => {
                 <AddCommentForm onAddComment={handleAddComment} />
               ) : (
                 <div className="text-center py-3 sm:py-4">
-                  <span className="text-muted text-sm">Please login to comment</span>
+                  <span className="text-text-muted text-sm">Please login to comment</span>
                 </div>
               )}
             </div>
@@ -225,7 +233,7 @@ const PostItemCategories = ({ post }) => {
               {isLoading && comments.length === 0 && (
                 <div className="flex justify-center items-center py-4 sm:py-6">
                   <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin mr-2"></div>
-                  <span className="text-secondary text-sm">Loading comments...</span>
+                  <span className="text-text-secondary text-sm">Loading comments...</span>
                 </div>
               )}
 
@@ -239,7 +247,7 @@ const PostItemCategories = ({ post }) => {
 
               {!isLoading && !isError && comments.length === 0 && (
                 <div className="text-center py-4 sm:py-6">
-                  <span className="text-muted text-sm">No comments yet</span>
+                  <span className="text-text-muted text-sm">No comments yet</span>
                 </div>
               )}
             </div>
