@@ -1,7 +1,6 @@
 // src/components/Comment/ReplyItem.js
 import React from 'react';
 import { FaHandsClapping, FaUser } from "react-icons/fa6";
-import Mention from './Mention';
 import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapReply } from '../../services/activityService';
 import { useUser } from '../../context/UserContext';
@@ -23,23 +22,6 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
       console.error('Failed to clap:', error);
       alert(error.message || 'Failed to clap. Please try again.');
     }
-  };
-
-  // Function to highlight mentions with terminal styling
-  const renderContent = (content) => {
-    const regex = /@(\w+)/g;
-    const parts = [];
-    let lastIndex = 0;
-    let match;
-
-    while ((match = regex.exec(content)) !== null) {
-      parts.push(content.substring(lastIndex, match.index));
-      parts.push(<Mention key={match.index} username={match[1]} />);
-      lastIndex = regex.lastIndex;
-    }
-
-    parts.push(content.substring(lastIndex));
-    return parts;
   };
 
   // Helper function to display clap count with loading state
@@ -78,7 +60,7 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
       {/* Reply Content */}
       <div className="pl-8 mb-2">
         <div className="text-text-secondary text-sm leading-relaxed">
-          {renderContent(reply.content)}
+          {reply.content}
         </div>
       </div>
 

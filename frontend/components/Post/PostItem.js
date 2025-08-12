@@ -5,8 +5,7 @@ import { FaEye, FaComment, FaUser, FaClock } from 'react-icons/fa';
 import { FaHandsClapping } from 'react-icons/fa6';
 import { useUser } from '../../context/UserContext';
 import { clapPost } from '../../services/activityService';
-import { useComments } from '../../hooks/useComments';
-import CommentsPopup from '../Comment/CommentsPopup';
+import CommentSection from '../Comment/CommentSection';
 import TimeAgo from '../Utils/TimeAgo';
 import TextUtils from '../Utils/TextUtils';
 import SafeImage from '../Utils/SafeImage';
@@ -28,9 +27,7 @@ const PostItem = ({ post, variant = 'default' }) => {
   const { user } = useUser();
   const [clapLoading, setClapLoading] = useState(false);
   const [currentClapCount, setCurrentClapCount] = useState(post.clap_count || 0);
-  const [isCommentsOpen, setCommentsOpen] = useState(false);
-
-  const { comments, totalCount, isLoading, isError, mutate } = useComments(post.id);
+  const [showComments, setShowComments] = useState(false);
 
   const handleClap = async () => {
     if (!user) {
@@ -50,12 +47,8 @@ const PostItem = ({ post, variant = 'default' }) => {
     }
   };
 
-  const toggleCommentPopup = () => {
-    setCommentsOpen((prev) => !prev);
-  };
-
-  const closeCommentPopup = () => {
-    setCommentsOpen(false);
+  const toggleComments = () => {
+    setShowComments(prev => !prev);
   };
 
   // Removed TechIcon to improve performance
@@ -138,7 +131,7 @@ const PostItem = ({ post, variant = 'default' }) => {
 
                     {/* Comments */}
                     <button
-                      onClick={toggleCommentPopup}
+                      onClick={toggleComments}
                       className="flex items-center gap-1 text-text-muted hover:text-matrix-green transition-colors font-mono"
                     >
                       <FaComment className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -180,17 +173,12 @@ const PostItem = ({ post, variant = 'default' }) => {
           </div>
         </article>
 
-        {/* Comments Modal */}
-        <CommentsPopup
-          isOpen={isCommentsOpen}
-          onClose={closeCommentPopup}
-          post={post}
-          comments={comments}
-          totalCount={totalCount}
-          isLoading={isLoading}
-          isError={isError}
-          mutate={mutate}
-        />
+        {/* Comments Section */}
+        {showComments && (
+          <div className="mt-6 border-t border-matrix-green/30 pt-6">
+            <CommentSection postId={post.id} user={user} />
+          </div>
+        )}
       </>
     );
   }
@@ -285,7 +273,7 @@ const PostItem = ({ post, variant = 'default' }) => {
 
                   {/* Comment */}
                   <button
-                    onClick={toggleCommentPopup}
+                    onClick={toggleComments}
                     className="flex items-center gap-1 text-text-muted hover:text-matrix-green transition-colors"
                   >
                     <FaComment className="w-4 h-4" />
@@ -330,17 +318,11 @@ const PostItem = ({ post, variant = 'default' }) => {
         </div>
       </article>
 
-      {/* Comments Popup */}
-      {isCommentsOpen && (
-        <CommentsPopup
-          postId={post.id}
-          comments={comments}
-          totalCount={totalCount}
-          isLoading={isLoading}
-          isError={isError}
-          mutate={mutate}
-          onClose={closeCommentPopup}
-        />
+      {/* Comments Section */}
+      {showComments && (
+        <div className="mt-6 border-t border-matrix-green/30 pt-6">
+          <CommentSection postId={post.id} user={user} />
+        </div>
       )}
     </>
   );
