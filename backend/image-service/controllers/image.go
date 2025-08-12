@@ -110,11 +110,26 @@ func UploadImageV2(c *gin.Context, s3Service *services.S3Service) {
 		return
 	}
 
-	imageURL, err := s3Service.UploadFile(c.Request.Context(), file, userID.String(), imageType, prefix)
+	// Upload to S3 and get the direct S3 URL
+	s3URL, err := s3Service.UploadFile(c.Request.Context(), file, userID.String(), imageType, prefix)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể tải ảnh lên S3"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"url": imageURL})
+	// Convert S3 URL to proxy URL
+	baseURL := getBaseImageServiceURL()
+	proxyURL := ConvertS3URLToProxy(s3URL, baseURL)
+
+	c.JSON(http.StatusOK, gin.H{
+		"url":    proxyURL,
+		"s3_url": s3URL, // Optional: keep for debugging/migration
+	})
+}
+
+// getBaseImageServiceURL gets the base URL for the image service
+func getBaseImageServiceURL() string {
+	// You can get this from environment variables or config
+	// For now, using a placeholder - should be configured based on your setup
+	return "http://localhost:82" // or your actual image service URL
 }

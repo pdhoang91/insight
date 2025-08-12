@@ -4,6 +4,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"io"
 	"mime/multipart"
 	"path/filepath"
 	"time"
@@ -20,6 +21,14 @@ const (
 
 type S3Service struct {
 	client *s3.Client
+}
+
+// ObjectInfo holds metadata about an S3 object
+type ObjectInfo struct {
+	Key          string
+	Size         int64
+	LastModified time.Time
+	ContentType  string
 }
 
 func NewS3Service() *S3Service {
@@ -57,4 +66,48 @@ func (s *S3Service) UploadFile(ctx context.Context, file *multipart.FileHeader, 
 		return fmt.Sprintf("https://%s/%s", CDNDomain, s3Key), nil
 	}
 	return fmt.Sprintf("https://%s.s3.amazonaws.com/%s", BucketName, s3Key), nil
+}
+
+// GetObject retrieves an object from S3
+func (s *S3Service) GetObject(ctx context.Context, key string) (io.ReadCloser, string, error) {
+	result, err := s.client.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(BucketName),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		return nil, "", err
+	}
+
+	contentType := "application/octet-stream"
+	if result.ContentType != nil {
+		contentType = *result.ContentType
+	}
+
+	return result.Body, contentType, nil
+}
+
+// GetObjectInfo retrieves metadata about an S3 object
+func (s *S3Service) GetObjectInfo(ctx context.Context, key string) (*ObjectInfo, error) {
+	result, err := s.client.HeadObject(ctx, &s3.HeadObjectInput{
+		Bucket: aws.String(BucketName),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	info := &ObjectInfo{
+		Key:  key,
+		Size: *result.ContentLength,
+	}
+
+	if result.LastModified != nil {
+		info.LastModified = *result.LastModified
+	}
+
+	if result.ContentType != nil {
+		info.ContentType = *result.ContentType
+	}
+
+	return info, nil
 }

@@ -31,13 +31,24 @@ func SetupRouter(s3Service *services.S3Service) *gin.Engine {
 
 	r.Use(cors.New(configCors))
 	// r.Use(middleware.LoggerMiddleware())
-	r.Use(middleware.AuthMiddleware())
 
-	// Routes for image upload
-	// Sử dụng closure để truyền s3Service vào handler
-	r.POST("/images/upload/v2/:type", func(c *gin.Context) {
-		controllers.UploadImageV2(c, s3Service)
-	})
+	// Initialize proxy controller
+	proxyController := controllers.NewImageProxyController(s3Service)
+
+	// Public proxy routes (no auth required for image viewing)
+	r.GET("/images/proxy/:userID/:date/:type/:filename", proxyController.ProxyImage)
+	r.GET("/images/info/:userID/:date/:type/:filename", proxyController.GetImageInfo)
+
+	// Protected routes
+	protected := r.Group("/")
+	protected.Use(middleware.AuthMiddleware())
+	{
+		// Routes for image upload
+		// Sử dụng closure để truyền s3Service vào handler
+		protected.POST("/images/upload/v2/:type", func(c *gin.Context) {
+			controllers.UploadImageV2(c, s3Service)
+		})
+	}
 
 	// Optional: Route for getting images if cần
 	// r.GET("/images/:imageName", controllers.GetImage)

@@ -150,6 +150,8 @@ func GetPostByID(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Post not found"})
 		return
 	}
+
+	// Content is already converted to proxy URLs at write time
 	post.Content = post.PostContent.Content
 
 	// Tăng số lượt xem
@@ -238,6 +240,8 @@ func GetPostByName(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Post content not found"})
 		return
 	}
+
+	// Content is already converted to proxy URLs at write time
 	post.Content = postContent.Content
 
 	// Tăng số lượt xem
@@ -405,8 +409,8 @@ func CreatePost(c *gin.Context) {
 
 	// Create PostContent
 	postContent := models.PostContent{
-		PostID:    post.ID,       // Assign PostID from the new Post
-		Content:   input.Content, // Save the full content
+		PostID:    post.ID,                                  // Assign PostID from the new Post
+		Content:   utils.ConvertS3URLToProxy(input.Content), // Convert S3 URLs to proxy URLs at write time
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
@@ -615,7 +619,7 @@ func UpdatePost(c *gin.Context) {
 			// Tạo mới PostContent nếu không tồn tại
 			postContent = models.PostContent{
 				PostID:    post.ID,
-				Content:   input.Content,
+				Content:   utils.ConvertS3URLToProxy(input.Content), // Convert at write time
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			}
@@ -629,7 +633,7 @@ func UpdatePost(c *gin.Context) {
 		}
 	} else {
 		// Cập nhật nội dung PostContent nếu đã tồn tại
-		postContent.Content = input.Content
+		postContent.Content = utils.ConvertS3URLToProxy(input.Content) // Convert at write time
 		postContent.UpdatedAt = time.Now()
 		if err := database.DB.Save(&postContent).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update post content"})
