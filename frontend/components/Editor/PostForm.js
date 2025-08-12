@@ -323,11 +323,8 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
           <div className={`transition-all duration-300 ${isFullscreen ? 'h-[calc(100%-4rem)]' : ''} overflow-y-auto`}>
             <ContentEditor
               editor={editor}
-              isPreview={false}
               content={content}
               isUploading={isUploading}
-              focusMode={false}
-              isFullscreen={isFullscreen}
             />
           </div>
         </div>
