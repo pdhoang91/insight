@@ -11,46 +11,52 @@ const SearchPage = () => {
   return (
     <div className="min-h-screen bg-terminal-black">
       {/* Main Content */}
-      <div className="pt-24 pb-8">
+      <div className="pb-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Main Content Area */}
             <div className="lg:col-span-3">
-              <main className="p-6 md:p-8">
-                <header className="mb-6 md:mb-8 pb-4 md:pb-6">
-                  <h1 className="text-3xl md:text-4xl font-bold text-text-primary mb-3 md:mb-4">
+              {/* Search Header */}
+              {q && (
+                <div className="mb-6">
+                  <h1 className="text-2xl font-bold text-text-primary mb-2">
                     Search Results
                   </h1>
-                  {q && (
-                    <p className="text-text-secondary text-sm md:text-base">
-                      Showing results for "{q}"
-                    </p>
-                  )}
-                  {!q && (
-                    <p className="text-text-secondary text-sm md:text-base">
-                      Enter a search query to begin
-                    </p>
-                  )}
-                </header>
-                
-                {q ? (
-                  <SearchResults query={q} />
-                ) : (
-                  <div className="text-center py-12 md:py-16">
-                    <div className="text-text-muted text-base md:text-lg">
-                      Start typing to search for articles and topics
-                    </div>
-                    <div className="mt-4 text-xs md:text-sm text-text-muted">
-                      Search across titles, content, and categories
+                  <p className="text-text-secondary text-sm">
+                    Showing results for "{q}"
+                  </p>
+                </div>
+              )}
+              
+              {q ? (
+                <SearchResults query={q} />
+              ) : (
+                <div className="text-center py-12 md:py-16">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center">
+                    <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                  </div>
+                  <h2 className="text-xl font-semibold text-text-primary mb-2">
+                    Search Articles
+                  </h2>
+                  <p className="text-text-secondary mb-6">
+                    Enter a search query to find articles
+                  </p>
+                  <div className="max-w-md mx-auto">
+                    <div className="text-sm text-text-muted space-y-2">
+                      <p>• Search in article titles and content</p>
+                      <p>• Use quotes for exact phrases</p>
+                      <p>• Results are sorted by relevance</p>
                     </div>
                   </div>
-                )}
-              </main>
+                </div>
+              )}
             </div>
 
             {/* Sidebar */}
             <div className="lg:col-span-1">
-              <div className="sticky top-24">
+              <div className="sticky top-12">
                 <BlogSidebar />
               </div>
             </div>

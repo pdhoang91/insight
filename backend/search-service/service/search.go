@@ -2,259 +2,218 @@
 package service
 
 import (
-	"context"
-	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
-	"github.com/olivere/elastic/v7"
+	"github.com/pdhoang91/search-service/database"
 	models "github.com/pdhoang91/search-service/model"
 	uuid "github.com/satori/go.uuid"
 )
 
-var Client *elastic.Client
+// InitializeSearchService initializes PostgreSQL full-text search
+func InitializeSearchService() error {
+	// Create full-text search indexes if they don't exist
+	err := createFullTextSearchIndexes()
+	if err != nil {
+		log.Printf("Warning: Failed to create full-text search indexes: %v", err)
+	}
 
-// InitElasticsearch khởi tạo client Elasticsearch và tạo các index nếu chưa tồn tại
-func InitElasticsearch(url string) *elastic.Client {
-	var err error
+	log.Println("PostgreSQL search service initialized successfully.")
+	return nil
+}
 
-	for i := 0; i < 5; i++ {
-		Client, err = elastic.NewClient(elastic.SetURL(url), elastic.SetSniff(false))
-		if err != nil {
-			log.Printf("Failed to create Elasticsearch client: %v", err)
-			log.Printf("Elasticsearch not ready, retrying in 5 seconds... (%d/5)", i+1)
-			time.Sleep(5 * time.Second)
-			continue
+// createFullTextSearchIndexes creates GIN indexes for full-text search
+func createFullTextSearchIndexes() error {
+	// Create GIN index for full-text search on posts table (only title and preview_content)
+	queries := []string{
+		// Create GIN index for full-text search on posts (using english config)
+		`CREATE INDEX IF NOT EXISTS idx_posts_fulltext_search 
+		 ON posts USING gin(to_tsvector('english', 
+		 	coalesce(title, '') || ' ' || 
+		 	coalesce(preview_content, '')));`,
+
+		// Create indexes for common sorting
+		`CREATE INDEX IF NOT EXISTS idx_posts_created_at ON posts(created_at);`,
+		`CREATE INDEX IF NOT EXISTS idx_posts_views ON posts(views);`,
+		`CREATE INDEX IF NOT EXISTS idx_posts_user_id ON posts(user_id);`,
+	}
+
+	for _, query := range queries {
+		if err := database.DB.Exec(query).Error; err != nil {
+			log.Printf("Warning: Failed to execute query '%s': %v", query, err)
 		}
-
-		// Kiểm tra trạng thái kết nối
-		ctx := context.Background()
-		_, _, err = Client.Ping(url).Do(ctx)
-		if err == nil {
-			log.Printf("Elasticsearch connected: %s", url)
-			break
-		}
-
-		log.Printf("Failed to connect to Elasticsearch: %s", err)
-		log.Printf("Elasticsearch not ready, retrying in 5 seconds... (%d/5)", i+1)
-		time.Sleep(5 * time.Second)
-	}
-
-	if Client == nil {
-		log.Fatalf("Failed to create Elasticsearch client after 5 attempts: %v", err)
-	}
-
-	//err = RecreatePostsIndex()
-	//if err != nil {
-	//	log.Fatalf("Failed to RecreatePostsIndex: %v", err)
-	//	return nil
-	//}
-
-	// Tạo mapping nếu chưa tồn tại
-	if err := CreatePostsIndexIfNotExists(); err != nil {
-		log.Fatalf("Failed to create posts index: %v", err)
-	}
-
-	log.Println("Elasticsearch initialized successfully.")
-	return Client
-}
-
-func RecreatePostsIndex() error {
-	ctx := context.Background()
-
-	// Xóa chỉ mục hiện tại
-	_, err := Client.DeleteIndex("posts").Do(ctx)
-	if err != nil {
-		return fmt.Errorf("failed to delete existing posts index: %v", err)
 	}
 
 	return nil
 }
 
-// CreatePostsIndexIfNotExists tạo index "posts" nếu chưa tồn tại
-func CreatePostsIndexIfNotExists() error {
-	ctx := context.Background()
-	exists, err := Client.IndexExists("posts").Do(ctx)
-	if err != nil {
-		return err
-	}
-	if exists {
-		return nil
-	}
-
-	mapping := `
-   {
-       "mappings": {
-           "properties": {
-               "id": { "type": "keyword" },
-               "title": { "type": "text", "analyzer": "standard" },
-               "title_name": { "type": "text", "analyzer": "standard" },
-               "preview_content": { "type": "text", "analyzer": "standard" },
-               "content": { "type": "text", "analyzer": "standard" },
-               "tags": { "type": "keyword" },
-               "categories": { "type": "keyword" },
-               "user_id": { "type": "keyword" },
-               "created_at": { "type": "date" },
-               "claps": { "type": "integer" },
-               "views": { "type": "integer" },
-               "comments_count": { "type": "long" },
-               "average_rating": { "type": "float" }
-           }
-       }
-   }`
-
-	_, err = Client.CreateIndex("posts").BodyString(mapping).Do(ctx)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-// / IndexPost chỉ định một bài viết vào Elasticsearch
-func IndexPost(post models.SearchPost) error {
-	ctx := context.Background()
-
-	doc := map[string]interface{}{
-		"id":              post.ID.String(),
-		"title":           post.Title,
-		"title_name":      post.TitleName,
-		"preview_content": post.PreviewContent,
-		"content":         post.Content, // Nội dung từ PostContent
-		"tags":            post.Tags,
-		"categories":      post.Categories,
-		"user_id":         post.UserID.String(),
-		"created_at":      post.CreatedAt,
-		"claps":           post.ClapCount,
-		"views":           post.Views,
-		"comments_count":  post.CommentsCount,
-		"average_rating":  post.AverageRating,
-	}
-
-	_, err := Client.Index().
-		Index("posts").
-		Id(post.ID.String()).
-		BodyJson(doc).
-		Do(ctx)
-	if err != nil {
-		log.Printf("Failed to index post ID %s: %v", post.ID, err)
-		return err
-	}
-	log.Printf("Successfully indexed post ID %s", post.ID)
-	return nil
-}
-
-// DeletePostFromIndex xóa bài viết khỏi Elasticsearch
-func DeletePostFromIndex(postID uuid.UUID) error {
-	ctx := context.Background()
-	_, err := Client.Delete().
-		Index("posts").
-		Id(postID.String()).
-		Do(ctx)
-	if err != nil {
-		log.Printf("Failed to delete post ID %s from index: %v", postID, err)
-	}
-	return err
-}
-
-// // IndexPostContent chỉ định một PostContent vào Elasticsearch
-// func IndexPostContent(postContent models.PostContent) error {
-// 	ctx := context.Background()
-
-// 	doc := map[string]interface{}{
-// 		"id":         postContent.ID.String(),
-// 		"post_id":    postContent.PostID.String(),
-// 		"content":    postContent.Content,
-// 		"created_at": postContent.CreatedAt,
-// 		"updated_at": postContent.UpdatedAt,
-// 	}
-
-// 	_, err := Client.Index().
-// 		Index("postcontents").
-// 		Id(postContent.ID.String()).
-// 		BodyJson(doc).
-// 		Do(ctx)
-// 	if err != nil {
-// 		log.Printf("Failed to index PostContent ID %s: %v", postContent.ID, err)
-// 		return err
-// 	}
-// 	log.Printf("Successfully indexed PostContent ID %s", postContent.ID)
-// 	return nil
-// }
-
-// // DeletePostContentFromIndex xóa PostContent khỏi Elasticsearch
-// func DeletePostContentFromIndex(postContentID uuid.UUID) error {
-// 	ctx := context.Background()
-// 	_, err := Client.Delete().
-// 		Index("postcontents").
-// 		Id(postContentID.String()).
-// 		Do(ctx)
-// 	if err != nil {
-// 		log.Printf("Failed to delete PostContent ID %s from index: %v", postContentID, err)
-// 	}
-// 	return err
-// }
-
-// SearchPosts thực hiện tìm kiếm trên chỉ mục "posts"
+// SearchPosts thực hiện tìm kiếm đơn giản trên title và preview_content
 func SearchPosts(query string, page int, limit int) ([]models.SearchPost, int, error) {
-	ctx := context.Background()
-	boolQuery := elastic.NewBoolQuery()
-
-	// Thêm điều kiện tìm kiếm trong các trường title, TitleName, PreviewContent, và content
-	if query != "" {
-		multiMatch := elastic.NewMultiMatchQuery(query, "title", "title_name", "preview_content", "content").
-			Operator("or")
-		boolQuery = boolQuery.Should(multiMatch)
-	}
-
-	// Thêm tính năng fuzzy search kết hợp với prefix search
-	if query != "" {
-		// Fuzzy MultiMatch Query
-		fuzzyMatch := elastic.NewMultiMatchQuery(query, "title", "title_name", "preview_content", "content").
-			Fuzziness("AUTO").
-			Operator("or")
-
-		// Prefix Query để tìm các từ bắt đầu bằng phần đầu của query
-		prefixMatch := elastic.NewPrefixQuery("content", query)
-
-		// Thêm cả hai vào boolQuery
-		boolQuery = boolQuery.Should(fuzzyMatch, prefixMatch)
-	}
-
-	// Tính toán pagination
-	from := (page - 1) * limit
-
-	// Tạo search service với các tham số đã cấu hình
-	searchService := Client.Search().
-		Index("posts").
-		Query(boolQuery).
-		Sort("created_at", false). // Sắp xếp theo ngày tạo mới nhất
-		From(from).
-		Size(limit).
-		TrackTotalHits(true)
-
-	// Thực hiện tìm kiếm
-	searchResult, err := searchService.Do(ctx)
-	if err != nil {
-		return nil, 0, err
-	}
-
-	// Tổng số kết quả
-	total := int(searchResult.Hits.TotalHits.Value)
-
-	log.Printf("Search query: %s, found %d results", query, total)
-
-	// Xử lý kết quả tìm kiếm
 	var posts []models.SearchPost
-	for _, hit := range searchResult.Hits.Hits {
-		var post models.SearchPost
-		if err := json.Unmarshal(hit.Source, &post); err != nil {
-			log.Printf("json.Unmarshal err: %s", err)
+	var totalCount int64
+
+	// Build base query - chỉ search trong title và preview_content
+	baseQuery := database.DB.Table("posts").
+		Select(`posts.id, posts.title, posts.title_name, posts.preview_content, 
+		       posts.user_id, posts.created_at, posts.views`).
+		Order("posts.created_at DESC") // Mặc định sort theo created_at mới nhất
+
+	// Apply text search filter chỉ trong title và preview_content
+	if query != "" {
+		searchQuery := strings.TrimSpace(query)
+		if searchQuery != "" {
+			// Sử dụng PostgreSQL full-text search và ILIKE
+			baseQuery = baseQuery.Where(`
+				(to_tsvector('english', coalesce(posts.title, '') || ' ' || 
+				 coalesce(posts.preview_content, '')) @@ plainto_tsquery('english', ?) OR
+				 posts.title ILIKE ? OR 
+				 posts.preview_content ILIKE ?)`,
+				searchQuery, "%"+searchQuery+"%", "%"+searchQuery+"%")
+		}
+	}
+
+	// Get total count
+	countQuery := baseQuery
+	if err := countQuery.Count(&totalCount).Error; err != nil {
+		return nil, 0, fmt.Errorf("failed to count search results: %v", err)
+	}
+
+	// Apply pagination and get results
+	offset := (page - 1) * limit
+	if err := baseQuery.
+		Limit(limit).
+		Offset(offset).
+		Scan(&posts).Error; err != nil {
+		return nil, 0, fmt.Errorf("failed to execute search query: %v", err)
+	}
+
+	// Fill in tags and categories for each post
+	for i := range posts {
+		if err := fillPostMetadata(&posts[i]); err != nil {
+			log.Printf("Warning: Failed to fill metadata for post %s: %v", posts[i].ID, err)
+		}
+		// Set default values for missing fields
+		posts[i].ClapCount = 0
+		posts[i].AverageRating = 0.0
+		posts[i].CommentsCount = 0
+		posts[i].Content = "" // Không load content để tăng performance
+	}
+
+	log.Printf("PostgreSQL search found %d results for query: %s", totalCount, query)
+	return posts, int(totalCount), nil
+}
+
+// fillPostMetadata fills tags and categories for a post
+func fillPostMetadata(post *models.SearchPost) error {
+	// Get categories
+	var categories []string
+	err := database.DB.Table("categories").
+		Select("categories.name").
+		Joins("JOIN post_categories ON categories.id = post_categories.category_id").
+		Where("post_categories.post_id = ?", post.ID).
+		Pluck("name", &categories).Error
+	if err != nil {
+		return err
+	}
+	post.Categories = categories
+
+	// Get tags
+	var tags []string
+	err = database.DB.Table("tags").
+		Select("tags.name").
+		Joins("JOIN post_tags ON tags.id = post_tags.tag_id").
+		Where("post_tags.post_id = ?", post.ID).
+		Pluck("name", &tags).Error
+	if err != nil {
+		return err
+	}
+	post.Tags = tags
+
+	return nil
+}
+
+// GetSearchSuggestions lấy gợi ý tìm kiếm dựa trên PostgreSQL
+func GetSearchSuggestions(query string, limit int) ([]models.SearchSuggestion, error) {
+	if query == "" {
+		return []models.SearchSuggestion{}, nil
+	}
+
+	var suggestions []models.SearchSuggestion
+
+	// Search in post titles for suggestions
+	rows, err := database.DB.Raw(`
+		SELECT DISTINCT title, 
+		       ts_rank(to_tsvector('english', title), plainto_tsquery('english', ?)) as score
+		FROM posts 
+		WHERE title ILIKE ? 
+		   OR to_tsvector('english', title) @@ plainto_tsquery('english', ?)
+		ORDER BY score DESC, title
+		LIMIT ?`, query, "%"+query+"%", query, limit).Rows()
+
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var title string
+		var score float64
+		if err := rows.Scan(&title, &score); err != nil {
 			continue
 		}
-		posts = append(posts, post)
+		suggestions = append(suggestions, models.SearchSuggestion{
+			Text:  title,
+			Score: score,
+		})
 	}
 
-	return posts, total, nil
+	return suggestions, nil
+}
+
+// GetPopularSearches lấy các tìm kiếm phổ biến từ PostgreSQL
+func GetPopularSearches(limit int) ([]models.PopularSearch, error) {
+	var results []models.PopularSearch
+
+	err := database.DB.Raw(`
+		SELECT query, COUNT(*) as count 
+		FROM search_analytics 
+		WHERE created_at >= NOW() - INTERVAL '7 days'
+		AND query != '' 
+		GROUP BY query 
+		ORDER BY count DESC 
+		LIMIT ?
+	`, limit).Scan(&results).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return results, nil
+}
+
+// TrackSearch ghi lại thông tin search analytics vào PostgreSQL
+func TrackSearch(query, userID string, resultsCount int) error {
+	analytics := models.SearchAnalytics{
+		ID:           uuid.NewV4(),
+		Query:        query,
+		UserID:       userID,
+		ResultsCount: resultsCount,
+		CreatedAt:    time.Now(),
+	}
+
+	return database.DB.Create(&analytics).Error
+}
+
+// IndexPost - No longer needed with PostgreSQL, but keeping for compatibility
+func IndexPost(post models.SearchPost) error {
+	log.Printf("IndexPost called for post %s - using PostgreSQL, no action needed", post.ID)
+	return nil
+}
+
+// DeletePostFromIndex - No longer needed with PostgreSQL, but keeping for compatibility
+func DeletePostFromIndex(postID uuid.UUID) error {
+	log.Printf("DeletePostFromIndex called for post %s - using PostgreSQL, no action needed", postID)
+	return nil
 }

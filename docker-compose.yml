@@ -46,7 +46,6 @@ services:
       - ./backend/application/uploads:/app/uploads  # Mount thư mục uploads của backend
     depends_on:
       - db
-      - elasticsearch
       - image-service
       #- fluentd
     environment:
@@ -55,12 +54,12 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=postgres
       - DB_NAME=postgres
-      - ELASTICSEARCH_HOST=http://elasticsearch:9200
+
       - JWT_SECRET=${JWT_SECRET}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - GOOGLE_REDIRECT_URL=${GOOGLE_REDIRECT_URL}
-      - BASE_SEARCH_API_URL=${BASE_SEARCH_API_URL}
+      - BASE_SEARCH_API_URL=http://search_service:83
       - BASE_AUTH_API_URL=${BASE_AUTH_API_URL}
       - BASE_API_URL=${BASE_API_URL}
       - BASE_FE_URL=${BASE_FE_URL}
@@ -121,7 +120,7 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=postgres
       - DB_NAME=postgres
-      - ELASTICSEARCH_HOST=http://elasticsearch:9200
+
       - BASE_BE_URL=${BASE_BE_URL}
       - logger.level=debug
       - discovery.type=single-node
@@ -152,7 +151,7 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=postgres
       - DB_NAME=postgres
-      - ELASTICSEARCH_HOST=http://elasticsearch:9200
+
       - JWT_SECRET=${JWT_SECRET}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
@@ -209,42 +208,7 @@ services:
     security_opt:
       - seccomp=unconfined  # Needed for Chrome
 
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
-    container_name: elasticsearch
-    environment:
-      - discovery.type=single-node
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
-    ports:
-      - "9200:9200"
-    expose:
-      - "9200"
-    volumes:
-      - es-data:/usr/share/elasticsearch/data
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200 || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
-  kibana:
-    image: docker.elastic.co/kibana/kibana:7.17.10
-    container_name: kibana
-    environment:
-      - ELASTICSEARCH_HOST=http://elasticsearch:9200
-      - SERVER_BASEPATH=/kibana
-      - SERVER_REWRITEBASEPATH=true
-    ports:
-      - "5601:5601"
-    expose:
-      - "5601"
-    depends_on:
-      - elasticsearch
-      #- fluentd
-    networks:
-      - app-network
 
   # Thêm Fluentd
   # fluentd:
@@ -324,6 +288,5 @@ networks:
 
 volumes:
   db-data:
-  es-data:
   grafana-data:
   image-data:

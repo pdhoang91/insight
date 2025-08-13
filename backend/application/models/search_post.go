@@ -24,3 +24,15 @@ type SearchPost struct {
 	CommentsCount  uint64    `json:"comments_count"`
 	AverageRating  float64   `json:"average_rating"`
 }
+
+// SearchSuggestion represents a search suggestion
+type SearchSuggestion struct {
+	Text  string  `json:"text"`
+	Score float64 `json:"score"`
+}
+
+// PopularSearch represents a popular search query
+type PopularSearch struct {
+	Query string `json:"query"`
+	Count int    `json:"count"`
+}

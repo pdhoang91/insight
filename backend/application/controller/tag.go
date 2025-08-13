@@ -3,6 +3,7 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -109,4 +110,32 @@ func RemoveTagFromPost(c *gin.Context) {
 	//}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Tag removed from post successfully"})
+}
+
+// SearchTags tìm kiếm tags theo tên
+func SearchTags(c *gin.Context) {
+	query := c.Query("q")
+	limitStr := c.DefaultQuery("limit", "10")
+
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit < 1 {
+		limit = 10
+	}
+
+	var tags []models.Tag
+	if query == "" {
+		// Nếu không có query, trả về tags phổ biến nhất
+		if err := database.DB.Limit(limit).Find(&tags).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch tags"})
+			return
+		}
+	} else {
+		// Tìm kiếm tags theo tên
+		if err := database.DB.Where("name ILIKE ?", "%"+query+"%").Limit(limit).Find(&tags).Error; err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to search tags"})
+			return
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": tags})
 }

@@ -3,7 +3,6 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"github.com/pdhoang91/search-service/database"
 	"github.com/pdhoang91/search-service/router"
@@ -12,12 +11,13 @@ import (
 
 func main() {
 	// Khởi tạo cấu hình
-	// Kết nối cơ sở dữ liệu, thực hiện migration và thiết lập các callback cho Elasticsearch
+	// Kết nối cơ sở dữ liệu và thiết lập PostgreSQL search
 	database.InitializeDatabase()
 	log.Println("Connected to database")
-	elasticsearchURL := os.Getenv("ELASTICSEARCH_HOST")
-	service.InitElasticsearch(elasticsearchURL)
-	log.Println("Init Elasticsearch")
+
+	// Initialize PostgreSQL search service
+	service.InitializeSearchService()
+	log.Println("Initialized PostgreSQL search service")
 
 	// Thiết lập router và chạy server
 	r := router.SetupRouter()

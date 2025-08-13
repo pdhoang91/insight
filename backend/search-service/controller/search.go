@@ -80,7 +80,70 @@ func SearchPostsHandler(c *gin.Context) {
 	})
 }
 
-// IndexPostHandler xử lý yêu cầu chỉ định một bài viết vào Elasticsearch
+// SearchSuggestionsHandler xử lý yêu cầu gợi ý tìm kiếm
+func SearchSuggestionsHandler(c *gin.Context) {
+	query := c.Query("q")
+	limitStr := c.DefaultQuery("limit", "5")
+
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit < 1 {
+		limit = 5
+	}
+
+	suggestions, err := service.GetSearchSuggestions(query, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get suggestions", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"suggestions": suggestions,
+	})
+}
+
+// PopularSearchesHandler xử lý yêu cầu lấy các tìm kiếm phổ biến
+func PopularSearchesHandler(c *gin.Context) {
+	limitStr := c.DefaultQuery("limit", "10")
+
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit < 1 {
+		limit = 10
+	}
+
+	searches, err := service.GetPopularSearches(limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get popular searches", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"popular_searches": searches,
+	})
+}
+
+// TrackSearchHandler xử lý việc theo dõi search analytics
+func TrackSearchHandler(c *gin.Context) {
+	var request struct {
+		Query        string `json:"query" binding:"required"`
+		UserID       string `json:"user_id"`
+		ResultsCount int    `json:"results_count"`
+	}
+
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload", "details": err.Error()})
+		return
+	}
+
+	err := service.TrackSearch(request.Query, request.UserID, request.ResultsCount)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to track search", "details": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Search tracked successfully"})
+}
+
+// IndexPostHandler xử lý yêu cầu chỉ định một bài viết vào index (compatibility)
 func IndexPostHandler(c *gin.Context) {
 	var post models.SearchPost
 	if err := c.ShouldBindJSON(&post); err != nil {
@@ -94,7 +157,7 @@ func IndexPostHandler(c *gin.Context) {
 		return
 	}
 
-	// Thực hiện chỉ định vào Elasticsearch
+	// Thực hiện chỉ định (no-op với PostgreSQL)
 	if err := service.IndexPost(post); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to index post", "details": err.Error()})
 		return
@@ -103,7 +166,7 @@ func IndexPostHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Post indexed successfully"})
 }
 
-// DeletePostHandler xử lý yêu cầu xóa một bài viết khỏi Elasticsearch
+// DeletePostHandler xử lý yêu cầu xóa một bài viết khỏi index (compatibility)
 func DeletePostHandler(c *gin.Context) {
 	idParam := c.Param("id")
 	postID, err := uuid.FromString(idParam)
@@ -112,7 +175,7 @@ func DeletePostHandler(c *gin.Context) {
 		return
 	}
 
-	// Thực hiện xóa khỏi Elasticsearch
+	// Thực hiện xóa (no-op với PostgreSQL)
 	if err := service.DeletePostFromIndex(postID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete post from index", "details": err.Error()})
 		return

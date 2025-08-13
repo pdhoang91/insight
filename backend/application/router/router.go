@@ -56,6 +56,7 @@ func SetupRouter() *gin.Engine {
 
 	// Routes cho Tags
 	r.GET("/tags", controllers.GetTags)
+	r.GET("/tags/search", controllers.SearchTags)
 	r.POST("/tags", controllers.CreateTag)
 	//r.DELETE("/tags/:id", controllers.DeleteTag)
 	r.POST("/tag/:tag_id/posts/:post_id", controllers.AddTagToPost)
@@ -69,6 +70,9 @@ func SetupRouter() *gin.Engine {
 	r.GET("/topics/recommended", controllers.GetRecommendedTopics)
 	//r.GET("/search/v2/posts", controllers.SearchPostsHandler)
 	r.GET("/search/posts", controllers.SearchPostsHandler)
+	r.GET("/search/suggestions", controllers.SearchSuggestionsHandler)
+	r.GET("/search/popular", controllers.PopularSearchesHandler)
+	r.POST("/search/track", controllers.TrackSearchHandler)
 	//r.GET("/search/posts", controllers.SearchPostsBasic)
 	r.GET("/search/people", controllers.SearchUsers)
 	//r.GET("/search/categories", controllers.SearchPostsBasic)

@@ -53,3 +53,24 @@ type User struct {
 	CreatedAt              time.Time `json:"created_at"` // Thời gian tạo tài khoản
 	UpdatedAt              time.Time `json:"updated_at"` // Thời gian cập nhật thông tin
 }
+
+// SearchSuggestion represents a search suggestion
+type SearchSuggestion struct {
+	Text  string  `json:"text"`
+	Score float64 `json:"score"`
+}
+
+// PopularSearch represents a popular search query
+type PopularSearch struct {
+	Query string `json:"query"`
+	Count int    `json:"count"`
+}
+
+// SearchAnalytics tracks search queries for analytics
+type SearchAnalytics struct {
+	ID           uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();" json:"id"`
+	Query        string    `json:"query"`
+	UserID       string    `json:"user_id"`
+	ResultsCount int       `json:"results_count"`
+	CreatedAt    time.Time `json:"created_at"`
+}

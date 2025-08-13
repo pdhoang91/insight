@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/pdhoang91/blog/models"
 	uuid "github.com/satori/go.uuid"
@@ -40,7 +41,7 @@ func New(opts ...Option) ISearchClient {
 	c := &client{
 		baseURL: baseURL,
 		httpClient: &http.Client{
-			Timeout: 30 * 1000, // 30 seconds timeout
+			Timeout: 30 * time.Second, // 30 seconds timeout
 		},
 	}
 
