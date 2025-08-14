@@ -1,5 +1,5 @@
 // services/postService.js
-import axiosPublicInstance from '../utils/axiosPublicInstance';
+import axiosPublicInstance, { axiosPublicInstanceSimple } from '../utils/axiosPublicInstance';
 import axiosPrivateInstance from '../utils/axiosPrivateInstance';
 
 export const createPost = async (postData) => {
@@ -131,9 +131,66 @@ export const getFollowingPosts = async (page = 1, limit = 10) => {
   }
 };
 
-export const getLatestPosts = async (limit) => {
-  const response = await axiosPublicInstance.get(`/posts?limit=${limit}`);
-  const data = response.data;
+export const getLatestPosts = async (limit = 5) => {
+  try {
+    const response = await axiosPublicInstanceSimple.get('/posts/latest', {
+      params: { limit },
+    });
 
-  return data.data;
+    const data = response.data;
+    
+    if (!data || !Array.isArray(data.data)) {
+      // Fallback to regular posts if latest endpoint fails
+      const fallbackResponse = await axiosPublicInstance.get('/posts', {
+        params: { limit },
+      });
+      return fallbackResponse.data?.data || [];
+    }
+
+    return data.data;
+  } catch (error) {
+    console.error('Error in getLatestPosts:', error);
+    // Fallback to regular posts if latest endpoint fails
+    try {
+      const fallbackResponse = await axiosPublicInstance.get('/posts', {
+        params: { limit },
+      });
+      return fallbackResponse.data?.data || [];
+    } catch (fallbackError) {
+      console.error('Error in getLatestPosts fallback:', fallbackError);
+      return [];
+    }
+  }
+};
+
+export const getPopularPosts = async (limit = 5) => {
+  try {
+    const response = await axiosPublicInstanceSimple.get('/posts/popular', {
+      params: { limit },
+    });
+
+    const data = response.data;
+    
+    if (!data || !Array.isArray(data.data)) {
+      // Fallback to regular posts if popular endpoint fails
+      const fallbackResponse = await axiosPublicInstance.get('/posts', {
+        params: { limit },
+      });
+      return fallbackResponse.data?.data || [];
+    }
+
+    return data.data;
+  } catch (error) {
+    console.error('Error in getPopularPosts:', error);
+    // Fallback to regular posts if popular endpoint fails
+    try {
+      const fallbackResponse = await axiosPublicInstance.get('/posts', {
+        params: { limit },
+      });
+      return fallbackResponse.data?.data || [];
+    } catch (fallbackError) {
+      console.error('Error in getPopularPosts fallback:', fallbackError);
+      return [];
+    }
+  }
 };

@@ -42,6 +42,8 @@ func SetupRouter() *gin.Engine {
 	// Routes cho Posts and Comments, Ratings
 	r.GET("/posts", controllers.GetPosts)
 	r.GET("/posts/populer", controllers.GetMostViewedPosts)
+	r.GET("/posts/popular", controllers.GetPopularPosts)
+	r.GET("/posts/latest", controllers.GetLatestPosts)
 	//r.GET("/posts/:id", controllers.GetPostByID)
 	r.GET("/p/:title_name", controllers.GetPostByName)
 	r.GET("/posts/:id/comments", controllers.GetComments)
@@ -53,10 +55,12 @@ func SetupRouter() *gin.Engine {
 	r.POST("/categories", controllers.CreateCategory)
 	r.GET("/categories/:category/posts", controllers.GetPostsByCategory)
 	r.GET("/categories_top", controllers.GetTopCategories)
+	r.GET("/categories/popular", controllers.GetPopularCategories)
 
 	// Routes cho Tags
 	r.GET("/tags", controllers.GetTags)
 	r.GET("/tags/search", controllers.SearchTags)
+	r.GET("/tags/popular", controllers.GetPopularTags)
 	r.POST("/tags", controllers.CreateTag)
 	//r.DELETE("/tags/:id", controllers.DeleteTag)
 	r.POST("/tag/:tag_id/posts/:post_id", controllers.AddTagToPost)

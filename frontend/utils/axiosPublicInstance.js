@@ -14,7 +14,7 @@ export const axiosAIPublicInstance = axios.create({
 });
 
 export const axiosPublicInstanceSimple = axios.create({
-  baseURL: BASE_API_URL_SIMPLE,
+  baseURL: BASE_API_URL_SIMPLE || 'http://localhost:81',
 });
 
 export default axiosPublicInstance;

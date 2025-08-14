@@ -19,20 +19,17 @@ import {
   SiLinux,
   SiGit
 } from 'react-icons/si';
-import { useCategories } from '../../hooks/useCategories';
+import { usePopularCategories } from '../../hooks/useCategories';
 import { usePopularTags } from '../../hooks/useTags';
-import { useRecentPosts } from '../../hooks/useRecentPosts';
+import { useRecentPosts, usePopularPosts } from '../../hooks/useRecentPosts';
 import CompactPostItem from '../Post/CompactPostItem';
 
 const BlogSidebar = () => {
   // Real API data
-  const { categories, isLoading: categoriesLoading } = useCategories(1, 8);
-  const { tags, isLoading: tagsLoading } = usePopularTags(15);
-  const { posts: recentPosts, isLoading: postsLoading } = useRecentPosts(10);
-
-  // Split posts for different sections
-  const topPosts = recentPosts?.slice(0, 5) || [];
-  const latestPosts = recentPosts?.slice(5, 10) || [];
+  const { categories, isLoading: categoriesLoading } = usePopularCategories(1, 7);
+  const { tags, isLoading: tagsLoading } = usePopularTags(9);
+  const { posts: popularPosts, isLoading: popularPostsLoading } = usePopularPosts(5);
+  const { posts: latestPosts, isLoading: latestPostsLoading } = useRecentPosts(5);
 
   // Simple category colors for technical look
   const getCategoryColor = (index) => {
@@ -52,14 +49,14 @@ const BlogSidebar = () => {
   return (
     <aside className="space-y-6">
       {/* Popular Posts */}
-      {!postsLoading && topPosts.length > 0 && (
+      {!popularPostsLoading && popularPosts.length > 0 && (
         <div className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
           <h3 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
             <FaFire className="w-4 h-4 text-hacker-orange" />
             Popular Posts
           </h3>
           <div className="space-y-2.5">
-            {topPosts.map((post) => (
+            {popularPosts.map((post) => (
               <CompactPostItem key={post.id} post={post} minimal={true} />
             ))}
           </div>
@@ -76,7 +73,7 @@ const BlogSidebar = () => {
             </Link>
           </h3>
           <div className="flex flex-wrap gap-2">
-            {categories.slice(0, 8).map((category, index) => {
+            {categories.slice(0, 7).map((category, index) => {
               const colorClass = getCategoryColor(index);
               return (
                 <Link
@@ -86,6 +83,9 @@ const BlogSidebar = () => {
                 >
                   <FaCode className="w-3 h-3" />
                   <span>{category.name}</span>
+                  {category.post_count && (
+                    <span className="text-xs opacity-75">({category.post_count})</span>
+                  )}
                 </Link>
               );
             })}
@@ -94,7 +94,7 @@ const BlogSidebar = () => {
       )}
 
       {/* Latest Posts */}
-      {!postsLoading && latestPosts.length > 0 && (
+      {!latestPostsLoading && latestPosts.length > 0 && (
         <div className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
           <h3 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
             <FaClock className="w-4 h-4 text-hacker-blue" />
@@ -116,13 +116,16 @@ const BlogSidebar = () => {
             Popular Tags
           </h3>
           <div className="flex flex-wrap gap-2">
-            {tags.slice(0, 12).map((tag) => (
+            {tags.slice(0, 9).map((tag) => (
               <Link
                 key={tag.id}
                 href={`/search?q=${encodeURIComponent(tag.name)}`}
                 className="px-3 py-1 bg-terminal-light text-text-secondary hover:text-matrix-green hover:bg-terminal-dark text-xs rounded-full border border-terminal-border hover:border-matrix-green/50 transition-all"
               >
                 #{tag.name}
+                {tag.post_count && (
+                  <span className="ml-1 opacity-75">({tag.post_count})</span>
+                )}
               </Link>
             ))}
           </div>

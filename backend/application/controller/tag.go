@@ -139,3 +139,65 @@ func SearchTags(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"data": tags})
 }
+
+// GetPopularTags trả về danh sách các tag có nhiều bài post nhất cho sidebar
+func GetPopularTags(c *gin.Context) {
+	// Lấy các tham số phân trang từ query string với giá trị mặc định
+	pageStr := c.DefaultQuery("page", "1")
+	limitStr := c.DefaultQuery("limit", "9")
+
+	// Chuyển đổi các tham số sang kiểu int
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page < 1 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid 'page' parameter"})
+		return
+	}
+
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit < 1 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid 'limit' parameter"})
+		return
+	}
+
+	offset := (page - 1) * limit
+
+	type TagWithCount struct {
+		models.Tag
+		PostCount int64 `json:"post_count"`
+	}
+
+	var tags []TagWithCount
+	var totalCount int64
+
+	// Đếm tổng số tags có ít nhất 1 bài post
+	countQuery := `
+		SELECT COUNT(DISTINCT t.id) 
+		FROM tags t 
+		INNER JOIN post_tags pt ON t.id = pt.tag_id
+	`
+	if err := database.DB.Raw(countQuery).Scan(&totalCount).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to count tags"})
+		return
+	}
+
+	// Query để lấy tags với số lượng posts, sắp xếp theo số lượng posts giảm dần
+	query := `
+		SELECT t.id, t.name, t.created_at, t.updated_at, COUNT(pt.post_id) as post_count
+		FROM tags t 
+		INNER JOIN post_tags pt ON t.id = pt.tag_id 
+		GROUP BY t.id, t.name, t.created_at, t.updated_at 
+		ORDER BY post_count DESC 
+		LIMIT ? OFFSET ?
+	`
+
+	if err := database.DB.Raw(query, limit, offset).Scan(&tags).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch popular tags"})
+		return
+	}
+
+	// Trả về dữ liệu theo định dạng yêu cầu
+	c.JSON(http.StatusOK, gin.H{
+		"data":        tags,
+		"total_count": totalCount,
+	})
+}

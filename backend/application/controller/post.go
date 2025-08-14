@@ -927,3 +927,93 @@ func GetPostsByCategory(c *gin.Context) {
 		"total_count": total,
 	})
 }
+
+// GetPopularPosts trả về danh sách các bài viết phổ biến nhất (theo views) cho sidebar
+func GetPopularPosts(c *gin.Context) {
+	var posts []models.Post
+	var total int64
+
+	// Lấy tham số phân trang từ query
+	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "5"))
+	if err != nil || limit < 1 {
+		limit = 5
+	}
+	offset := (page - 1) * limit
+
+	// Đếm tổng số bài viết
+	if err := database.DB.Model(&models.Post{}).Count(&total).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Lấy danh sách bài viết, sắp xếp theo views giảm dần
+	result := database.DB.
+		Preload("User").     // Eager load thông tin User
+		Order("views DESC"). // Sắp xếp theo số lượt xem giảm dần
+		Limit(limit).
+		Offset(offset).
+		Find(&posts)
+
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+		return
+	}
+
+	// Calculate clap_count and comments_count for each post
+	calculatePostCounts(posts)
+
+	// Trả về kết quả
+	c.JSON(http.StatusOK, gin.H{
+		"data":        posts,
+		"total_count": total,
+	})
+}
+
+// GetLatestPosts trả về danh sách các bài viết mới nhất cho sidebar
+func GetLatestPosts(c *gin.Context) {
+	var posts []models.Post
+	var total int64
+
+	// Lấy tham số phân trang từ query
+	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
+	if err != nil || page < 1 {
+		page = 1
+	}
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "5"))
+	if err != nil || limit < 1 {
+		limit = 5
+	}
+	offset := (page - 1) * limit
+
+	// Đếm tổng số bài viết
+	if err := database.DB.Model(&models.Post{}).Count(&total).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Lấy danh sách bài viết, sắp xếp theo created_at giảm dần
+	result := database.DB.
+		Preload("User").          // Eager load thông tin User
+		Order("created_at DESC"). // Sắp xếp theo ngày tạo mới nhất
+		Limit(limit).
+		Offset(offset).
+		Find(&posts)
+
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+		return
+	}
+
+	// Calculate clap_count and comments_count for each post
+	calculatePostCounts(posts)
+
+	// Trả về kết quả
+	c.JSON(http.StatusOK, gin.H{
+		"data":        posts,
+		"total_count": total,
+	})
+}
