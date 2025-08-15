@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { FaUser, FaEdit, FaTerminal, FaCode, FaLaptopCode } from 'react-icons/fa';
 
 const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate }) => {
   const [imageError, setImageError] = useState(false);
@@ -17,11 +18,27 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate }) => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
-      {/* Background Pattern */}
-      <div className="absolute inset-0 bg-terminal-grid opacity-10 pointer-events-none"></div>
-      
       {/* Main Container */}
-      <div className="relative bg-gradient-terminal border border-matrix-green/20 rounded-2xl p-4 sm:p-6 lg:p-8 shadow-terminal backdrop-blur-terminal">
+      <div className="relative bg-gradient-to-br from-terminal-dark via-terminal-black to-terminal-dark border border-matrix-green/30 rounded-xl p-4 sm:p-6 lg:p-8 shadow-2xl backdrop-blur-sm">
+        
+        {/* Glowing border effect */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-matrix-green to-transparent animate-pulse" />
+        
+        {/* Terminal Header */}
+        <motion.div 
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1 }}
+          className="flex items-center space-x-2 text-matrix-green text-sm font-mono mb-4"
+        >
+          <FaTerminal className="w-4 h-4" />
+          <span>~/dev/profile $</span>
+          <motion.span
+            animate={{ opacity: [1, 0, 1] }}
+            transition={{ duration: 1, repeat: Infinity }}
+            className="w-2 h-4 bg-matrix-green inline-block"
+          />
+        </motion.div>
         
         {/* Mobile Layout (Stack) */}
         <div className="block sm:hidden">
@@ -34,27 +51,28 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate }) => {
             >
               <div className="relative">
                 {/* Avatar Ring */}
-                <div className="absolute -inset-1 bg-gradient-neon rounded-full opacity-75 blur-sm group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="absolute -inset-1 bg-gradient-to-r from-matrix-green/50 to-matrix-cyan/50 rounded-full opacity-75 blur-sm group-hover:opacity-100 transition-opacity duration-300"></div>
                 
                 {/* Avatar Image */}
                 <div className="relative w-20 h-20">
                   <img
-                    src={imageError ? '/default-avatar.png' : `${avatarUrl || '/default-avatar.png'}?t=${new Date().getTime()}`}
+                    src={imageError ? '/images/placeholder.svg' : `${avatarUrl || '/images/placeholder.svg'}?t=${new Date().getTime()}`}
                     alt={`${name}'s avatar`}
                     onError={handleImageError}
-                    className="w-full h-full rounded-full object-cover border-2 border-matrix-green/30 shadow-neon-green group-hover:shadow-neon-cyan transition-all duration-300"
+                    className="w-full h-full rounded-full object-cover border-2 border-matrix-green/40 group-hover:border-matrix-green/60 transition-all duration-300"
                   />
+                  {/* Tech badge */}
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-matrix-green rounded-full flex items-center justify-center border-2 border-terminal-dark">
+                    <FaLaptopCode className="w-3 h-3 text-terminal-black" />
+                  </div>
                 </div>
               </div>
-              
-              {/* Scan Line Effect */}
-              <div className="absolute inset-0 scan-line rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </motion.div>
 
             {/* User Info */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <motion.h1 
-                className="text-xl font-bold text-gradient-matrix font-matrix leading-tight"
+                className="text-xl font-bold text-text-primary leading-tight"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
@@ -63,14 +81,19 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate }) => {
               </motion.h1>
 
               {bio && (
-                <motion.p 
-                  className="text-sm text-muted leading-relaxed font-mono max-w-xs"
+                <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3 }}
+                  className="relative"
                 >
-                  {bio}
-                </motion.p>
+                  <div className="absolute -inset-1 bg-gradient-to-r from-matrix-cyan/20 to-matrix-green/20 rounded-lg blur opacity-75" />
+                  <div className="relative bg-terminal-gray/50 border border-matrix-green/20 rounded-lg p-3">
+                    <p className="text-sm text-text-muted leading-relaxed font-mono">
+                      {bio}
+                    </p>
+                  </div>
+                </motion.div>
               )}
             </div>
 
@@ -78,27 +101,18 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate }) => {
             {onUpdate && (
               <motion.button
                 onClick={onUpdate}
-                className="group relative p-3 bg-matrix-green/10 hover:bg-matrix-green/20 text-matrix-green border border-matrix-green/30 hover:border-matrix-green/50 rounded-full transition-all duration-200 hover:shadow-neon-green active:scale-95"
+                className="group relative overflow-hidden bg-gradient-to-r from-matrix-green/10 to-matrix-green/5 border border-matrix-green/30 rounded-lg px-6 py-3 hover:border-matrix-green/50 transition-all duration-300"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.4, type: "spring", stiffness: 300 }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                {/* Edit Icon */}
-                <svg 
-                  className="w-5 h-5" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" 
-                  />
-                </svg>
+                <div className="absolute inset-0 bg-gradient-to-r from-matrix-green/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative flex items-center space-x-2">
+                  <FaEdit className="w-4 h-4 text-matrix-green" />
+                  <span className="text-sm font-medium text-matrix-green">Edit Profile</span>
+                </div>
               </motion.button>
             )}
           </div>
@@ -115,28 +129,29 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate }) => {
           >
             <div className="relative">
               {/* Avatar Ring */}
-              <div className="absolute -inset-1 bg-gradient-neon rounded-full opacity-75 blur-sm group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="absolute -inset-1 bg-gradient-to-r from-matrix-green/50 to-matrix-cyan/50 rounded-full opacity-75 blur-sm group-hover:opacity-100 transition-opacity duration-300"></div>
               
               {/* Avatar Image */}
               <div className="relative w-24 h-24 lg:w-28 lg:h-28">
                 <img
-                  src={imageError ? '/default-avatar.png' : `${avatarUrl || '/default-avatar.png'}?t=${new Date().getTime()}`}
+                  src={imageError ? '/images/placeholder.svg' : `${avatarUrl || '/images/placeholder.svg'}?t=${new Date().getTime()}`}
                   alt={`${name}'s avatar`}
                   onError={handleImageError}
-                  className="w-full h-full rounded-full object-cover border-2 border-matrix-green/30 shadow-neon-green group-hover:shadow-neon-cyan transition-all duration-300"
+                  className="w-full h-full rounded-full object-cover border-2 border-matrix-green/40 group-hover:border-matrix-green/60 transition-all duration-300"
                 />
+                {/* Tech badge */}
+                <div className="absolute -bottom-1 -right-1 w-7 h-7 lg:w-8 lg:h-8 bg-matrix-green rounded-full flex items-center justify-center border-2 border-terminal-dark">
+                  <FaLaptopCode className="w-3 h-3 lg:w-4 lg:h-4 text-terminal-black" />
+                </div>
               </div>
             </div>
-            
-            {/* Scan Line Effect */}
-            <div className="absolute inset-0 scan-line rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </motion.div>
 
           {/* Center Column - User Info */}
-          <div className="text-left">
+          <div className="text-left space-y-4">
             {/* Name */}
             <motion.h1 
-              className="text-2xl lg:text-3xl font-bold text-gradient-matrix font-matrix leading-tight mb-2"
+              className="text-2xl lg:text-3xl font-bold text-text-primary leading-tight"
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
@@ -150,10 +165,14 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate }) => {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3 }}
+                className="relative"
               >
-                <p className="text-sm lg:text-base text-muted leading-relaxed font-mono">
-                  {bio}
-                </p>
+                <div className="absolute -inset-1 bg-gradient-to-r from-matrix-cyan/20 to-matrix-green/20 rounded-lg blur opacity-75" />
+                <div className="relative bg-terminal-gray/50 border border-matrix-green/20 rounded-lg p-4">
+                  <p className="text-sm lg:text-base text-text-muted leading-relaxed font-mono">
+                    {bio}
+                  </p>
+                </div>
               </motion.div>
             )}
           </div>
@@ -168,31 +187,19 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate }) => {
             >
               <motion.button
                 onClick={onUpdate}
-                className="group relative p-3 lg:p-4 bg-matrix-green/10 hover:bg-matrix-green/20 text-matrix-green border border-matrix-green/30 hover:border-matrix-green/50 rounded-xl transition-all duration-200 hover:shadow-neon-green active:scale-95"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                className="group relative overflow-hidden bg-gradient-to-r from-matrix-green/10 to-matrix-green/5 border border-matrix-green/30 rounded-lg px-6 py-3 lg:px-8 lg:py-4 hover:border-matrix-green/50 transition-all duration-300"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
               >
-                {/* Edit Icon */}
-                <svg 
-                  className="w-5 h-5 lg:w-6 lg:h-6" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
-                >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" 
-                  />
-                </svg>
+                <div className="absolute inset-0 bg-gradient-to-r from-matrix-green/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="relative flex items-center space-x-3">
+                  <FaEdit className="w-4 h-4 lg:w-5 lg:h-5 text-matrix-green" />
+                  <span className="text-sm lg:text-base font-medium text-matrix-green">Edit Profile</span>
+                </div>
                 
-                {/* Hover Effect Background */}
-                <div className="absolute inset-0 bg-matrix-green/5 rounded-xl scale-0 group-hover:scale-100 transition-transform duration-300"></div>
-                
-                {/* Tooltip */}
-                <div className="absolute -top-12 right-0 bg-terminal-dark text-matrix-green text-xs font-mono px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap border border-matrix-green/20 shadow-neon-green">
-                  edit_profile()
+                {/* Terminal tooltip */}
+                <div className="absolute -top-12 right-0 bg-terminal-dark text-matrix-green text-xs font-mono px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap border border-matrix-green/20">
+                  $ edit_profile --user
                   <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-matrix-green/20"></div>
                 </div>
               </motion.button>

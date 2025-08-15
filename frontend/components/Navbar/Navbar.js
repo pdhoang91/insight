@@ -11,7 +11,14 @@ import {
   FaBars, 
   FaTimes, 
   FaEdit,
-  FaPaperPlane
+  FaPaperPlane,
+  FaCode,
+  FaTerminal,
+  FaLaptopCode,
+  FaRocket,
+  FaBolt,
+  FaGithub,
+  FaServer
 } from 'react-icons/fa';
 import { useUser } from '../../context/UserContext';
 import TechSearchBar from '../Shared/TechSearchBar';
@@ -236,98 +243,212 @@ const Navbar = ({ onPublish }) => {
           {isMobileMenuOpen && (
             <motion.div
               ref={mobileMenuRef}
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.3 }}
-              className="md:hidden bg-terminal-dark border-t border-matrix-green/30 overflow-hidden"
+              initial={{ opacity: 0, height: 0, y: -20 }}
+              animate={{ opacity: 1, height: 'auto', y: 0 }}
+              exit={{ opacity: 0, height: 0, y: -20 }}
+              transition={{ duration: 0.4, ease: "easeInOut" }}
+              className="md:hidden bg-gradient-to-br from-terminal-dark via-terminal-black to-terminal-dark border-t border-matrix-green/40 overflow-hidden relative"
             >
-              <div className="p-4 space-y-4">
-                {/* Search Bar */}
-                <TechSearchBar onSearch={() => setIsMobileMenuOpen(false)} />
 
-                {/* Actions */}
-                <div className="space-y-2">
+
+              {/* Glowing border effect */}
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-matrix-green to-transparent animate-pulse" />
+
+              <div className="relative p-5 space-y-5">
+                {/* Terminal Header */}
+                <motion.div 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="flex items-center space-x-2 text-matrix-green text-sm font-mono"
+                >
+                  <FaTerminal className="w-4 h-4" />
+                  <span>~/dev/insight $</span>
+                  <motion.span
+                    animate={{ opacity: [1, 0, 1] }}
+                    transition={{ duration: 1, repeat: Infinity }}
+                    className="w-2 h-4 bg-matrix-green inline-block"
+                  />
+                </motion.div>
+
+                {/* Search Bar with enhanced styling */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                  className="relative"
+                >
+                  <div className="absolute -inset-1 bg-gradient-to-r from-matrix-green/20 to-matrix-cyan/20 rounded-lg blur opacity-75" />
+                  <div className="relative">
+                    <TechSearchBar onSearch={() => setIsMobileMenuOpen(false)} />
+                  </div>
+                </motion.div>
+
+                {/* Actions Section */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.3 }}
+                  className="space-y-3"
+                >
                   {/* Write Button - Hide on write/edit pages */}
                   {router.pathname !== '/write' && !router.pathname.startsWith('/edit/') && (
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
                       onClick={handleWriteClick}
-                      className="w-full flex items-center space-x-2 p-3 text-matrix-green hover:bg-terminal-gray rounded-lg transition-colors"
+                      className="w-full group relative overflow-hidden bg-gradient-to-r from-matrix-green/10 to-matrix-green/5 border border-matrix-green/30 rounded-lg p-4 hover:border-matrix-green/50 transition-all duration-300"
                     >
-                      <FaEdit className="w-4 h-4" />
-                      <span>Write</span>
-                    </button>
+                      <div className="absolute inset-0 bg-gradient-to-r from-matrix-green/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <div className="relative flex items-center space-x-3">
+                        <div className="p-2 bg-matrix-green/20 rounded-lg group-hover:bg-matrix-green/30 transition-colors">
+                          <FaEdit className="w-4 h-4 text-matrix-green" />
+                        </div>
+                        <div className="flex-1 text-left">
+                          <div className="text-sm font-medium text-matrix-green">Write Article</div>
+                          <div className="text-xs text-text-muted">Create new post</div>
+                        </div>
+                      </div>
+                    </motion.button>
                   )}
 
                   {/* Publish Button (show on write page) */}
                   {router.pathname === '/write' && onPublish && (
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
                       onClick={handlePublishClick}
-                      className="w-full flex items-center space-x-2 p-3 text-hacker-yellow hover:bg-terminal-gray rounded-lg transition-colors"
+                      className="w-full group relative overflow-hidden bg-gradient-to-r from-hacker-yellow/10 to-hacker-yellow/5 border border-hacker-yellow/30 rounded-lg p-4 hover:border-hacker-yellow/50 transition-all duration-300"
                     >
-                      <FaPaperPlane className="w-4 h-4" />
-                      <span>Publish</span>
-                    </button>
+                      <div className="absolute inset-0 bg-gradient-to-r from-hacker-yellow/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <div className="relative flex items-center space-x-3">
+                        <div className="p-2 bg-hacker-yellow/20 rounded-lg group-hover:bg-hacker-yellow/30 transition-colors">
+                          <FaRocket className="w-4 h-4 text-hacker-yellow" />
+                        </div>
+                        <div className="flex-1 text-left">
+                          <div className="text-sm font-medium text-hacker-yellow">Publish Article</div>
+                          <div className="text-xs text-text-muted">Deploy to production</div>
+                        </div>
+                      </div>
+                    </motion.button>
                   )}
 
                   {/* Update Button (show on edit page) */}
                   {router.pathname.startsWith('/edit/') && onPublish && (
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
                       onClick={handlePublishClick}
-                      className="w-full flex items-center space-x-2 p-3 text-matrix-cyan hover:bg-terminal-gray rounded-lg transition-colors"
+                      className="w-full group relative overflow-hidden bg-gradient-to-r from-matrix-cyan/10 to-matrix-cyan/5 border border-matrix-cyan/30 rounded-lg p-4 hover:border-matrix-cyan/50 transition-all duration-300"
                     >
-                      <FaPaperPlane className="w-4 h-4" />
-                      <span>Update</span>
-                    </button>
+                      <div className="absolute inset-0 bg-gradient-to-r from-matrix-cyan/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <div className="relative flex items-center space-x-3">
+                        <div className="p-2 bg-matrix-cyan/20 rounded-lg group-hover:bg-matrix-cyan/30 transition-colors">
+                          <FaBolt className="w-4 h-4 text-matrix-cyan" />
+                        </div>
+                        <div className="flex-1 text-left">
+                          <div className="text-sm font-medium text-matrix-cyan">Update Article</div>
+                          <div className="text-xs text-text-muted">Push changes</div>
+                        </div>
+                      </div>
+                    </motion.button>
                   )}
+                </motion.div>
 
+                {/* User Section */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 }}
+                  className="space-y-3"
+                >
                   {user ? (
                     <>
-                      {/* User Info - Clickable to go to profile */}
+                      {/* Enhanced User Profile Card */}
                       <Link
                         href={`/${user.username}`}
-                        className="w-full p-3 border border-matrix-green/20 rounded-lg hover:bg-terminal-gray transition-colors"
+                        className="group block relative overflow-hidden bg-gradient-to-r from-terminal-gray/50 to-terminal-gray/30 border border-matrix-green/20 rounded-xl p-4 hover:border-matrix-green/40 transition-all duration-300"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
-                        <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-matrix-green/20 rounded-full flex items-center justify-center">
-                            {user.avatar_url ? (
-                              <img
-                                src={user.avatar_url}
-                                alt={user.name}
-                                className="w-full h-full rounded-full object-cover"
-                              />
-                            ) : (
-                              <FaUser className="w-5 h-5 text-matrix-green" />
-                            )}
+                        <div className="absolute inset-0 bg-gradient-to-r from-matrix-green/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <div className="relative flex items-center space-x-4">
+                          <div className="relative">
+                            <div className="w-12 h-12 bg-gradient-to-br from-matrix-green/30 to-matrix-green/10 rounded-full flex items-center justify-center border border-matrix-green/30">
+                              {user.avatar_url ? (
+                                <img
+                                  src={user.avatar_url}
+                                  alt={user.name}
+                                  className="w-full h-full rounded-full object-cover"
+                                />
+                              ) : (
+                                <FaUser className="w-6 h-6 text-matrix-green" />
+                              )}
+                            </div>
+                            <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-matrix-green rounded-full flex items-center justify-center">
+                              <FaLaptopCode className="w-2 h-2 text-terminal-black" />
+                            </div>
                           </div>
-                          <div>
-                            <div className="font-medium text-text-primary">{user.name}</div>
-                            <div className="text-sm text-text-muted">{user.email}</div>
+                          <div className="flex-1">
+                            <div className="font-semibold text-text-primary group-hover:text-matrix-green transition-colors">{user.name}</div>
+                            <div className="text-sm text-text-muted font-mono">{user.email}</div>
+                            <div className="text-xs text-matrix-green/70 font-mono mt-1">@{user.username}</div>
+                          </div>
+                          <div className="text-matrix-green/50 group-hover:text-matrix-green transition-colors">
+                            <FaServer className="w-4 h-4" />
                           </div>
                         </div>
                       </Link>
                       
-                      <button
+                      {/* Enhanced Logout Button */}
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
                         onClick={handleLogout}
-                        className="w-full flex items-center space-x-2 p-3 text-hacker-red hover:bg-terminal-gray rounded-lg transition-colors"
+                        className="w-full group relative overflow-hidden bg-gradient-to-r from-hacker-red/10 to-hacker-red/5 border border-hacker-red/30 rounded-xl p-4 hover:border-hacker-red/60 transition-all duration-300"
                       >
-                        <FaSignOutAlt className="w-4 h-4" />
-                        <span>Sign Out</span>
-                      </button>
+                        <div className="absolute inset-0 bg-gradient-to-r from-hacker-red/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        <div className="relative flex items-center justify-center space-x-3">
+                          <FaSignOutAlt className="w-4 h-4 text-hacker-red" />
+                          <span className="font-medium text-hacker-red">Disconnect Session</span>
+                        </div>
+                      </motion.button>
                     </>
                   ) : (
-                    <button
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                       onClick={() => {
                         setModalOpen(true);
                         setIsMobileMenuOpen(false);
                       }}
-                      className="w-full p-3 text-text-secondary hover:text-matrix-green border border-matrix-green/30 rounded-lg hover:border-matrix-green/50 transition-all"
+                      className="w-full group relative overflow-hidden bg-gradient-to-r from-matrix-green/10 to-matrix-green/5 border border-matrix-green/30 rounded-xl p-4 hover:border-matrix-green/60 transition-all duration-300"
                     >
-                      Sign In
-                    </button>
+                      <div className="absolute inset-0 bg-gradient-to-r from-matrix-green/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <div className="relative flex items-center justify-center space-x-3">
+                        <FaGithub className="w-5 h-5 text-matrix-green" />
+                        <span className="font-medium text-matrix-green">Initialize Session</span>
+                      </div>
+                    </motion.button>
                   )}
-                </div>
+                </motion.div>
+
+                {/* Terminal Footer */}
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                  className="text-center text-xs text-matrix-green/50 font-mono pt-2 border-t border-matrix-green/20"
+                >
+                  <span>System Status: </span>
+                  <span className="text-matrix-green">ONLINE</span>
+                  <motion.span
+                    animate={{ opacity: [1, 0.3, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="ml-2"
+                  >
+                    ●
+                  </motion.span>
+                </motion.div>
               </div>
             </motion.div>
           )}
