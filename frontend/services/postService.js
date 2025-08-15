@@ -165,7 +165,7 @@ export const getLatestPosts = async (limit = 5) => {
 
 export const getPopularPosts = async (limit = 5) => {
   try {
-    const response = await axiosPublicInstanceSimple.get('/posts/popular', {
+    const response = await axiosPublicInstance.get('/posts/popular', {
       params: { limit },
     });
 
