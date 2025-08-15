@@ -11,7 +11,6 @@ DECLARE
     -- User Role Constants
     ROLE_USER CONSTANT VARCHAR(20) := 'user';
     ROLE_ADMIN CONSTANT VARCHAR(20) := 'admin';
-    ROLE_MODERATOR CONSTANT VARCHAR(20) := 'moderator';
     
     -- Permission Constants
     PERMISSION_WRITE_POSTS CONSTANT VARCHAR(50) := 'write_posts';

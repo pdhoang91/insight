@@ -123,27 +123,6 @@ const PostItemCategories = ({ post }) => {
                   )}
                 </div>
               )}
-
-              {/* Author and Meta Info */}
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-4 sm:mb-6">
-                <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 sm:w-8 sm:h-8 bg-primary/20 rounded-full flex items-center justify-center">
-                    <span className="text-primary text-xs sm:text-sm font-bold">
-                      {post.user?.name?.charAt(0)?.toUpperCase() || 'A'}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs sm:text-sm text-text-muted">
-                    <span className="font-medium text-text-primary">{post.user?.name || 'Anonymous'}</span>
-                    <span className="hidden sm:inline">•</span>
-                    <TimeAgo timestamp={post.created_at} />
-                  </div>
-                </div>
-                
-                {/* Reading time and difficulty (desktop only) */}
-                <div className="hidden sm:flex items-center gap-3 text-xs text-text-muted">
-                  <span>{Math.ceil((post.content?.replace(/<[^>]*>/g, '').length || 0) / 200) || 1} min read</span>
-                </div>
-              </div>
             </div>
 
             {/* Right Side - Image */}

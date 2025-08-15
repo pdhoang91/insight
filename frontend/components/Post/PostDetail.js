@@ -81,13 +81,6 @@ export const PostDetail = ({ post }) => {
                     <span>{post.views || 0}</span>
                   </div>
                 </div>
-
-                {/* Right side - Date and reading time */}
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm">
-                  <span>Published on {new Date(post.created_at).toLocaleDateString()}</span>
-                  <span className="hidden sm:inline">•</span>
-                  <span>~{Math.ceil(post.content?.replace(/<[^>]*>/g, '').length / 200) || 1} min read</span>
-                </div>
               </div>
             </header>
 
