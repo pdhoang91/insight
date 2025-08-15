@@ -1,9 +1,11 @@
 // hooks/useProfile.js
 import { useState, useEffect } from 'react';
-import { updateUserProfile as updateUserProfileService, getUserPosts } from '../services/userService';
+import { updateUserProfile as updateUserProfileService, getUserPosts, fetchUserProfile } from '../services/userService';
 import { useUser } from '../context/UserContext';
+import { isSuperAdmin } from '../services/authService';
+import { USER_ROLES } from '../constants/roles';
 
-const useProfile = () => {
+const useProfile = (username = null) => {
   const { user, setUser } = useUser();
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -12,27 +14,38 @@ const useProfile = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (user) {
-      // Use user data from context instead of fetching again
-      setProfile(user);
-      setLoadingProfile(false);
+    const fetchProfile = async () => {
+      try {
+        setLoadingProfile(true);
+        setError(null);
 
-      // Only fetch posts
-      const fetchPosts = async () => {
-        try {
-          const data = await getUserPosts(user.id);
-          setPosts(data);
-        } catch (err) {
-          console.error('Failed to fetch user posts:', err);
-          setError('Failed to load user posts.');
-        } finally {
-          setLoadingPosts(false);
+        if (!username || (user && user.username === username)) {
+          // Fetching own profile
+          if (user) {
+            setProfile(user);
+            setLoadingProfile(false);
+          }
+        } else {
+          // Fetching another user's profile - only allowed for super admin
+          if (user && isSuperAdmin()) {
+            const profileData = await fetchUserProfile(username);
+            setProfile(profileData);
+          } else {
+            setError('Access denied');
+          }
+          setLoadingProfile(false);
         }
-      };
+      } catch (err) {
+        console.error('Failed to fetch profile:', err);
+        setError('Failed to load profile.');
+        setLoadingProfile(false);
+      }
+    };
 
-      fetchPosts();
+    if (user) {
+      fetchProfile();
     }
-  }, [user]);
+  }, [user, username]);
 
   const updateProfile = async (profileData) => {
     try {
@@ -50,7 +63,7 @@ const useProfile = () => {
   return {
     profile,
     posts,
-    loading: loadingProfile || loadingPosts,
+    loading: loadingProfile,
     error,
     updateProfile,
     setPosts, // Có thể sử dụng để cập nhật posts nếu cần

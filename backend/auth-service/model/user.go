@@ -7,13 +7,41 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+// UserRole represents the type for user roles
 type UserRole string
 
+// Simple user role constants - only 2 roles
 const (
-	RoleUser      UserRole = "user"
-	RoleAdmin     UserRole = "admin"
-	RoleModerator UserRole = "moderator"
+	RoleUser  UserRole = "user"
+	RoleAdmin UserRole = "admin"
 )
+
+// Simple helper functions
+
+// CanWritePosts checks if a role can write posts (admin only)
+func CanWritePosts(role UserRole) bool {
+	return role == RoleAdmin
+}
+
+// IsAdmin checks if role is admin
+func IsAdmin(role UserRole) bool {
+	return role == RoleAdmin
+}
+
+// IsValidRole checks if a role is valid
+func IsValidRole(role string) bool {
+	switch UserRole(role) {
+	case RoleUser, RoleAdmin:
+		return true
+	default:
+		return false
+	}
+}
+
+// GetDefaultRole returns the default role for new users
+func GetDefaultRole() UserRole {
+	return RoleUser
+}
 
 // User lưu trữ thông tin về người dùng.
 type User struct {
@@ -27,7 +55,7 @@ type User struct {
 	Bio                    string    `json:"bio"`                                             // Tiểu sử của người dùng
 	Phone                  string    `json:"phone"`                                           // Số điện thoại
 	Dob                    string    `json:"dob"`                                             // Ngày sinh
-	Role                   UserRole  `json:"role" gorm:"default:user"`
+	Role                   UserRole  `json:"role" gorm:"default:'user'"`
 	EmailVerified          bool      `json:"email_verified" gorm:"default:false"`
 	VerificationToken      string    `json:"-"` // Token for email verification
 	PasswordResetToken     string    `json:"-"`

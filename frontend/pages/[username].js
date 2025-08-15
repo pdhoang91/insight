@@ -8,6 +8,9 @@ import ProfileUpdateForm from '../components/Profile/ProfileUpdateForm';
 import ProfileHeader from '../components/Profile/ProfileHeader';
 import UserPostsSection from '../components/Profile/UserPostsSection';
 import LoadingSpinner from '../components/Shared/LoadingSpinner';
+import { isSuperAdmin } from '../services/authService';
+import { USER_ROLES } from '../constants/roles';
+import { FaShieldAlt } from 'react-icons/fa';
 
 const UserProfilePage = () => {
   const router = useRouter();
@@ -16,11 +19,14 @@ const UserProfilePage = () => {
 
   const [showPopup, setShowPopup] = useState(false);
 
-  // Check if user is authorized to view this profile (only owner can access)
+  // Check if user is authorized to view this profile (owner or super admin can access)
   useEffect(() => {
     if (!loadingUser && loggedUser && username) {
-      if (loggedUser.username !== username) {
-        // Redirect to home if trying to access someone else's profile
+      const isOwner = loggedUser.username === username;
+      const isAdmin = isSuperAdmin();
+      
+      if (!isOwner && !isAdmin) {
+        // Redirect to home if trying to access someone else's profile without admin rights
         router.push('/');
         return;
       }
@@ -32,7 +38,7 @@ const UserProfilePage = () => {
     loading: loadingOwner,
     error: ownerError,
     updateProfile,
-  } = useProfile();
+  } = useProfile(username);
 
   // Use infinite posts for better UX
   const {
@@ -69,7 +75,10 @@ const UserProfilePage = () => {
   }
 
   // Don't render anything if user is not authorized (will redirect)
-  if (!loggedUser || loggedUser.username !== username) {
+  const isOwner = loggedUser?.username === username;
+  const isAdmin = isSuperAdmin();
+  
+  if (!loggedUser || (!isOwner && !isAdmin)) {
     return (
       <div className="min-h-screen bg-terminal-black flex items-center justify-center">
         <div className="text-center">
@@ -103,14 +112,30 @@ const UserProfilePage = () => {
           email={profile?.email}
           bio={profile?.bio}
           id={profile?.id}
-          onUpdate={() => setShowPopup(true)}
+          onUpdate={(isOwner || isAdmin) ? () => setShowPopup(true) : null}
+          isOwner={isOwner}
+          isAdmin={isAdmin}
+          userRole={profile?.role || USER_ROLES.USER}
         />
 
         {/* Posts Section */}
         <div className="py-8">
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-primary mb-2">My Posts</h2>
-            <p className="text-muted">Manage and view all your published articles</p>
+            <h2 className="text-2xl font-bold text-primary mb-2">
+              {isOwner ? 'My Posts' : `${profile?.name || username}'s Posts`}
+            </h2>
+            <p className="text-muted">
+              {isOwner 
+                ? 'Manage and view all your published articles' 
+                : `View all articles by ${profile?.name || username}`
+              }
+            </p>
+            {isAdmin && !isOwner && (
+              <div className="mt-2 inline-flex items-center space-x-2 px-3 py-1 bg-hacker-yellow/10 border border-hacker-yellow/30 rounded-md">
+                <FaShieldAlt className="w-3 h-3 text-hacker-yellow" />
+                <span className="text-xs text-hacker-yellow font-mono">Admin Access</span>
+              </div>
+            )}
           </div>
 
           <UserPostsSection
@@ -119,7 +144,7 @@ const UserProfilePage = () => {
             isError={isErrorPosts}
             setSize={setSizePosts}
             isReachingEnd={isReachingEndPosts}
-            isOwner={true}
+            isOwner={isOwner}
           />
         </div>
       </div>

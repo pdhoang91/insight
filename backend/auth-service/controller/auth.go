@@ -73,6 +73,7 @@ func GoogleCallbackHandler(c *gin.Context) {
 				Username:  "@" + strings.Split(userInfo.Email, "@")[0],
 				Name:      userInfo.Name,
 				AvatarURL: "https://www.w3schools.com/w3images/avatar2.png",
+				Role:      models.GetDefaultRole(),
 			}
 			if err := database.DB.Create(&newUser).Error; err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create user"})
@@ -165,6 +166,7 @@ func RegisterHandler(c *gin.Context) {
 				Username:          "@" + strings.Split(input.Email, "@")[0],
 				Name:              strings.Split(input.Email, "@")[0],
 				AvatarURL:         "https://www.w3schools.com/w3images/avatar2.png",
+				Role:              models.GetDefaultRole(),
 			}
 			if err := database.DB.Create(&newUser).Error; err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "Could not create user"})

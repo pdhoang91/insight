@@ -49,8 +49,15 @@ export const fetchUserPosts = async (username, page = 1, limit = 10) => {
 // Fetches public profile info for a user by username
 export const fetchUserProfile = async (username) => {
   try {
-    const response = await axiosPublicInstance.get(`/public/${username}/profile`);
-    return response.data;
+    // Try authenticated request first (for admin users to get role info)
+    try {
+      const response = await axiosPrivateInstance.get(`/public/${username}/profile`);
+      return response.data;
+    } catch (authError) {
+      // Fallback to public request if auth fails
+      const response = await axiosPublicInstance.get(`/public/${username}/profile`);
+      return response.data;
+    }
   } catch (error) {
     console.error(`Error fetching profile for ${username}:`, error);
     throw error;

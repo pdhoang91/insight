@@ -2,9 +2,10 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { FaUser, FaEdit, FaTerminal, FaCode, FaLaptopCode } from 'react-icons/fa';
+import { FaUser, FaEdit, FaTerminal, FaCode, FaLaptopCode, FaShieldAlt } from 'react-icons/fa';
+import { getRoleDisplayName, USER_ROLES } from '../../constants/roles';
 
-const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate }) => {
+const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = true, isAdmin = false, userRole = USER_ROLES.USER }) => {
   const [imageError, setImageError] = useState(false);
 
   const handleImageError = () => {
@@ -71,14 +72,23 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate }) => {
 
             {/* User Info */}
             <div className="space-y-3">
-              <motion.h1 
-                className="text-xl font-bold text-text-primary leading-tight"
+              <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
+                className="text-center"
               >
-                {name}
-              </motion.h1>
+                <h1 className="text-xl font-bold text-text-primary leading-tight">
+                  {name}
+                </h1>
+                {/* Role Badge - Show when admin views other users */}
+                {isAdmin && !isOwner && (
+                  <div className="mt-2 inline-flex items-center space-x-1 px-2 py-1 bg-matrix-cyan/10 border border-matrix-cyan/30 rounded-md">
+                    <FaShieldAlt className="w-3 h-3 text-matrix-cyan" />
+                    <span className="text-xs text-matrix-cyan font-mono">{getRoleDisplayName(userRole)}</span>
+                  </div>
+                )}
+              </motion.div>
 
               {bio && (
                 <motion.div
@@ -97,8 +107,8 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate }) => {
               )}
             </div>
 
-            {/* Edit Button */}
-            {onUpdate && (
+            {/* Edit Button - Show for owner OR admin */}
+            {onUpdate && (isOwner || isAdmin) && (
               <motion.button
                 onClick={onUpdate}
                 className="group relative overflow-hidden bg-gradient-to-r from-matrix-green/10 to-matrix-green/5 border border-matrix-green/30 rounded-lg px-6 py-3 hover:border-matrix-green/50 transition-all duration-300"
@@ -150,14 +160,22 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate }) => {
           {/* Center Column - User Info */}
           <div className="text-left space-y-4">
             {/* Name */}
-            <motion.h1 
-              className="text-2xl lg:text-3xl font-bold text-text-primary leading-tight"
+            <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.2 }}
             >
-              {name}
-            </motion.h1>
+              <h1 className="text-2xl lg:text-3xl font-bold text-text-primary leading-tight">
+                {name}
+              </h1>
+              {/* Role Badge - Show when admin views other users */}
+              {isAdmin && !isOwner && (
+                <div className="mt-2 inline-flex items-center space-x-2 px-3 py-1 bg-matrix-cyan/10 border border-matrix-cyan/30 rounded-md">
+                  <FaShieldAlt className="w-4 h-4 text-matrix-cyan" />
+                  <span className="text-sm text-matrix-cyan font-mono">{getRoleDisplayName(userRole)}</span>
+                </div>
+              )}
+            </motion.div>
 
             {/* Bio */}
             {bio && (
@@ -177,14 +195,26 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate }) => {
             )}
           </div>
 
-          {/* Right Column - Edit Button */}
-          {onUpdate && (
-            <motion.div 
-              className="flex justify-end"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
-            >
+          {/* Right Column - Edit Button (Owner or Admin can edit) */}
+          <motion.div 
+            className="flex justify-end items-start space-x-3"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            {/* Admin Icon - Show when admin views other user's profile */}
+            {isAdmin && !isOwner && (
+              <motion.div
+                className="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 bg-hacker-yellow/10 border border-hacker-yellow/30 rounded-lg"
+                whileHover={{ scale: 1.05 }}
+                title="Admin Access"
+              >
+                <FaShieldAlt className="w-4 h-4 lg:w-5 lg:h-5 text-hacker-yellow" />
+              </motion.div>
+            )}
+            
+            {/* Edit Button - Show for owner OR admin (admin can edit anyone's profile) */}
+            {onUpdate && (isOwner || isAdmin) && (
               <motion.button
                 onClick={onUpdate}
                 className="group relative overflow-hidden bg-gradient-to-r from-matrix-green/10 to-matrix-green/5 border border-matrix-green/30 rounded-lg px-6 py-3 lg:px-8 lg:py-4 hover:border-matrix-green/50 transition-all duration-300"
@@ -203,8 +233,8 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate }) => {
                   <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-matrix-green/20"></div>
                 </div>
               </motion.button>
-            </motion.div>
-          )}
+            )}
+          </motion.div>
         </div>
       </div>
     </motion.div>

@@ -4,15 +4,17 @@ package models
 import (
 	"time"
 
+	"github.com/pdhoang91/blog/constants"
 	uuid "github.com/satori/go.uuid"
 )
 
-type UserRole string
+// Use constants from the constants package
+type UserRole = constants.UserRole
 
+// Re-export constants for backward compatibility
 const (
-	RoleUser      UserRole = "user"
-	RoleAdmin     UserRole = "admin"
-	RoleModerator UserRole = "moderator"
+	RoleUser  = constants.RoleUser
+	RoleAdmin = constants.RoleAdmin
 )
 
 // User lưu trữ thông tin về người dùng.
@@ -27,7 +29,7 @@ type User struct {
 	Bio                    string    `json:"bio"`                                             // Tiểu sử của người dùng
 	Phone                  string    `json:"phone"`                                           // Số điện thoại
 	Dob                    string    `json:"dob"`                                             // Ngày sinh
-	Role                   UserRole  `json:"role" gorm:"default:user"`
+	Role                   UserRole  `json:"role" gorm:"default:'user'"`
 	EmailVerified          bool      `json:"email_verified" gorm:"default:false"`
 	VerificationToken      string    `json:"-"` // Token for email verification
 	PasswordResetToken     string    `json:"-"`

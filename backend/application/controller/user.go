@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
 
+	"github.com/pdhoang91/blog/constants"
 	"github.com/pdhoang91/blog/database"
 	"github.com/pdhoang91/blog/models"
 	"github.com/pdhoang91/blog/utils"
@@ -200,14 +201,25 @@ func GetPublicUserProfile(c *gin.Context) {
 		return
 	}
 
-	// Return only public fields
-	c.JSON(http.StatusOK, gin.H{
+	// Basic public fields
+	response := gin.H{
 		"id":         user.ID,
 		"name":       user.Name,
 		"email":      user.Email,
 		"avatar_url": user.AvatarURL,
 		"created_at": user.CreatedAt,
-	})
+		"username":   user.Username,
+		"bio":        user.Bio,
+	}
+
+	// Add role if requester is admin
+	if role, exists := c.Get("role"); exists {
+		if roleStr, ok := role.(string); ok && constants.UserRole(roleStr) == constants.RoleAdmin {
+			response["role"] = user.Role
+		}
+	}
+
+	c.JSON(http.StatusOK, response)
 }
 
 func getPaginationParams(c *gin.Context) (page, limit int) {

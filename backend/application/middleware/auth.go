@@ -121,6 +121,42 @@ type CustomClaims struct {
 
 //var jwtSecret = []byte("your_secret_key") // Replace with your secret key
 
+// OptionalAuthMiddleware - similar to AuthMiddleware but doesn't fail if no token
+func OptionalAuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		tokenString := c.GetHeader("Authorization")
+		if tokenString == "" {
+			// No token provided, continue without setting user context
+			c.Next()
+			return
+		}
+
+		// Bearer token format
+		tokenString = strings.TrimPrefix(tokenString, "Bearer ")
+
+		token, err := VerifyJWT(tokenString)
+		if err != nil || !token.Valid {
+			// Invalid token, continue without setting user context
+			c.Next()
+			return
+		}
+
+		// Extract claims if token is valid
+		if claims, ok := token.Claims.(jwt.MapClaims); ok {
+			userID, userIDExists := claims["user_id"]
+			role, roleExists := claims["role"]
+			if userIDExists && roleExists {
+				c.Set("userID", userID)
+				c.Set("role", role)
+				c.Set("exp", claims["exp"])
+				c.Set("iat", claims["iat"])
+			}
+		}
+
+		c.Next()
+	}
+}
+
 func GenerateJWT(user models.User) (string, error) {
 	// Create a new JWT token
 	token := jwt.New(jwt.SigningMethodHS256)

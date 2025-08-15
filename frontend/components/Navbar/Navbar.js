@@ -22,6 +22,7 @@ import {
 } from 'react-icons/fa';
 import { useUser } from '../../context/UserContext';
 import TechSearchBar from '../Shared/TechSearchBar';
+import { canWritePosts } from '../../services/authService';
 
 const Navbar = ({ onPublish }) => {
   const { user, setUser, setModalOpen } = useUser();
@@ -113,8 +114,8 @@ const Navbar = ({ onPublish }) => {
 
             {/* Navigation Links */}
             <div className="flex items-center space-x-2 lg:space-x-4">
-              {/* Write Button - Hide on write/edit pages */}
-              {router.pathname !== '/write' && !router.pathname.startsWith('/edit/') && (
+              {/* Write Button - Hide on write/edit pages and show only for users with write permissions */}
+              {router.pathname !== '/write' && !router.pathname.startsWith('/edit/') && user && canWritePosts() && (
                                   <button
                     onClick={handleWriteClick}
                     className="flex items-center space-x-1.5 px-3 py-1.5 bg-matrix-green/10 text-matrix-green border border-matrix-green/30 rounded-md hover:bg-matrix-green hover:text-terminal-black transition-all duration-300 text-sm"
@@ -291,8 +292,8 @@ const Navbar = ({ onPublish }) => {
                   transition={{ delay: 0.3 }}
                   className="space-y-3"
                 >
-                  {/* Write Button - Hide on write/edit pages */}
-                  {router.pathname !== '/write' && !router.pathname.startsWith('/edit/') && (
+                  {/* Write Button - Hide on write/edit pages and show only for users with write permissions */}
+                  {router.pathname !== '/write' && !router.pathname.startsWith('/edit/') && user && canWritePosts() && (
                     <motion.button
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.99 }}

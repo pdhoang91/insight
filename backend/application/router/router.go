@@ -84,8 +84,8 @@ func SetupRouter() *gin.Engine {
 	r.GET("/follow/writers", controllers.GetTopWriters)
 	r.GET("/follow/topics", controllers.GetTopTopics)
 
-	// Public User Profile routes
-	r.GET("/public/:username/profile", controllers.GetPublicUserProfile)
+	// Public User Profile routes (with optional auth for admin features)
+	r.GET("/public/:username/profile", middleware.OptionalAuthMiddleware(), controllers.GetPublicUserProfile)
 	r.GET("/public/:username/posts", controllers.GetPublicUserPosts)
 	r.GET("/public/:username/bookmarks", controllers.GetPublicUserBookmarks)
 	r.GET("/public/:username/follow", controllers.GetPublicUserFollow)
@@ -147,7 +147,7 @@ func SetupRouter() *gin.Engine {
 
 	// Admin routes
 	admin := api.Group("/admin")
-	admin.Use(middleware.RequireRole("admin"))
+	admin.Use(middleware.RequireAdminRole())
 	{
 		admin.GET("/users", controllers.AdminGetUsers)
 		admin.DELETE("/users/:id", controllers.AdminDeleteUser)
