@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { FaUser, FaEdit, FaTerminal, FaCode, FaLaptopCode, FaShieldAlt } from 'react-icons/fa';
+import { FaEdit, FaShieldAlt } from 'react-icons/fa';
 import { getRoleDisplayName, USER_ROLES } from '../../constants/roles';
 
 const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = true, isAdmin = false, userRole = USER_ROLES.USER }) => {
@@ -11,231 +11,144 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
   const handleImageError = () => {
     setImageError(true);
   };
-
+  
   return (
     <motion.div 
-      className="relative overflow-hidden mb-6"
-      initial={{ opacity: 0, y: -20 }}
+      className="mb-8"
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
-      {/* Main Container */}
-      <div className="relative bg-gradient-to-br from-terminal-dark via-terminal-black to-terminal-dark border border-matrix-green/30 rounded-xl p-4 sm:p-6 lg:p-8 shadow-2xl backdrop-blur-sm">
-        
-        {/* Glowing border effect */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-matrix-green to-transparent animate-pulse" />
-        
-        {/* Terminal Header */}
-        <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1 }}
-          className="flex items-center space-x-2 text-matrix-green text-sm font-mono mb-4"
-        >
-          <FaTerminal className="w-4 h-4" />
-          <span>~/dev/profile $</span>
-          <motion.span
-            animate={{ opacity: [1, 0, 1] }}
-            transition={{ duration: 1, repeat: Infinity }}
-            className="w-2 h-4 bg-matrix-green inline-block"
-          />
-        </motion.div>
-        
-        {/* Mobile Layout (Stack) */}
-        <div className="block sm:hidden">
-          <div className="flex flex-col items-center text-center space-y-4">
-            {/* Avatar */}
-            <motion.div 
-              className="relative group"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-            >
-              <div className="relative">
-                {/* Avatar Ring */}
-                <div className="absolute -inset-1 bg-gradient-to-r from-matrix-green/50 to-matrix-cyan/50 rounded-full opacity-75 blur-sm group-hover:opacity-100 transition-opacity duration-300"></div>
-                
-                {/* Avatar Image */}
-                <div className="relative w-20 h-20">
-                  <img
-                    src={imageError ? '/images/placeholder.svg' : `${avatarUrl || '/images/placeholder.svg'}?t=${new Date().getTime()}`}
-                    alt={`${name}'s avatar`}
-                    onError={handleImageError}
-                    className="w-full h-full rounded-full object-cover border-2 border-matrix-green/40 group-hover:border-matrix-green/60 transition-all duration-300"
-                  />
-                  {/* Tech badge */}
-                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-matrix-green rounded-full flex items-center justify-center border-2 border-terminal-dark">
-                    <FaLaptopCode className="w-3 h-3 text-terminal-black" />
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* User Info */}
-            <div className="space-y-3">
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="text-center"
-              >
-                <h1 className="text-xl font-bold text-text-primary leading-tight">
-                  {name}
-                </h1>
-                {/* Role Badge - Show when admin views other users */}
-                {isAdmin && !isOwner && (
-                  <div className="mt-2 inline-flex items-center space-x-1 px-2 py-1 bg-matrix-cyan/10 border border-matrix-cyan/30 rounded-md">
-                    <FaShieldAlt className="w-3 h-3 text-matrix-cyan" />
-                    <span className="text-xs text-matrix-cyan font-mono">{getRoleDisplayName(userRole)}</span>
-                  </div>
-                )}
-              </motion.div>
-
-              {bio && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                  className="relative"
-                >
-                  <div className="absolute -inset-1 bg-gradient-to-r from-matrix-cyan/20 to-matrix-green/20 rounded-lg blur opacity-75" />
-                  <div className="relative bg-terminal-gray/50 border border-matrix-green/20 rounded-lg p-3">
-                    <p className="text-sm text-text-muted leading-relaxed font-mono">
-                      {bio}
-                    </p>
-                  </div>
-                </motion.div>
-              )}
-            </div>
-
-            {/* Edit Button - Show for owner OR admin */}
-            {onUpdate && (isOwner || isAdmin) && (
-              <motion.button
-                onClick={onUpdate}
-                className="group relative overflow-hidden bg-gradient-to-r from-matrix-green/10 to-matrix-green/5 border border-matrix-green/30 rounded-lg px-6 py-3 hover:border-matrix-green/50 transition-all duration-300"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.4, type: "spring", stiffness: 300 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-matrix-green/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="relative flex items-center space-x-2">
-                  <FaEdit className="w-4 h-4 text-matrix-green" />
-                  <span className="text-sm font-medium text-matrix-green">Edit Profile</span>
-                </div>
-              </motion.button>
-            )}
-          </div>
-        </div>
-
-        {/* Desktop Layout (3 Columns) */}
-        <div className="hidden sm:grid sm:grid-cols-3 gap-6 items-center">
-          
-          {/* Left Column - Avatar */}
+      {/* Mobile Layout */}
+      <div className="block sm:hidden">
+        <div className="flex flex-col items-center text-center space-y-4">
+          {/* Avatar */}
           <motion.div 
-            className="relative group flex justify-start"
-            whileHover={{ scale: 1.05 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className="relative"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.2 }}
           >
-            <div className="relative">
-              {/* Avatar Ring */}
-              <div className="absolute -inset-1 bg-gradient-to-r from-matrix-green/50 to-matrix-cyan/50 rounded-full opacity-75 blur-sm group-hover:opacity-100 transition-opacity duration-300"></div>
-              
-              {/* Avatar Image */}
-              <div className="relative w-24 h-24 lg:w-28 lg:h-28">
-                <img
-                  src={imageError ? '/images/placeholder.svg' : `${avatarUrl || '/images/placeholder.svg'}?t=${new Date().getTime()}`}
-                  alt={`${name}'s avatar`}
-                  onError={handleImageError}
-                  className="w-full h-full rounded-full object-cover border-2 border-matrix-green/40 group-hover:border-matrix-green/60 transition-all duration-300"
-                />
-                {/* Tech badge */}
-                <div className="absolute -bottom-1 -right-1 w-7 h-7 lg:w-8 lg:h-8 bg-matrix-green rounded-full flex items-center justify-center border-2 border-terminal-dark">
-                  <FaLaptopCode className="w-3 h-3 lg:w-4 lg:h-4 text-terminal-black" />
-                </div>
-              </div>
+            <div className="w-20 h-20 rounded-full overflow-hidden">
+              <img
+                src={imageError ? '/images/placeholder.svg' : `${avatarUrl || '/images/placeholder.svg'}?t=${new Date().getTime()}`}
+                alt={`${name}'s avatar`}
+                onError={handleImageError}
+                className="w-full h-full object-cover"
+              />
             </div>
           </motion.div>
 
-          {/* Center Column - User Info */}
-          <div className="text-left space-y-4">
-            {/* Name */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.2 }}
-            >
-              <h1 className="text-2xl lg:text-3xl font-bold text-text-primary leading-tight">
-                {name}
-              </h1>
-              {/* Role Badge - Show when admin views other users */}
-              {isAdmin && !isOwner && (
-                <div className="mt-2 inline-flex items-center space-x-2 px-3 py-1 bg-matrix-cyan/10 border border-matrix-cyan/30 rounded-md">
-                  <FaShieldAlt className="w-4 h-4 text-matrix-cyan" />
-                  <span className="text-sm text-matrix-cyan font-mono">{getRoleDisplayName(userRole)}</span>
-                </div>
-              )}
-            </motion.div>
+          {/* User Info */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="space-y-2"
+          >
+            <h1 className="text-xl font-bold text-white">
+              {name}
+            </h1>
+            
+            {/* Role Badge */}
+            {isAdmin && !isOwner && (
+              <div className="inline-flex items-center space-x-1 px-2 py-1 bg-matrix-green/10 text-matrix-green rounded text-xs">
+                <FaShieldAlt className="w-3 h-3" />
+                <span>{getRoleDisplayName(userRole)}</span>
+              </div>
+            )}
 
             {/* Bio */}
             {bio && (
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-                className="relative"
-              >
-                <div className="absolute -inset-1 bg-gradient-to-r from-matrix-cyan/20 to-matrix-green/20 rounded-lg blur opacity-75" />
-                <div className="relative bg-terminal-gray/50 border border-matrix-green/20 rounded-lg p-4">
-                  <p className="text-sm lg:text-base text-text-muted leading-relaxed font-mono">
-                    {bio}
-                  </p>
-                </div>
-              </motion.div>
+              <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
+                {bio}
+              </p>
             )}
-          </div>
+          </motion.div>
 
-          {/* Right Column - Edit Button (Owner or Admin can edit) */}
-          <motion.div 
-            className="flex justify-end items-start space-x-3"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
-          >
-            {/* Admin Icon - Show when admin views other user's profile */}
-            {isAdmin && !isOwner && (
-              <motion.div
-                className="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 bg-hacker-yellow/10 border border-hacker-yellow/30 rounded-lg"
-                whileHover={{ scale: 1.05 }}
-                title="Admin Access"
-              >
-                <FaShieldAlt className="w-4 h-4 lg:w-5 lg:h-5 text-hacker-yellow" />
-              </motion.div>
-            )}
-            
-            {/* Edit Button - Show for owner OR admin (admin can edit anyone's profile) */}
+          {/* Edit Button */}
+          {onUpdate && (isOwner || isAdmin) && (
+            <motion.button
+              onClick={onUpdate}
+              className="flex items-center space-x-2 px-4 py-2 text-matrix-green hover:bg-matrix-green/10 rounded-lg transition-colors"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.4 }}
+            >
+              <FaEdit className="w-4 h-4" />
+              <span className="text-sm font-medium">Edit Profile</span>
+            </motion.button>
+          )}
+        </div>
+      </div>
+
+      {/* Desktop Layout */}
+      <div className="hidden sm:flex items-start space-x-6">
+        {/* Avatar */}
+        <motion.div 
+          className="flex-shrink-0"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <div className="w-24 h-24 lg:w-28 lg:h-28 rounded-full overflow-hidden">
+            <img
+              src={imageError ? '/images/placeholder.svg' : `${avatarUrl || '/images/placeholder.svg'}?t=${new Date().getTime()}`}
+              alt={`${name}'s avatar`}
+              onError={handleImageError}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        </motion.div>
+
+        {/* User Info */}
+        <motion.div 
+          className="flex-1 min-w-0"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <div className="flex items-start justify-between">
+            <div className="space-y-3">
+              <div>
+                <h1 className="text-2xl lg:text-3xl font-bold text-white">
+                  {name}
+                </h1>
+                
+                {/* Role Badge */}
+                {isAdmin && !isOwner && (
+                  <div className="mt-2 inline-flex items-center space-x-2 px-3 py-1 bg-matrix-green/10 text-matrix-green rounded-md text-sm">
+                    <FaShieldAlt className="w-4 h-4" />
+                    <span>{getRoleDisplayName(userRole)}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Bio */}
+              {bio && (
+                <p className="text-gray-400 leading-relaxed max-w-2xl">
+                  {bio}
+                </p>
+              )}
+            </div>
+
+            {/* Edit Button */}
             {onUpdate && (isOwner || isAdmin) && (
               <motion.button
                 onClick={onUpdate}
-                className="group relative overflow-hidden bg-gradient-to-r from-matrix-green/10 to-matrix-green/5 border border-matrix-green/30 rounded-lg px-6 py-3 lg:px-8 lg:py-4 hover:border-matrix-green/50 transition-all duration-300"
+                className="flex items-center space-x-2 px-4 py-2 text-matrix-green hover:bg-matrix-green/10 rounded-lg transition-colors flex-shrink-0"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-matrix-green/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="relative flex items-center space-x-3">
-                  <FaEdit className="w-4 h-4 lg:w-5 lg:h-5 text-matrix-green" />
-                  <span className="text-sm lg:text-base font-medium text-matrix-green">Edit Profile</span>
-                </div>
-                
-                {/* Terminal tooltip */}
-                <div className="absolute -top-12 right-0 bg-terminal-dark text-matrix-green text-xs font-mono px-3 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap border border-matrix-green/20">
-                  $ edit_profile --user
-                  <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-matrix-green/20"></div>
-                </div>
+                <FaEdit className="w-4 h-4" />
+                <span className="text-sm font-medium">Edit Profile</span>
               </motion.button>
             )}
-          </motion.div>
-        </div>
+          </div>
+        </motion.div>
       </div>
     </motion.div>
   );

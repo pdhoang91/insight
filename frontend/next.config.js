@@ -22,6 +22,12 @@ module.exports = {
         pathname: '/**',
       },
       {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '82',
+        pathname: '/**',
+      },
+      {
         protocol: 'https',
         hostname: 'www.w3schools.com',
         port: '',
@@ -74,6 +80,12 @@ module.exports = {
         hostname: 'insight.storage.s3.amazonaws.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 's3.amazonaws.com',
+        port: '',
+        pathname: '/**',
       }
     ],
     // Fallback for older Next.js versions
@@ -87,7 +99,8 @@ module.exports = {
       'lh3.googleusercontent.com',
       'cdn.pixabay.com',
       'www.gravatar.com',
-      'insight.storage.s3.amazonaws.com'
+      'insight.storage.s3.amazonaws.com',
+      's3.amazonaws.com'
     ],
     // Enable dangerous allow all for development (remove in production)
     dangerouslyAllowSVG: true,
