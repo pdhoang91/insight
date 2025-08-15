@@ -3,7 +3,7 @@ import axios from 'axios';
 import { BASE_API_URL, BASE_API_URL_SIMPLE } from '../config/api';
 
 export const axiosPrivateInstance = axios.create({
-  baseURL: BASE_API_URL,
+  baseURL: BASE_API_URL || 'http://localhost:81',
 });
 
 axiosPrivateInstance.interceptors.request.use(
@@ -23,7 +23,7 @@ axiosPrivateInstance.interceptors.request.use(
 export default axiosPrivateInstance;
 
 export const axiosPrivateInstanceSimple = axios.create({
-  baseURL: BASE_API_URL_SIMPLE,
+  baseURL: BASE_API_URL_SIMPLE || 'http://localhost:81',
 });
 
 axiosPrivateInstanceSimple.interceptors.request.use(

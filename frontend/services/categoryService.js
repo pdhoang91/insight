@@ -1,5 +1,5 @@
 // services/categoryService.js
-import axiosPublicInstance, { axiosPublicInstanceSimple } from '../utils/axiosPublicInstance';
+import axiosPublicInstance from '../utils/axiosPublicInstance';
 
 export const getCategories = async (page = 1, limit = 10) => {
   try {
@@ -80,7 +80,7 @@ export const getPostsByCategory = async (categoryName, page = 1, limit = 10) => 
 
 export const getPopularCategories = async (page = 1, limit = 7) => {
   try {
-    const response = await axiosPublicInstanceSimple.get(`/categories/popular?page=${page}&limit=${limit}`);
+    const response = await axiosPublicInstance.get(`/categories/popular?page=${page}&limit=${limit}`);
     const data = response.data;
 
     // Kiểm tra định dạng dữ liệu trả về

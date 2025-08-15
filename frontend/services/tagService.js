@@ -1,5 +1,5 @@
 // services/tagService.js
-import axiosPublicInstance, { axiosPublicInstanceSimple } from '../utils/axiosPublicInstance';
+import axiosPublicInstance from '../utils/axiosPublicInstance';
 import axiosPrivateInstance from '../utils/axiosPrivateInstance';
 
 // Get all tags with pagination
@@ -39,7 +39,7 @@ export const getTags = async (page = 1, limit = 20) => {
 // Get popular tags (most used)
 export const getPopularTags = async (limit = 9) => {
   try {
-    const response = await axiosPublicInstanceSimple.get(`/tags/popular?limit=${limit}`);
+    const response = await axiosPublicInstance.get(`/tags/popular?limit=${limit}`);
     const data = response.data;
 
     if (Array.isArray(data)) {

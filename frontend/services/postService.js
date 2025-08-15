@@ -1,5 +1,5 @@
 // services/postService.js
-import axiosPublicInstance, { axiosPublicInstanceSimple } from '../utils/axiosPublicInstance';
+import axiosPublicInstance from '../utils/axiosPublicInstance';
 import axiosPrivateInstance from '../utils/axiosPrivateInstance';
 
 export const createPost = async (postData) => {
@@ -133,7 +133,7 @@ export const getFollowingPosts = async (page = 1, limit = 10) => {
 
 export const getLatestPosts = async (limit = 5) => {
   try {
-    const response = await axiosPublicInstanceSimple.get('/posts/latest', {
+    const response = await axiosPublicInstance.get('/posts/latest', {
       params: { limit },
     });
 
