@@ -118,15 +118,6 @@ const PostItemProfile = ({ post, isOwner }) => {
               </div>
             )}
 
-            {/* Meta Info & Actions */}
-            <div className="flex text-text-secondary items-center justify-between text-sm text-muted mb-4">
-              <div className="flex items-center space-x-4">
-                <TimeAgo timestamp={post.created_at} />
-                <span>•</span>
-                <span>{Math.ceil((post.content?.replace(/<[^>]*>/g, '').length || 0) / 200) || 1} min read</span>
-              </div>
-            </div>
-
             {/* Action Bar - Bottom of left content */}
             <div className="flex items-center justify-between text-text-secondary">
               <div className="flex items-center gap-4">

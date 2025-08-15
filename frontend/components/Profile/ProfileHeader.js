@@ -99,11 +99,6 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate }) => {
                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" 
                   />
                 </svg>
-                
-                {/* Tooltip */}
-                <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-terminal-dark text-matrix-green text-xs font-mono px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap border border-matrix-green/20">
-                  edit_profile()
-                </div>
               </motion.button>
             )}
           </div>
@@ -171,7 +166,7 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate }) => {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 }}
             >
-              <button
+              <motion.button
                 onClick={onUpdate}
                 className="group relative p-3 lg:p-4 bg-matrix-green/10 hover:bg-matrix-green/20 text-matrix-green border border-matrix-green/30 hover:border-matrix-green/50 rounded-xl transition-all duration-200 hover:shadow-neon-green active:scale-95"
                 whileHover={{ scale: 1.05 }}
@@ -200,7 +195,7 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate }) => {
                   edit_profile()
                   <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-matrix-green/20"></div>
                 </div>
-              </button>
+              </motion.button>
             </motion.div>
           )}
         </div>
