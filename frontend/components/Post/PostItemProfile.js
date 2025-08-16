@@ -90,36 +90,38 @@ const PostItemProfile = ({ post, isOwner }) => {
       <article className="rounded-xl hover:shadow-lg transition-all duration-300">
         <div className="flex py-6 border-b border-border-primary/20">
           {/* Left Side - Content (2/3) */}
-          <div className="flex-1 pr-6">
-            {/* Post Title */}
-            <Link href={`/p/${post.title_name}`}>
-              <h2 className="text-xl md:text-2xl font-bold text-primary hover:text-primary-hover transition-colors duration-200 line-clamp-2 mb-3">
-                {post.title}
-              </h2>
-            </Link>
+          <div className="flex-1 pr-6 flex flex-col">
+            <div className="flex-1">
+              {/* Post Title */}
+              <Link href={`/p/${post.title_name}`}>
+                <h2 className="text-xl md:text-2xl font-bold text-primary hover:text-primary-hover transition-colors duration-200 line-clamp-2 mb-3">
+                  {post.title}
+                </h2>
+              </Link>
 
-            {/* Content Preview */}
-            <div className="text-text-secondary text-sm sm:text-base line-clamp-3 sm:line-clamp-4 lg:line-clamp-6 mb-3 sm:mb-4 leading-relaxed">
-              <TextUtils html={post.preview_content || post.content} maxLength={200} />
+              {/* Content Preview */}
+              <div className="text-text-secondary text-sm sm:text-base line-clamp-3 sm:line-clamp-4 lg:line-clamp-6 mb-3 sm:mb-4 leading-relaxed">
+                <TextUtils html={post.preview_content || post.content} maxLength={200} />
+              </div>
+
+              {/* Categories */}
+              {post.categories && post.categories.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {post.categories.slice(0, 2).map((category, index) => (
+                    <Link
+                      key={index}
+                      href={`/category/${(category.name || category).toLowerCase()}`}
+                      className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium hover:bg-primary/20 transition-colors"
+                    >
+                      {category.name || category}
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Categories */}
-            {post.categories && post.categories.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-4">
-                {post.categories.slice(0, 2).map((category, index) => (
-                  <Link
-                    key={index}
-                    href={`/category/${(category.name || category).toLowerCase()}`}
-                    className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium hover:bg-primary/20 transition-colors"
-                  >
-                    {category.name || category}
-                  </Link>
-                ))}
-              </div>
-            )}
-
             {/* Action Bar - Bottom of left content */}
-            <div className="flex items-center justify-between text-text-secondary">
+            <div className="flex items-center justify-between text-text-secondary mt-auto">
               <div className="flex items-center gap-4">
                 {/* Claps */}
                 <button

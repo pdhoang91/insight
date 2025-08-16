@@ -86,50 +86,52 @@ const PostItemCard = ({ post }) => {
           </div>
         )}
 
-        <div className="py-4 sm:py-5 px-4 sm:px-5">
-          {/* Compact Author Info */}
-          <div className="flex items-center space-x-2 mb-3">
-            <div className="w-5 h-5 sm:w-6 sm:h-6 bg-primary/20 rounded-full flex items-center justify-center">
-              <span className="text-primary text-xs font-bold">
-                {post.user?.name?.charAt(0)?.toUpperCase() || 'A'}
-              </span>
+        <div className="py-4 sm:py-5 px-4 sm:px-5 flex flex-col h-full">
+          <div className="flex-1">
+            {/* Compact Author Info */}
+            <div className="flex items-center space-x-2 mb-3">
+              <div className="w-5 h-5 sm:w-6 sm:h-6 bg-primary/20 rounded-full flex items-center justify-center">
+                <span className="text-primary text-xs font-bold">
+                  {post.user?.name?.charAt(0)?.toUpperCase() || 'A'}
+                </span>
+              </div>
+              <div className="flex items-center space-x-2 text-xs text-muted">
+                <span className="font-medium">{post.user?.name || 'Anonymous'}</span>
+                <span className="hidden sm:inline">•</span>
+                <TimeAgo timestamp={post.created_at} />
+              </div>
             </div>
-            <div className="flex items-center space-x-2 text-xs text-muted">
-              <span className="font-medium">{post.user?.name || 'Anonymous'}</span>
-              <span className="hidden sm:inline">•</span>
-              <TimeAgo timestamp={post.created_at} />
+
+            {/* Title */}
+            <Link href={`/p/${post.title_name}`}>
+              <h3 className="text-base sm:text-lg font-bold text-primary hover:text-primary-hover transition-colors line-clamp-2 mb-2 sm:mb-3 leading-tight">
+                {post.title}
+              </h3>
+            </Link>
+
+            {/* Content Preview */}
+            <div className="text-secondary text-sm line-clamp-2 sm:line-clamp-3 mb-3 sm:mb-4 leading-relaxed">
+              <TextUtils html={post.preview_content} maxLength={120} />
             </div>
+
+            {/* Categories */}
+            {post.categories && post.categories.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-3 sm:mb-4">
+                {post.categories.slice(0, 2).map((category, index) => (
+                  <Link
+                    key={index}
+                    href={`/category/${(category.name || category).toLowerCase()}`}
+                    className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium hover:bg-primary/20 transition-colors"
+                  >
+                    {category.name || category}
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
-
-          {/* Title */}
-          <Link href={`/p/${post.title_name}`}>
-            <h3 className="text-base sm:text-lg font-bold text-primary hover:text-primary-hover transition-colors line-clamp-2 mb-2 sm:mb-3 leading-tight">
-              {post.title}
-            </h3>
-          </Link>
-
-          {/* Content Preview */}
-          <div className="text-secondary text-sm line-clamp-2 sm:line-clamp-3 mb-3 sm:mb-4 leading-relaxed">
-            <TextUtils html={post.preview_content} maxLength={120} />
-          </div>
-
-          {/* Categories */}
-          {post.categories && post.categories.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mb-3 sm:mb-4">
-              {post.categories.slice(0, 2).map((category, index) => (
-                <Link
-                  key={index}
-                  href={`/category/${(category.name || category).toLowerCase()}`}
-                  className="px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium hover:bg-primary/20 transition-colors"
-                >
-                  {category.name || category}
-                </Link>
-              ))}
-            </div>
-          )}
 
           {/* Stats and Actions */}
-          <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-border-primary/20">
+          <div className="flex items-center justify-between pt-3 sm:pt-4 border-t border-border-primary/20 mt-auto">
             <div className="flex items-center space-x-3 sm:space-x-4">
               {/* Claps */}
               <button

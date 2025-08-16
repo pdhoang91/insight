@@ -102,9 +102,9 @@ const CompactPostItem = ({ post, showImage = true, showStats = true, minimal = f
         )}
 
         {/* Content Section */}
-        <div className="flex-1 py-3 sm:py-4 px-3 sm:px-4 flex flex-col justify-between">
+        <div className="flex-1 py-3 sm:py-4 px-3 sm:px-4 flex flex-col">
           {/* Header */}
-          <div>
+          <div className="flex-1">
             <Link href={`/p/${post.title_name}`}>
               <h3 className="text-sm sm:text-base font-semibold text-gray-900 hover:text-blue-600 transition-colors line-clamp-2 mb-2">
                 {post.title}
