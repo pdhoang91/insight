@@ -147,7 +147,7 @@ const TableOfContents = ({ content, className = '', isHorizontalLayout = false, 
           </div>
 
           {/* TOC Content */}
-          <div className="overflow-y-auto custom-scrollbar max-h-[calc(100vh-12rem)]">
+          <div className="custom-scrollbar max-h-[calc(100vh-12rem)]">
             <nav>
               <ul className="space-y-0.5">
                 {generateTOC()}
@@ -204,7 +204,7 @@ const TableOfContents = ({ content, className = '', isHorizontalLayout = false, 
         </div>
 
         {/* TOC Content */}
-        <div className="p-4 overflow-y-auto custom-scrollbar max-h-[calc(100vh-10rem)]">
+        <div className="p-4 custom-scrollbar max-h-[calc(100vh-10rem)]">
           <nav>
             <ul className="space-y-0">
               {generateTOC()}
