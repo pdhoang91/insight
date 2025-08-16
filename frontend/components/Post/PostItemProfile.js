@@ -19,7 +19,7 @@ const PostItemProfile = ({ post, isOwner }) => {
   if (!post) {
     return (
       <div className="bg-surface rounded-xl py-4 sm:py-6 border border-border-primary">
-        <div className="text-muted">Loading post...</div>
+        <div className="text-muted">Đang tải bài viết...</div>
       </div>
     );
   }
@@ -35,7 +35,7 @@ const PostItemProfile = ({ post, isOwner }) => {
 
   const handleClap = async () => {
     if (!user) {
-      alert('You need to login to clap.');
+      alert('Bạn cần đăng nhập để vỗ tay.');
       return;
     }
     if (clapLoading) return;
@@ -46,7 +46,7 @@ const PostItemProfile = ({ post, isOwner }) => {
       setCurrentClapCount(prev => prev + 1);
     } catch (error) {
       console.error('Failed to clap:', error);
-      alert('An error occurred while clapping. Please try again.');
+      alert('Có lỗi xảy ra khi vỗ tay. Vui lòng thử lại.');
     } finally {
       setClapLoading(false);
     }

@@ -29,8 +29,8 @@ const CategoryListWithPosts = ({ posts, isLoading, isError, setSize, isReachingE
         <div className="inline-flex items-center gap-3 p-6 border border-danger/20 rounded-lg bg-danger/5">
           <FaExclamationTriangle className="w-6 h-6 text-danger" />
           <div>
-            <h3 className="font-mono text-danger font-semibold">// Failed to Load Posts</h3>
-            <p className="text-muted text-sm mt-1">Unable to load posts for this category. Please try again later.</p>
+            <h3 className="font-mono text-danger font-semibold">// Không thể tải bài viết</h3>
+            <p className="text-muted text-sm mt-1">Không thể tải bài viết cho danh mục này. Vui lòng thử lại sau.</p>
           </div>
         </div>
       </div>
@@ -100,8 +100,8 @@ const CategoryListWithPosts = ({ posts, isLoading, isError, setSize, isReachingE
         <div className="inline-flex items-center gap-3 p-6 border border-border-primary rounded-lg bg-elevated/50">
           <FaFileAlt className="w-6 h-6 text-muted" />
           <div>
-            <h3 className="font-mono text-primary font-semibold">// No Posts Found</h3>
-            <p className="text-muted text-sm mt-1">No articles available in this category yet. Check back later for new content.</p>
+            <h3 className="font-mono text-primary font-semibold">// Không tìm thấy bài viết</h3>
+            <p className="text-muted text-sm mt-1">Chưa có bài viết nào trong danh mục này. Hãy quay lại sau để xem nội dung mới.</p>
           </div>
         </div>
       </div>
@@ -113,7 +113,7 @@ const CategoryListWithPosts = ({ posts, isLoading, isError, setSize, isReachingE
       {/* Results summary */}
       <div className="flex items-center justify-between border-b border-border-primary/30 pb-3">
         <p className="text-sm text-secondary font-mono">
-          // Found {posts.length} {posts.length === 1 ? 'article' : 'articles'}
+          // Tìm thấy {posts.length} bài viết
         </p>
       </div>
 
@@ -126,13 +126,13 @@ const CategoryListWithPosts = ({ posts, isLoading, isError, setSize, isReachingE
           <div className="flex justify-center py-8">
             <div className="flex items-center gap-3 p-4 border border-border-primary rounded-lg bg-elevated">
               <FaSpinner className="animate-spin text-primary w-5 h-5" />
-              <span className="text-secondary font-mono">Loading more posts...</span>
+              <span className="text-secondary font-mono">Đang tải thêm bài viết...</span>
             </div>
           </div>
         }
         endMessage={
           <div className="text-center py-8">
-            <p className="text-muted font-mono text-sm">// End of posts in this category</p>
+            <p className="text-muted font-mono text-sm">// Hết bài viết trong danh mục này</p>
           </div>
         }
         className="space-y-6"

@@ -19,7 +19,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
 
   const handleClap = async () => {
     if (!user) {
-      alert('Please login to clap.');
+      alert('Vui lòng đăng nhập để vỗ tay.');
       return;
     }
     try {
@@ -27,7 +27,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
       mutateClaps();
     } catch (error) {
       console.error('Failed to clap:', error);
-      alert('Failed to clap. Please try again.');
+      alert('Không thể vỗ tay. Vui lòng thử lại.');
     }
   };
 
@@ -37,11 +37,11 @@ const CommentItem = ({ comment, postId, mutate }) => {
 
   const handleReply = async (content, commentID) => {
     if (!user) {
-      alert('Please login to reply.');
+      alert('Vui lòng đăng nhập để trả lời.');
       return;
     }
     if (!content.trim()) {
-      alert('Reply cannot be empty.');
+      alert('Phản hồi không thể để trống.');
       return;
     }
 

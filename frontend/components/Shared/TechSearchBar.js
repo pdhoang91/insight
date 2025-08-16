@@ -32,7 +32,7 @@ import { useTagSearch } from '../../hooks/useTags';
 import { useCategories } from '../../hooks/useCategories';
 
 const TechSearchBar = ({ 
-  placeholder = "Tìm kiếm trong vũ trụ lập trình...", 
+  placeholder = "Tìm kiếm", 
   className = "", 
   onSearch,
   variant = "default" // default, compact, mobile
@@ -450,7 +450,7 @@ const TechSearchBar = ({
                     <div className="p-1.5 bg-terminal-gray/50 rounded-lg">
                       <FaClock className="w-3 h-3 text-matrix-green" />
                     </div>
-                    <span className="text-sm font-mono font-medium text-matrix-green">tìm_kiếm_gần_đây</span>
+                    <span className="text-sm font-mono font-medium text-matrix-green">tìm kiếm gần đây</span>
                     <span className="text-xs text-text-muted bg-terminal-gray/30 px-2 py-0.5 rounded-full">
                       {recentSearches.length}
                     </span>

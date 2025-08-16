@@ -17,7 +17,7 @@ const PostItemTimeline = ({ post }) => {
   if (!post) {
     return (
       <div className="bg-terminal-gray rounded-lg border border-matrix-green/30 p-4 sm:p-6 animate-pulse">
-        <div className="text-text-muted font-mono">Loading post...</div>
+        <div className="text-text-muted font-mono">Đang tải bài viết...</div>
       </div>
     );
   }
@@ -42,7 +42,7 @@ const PostItemTimeline = ({ post }) => {
 
   const handleClap = async () => {
     if (!user) {
-      alert('Please login to clap.');
+      alert('Vui lòng đăng nhập để vỗ tay.');
       return;
     }
     if (clapLoading) return;
@@ -53,7 +53,7 @@ const PostItemTimeline = ({ post }) => {
       setCurrentClapCount(prev => prev + 1);
     } catch (error) {
       console.error('Failed to clap:', error);
-      alert('Failed to clap. Please try again.');
+      alert('Không thể vỗ tay. Vui lòng thử lại.');
     } finally {
       setClapLoading(false);
     }
@@ -63,7 +63,7 @@ const PostItemTimeline = ({ post }) => {
 
   const handleAddComment = async (content) => {
     if (!user) {
-      alert('Please login to comment.');
+      alert('Vui lòng đăng nhập để bình luận.');
       return;
     }
     if (!content.trim()) {
@@ -75,7 +75,7 @@ const PostItemTimeline = ({ post }) => {
       mutate(); // Refresh comments
     } catch (err) {
       console.error('Failed to add comment:', err);
-      alert('Failed to add comment. Please try again.');
+      alert('Không thể thêm bình luận. Vui lòng thử lại.');
     }
   };
 
@@ -180,7 +180,7 @@ const PostItemTimeline = ({ post }) => {
                 <AddCommentForm onAddComment={handleAddComment} />
               ) : (
                 <div className="text-center py-3 sm:py-4">
-                  <span className="text-text-muted text-sm">Please login to comment</span>
+                  <span className="text-text-muted text-sm">Vui lòng đăng nhập để bình luận</span>
                 </div>
               )}
             </div>

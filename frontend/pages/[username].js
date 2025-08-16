@@ -58,7 +58,7 @@ const UserProfilePage = () => {
       }
     } catch (err) {
       console.error("Failed to update profile:", err);
-      alert("Failed to update profile. Please try again.");
+      alert("Không thể cập nhật hồ sơ. Vui lòng thử lại.");
     }
   };
 
@@ -68,7 +68,7 @@ const UserProfilePage = () => {
       <div className="min-h-screen bg-terminal-black flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-text-secondary">Loading profile...</p>
+          <p className="mt-4 text-text-secondary">Đang tải hồ sơ...</p>
         </div>
       </div>
     );
@@ -83,7 +83,7 @@ const UserProfilePage = () => {
       <div className="min-h-screen bg-terminal-black flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-text-secondary">Redirecting...</p>
+          <p className="mt-4 text-text-secondary">Đang chuyển hướng...</p>
         </div>
       </div>
     );
@@ -93,7 +93,7 @@ const UserProfilePage = () => {
     return (
       <div className="min-h-screen bg-terminal-black flex items-center justify-center">
         <div className="text-center">
-          <div className="text-hacker-red mb-2">Error loading profile</div>
+          <div className="text-hacker-red mb-2">Lỗi khi tải hồ sơ</div>
           <p className="text-text-muted">{ownerError}</p>
         </div>
       </div>
@@ -122,18 +122,18 @@ const UserProfilePage = () => {
         <div className="py-8">
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-primary mb-2">
-              {isOwner ? 'My Posts' : `${profile?.name || username}'s Posts`}
+              {isOwner ? 'Bài viết của tôi' : `Bài viết của ${profile?.name || username}`}
             </h2>
             <p className="text-muted">
               {isOwner 
-                ? 'Manage and view all your published articles' 
-                : `View all articles by ${profile?.name || username}`
+                ? 'Quản lý và xem tất cả bài viết đã đăng của bạn' 
+                : `Xem tất cả bài viết của ${profile?.name || username}`
               }
             </p>
             {isAdmin && !isOwner && (
               <div className="mt-2 inline-flex items-center space-x-2 px-3 py-1 bg-hacker-yellow/10 border border-hacker-yellow/30 rounded-md">
                 <FaShieldAlt className="w-3 h-3 text-hacker-yellow" />
-                <span className="text-xs text-hacker-yellow font-mono">Admin Access</span>
+                <span className="text-xs text-hacker-yellow font-mono">Quyền quản trị</span>
               </div>
             )}
           </div>

@@ -29,7 +29,7 @@ import SafeImage from '../Utils/SafeImage';
 
 const EnhancedPostItem = ({ post, variant = 'enhanced', showFullContent = false }) => {
   if (!post) {
-    return <div>Loading post...</div>;
+    return <div>Đang tải bài viết...</div>;
   }
 
   const { user } = useUser();
@@ -56,14 +56,14 @@ const EnhancedPostItem = ({ post, variant = 'enhanced', showFullContent = false 
     const beginnerTags = ['beginner', 'tutorial', 'basics', 'intro'];
     const advancedTags = ['advanced', 'expert', 'complex', 'deep-dive'];
     
-    if (allTags.some(tag => beginnerTags.includes(tag.toLowerCase()))) return 'Beginner';
-    if (allTags.some(tag => advancedTags.includes(tag.toLowerCase()))) return 'Advanced';
-    return 'Intermediate';
+    if (allTags.some(tag => beginnerTags.includes(tag.toLowerCase()))) return 'Cơ bản';
+    if (allTags.some(tag => advancedTags.includes(tag.toLowerCase()))) return 'Nâng cao';
+    return 'Trung bình';
   };
 
   const handleClap = async () => {
     if (!user) {
-      alert('You need to login to clap.');
+      alert('Bạn cần đăng nhập để vỗ tay.');
       return;
     }
     if (clapLoading) return;
@@ -74,7 +74,7 @@ const EnhancedPostItem = ({ post, variant = 'enhanced', showFullContent = false 
       setCurrentClapCount(prev => prev + 1);
     } catch (error) {
       console.error('Failed to clap:', error);
-      alert('An error occurred while clapping. Please try again.');
+      alert('Có lỗi xảy ra khi vỗ tay. Vui lòng thử lại.');
     } finally {
       setClapLoading(false);
     }
@@ -84,11 +84,11 @@ const EnhancedPostItem = ({ post, variant = 'enhanced', showFullContent = false 
 
   const handleAddComment = async (content) => {
     if (!user) {
-      alert('Please login to comment.');
+      alert('Vui lòng đăng nhập để bình luận.');
       return;
     }
     if (!content.trim()) {
-      alert('Comment cannot be empty.');
+      alert('Bình luận không thể để trống.');
       return;
     }
     try {
@@ -96,7 +96,7 @@ const EnhancedPostItem = ({ post, variant = 'enhanced', showFullContent = false 
       mutate(); // Refresh comments
     } catch (err) {
       console.error('Failed to add comment:', err);
-      alert('Failed to add comment. Please try again.');
+      alert('Không thể thêm bình luận. Vui lòng thử lại.');
     }
   };
 

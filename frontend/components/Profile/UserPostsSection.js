@@ -19,8 +19,8 @@ const UserPostsSection = ({ posts, isLoading, isError, setSize, isReachingEnd, i
     return <PostItemProfile key={post.id} post={post} isOwner={isOwner} />;
   };
 
-  if (isError) return <div className="text-red-500">Failed to load posts</div>;
-  if (isLoading && posts.length === 0) return <div>Loading...</div>;
+  if (isError) return <div className="text-red-500">Không thể tải bài viết</div>;
+  if (isLoading && posts.length === 0) return <div>Đang tải...</div>;
 
   return (
     <InfiniteScrollWrapper
@@ -28,7 +28,7 @@ const UserPostsSection = ({ posts, isLoading, isError, setSize, isReachingEnd, i
       renderItem={renderItem}
       fetchMore={fetchMore}
       hasMore={!isReachingEnd}
-      loader={<div className="text-center my-4">Loading more posts...</div>}
+      loader={<div className="text-center my-4">Đang tải thêm bài viết...</div>}
       endMessage={<p className="text-center mt-4">Đã tải hết bài viết.</p>}
       className="space-y-4"
     />

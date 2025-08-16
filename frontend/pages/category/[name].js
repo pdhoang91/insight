@@ -15,7 +15,7 @@ const CategoryPage = () => {
       <div className="min-h-screen bg-terminal-black flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-text-secondary">Loading category...</p>
+          <p className="mt-4 text-text-secondary">Đang tải danh mục...</p>
         </div>
       </div>
     );
