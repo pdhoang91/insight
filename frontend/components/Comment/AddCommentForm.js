@@ -8,8 +8,8 @@ const AddCommentForm = ({ onAddComment, parentId = null, placeholder }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const defaultPlaceholder = parentId 
-    ? 'Write your reply...' 
-    : 'Write your comment...';
+    ? 'Viết phản hồi của bạn...' 
+    : 'Viết bình luận của bạn...';
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,7 +29,7 @@ const AddCommentForm = ({ onAddComment, parentId = null, placeholder }) => {
         onChange={(e) => setContent(e.target.value)}
         rows={parentId ? 2 : 3}
         required
-        aria-label={parentId ? 'Reply to comment' : 'Add a comment'}
+        aria-label={parentId ? 'Trả lời bình luận' : 'Thêm bình luận'}
       />
       
       {/* Submit Button */}
@@ -41,7 +41,7 @@ const AddCommentForm = ({ onAddComment, parentId = null, placeholder }) => {
             : 'bg-matrix-green/20 text-matrix-green hover:bg-matrix-green hover:text-terminal-black'
         }`}
         disabled={isSubmitting || !content.trim()}
-        aria-label="Submit comment"
+        aria-label="Gửi bình luận"
       >
         <FaPaperPlane className="w-3 h-3" />
       </button>

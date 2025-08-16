@@ -81,7 +81,7 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
               transition={{ delay: 0.2 }}
               className="text-text-muted mb-6 font-mono text-sm"
             >
-              <span className="text-matrix-green">//</span> update your profile information
+              <span className="text-matrix-green">//</span> cập nhật thông tin hồ sơ của bạn
             </motion.p>
 
             <form onSubmit={handleSubmit} className="space-y-6">
@@ -97,7 +97,7 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
                   <div className="relative">
                     <img 
                       src={avatarUrl || '/images/placeholder.svg'} 
-                      alt="Avatar" 
+                      alt="Ảnh đại diện" 
                       className="w-16 h-16 rounded-full object-cover border-2 border-matrix-green/40" 
                     />
                     {/* Tech badge */}
@@ -130,18 +130,18 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
                       onClick={handleAvatarUploadClick}
                       disabled={isUploading}
                       className="group relative overflow-hidden bg-gradient-to-r from-matrix-green/10 to-matrix-green/5 border border-matrix-green/30 rounded-lg px-4 py-2 hover:border-matrix-green/50 transition-all duration-300 font-mono text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                      aria-label="Upload Avatar"
+                      aria-label="Tải lên ảnh đại diện"
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-matrix-green/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       <div className="relative flex items-center space-x-2">
                         <FaUpload className="w-3 h-3 text-matrix-green" />
                         <span className="text-matrix-green">
-                          {isUploading ? 'uploading...' : 'upload_avatar()'}
+                          {isUploading ? 'đang_tải_lên...' : 'tải_lên_avatar()'}
                         </span>
                       </div>
                     </button>
                     <p className="text-text-muted text-xs font-mono mt-1">
-                      <span className="text-matrix-green">//</span> jpg, png, gif (max 5MB)
+                      <span className="text-matrix-green">//</span> jpg, png, gif (tối đa 5MB)
                     </p>
                   </div>
                   <input
@@ -163,7 +163,7 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
               >
                 <label className="block text-sm font-mono text-matrix-green flex items-center gap-2">
                   <FaUser className="text-matrix-green" size={14} />
-                  <span>name</span>
+                  <span>tên</span>
                 </label>
                 <div className="relative">
                   <input
@@ -171,7 +171,7 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="w-full px-4 py-3 font-mono bg-terminal-gray/50 border border-matrix-green/20 text-text-primary placeholder-text-muted focus:border-matrix-green/50 rounded-lg focus:outline-none transition-colors"
-                    placeholder="'your_name'"
+                    placeholder="'tên_của_bạn'"
                     required
                   />
                 </div>
@@ -186,20 +186,20 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
               >
                 <label className="block text-sm font-mono text-matrix-green flex items-center gap-2">
                   <FaCode className="text-matrix-green" size={14} />
-                  <span>bio</span>
+                  <span>tiểu_sử</span>
                 </label>
                 <div className="relative">
                   <textarea
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
                     className="w-full px-4 py-3 font-mono bg-terminal-gray/50 border border-matrix-green/20 text-text-primary placeholder-text-muted focus:border-matrix-green/50 rounded-lg resize-none focus:outline-none transition-colors"
-                    placeholder="'tell_us_about_yourself'"
+                    placeholder="'giới_thiệu_về_bản_thân'"
                     rows={4}
                     maxLength={500}
                   />
                 </div>
                 <p className="text-text-muted text-xs font-mono">
-                  <span className="text-matrix-green">//</span> max 500 characters ({bio.length}/500)
+                  <span className="text-matrix-green">//</span> tối đa 500 ký tự ({bio.length}/500)
                 </p>
               </motion.div>
 

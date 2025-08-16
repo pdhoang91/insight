@@ -26,7 +26,7 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
         >
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-border-primary">
-            <h2 className="text-2xl font-bold text-primary">Ready to Publish?</h2>
+            <h2 className="text-2xl font-bold text-primary">Sẵn sàng đăng bài?</h2>
             <button
               className="p-2 text-muted hover:text-secondary rounded-lg hover:bg-elevated transition-colors"
               onClick={onCancel}
@@ -39,7 +39,7 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
           <div className="flex flex-col lg:flex-row overflow-y-auto max-h-[calc(90vh-140px)]">
             {/* Preview Section */}
             <div className="w-full lg:w-1/2 p-6 border-r border-border-primary">
-              <h3 className="text-lg font-semibold mb-4 text-secondary">Story Preview</h3>
+              <h3 className="text-lg font-semibold mb-4 text-secondary">Xem trước bài viết</h3>
               <div className="bg-elevated rounded-lg p-4 border border-border-primary">
                 {/* Image Preview */}
                 {imageTitle && (
@@ -56,7 +56,7 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
                 
                 {/* Title */}
                 <h4 className="text-xl font-bold text-primary mb-3 line-clamp-2">
-                  {title || 'Untitled Story'}
+                  {title || 'Bài viết chưa có tiêu đề'}
                 </h4>
                 
                 {/* Content Preview */}
@@ -67,7 +67,7 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
                 {/* Tip */}
                 <div className="bg-primary/5 rounded-lg p-3 border-l-4 border-primary">
                   <p className="text-xs text-muted">
-                    💡 <strong>Tip:</strong> A compelling cover image helps your story stand out and attract more readers.
+                    💡 <strong>Mẹo:</strong> Một hình ảnh bìa hấp dẫn giúp bài viết của bạn nổi bật và thu hút nhiều độc giả hơn.
                   </p>
                 </div>
               </div>
@@ -75,24 +75,24 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
 
             {/* Form Section */}
             <div className="w-full lg:w-1/2 p-6">
-              <h3 className="text-lg font-semibold mb-6 text-secondary">Add Categories & Tags</h3>
+              <h3 className="text-lg font-semibold mb-6 text-secondary">Thêm danh mục và thẻ</h3>
               
               {/* Categories Input */}
               <div className="mb-6">
                 <label className="flex items-center mb-3 font-medium text-primary">
                   <FaFolderOpen className="w-4 h-4 mr-2 text-primary" />
-                  Categories
+                  Danh mục
                 </label>
                 <input
                   type="text"
                   value={categories}
                   onChange={(e) => setCategories(e.target.value)}
                   className="w-full p-3 bg-elevated border border-border-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-primary placeholder-muted"
-                  placeholder="e.g., Technology, Science, Programming"
+                  placeholder="Ví dụ: Công nghệ, Khoa học, Lập trình"
                   aria-label="Enter Categories"
                 />
                 <p className="text-xs text-muted mt-2">
-                  Separate multiple categories with commas
+                  Phân cách các danh mục bằng dấu phẩy
                 </p>
               </div>
 
@@ -100,18 +100,18 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
               <div className="mb-8">
                 <label className="flex items-center mb-3 font-medium text-primary">
                   <FaTag className="w-4 h-4 mr-2 text-primary" />
-                  Tags
+                  Thẻ
                 </label>
                 <input
                   type="text"
                   value={tags}
                   onChange={(e) => setTags(e.target.value)}
                   className="w-full p-3 bg-elevated border border-border-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-primary placeholder-muted"
-                  placeholder="e.g., React, JavaScript, Web Development"
+                  placeholder="Ví dụ: React, JavaScript, Phát triển Web"
                   aria-label="Enter Tags"
                 />
                 <p className="text-xs text-muted mt-2">
-                  Help readers discover your content with relevant tags
+                  Giúp độc giả khám phá nội dung của bạn với các thẻ liên quan
                 </p>
               </div>
 
@@ -124,7 +124,7 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
                   aria-label="Publish Story"
                 >
                   <FaPaperPlane className="w-4 h-4 mr-2" />
-                  Publish Story
+                  Đăng bài
                 </button>
                 <button
                   type="button"
@@ -133,7 +133,7 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
                   aria-label="Cancel"
                 >
                   <FaTimes className="w-4 h-4 mr-2" />
-                  Cancel
+                  Hủy
                 </button>
               </div>
             </div>
@@ -146,7 +146,7 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
 
 // Helper function to limit content length
 const getLimitedContent = (content, maxLength) => {
-  if (!content) return 'No content preview available...';
+  if (!content) return 'Không có nội dung để xem trước...';
   const strippedContent = content.replace(/<[^>]+>/g, ''); // Remove HTML tags
   return strippedContent.length > maxLength
     ? strippedContent.substring(0, maxLength) + '...'

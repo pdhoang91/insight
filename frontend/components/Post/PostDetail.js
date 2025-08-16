@@ -15,7 +15,7 @@ export const PostDetail = ({ post }) => {
 
   const handleClap = async () => {
     if (!user) {
-      alert('You need to login to clap.');
+      alert('Bạn cần đăng nhập để vỗ tay.');
       return;
     }
     if (clapLoading) return;
@@ -26,7 +26,7 @@ export const PostDetail = ({ post }) => {
       setCurrentClapCount(prev => prev + 1);
     } catch (error) {
       console.error('Failed to clap:', error);
-      alert('An error occurred while clapping. Please try again.');
+      alert('Có lỗi xảy ra khi vỗ tay. Vui lòng thử lại.');
     } finally {
       setClapLoading(false);
     }

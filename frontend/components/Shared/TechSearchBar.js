@@ -32,7 +32,7 @@ import { useTagSearch } from '../../hooks/useTags';
 import { useCategories } from '../../hooks/useCategories';
 
 const TechSearchBar = ({ 
-  placeholder = "Search the dev universe...", 
+  placeholder = "Tìm kiếm trong vũ trụ lập trình...", 
   className = "", 
   onSearch,
   variant = "default" // default, compact, mobile
@@ -59,20 +59,20 @@ const TechSearchBar = ({
       icon: SiReact, 
       color: 'text-blue-400', 
       category: 'Frontend',
-      description: 'UI Library'
+      description: 'Thư viện UI'
     },
     { 
       name: 'Python', 
       icon: SiPython, 
       color: 'text-yellow-400', 
-      category: 'Language',
-      description: 'Programming'
+      category: 'Ngôn ngữ',
+      description: 'Lập trình'
     },
     { 
       name: 'JavaScript', 
       icon: SiJavascript, 
       color: 'text-yellow-300', 
-      category: 'Language',
+      category: 'Ngôn ngữ',
       description: 'Web Dev'
     },
     { 
@@ -80,14 +80,14 @@ const TechSearchBar = ({
       icon: SiDocker, 
       color: 'text-blue-500', 
       category: 'DevOps',
-      description: 'Containers'
+      description: 'Container'
     },
     { 
       name: 'TypeScript', 
       icon: SiTypescript, 
       color: 'text-blue-600', 
-      category: 'Language',
-      description: 'Type Safety'
+      category: 'Ngôn ngữ',
+      description: 'Kiểu an toàn'
     },
     { 
       name: 'Node.js', 
@@ -108,7 +108,7 @@ const TechSearchBar = ({
       icon: SiKubernetes, 
       color: 'text-blue-400', 
       category: 'DevOps',
-      description: 'Orchestration'
+      description: 'Điều phối'
     }
   ];
 
@@ -450,7 +450,7 @@ const TechSearchBar = ({
                     <div className="p-1.5 bg-terminal-gray/50 rounded-lg">
                       <FaClock className="w-3 h-3 text-matrix-green" />
                     </div>
-                    <span className="text-sm font-mono font-medium text-matrix-green">recent_searches</span>
+                    <span className="text-sm font-mono font-medium text-matrix-green">tìm_kiếm_gần_đây</span>
                     <span className="text-xs text-text-muted bg-terminal-gray/30 px-2 py-0.5 rounded-full">
                       {recentSearches.length}
                     </span>
@@ -459,7 +459,7 @@ const TechSearchBar = ({
                     onClick={clearRecentSearches}
                     className="text-xs text-text-muted hover:text-hacker-red transition-colors px-2 py-1 rounded hover:bg-terminal-gray/30"
                   >
-                    Clear
+                    Xóa
                   </button>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -493,7 +493,7 @@ const TechSearchBar = ({
                   <div className="p-1.5 bg-hacker-yellow/10 rounded-lg">
                     <FaBolt className="w-3 h-3 text-hacker-yellow animate-pulse" />
                   </div>
-                  <span className="text-sm font-mono font-medium text-hacker-yellow">tags.filter()</span>
+                  <span className="text-sm font-mono font-medium text-hacker-yellow">thẻ.lọc()</span>
                   <span className="text-xs text-text-muted bg-terminal-gray/30 px-2 py-0.5 rounded-full">
                     {tags.length}
                   </span>
@@ -533,7 +533,7 @@ const TechSearchBar = ({
                   <div className="p-1.5 bg-matrix-blue/10 rounded-lg">
                     <FaCode className="w-3 h-3 text-matrix-blue" />
                   </div>
-                  <span className="text-sm font-mono font-medium text-matrix-blue">categories</span>
+                  <span className="text-sm font-mono font-medium text-matrix-blue">danh_mục</span>
                   <span className="text-xs text-text-muted bg-terminal-gray/30 px-2 py-0.5 rounded-full">
                     {categories.length}
                   </span>
@@ -568,7 +568,7 @@ const TechSearchBar = ({
                   <div className="p-1.5 bg-matrix-green/10 rounded-lg">
                     <FaTerminal className="w-3 h-3 text-matrix-green" />
                   </div>
-                  <span className="text-sm font-mono font-medium text-matrix-green">trending.tech</span>
+                  <span className="text-sm font-mono font-medium text-matrix-green">xu_hướng.tech</span>
                   <span className="text-xs text-text-muted bg-terminal-gray/30 px-2 py-0.5 rounded-full">
                     {popularSearches.length}
                   </span>
@@ -615,10 +615,10 @@ const TechSearchBar = ({
                     <FaSearch className="w-5 h-5 text-text-muted" />
                   </div>
                   <div className="text-sm text-text-muted font-mono mb-2">
-                    <span className="text-hacker-red">// 404:</span> No suggestions found
+                    <span className="text-hacker-red">// 404:</span> Không tìm thấy gợi ý
                   </div>
                   <p className="text-xs text-text-muted font-mono">
-                    Press <kbd className="px-2 py-1 bg-terminal-gray/50 rounded text-matrix-green">Enter</kbd> to search for 
+                    Nhấn <kbd className="px-2 py-1 bg-terminal-gray/50 rounded text-matrix-green">Enter</kbd> để tìm kiếm 
                     <span className="text-matrix-green font-semibold"> "{query}"</span>
                   </p>
                 </div>
@@ -633,21 +633,21 @@ const TechSearchBar = ({
                 <span className="text-text-muted">
                   {hasResults ? (
                     <span>
-                      <span className="text-matrix-green">{tags.length + categories.length + recentSearches.length}</span> results
+                      <span className="text-matrix-green">{tags.length + categories.length + recentSearches.length}</span> kết quả
                     </span>
                   ) : (
-                    'No results'
+                    'Không có kết quả'
                   )}
                 </span>
                 {selectedIndex >= 0 && (
                   <span className="text-matrix-green">
-                    [{selectedIndex + 1}/{allSuggestions.length}] selected
+                    [{selectedIndex + 1}/{allSuggestions.length}] đã chọn
                   </span>
                 )}
               </div>
               <div className="flex items-center space-x-3 text-text-muted">
-                <span><kbd className="text-matrix-green">↑↓</kbd> navigate</span>
-                <span><kbd className="text-matrix-green">ESC</kbd> close</span>
+                <span><kbd className="text-matrix-green">↑↓</kbd> di chuyển</span>
+                <span><kbd className="text-matrix-green">ESC</kbd> đóng</span>
               </div>
             </div>
           </div>

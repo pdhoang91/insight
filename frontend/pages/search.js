@@ -20,10 +20,10 @@ const SearchPage = () => {
               {q && (
                 <div className="mb-6">
                   <h1 className="text-2xl font-bold text-text-primary mb-2">
-                    Search Results
+                    Kết quả tìm kiếm
                   </h1>
                   <p className="text-text-secondary text-sm">
-                    Showing results for "{q}"
+                    Hiển thị kết quả cho "{q}"
                   </p>
                 </div>
               )}
@@ -38,16 +38,16 @@ const SearchPage = () => {
                     </svg>
                   </div>
                   <h2 className="text-xl font-semibold text-text-primary mb-2">
-                    Search Articles
+                    Tìm kiếm bài viết
                   </h2>
                   <p className="text-text-secondary mb-6">
-                    Enter a search query to find articles
+                    Nhập từ khóa để tìm kiếm bài viết
                   </p>
                   <div className="max-w-md mx-auto">
                     <div className="text-sm text-text-muted space-y-2">
-                      <p>• Search in article titles and content</p>
-                      <p>• Use quotes for exact phrases</p>
-                      <p>• Results are sorted by relevance</p>
+                      <p>• Tìm kiếm trong tiêu đề và nội dung bài viết</p>
+                      <p>• Sử dụng dấu ngoặc kép cho cụm từ chính xác</p>
+                      <p>• Kết quả được sắp xếp theo độ liên quan</p>
                     </div>
                   </div>
                 </div>

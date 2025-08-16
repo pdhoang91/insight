@@ -53,7 +53,7 @@ const BlogSidebar = () => {
         <div className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
           <h3 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
             <FaFire className="w-4 h-4 text-hacker-orange" />
-            Popular Posts
+            Bài viết phổ biến
           </h3>
           <div className="space-y-2.5">
             {popularPosts.map((post) => (
@@ -69,7 +69,7 @@ const BlogSidebar = () => {
           <h3 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
             <FaCode className="w-4 h-4 text-matrix-green" />
             <Link href="/category" className="hover:text-matrix-green transition-colors">
-              Categories
+              Danh mục
             </Link>
           </h3>
           <div className="flex flex-wrap gap-2">
@@ -98,7 +98,7 @@ const BlogSidebar = () => {
         <div className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
           <h3 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
             <FaClock className="w-4 h-4 text-hacker-blue" />
-            Latest Posts
+            Bài viết mới nhất
           </h3>
           <div className="space-y-2.5">
             {latestPosts.map((post) => (
@@ -113,7 +113,7 @@ const BlogSidebar = () => {
         <div className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
           <h3 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
             <FaBolt className="w-4 h-4 text-hacker-yellow" />
-            Popular Tags
+            Thẻ phổ biến
           </h3>
           <div className="flex flex-wrap gap-2">
             {tags.slice(0, 9).map((tag) => (

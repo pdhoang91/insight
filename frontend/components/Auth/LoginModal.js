@@ -44,7 +44,7 @@ const LoginModal = ({ isOpen, onClose }) => {
       onClose();
     } catch (error) {
       console.error('Login failed:', error);
-      setError('Authentication failed. Please check your credentials.');
+      setError('Xác thực thất bại. Vui lòng kiểm tra lại thông tin đăng nhập.');
     } finally {
       setIsLoading(false);
     }
@@ -63,7 +63,7 @@ const LoginModal = ({ isOpen, onClose }) => {
       onClose();
     } catch (error) {
       console.error('Sign up failed:', error);
-      setError('Registration failed. Please try again.');
+      setError('Đăng ký thất bại. Vui lòng thử lại.');
     } finally {
       setIsLoading(false);
     }
@@ -81,7 +81,7 @@ const LoginModal = ({ isOpen, onClose }) => {
       onClose();
     } catch (error) {
       console.error('Google login failed:', error);
-      setError('Google authentication failed. Please try again.');
+      setError('Xác thực Google thất bại. Vui lòng thử lại.');
     } finally {
       setIsLoading(false);
     }
@@ -118,7 +118,7 @@ const LoginModal = ({ isOpen, onClose }) => {
             {/* Simple Header */}
             <div className="text-center space-y-2">
               <h2 className="text-2xl font-bold text-matrix-green font-mono">
-                {isSignUp ? 'Sign Up' : 'Sign In'}
+                {isSignUp ? 'Đăng Ký' : 'Đăng Nhập'}
               </h2>
             </div>
 
@@ -154,7 +154,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-terminal-black/20 backdrop-blur-sm rounded-md text-text-primary font-mono placeholder-text-muted/60 focus:bg-terminal-black/30 focus:outline-none transition-all"
-                  placeholder="Password"
+                  placeholder="Mật khẩu"
                   disabled={isLoading}
                 />
               </div>
@@ -170,7 +170,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                 {isLoading ? (
                   <div className="w-4 h-4 border-2 border-matrix-green/30 border-t-matrix-green rounded-full animate-spin"></div>
                 ) : (
-                  <span>{isSignUp ? 'Sign Up' : 'Sign In'}</span>
+                  <span>{isSignUp ? 'Đăng Ký' : 'Đăng Nhập'}</span>
                 )}
               </button>
 
@@ -180,7 +180,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                 className="w-full py-3 bg-terminal-black/20 backdrop-blur-sm text-text-primary rounded-md font-mono font-medium hover:bg-terminal-black/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
               >
                 <FaGoogle className="w-4 h-4" />
-                <span>Continue with Google</span>
+                <span>Tiếp tục với Google</span>
               </button>
 
               <button
@@ -188,7 +188,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                 disabled={isLoading}
                 className="w-full py-2 text-text-muted/80 hover:text-matrix-green transition-colors font-mono text-sm disabled:opacity-50"
               >
-                {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+                {isSignUp ? 'Đã có tài khoản?' : 'Chưa có tài khoản?'}
               </button>
             </div>
           </div>

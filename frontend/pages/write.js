@@ -41,7 +41,7 @@ const Write = () => {
 
   const handlePublish = () => {
     if (!title.trim() || !content.trim()) {
-      alert('Please add a title and content to your post');
+      alert('Vui lòng thêm tiêu đề và nội dung cho bài viết của bạn');
       return;
     }
     setShowPopup(true);
@@ -123,7 +123,7 @@ const Write = () => {
       router.push(`/p/${res.data.title_name}`);
     } catch (error) {
       console.error('Failed to create post:', error);
-      alert('Failed to create post.');
+      alert('Không thể tạo bài viết.');
     }
   }, [user, title, content, imageTitle, router]);
 
@@ -137,10 +137,10 @@ const Write = () => {
 
   const getSaveStatusText = () => {
     switch (saveStatus) {
-      case 'saving': return 'Saving...';
-      case 'saved': return 'Saved';
-      case 'error': return 'Error';
-      default: return 'Save Draft';
+      case 'saving': return 'Đang lưu...';
+      case 'saved': return 'Đã lưu';
+      case 'error': return 'Lỗi';
+      default: return 'Lưu Bản Nháp';
     }
   };
 
@@ -158,7 +158,7 @@ const Write = () => {
       <div className="min-h-screen bg-app flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-secondary">Loading editor...</p>
+          <p className="mt-4 text-secondary">Đang tải trình soạn thảo...</p>
         </div>
       </div>
     );
@@ -181,7 +181,7 @@ const Write = () => {
         <button
           onClick={() => setIsFullscreen(false)}
           className="fixed top-4 right-4 z-50 p-2 bg-terminal-gray/80 backdrop-blur-sm text-text-secondary hover:text-text-primary rounded-lg transition-colors"
-          title="Exit fullscreen"
+          title="Thoát toàn màn hình"
         >
           <FaTimes className="w-5 h-5" />
         </button>

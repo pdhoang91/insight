@@ -2,8 +2,8 @@
 import React from 'react';
 
 const EmptyState = ({ 
-  title = "No content found",
-  message = "There's nothing to show here yet.",
+  title = "Không tìm thấy nội dung",
+  message = "Hiện tại chưa có gì để hiển thị.",
   icon = "document",
   actionButton = null
 }) => {

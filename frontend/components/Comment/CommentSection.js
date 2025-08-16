@@ -22,11 +22,11 @@ const CommentSection = ({ postId, user }) => {
 
   const handleAddComment = async (content) => {
     if (!user) {
-      alert('You need to login to comment.');
+      alert('Bạn cần đăng nhập để bình luận.');
       return;
     }
     if (!content.trim()) {
-      alert('Comment content cannot be empty.');
+      alert('Nội dung bình luận không thể để trống.');
       return;
     }
     try {
@@ -34,7 +34,7 @@ const CommentSection = ({ postId, user }) => {
       mutate(); // Refresh comments
     } catch (err) {
       console.error('Failed to add comment:', err);
-      alert('Failed to add comment. Please try again.');
+      alert('Không thể thêm bình luận. Vui lòng thử lại.');
     }
   };
 
@@ -43,7 +43,7 @@ const CommentSection = ({ postId, user }) => {
       {/* Header */}
       <div>
         <h2 className="text-2xl font-bold text-primary font-mono mb-2">
-          Comments ({totalComments})
+          Bình luận ({totalComments})
         </h2>
       </div>
 
@@ -53,7 +53,7 @@ const CommentSection = ({ postId, user }) => {
           <AddCommentForm onAddComment={handleAddComment} />
         ) : (
           <div className="p-4 border border-primary rounded-md bg-elevated">
-            <p className="text-muted font-mono">// Login required to comment</p>
+            <p className="text-muted font-mono">// Cần đăng nhập để bình luận</p>
           </div>
         )}
       </div>
@@ -61,12 +61,12 @@ const CommentSection = ({ postId, user }) => {
       {/* Comments List */}
       <div className="">
         {isError && (
-          <div className="text-red-400 font-mono mb-4">// Failed to load comments</div>
+          <div className="text-red-400 font-mono mb-4">// Không thể tải bình luận</div>
         )}
         {isLoading && !isError && (
           <div className="flex justify-center items-center py-8">
             <FaSpinner className="animate-spin text-primary mr-2" />
-            <span className="text-secondary font-mono">Loading comments...</span>
+            <span className="text-secondary font-mono">Đang tải bình luận...</span>
           </div>
         )}
         {comments && (

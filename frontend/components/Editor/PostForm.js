@@ -169,7 +169,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         icon: FaBold,
         action: () => editor.chain().focus().toggleBold().run(),
         isActive: () => editor.isActive('bold'),
-        tooltip: 'Bold',
+        tooltip: 'Đậm',
         essential: true,
       },
       {
@@ -177,7 +177,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         icon: FaItalic,
         action: () => editor.chain().focus().toggleItalic().run(),
         isActive: () => editor.isActive('italic'),
-        tooltip: 'Italic',
+        tooltip: 'Nghiêng',
         essential: true,
       },
       {
@@ -185,14 +185,14 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         icon: FaUnderline,
         action: () => editor.chain().focus().toggleUnderline().run(),
         isActive: () => editor.isActive('underline'),
-        tooltip: 'Underline',
+        tooltip: 'Gạch chân',
       },
       {
         name: 'strike',
         icon: FaStrikethrough,
         action: () => editor.chain().focus().toggleStrike().run(),
         isActive: () => editor.isActive('strike'),
-        tooltip: 'Strikethrough',
+        tooltip: 'Gạch ngang',
       },
       // Nhóm Căn Chỉnh Văn Bản
       {
@@ -200,28 +200,28 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         icon: FaAlignJustify,
         action: () => editor.chain().focus().setTextAlign('justify').run(),
         isActive: () => editor.isActive({ textAlign: 'justify' }),
-        tooltip: 'Justify',
+        tooltip: 'Căn đều',
       },
       {
         name: 'alignLeft',
         icon: FaAlignLeft,
         action: () => editor.chain().focus().setTextAlign('left').run(),
         isActive: () => editor.isActive({ textAlign: 'left' }),
-        tooltip: 'Align Left',
+        tooltip: 'Căn trái',
       },
       {
         name: 'alignCenter',
         icon: FaAlignCenter,
         action: () => editor.chain().focus().setTextAlign('center').run(),
         isActive: () => editor.isActive({ textAlign: 'center' }),
-        tooltip: 'Align Center',
+        tooltip: 'Căn giữa',
       },
       {
         name: 'alignRight',
         icon: FaAlignRight,
         action: () => editor.chain().focus().setTextAlign('right').run(),
         isActive: () => editor.isActive({ textAlign: 'right' }),
-        tooltip: 'Align Right',
+        tooltip: 'Căn phải',
       },
       // Nhóm Chèn Đối Tượng
       {
@@ -229,17 +229,17 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         icon: FaImage,
         action: handleImageUpload,
         isActive: false,
-        tooltip: 'Insert Image',
+        tooltip: 'Chèn hình ảnh',
       },
       {
         name: 'link',
         icon: FaLink,
         action: () => {
-          const url = prompt('Enter URL');
+          const url = prompt('Nhập URL:');
           if (url) editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
         },
         isActive: () => editor.isActive('link'),
-        tooltip: 'Insert Link',
+        tooltip: 'Chèn liên kết',
       },
       // Nhóm Tổ Chức Nội Dung
       {
@@ -250,7 +250,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
           console.log('Bullet List toggled:', editor.isActive('bulletList'));
         },
         isActive: () => editor.isActive('bulletList'),
-        tooltip: 'Bullet List',
+        tooltip: 'Danh sách dấu đầu dòng',
         essential: true,
       },
       {
@@ -261,13 +261,13 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
           console.log('Ordered List toggled:', editor.isActive('orderedList'));
         },
         isActive: () => editor.isActive('orderedList'),
-        tooltip: 'Numbered List',
+        tooltip: 'Danh sách số',
         essential: true,
       },
       {
         name: 'heading',
         icon: FaHeading,
-        tooltip: 'Heading',
+        tooltip: 'Tiêu đề',
         essential: true,
         children: (
           <div className="py-1">
@@ -283,7 +283,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
                 className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 
                   ${editor.isActive('heading', { level }) ? 'bg-blue-100' : ''}`}
               >
-                Heading {level}
+                Tiêu đề {level}
               </button>
             ))}
           </div>
@@ -295,7 +295,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         icon: FaQuoteRight,
         action: () => editor.chain().focus().toggleBlockquote().run(),
         isActive: () => editor.isActive('blockquote'),
-        tooltip: 'Quote',
+        tooltip: 'Trích dẫn',
         essential: true,
       },
       {
@@ -303,7 +303,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         icon: FaEraser,
         action: () => editor.chain().focus().clearNodes().unsetAllMarks().run(),
         isActive: false,
-        tooltip: 'Clear Format',
+        tooltip: 'Xóa định dạng',
       },
       // Nhóm Mục lục
       {
@@ -311,7 +311,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         icon: FaList,
         action: handleToggleTOC,
         isActive: () => hasTOC(content),
-        tooltip: hasTOC(content) ? 'Remove Table of Contents' : 'Add Table of Contents',
+        tooltip: hasTOC(content) ? 'Xóa mục lục' : 'Thêm mục lục',
         essential: true,
       },
     ];

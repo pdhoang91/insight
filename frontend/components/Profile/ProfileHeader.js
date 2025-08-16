@@ -76,7 +76,7 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
               transition={{ delay: 0.4 }}
             >
               <FaEdit className="w-4 h-4" />
-              <span className="text-sm font-medium">Edit Profile</span>
+              <span className="text-sm font-medium">Chỉnh sửa hồ sơ</span>
             </motion.button>
           )}
         </div>
@@ -144,7 +144,7 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
                 whileTap={{ scale: 0.98 }}
               >
                 <FaEdit className="w-4 h-4" />
-                <span className="text-sm font-medium">Edit Profile</span>
+                <span className="text-sm font-medium">Chỉnh sửa hồ sơ</span>
               </motion.button>
             )}
           </div>

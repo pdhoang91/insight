@@ -121,7 +121,7 @@ const Navbar = ({ onPublish }) => {
                     className="flex items-center space-x-1.5 px-3 py-1.5 bg-matrix-green/10 text-matrix-green border border-matrix-green/30 rounded-md hover:bg-matrix-green hover:text-terminal-black transition-all duration-300 text-sm"
                   >
                     <FaEdit className="w-3 h-3" />
-                    <span className="font-medium">Write</span>
+                    <span className="font-medium">Viết Bài</span>
                   </button>
               )}
 
@@ -132,7 +132,7 @@ const Navbar = ({ onPublish }) => {
                   className="flex items-center space-x-1.5 px-3 py-1.5 bg-hacker-yellow/10 text-hacker-yellow border border-hacker-yellow/30 rounded-md hover:bg-hacker-yellow hover:text-terminal-black transition-all duration-300 text-sm"
                 >
                   <FaPaperPlane className="w-3 h-3" />
-                  <span className="font-medium">Publish</span>
+                  <span className="font-medium">Đăng Bài</span>
                 </button>
               )}
 
@@ -143,7 +143,7 @@ const Navbar = ({ onPublish }) => {
                   className="flex items-center space-x-1.5 px-3 py-1.5 bg-matrix-cyan/10 text-matrix-cyan border border-matrix-cyan/30 rounded-md hover:bg-matrix-cyan hover:text-terminal-black transition-all duration-300 text-sm"
                 >
                   <FaPaperPlane className="w-3 h-3" />
-                  <span className="font-medium">Update</span>
+                  <span className="font-medium">Cập Nhật</span>
                 </button>
               )}
 
@@ -208,7 +208,7 @@ const Navbar = ({ onPublish }) => {
                             className="w-full flex items-center space-x-3 px-4 py-2 text-hacker-red hover:bg-terminal-light transition-colors"
                           >
                             <FaSignOutAlt className="w-4 h-4" />
-                            <span>Sign Out</span>
+                            <span>Đăng Xuất</span>
                           </button>
                         </div>
                       </motion.div>
@@ -220,7 +220,7 @@ const Navbar = ({ onPublish }) => {
                   onClick={() => setModalOpen(true)}
                   className="px-3 py-1.5 text-sm text-text-secondary hover:text-matrix-green border border-matrix-green/30 rounded-md hover:border-matrix-green/50 transition-all"
                 >
-                  Sign In
+                  Đăng Nhập
                 </button>
               )}
             </div>
@@ -290,8 +290,8 @@ const Navbar = ({ onPublish }) => {
                           <FaEdit className="w-4 h-4 text-matrix-green" />
                         </div>
                         <div className="flex-1 text-left">
-                          <div className="text-sm font-medium text-matrix-green">Write Article</div>
-                          <div className="text-xs text-text-muted">Create new post</div>
+                          <div className="text-sm font-medium text-matrix-green">Viết Bài</div>
+                          <div className="text-xs text-text-muted">Tạo bài viết mới</div>
                         </div>
                       </div>
                     </motion.button>
@@ -311,8 +311,8 @@ const Navbar = ({ onPublish }) => {
                           <FaRocket className="w-4 h-4 text-hacker-yellow" />
                         </div>
                         <div className="flex-1 text-left">
-                          <div className="text-sm font-medium text-hacker-yellow">Publish Article</div>
-                          <div className="text-xs text-text-muted">Deploy to production</div>
+                          <div className="text-sm font-medium text-hacker-yellow">Đăng Bài Viết</div>
+                          <div className="text-xs text-text-muted">Xuất bản bài viết</div>
                         </div>
                       </div>
                     </motion.button>
@@ -332,8 +332,8 @@ const Navbar = ({ onPublish }) => {
                           <FaBolt className="w-4 h-4 text-matrix-cyan" />
                         </div>
                         <div className="flex-1 text-left">
-                          <div className="text-sm font-medium text-matrix-cyan">Update Article</div>
-                          <div className="text-xs text-text-muted">Push changes</div>
+                          <div className="text-sm font-medium text-matrix-cyan">Cập Nhật Bài</div>
+                          <div className="text-xs text-text-muted">Lưu thay đổi</div>
                         </div>
                       </div>
                     </motion.button>
@@ -394,7 +394,7 @@ const Navbar = ({ onPublish }) => {
                         <div className="absolute inset-0 bg-gradient-to-r from-hacker-red/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         <div className="relative flex items-center justify-center space-x-3">
                           <FaSignOutAlt className="w-4 h-4 text-hacker-red" />
-                          <span className="font-medium text-hacker-red">Disconnect Session</span>
+                          <span className="font-medium text-hacker-red">Đăng Xuất</span>
                         </div>
                       </motion.button>
                     </>
@@ -411,7 +411,7 @@ const Navbar = ({ onPublish }) => {
                       <div className="absolute inset-0 bg-gradient-to-r from-matrix-green/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       <div className="relative flex items-center justify-center space-x-3">
                         <FaGithub className="w-5 h-5 text-matrix-green" />
-                        <span className="font-medium text-matrix-green">Initialize Session</span>
+                        <span className="font-medium text-matrix-green">Đăng Nhập</span>
                       </div>
                     </motion.button>
                   )}
@@ -424,8 +424,8 @@ const Navbar = ({ onPublish }) => {
                   transition={{ delay: 0.5 }}
                   className="text-center text-xs text-matrix-green/50 font-mono pt-2 border-t border-matrix-green/20"
                 >
-                  <span>System Status: </span>
-                  <span className="text-matrix-green">ONLINE</span>
+                  <span>Trạng thái hệ thống: </span>
+                  <span className="text-matrix-green">HOẠT ĐỘNG</span>
                   <motion.span
                     animate={{ opacity: [1, 0.3, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}

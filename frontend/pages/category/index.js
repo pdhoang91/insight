@@ -15,10 +15,10 @@ const CategoryPage = () => {
               <div className="py-6 md:py-8">
                 <header className="mb-2 md:mb-2 pb-2 md:pb-2">
                   <h1 className="text-3xl md:text-4xl font-bold text-text-primary mb-3 md:mb-4">
-                    Categories
+                    Danh mục
                   </h1>
                   <p className="text-text-secondary text-sm md:text-base">
-                    Explore stories by category
+                    Khám phá bài viết theo danh mục
                   </p>
                 </header>
               

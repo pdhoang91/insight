@@ -22,7 +22,7 @@ const TitleInput = ({
           onChange={(e) => setTitle(e.target.value)}
           required
           className={`w-full bg-transparent border-0 border-b border-border-primary/50 focus:border-border-primary outline-none transition-all duration-200 resize-none text-xl md:text-2xl py-3 placeholder-text-muted text-text-primary font-semibold leading-tight`}
-          placeholder="Your story title..."
+          placeholder="Tiêu đề bài viết của bạn..."
           style={{ fontFamily: 'var(--font-primary)' }}
         />
         
@@ -31,8 +31,8 @@ const TitleInput = ({
           type="button"
           onClick={handleImageTitleUpload}
           className={`absolute right-0 top-1/2 transform -translate-y-1/2 p-2 text-text-secondary hover:text-primary rounded-lg transition-colors`}
-          aria-label="Upload cover image"
-          title="Upload cover image"
+          aria-label="Tải lên ảnh bìa"
+          title="Tải lên ảnh bìa"
         >
           {isUploadingTitle ? (
             <LoadingSpinner size="sm" />
@@ -40,7 +40,7 @@ const TitleInput = ({
             <div className="relative">
               <img
                 src={imageTitle}
-                alt="Cover image"
+                alt="Ảnh bìa"
                 className="w-6 h-6 object-cover rounded"
               />
               <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full flex items-center justify-center">
@@ -58,13 +58,13 @@ const TitleInput = ({
         <div className={`relative`}>
           <img
             src={imageTitle}
-            alt="Cover image preview"
+            alt="Xem trước ảnh bìa"
             className="w-full max-h-64 object-cover rounded-lg border border-border-primary/50"
           />
           <button
             onClick={() => setImageTitle(null)}
             className="absolute top-2 right-2 p-1 bg-surface/80 backdrop-blur-sm text-text-secondary hover:text-red-400 rounded-full transition-colors"
-            title="Remove cover image"
+            title="Xóa ảnh bìa"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

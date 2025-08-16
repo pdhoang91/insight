@@ -22,8 +22,8 @@ const SearchResults = ({ query }) => {
   if (isError) {
     return (
       <ErrorState 
-        title="Search failed"
-        message="Something went wrong while searching. Please check your connection and try again."
+        title="Tìm kiếm thất bại"
+        message="Có lỗi xảy ra khi tìm kiếm. Vui lòng kiểm tra kết nối và thử lại."
       />
     );
   }
@@ -45,8 +45,8 @@ const SearchResults = ({ query }) => {
   if (stories.length === 0) {
     return (
       <EmptyState 
-        title="No articles found"
-        message={`No articles found for "${query}". Try different keywords or browse categories.`}
+        title="Không tìm thấy bài viết"
+        message={`Không tìm thấy bài viết nào cho "${query}". Hãy thử các từ khóa khác hoặc duyệt các danh mục.`}
         icon="search"
       />
     );
@@ -57,10 +57,10 @@ const SearchResults = ({ query }) => {
       {/* Results summary */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-text-secondary">
-          {totalCount || 0} {(totalCount || 0) === 1 ? 'article' : 'articles'} found
+          Tìm thấy {totalCount || 0} bài viết
           {stories.length < (totalCount || 0) && (
             <span className="text-text-muted ml-2">
-              (showing {stories.length})
+              (hiển thị {stories.length})
             </span>
           )}
         </p>
