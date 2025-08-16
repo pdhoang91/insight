@@ -8,7 +8,7 @@ export const fetchStories = async (query, page = 1, limit = 10) => {
     });
 
     const data = response.data;
-    console.log("data", data);
+
 
     // Kiểm tra định dạng của `data` và `data.data`
     if (!data || !Array.isArray(data.data) || typeof data.total_count !== 'number') {

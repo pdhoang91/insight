@@ -23,7 +23,7 @@ const CategoryList = () => {
 
   const renderItem = (category) => {
     if (!category || !category.id) {
-      console.warn('Category without id:', category);
+
       return null;
     }
     return <CategoryItem key={category.id} category={category} />;

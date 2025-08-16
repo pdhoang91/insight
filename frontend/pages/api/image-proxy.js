@@ -15,7 +15,7 @@ export default async function handler(req, res) {
       return res.status(403).json({ error: 'Only S3 URLs are allowed' });
     }
 
-    console.log('Proxying image:', url);
+
 
     // Parse URL to get hostname and path
     const urlObj = new URL(url);

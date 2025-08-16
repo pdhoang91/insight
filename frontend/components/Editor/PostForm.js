@@ -133,7 +133,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
 
   const handleToggleTOC = useCallback(() => {
     // TOC functionality removed
-    console.log('TOC functionality has been removed');
+
   }, []);
 
   const menuBar = useMemo(() => {
@@ -224,7 +224,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         icon: FaListUl,
         action: () => {
           editor.chain().focus().toggleBulletList().run();
-          console.log('Bullet List toggled:', editor.isActive('bulletList'));
+
         },
         isActive: () => editor.isActive('bulletList'),
         tooltip: 'Danh sách dấu đầu dòng',
@@ -235,7 +235,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         icon: FaListOl,
         action: () => {
           editor.chain().focus().toggleOrderedList().run();
-          console.log('Ordered List toggled:', editor.isActive('orderedList'));
+
         },
         isActive: () => editor.isActive('orderedList'),
         tooltip: 'Danh sách số',
@@ -255,7 +255,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
                   event.preventDefault();
                   event.stopPropagation();
                   editor.chain().focus().toggleHeading({ level }).run();
-                  console.log(`Heading ${level} toggled:`, editor.isActive('heading', { level }));
+
                 }}
                 className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 
                   ${editor.isActive('heading', { level }) ? 'bg-blue-100' : ''}`}
@@ -298,7 +298,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       imageTitle,
       content,
     };
-    console.log('Đăng bài viết:', postData);
+
     // Gửi dữ liệu đến backend tại đây
   };
 

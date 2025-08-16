@@ -13,7 +13,7 @@ const UserPostsSection = ({ posts, isLoading, isError, setSize, isReachingEnd, i
 
   const renderItem = (post) => {
     if (!post || !post.id) {
-      console.warn('Post without id:', post);
+
       return null; // Hoặc render một component khác để xử lý
     }
     return <PostItemProfile key={post.id} post={post} isOwner={isOwner} />;

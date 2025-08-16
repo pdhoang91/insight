@@ -26,7 +26,7 @@ const Write = () => {
     try {
       setSaveStatus('saving');
       // TODO: Implement save draft functionality
-      console.log('Save draft:', { title, content, imageTitle });
+
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));

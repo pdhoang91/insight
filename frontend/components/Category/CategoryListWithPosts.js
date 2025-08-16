@@ -13,7 +13,7 @@ const CategoryListWithPosts = ({ posts, isLoading, isError, setSize, isReachingE
 
   const renderItem = (post) => {
     if (!post || !post.id) {
-      console.warn('Post without id:', post);
+
       return null;
     }
     return (

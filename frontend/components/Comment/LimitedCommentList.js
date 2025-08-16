@@ -15,7 +15,7 @@ const LimitedCommentList = ({
   showingCount 
 }) => {
   if (!Array.isArray(comments)) {
-    console.error('Comments data is not an array:', comments);
+
     return <div className="text-red-500">Dữ liệu bình luận không hợp lệ.</div>;
   }
 

@@ -18,7 +18,7 @@ export const useComments = (postId, isOpen, page = 1, limit = 10) => {
 
   // Kiểm tra định dạng dữ liệu trả về
   if (data && (typeof data !== 'object' || !Array.isArray(data.data) || typeof data.totalCount !== 'number')) {
-    console.error('Unexpected comments format:', data);
+
   }
 
   return {

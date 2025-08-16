@@ -4,7 +4,7 @@ import ReplyItem from './ReplyItem';
 
 const ReplyList = ({ replies, commentId, mutate }) => {
   if (!Array.isArray(replies)) {
-    console.error('Replies data is not an array:', replies);
+
     return (
       <div className="text-hacker-red text-sm font-mono">
         <span className="text-hacker-red">ERROR:</span> Invalid replies data format

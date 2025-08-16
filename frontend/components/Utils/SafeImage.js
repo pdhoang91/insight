@@ -29,7 +29,7 @@ const SafeImage = ({
         return `https://s3.amazonaws.com/insight.storage${path}${url.search || ''}`;
       }
     } catch (error) {
-      console.log('URL transformation error:', error);
+
     }
     
     return originalSrc;
@@ -59,7 +59,7 @@ const SafeImage = ({
   const [retryCount, setRetryCount] = useState(0);
 
   const handleError = () => {
-    console.log('Image loading error for:', imageSrc);
+
     
     // Try to retry with different approach for S3 images
     if (retryCount < 2 && src && src.includes('s3.amazonaws.com')) {
@@ -68,13 +68,13 @@ const SafeImage = ({
       if (retryCount === 0) {
         // First retry: try direct S3 URL without proxy
         const directUrl = transformS3Url(src);
-        console.log('Retry 1: Direct S3 URL:', directUrl);
+
         setImageSrc(directUrl);
         return;
       } else if (retryCount === 1) {
         // Second retry: try with timestamp
         const timestampedUrl = getProxiedSrc(`${src}${src.includes('?') ? '&' : '?'}t=${Date.now()}`);
-        console.log('Retry 2: Timestamped URL:', timestampedUrl);
+
         setImageSrc(timestampedUrl);
         return;
       }

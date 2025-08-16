@@ -11,7 +11,7 @@ export const useClapsCount = (type, id) => {
 
   // Log chỉ khi dữ liệu không phải là một số hoặc object chứa clap_count
   if (data && !(typeof data === 'number' || (typeof data === 'object' && typeof data.clap_count === 'number'))) {
-    console.error('Unexpected claps count format:', data);
+
   }
 
 
