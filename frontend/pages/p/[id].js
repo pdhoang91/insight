@@ -86,9 +86,11 @@ const PostPage = () => {
       />
       
       {/* Comments Section */}
-      <div ref={commentSectionRef} className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-8">
+      <div ref={commentSectionRef} className="mt-6 sm:mt-8">
         <CommentSection postId={post.id} user={user} />
       </div>
+
+
 
 
     </ThreeColumnLayout>

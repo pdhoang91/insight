@@ -1264,22 +1264,45 @@ button, a, [role="button"] {
   }
 }
 
-/* TOC Fixed Sidebar - Positioned relative to viewport */
-.toc-fixed-sidebar {
+/* TOC Fixed in Grid Layout - Maintains BlogSidebar spacing but fixed position */
+.toc-fixed-grid {
   position: fixed;
-  top: 4rem; /* Below navbar (h-14 = 56px, but 4rem = 64px for safety) */
+  top: 4rem; /* Below navbar */
   right: 0;
-  width: 25%; /* w-1/4 equivalent */
+  width: calc((100vw - 1280px) / 2 * 0.25 + 1rem); /* 25% of grid column + padding */
+  max-width: 320px; /* Max width for very large screens */
+  min-width: 280px; /* Min width for consistency */
   height: calc(100vh - 4rem);
   overflow-y: auto;
-  padding: 1.5rem 1rem 1.5rem 1.5rem;
   z-index: 10;
-  pointer-events: auto;
+  padding: 1.5rem 1.5rem 1.5rem 0;
 }
 
-/* Hide on mobile/tablet */
+/* Responsive - hide on smaller screens like grid */
 @media (max-width: 1023px) {
-  .toc-fixed-sidebar {
+  .toc-fixed-grid {
     display: none;
+  }
+}
+
+/* Adjust for container padding */
+@media (min-width: 1280px) {
+  .toc-fixed-grid {
+    right: max(1.5rem, calc((100vw - 1280px) / 2));
+  }
+}
+
+/* Content spacing adjustments */
+.content-with-toc {
+  max-width: none;
+}
+
+/* Mobile TOC improvements */
+@media (max-width: 1279px) {
+  .mobile-toc-container {
+    background: var(--terminal-dark);
+    border: 1px solid var(--matrix-green)/20;
+    border-radius: 0.5rem;
+    margin: 1rem 0;
   }
 }

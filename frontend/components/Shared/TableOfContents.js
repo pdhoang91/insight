@@ -142,7 +142,6 @@ const TableOfContents = ({ content, className = '', isHorizontalLayout = false, 
           {/* Header */}
           <div className="mb-4 pb-3">
             <h3 className="text-sm font-semibold text-matrix-green font-mono flex items-center gap-2">
-              <FaList className="w-4 h-4" />
               MỤC LỤC
             </h3>
           </div>

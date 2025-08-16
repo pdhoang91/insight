@@ -35,7 +35,6 @@ export const generateTOCHTML = (content) => {
 
   // Generate TOC HTML
   let tocHTML = '<div class="table-of-contents terminal-window mt-6 mb-8">';
-  tocHTML += '<div class="terminal-header">📋 MỤC LỤC</div>';
   tocHTML += '<div class="p-4">';
   tocHTML += '<ul class="toc-list space-y-2">';
 
