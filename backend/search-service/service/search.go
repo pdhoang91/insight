@@ -6,10 +6,14 @@ import (
 	"log"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/pdhoang91/search-service/database"
 	models "github.com/pdhoang91/search-service/model"
 	uuid "github.com/satori/go.uuid"
+	"golang.org/x/text/runes"
+	"golang.org/x/text/transform"
+	"golang.org/x/text/unicode/norm"
 )
 
 // InitializeSearchService initializes PostgreSQL full-text search
@@ -28,16 +32,26 @@ func InitializeSearchService() error {
 func createFullTextSearchIndexes() error {
 	// Create GIN index for full-text search on posts table (only title and preview_content)
 	queries := []string{
-		// Create GIN index for full-text search on posts (using english config)
+		// Enable unaccent extension for accent-insensitive search
+		`CREATE EXTENSION IF NOT EXISTS unaccent;`,
+
+		// Create GIN index for full-text search on posts (using simple config for better Vietnamese support)
 		`CREATE INDEX IF NOT EXISTS idx_posts_fulltext_search 
-		 ON posts USING gin(to_tsvector('english', 
+		 ON posts USING gin(to_tsvector('simple', lower(unaccent(
 		 	coalesce(title, '') || ' ' || 
-		 	coalesce(preview_content, '')));`,
+		 	coalesce(preview_content, '')))));`,
 
 		// Create indexes for common sorting
 		`CREATE INDEX IF NOT EXISTS idx_posts_created_at ON posts(created_at);`,
 		`CREATE INDEX IF NOT EXISTS idx_posts_views ON posts(views);`,
 		`CREATE INDEX IF NOT EXISTS idx_posts_user_id ON posts(user_id);`,
+
+		// Additional indexes for accent-insensitive search
+		`CREATE INDEX IF NOT EXISTS idx_posts_title_unaccent 
+		 ON posts USING gin(to_tsvector('simple', lower(unaccent(coalesce(title, '')))));`,
+
+		`CREATE INDEX IF NOT EXISTS idx_posts_preview_content_unaccent 
+		 ON posts USING gin(to_tsvector('simple', lower(unaccent(coalesce(preview_content, '')))));`,
 	}
 
 	for _, query := range queries {
@@ -47,6 +61,18 @@ func createFullTextSearchIndexes() error {
 	}
 
 	return nil
+}
+
+// normalizeVietnameseText removes Vietnamese accents and converts to lowercase
+func normalizeVietnameseText(text string) string {
+	// Convert to lowercase first
+	text = strings.ToLower(text)
+
+	// Remove accents using Unicode normalization
+	t := transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC)
+	normalized, _, _ := transform.String(t, text)
+
+	return normalized
 }
 
 // SearchPosts thực hiện tìm kiếm đơn giản trên title và preview_content
@@ -64,13 +90,19 @@ func SearchPosts(query string, page int, limit int) ([]models.SearchPost, int, e
 	if query != "" {
 		searchQuery := strings.TrimSpace(query)
 		if searchQuery != "" {
-			// Sử dụng PostgreSQL full-text search và ILIKE
+			// Normalize search query for accent-insensitive search
+			normalizedQuery := normalizeVietnameseText(searchQuery)
+
+			// Sử dụng PostgreSQL full-text search và ILIKE với normalized text
 			baseQuery = baseQuery.Where(`
-				(to_tsvector('english', coalesce(posts.title, '') || ' ' || 
-				 coalesce(posts.preview_content, '')) @@ plainto_tsquery('english', ?) OR
+				(to_tsvector('simple', lower(coalesce(posts.title, '') || ' ' || 
+				 coalesce(posts.preview_content, ''))) @@ plainto_tsquery('simple', ?) OR
+				 lower(unaccent(posts.title)) LIKE ? OR 
+				 lower(unaccent(posts.preview_content)) LIKE ? OR
 				 posts.title ILIKE ? OR 
 				 posts.preview_content ILIKE ?)`,
-				searchQuery, "%"+searchQuery+"%", "%"+searchQuery+"%")
+				normalizedQuery, "%"+normalizedQuery+"%", "%"+normalizedQuery+"%",
+				"%"+searchQuery+"%", "%"+searchQuery+"%")
 		}
 	}
 
@@ -142,15 +174,19 @@ func GetSearchSuggestions(query string, limit int) ([]models.SearchSuggestion, e
 
 	var suggestions []models.SearchSuggestion
 
+	// Normalize search query for suggestions
+	normalizedQuery := normalizeVietnameseText(query)
+
 	// Search in post titles for suggestions
 	rows, err := database.DB.Raw(`
 		SELECT DISTINCT title, 
-		       ts_rank(to_tsvector('english', title), plainto_tsquery('english', ?)) as score
+		       ts_rank(to_tsvector('simple', lower(title)), plainto_tsquery('simple', ?)) as score
 		FROM posts 
-		WHERE title ILIKE ? 
-		   OR to_tsvector('english', title) @@ plainto_tsquery('english', ?)
+		WHERE lower(unaccent(title)) LIKE ? 
+		   OR title ILIKE ?
+		   OR to_tsvector('simple', lower(title)) @@ plainto_tsquery('simple', ?)
 		ORDER BY score DESC, title
-		LIMIT ?`, query, "%"+query+"%", query, limit).Rows()
+		LIMIT ?`, normalizedQuery, "%"+normalizedQuery+"%", "%"+query+"%", normalizedQuery, limit).Rows()
 
 	if err != nil {
 		return nil, err

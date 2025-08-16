@@ -4,6 +4,7 @@ package controller
 import (
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
@@ -139,8 +140,14 @@ func SearchUsers(c *gin.Context) {
 	// Tạo query cơ bản cho bảng User
 	db := database.DB.Model(&models.User{})
 
-	// Thêm điều kiện tìm kiếm dựa trên tiêu chí name, email, và bio
-	db = db.Where("name ILIKE ? OR email ILIKE ? OR bio ILIKE ?", "%"+query+"%", "%"+query+"%", "%"+query+"%")
+	// Thêm điều kiện tìm kiếm dựa trên tiêu chí name, email, và bio (case & accent insensitive)
+	db = db.Where(`
+		lower(unaccent(name)) LIKE ? OR name ILIKE ? OR 
+		lower(unaccent(email)) LIKE ? OR email ILIKE ? OR 
+		lower(unaccent(bio)) LIKE ? OR bio ILIKE ?`,
+		"%"+strings.ToLower(query)+"%", "%"+query+"%",
+		"%"+strings.ToLower(query)+"%", "%"+query+"%",
+		"%"+strings.ToLower(query)+"%", "%"+query+"%")
 
 	// Đếm tổng số người dùng phù hợp với tiêu chí tìm kiếm
 	if err := db.Count(&total).Error; err != nil {
