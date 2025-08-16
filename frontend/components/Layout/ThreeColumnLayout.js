@@ -31,7 +31,7 @@ const ThreeColumnLayout = ({
               {/* Mobile TOC - Only show on mobile/tablet */}
               {showTOC && content && (
                 <div className="lg:hidden mb-6">
-                  <div className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
+                  <div className="rounded-lg p-4">
                     <div className="mb-3">
                     </div>
                     <TableOfContents content={content} renderOnlyList={true} />
@@ -50,7 +50,7 @@ const ThreeColumnLayout = ({
                 <div className="w-full">
                   {/* Fixed TOC */}
                   <div className="toc-fixed-grid">
-                    <div className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
+                    <div className="rounded-lg p-4">
                       {/* Header */}
                       <div className="mb-3">
                       </div>

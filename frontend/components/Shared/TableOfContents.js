@@ -109,7 +109,7 @@ const TableOfContents = ({ content, className = '', isHorizontalLayout = false, 
             style={{ marginLeft: `${indentLevel * 12}px` }}
           >
             <span className="flex items-center gap-2">
-              {indentLevel > 0 && <span className="text-xs opacity-60">•</span>}
+              {indentLevel > 0 && <span className="text-xs opacity-60"></span>}
               <span className="truncate leading-relaxed">{heading.text}</span>
             </span>
           </button>
