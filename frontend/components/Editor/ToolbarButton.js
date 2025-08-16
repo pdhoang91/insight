@@ -44,7 +44,7 @@ const ToolbarButton = ({ icon: Icon, onClick, isActive, tooltip, disabled, child
             aria-label={tooltip}
             title={tooltip}
           >
-            <Icon className={compact ? 'w-3.5 h-3.5' : 'w-4 h-4'} />
+            <Icon className={compact ? 'w-3 h-3' : 'w-3.5 h-3.5'} />
           </button>
         </Tippy>
         {isOpen && (
@@ -68,7 +68,7 @@ const ToolbarButton = ({ icon: Icon, onClick, isActive, tooltip, disabled, child
         aria-label={tooltip}
         title={tooltip}
       >
-        <Icon className={compact ? 'w-3.5 h-3.5' : 'w-4 h-4'} />
+        <Icon className={compact ? 'w-3 h-3' : 'w-3.5 h-3.5'} />
       </button>
     </Tippy>
   );

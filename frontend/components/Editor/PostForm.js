@@ -132,32 +132,9 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
   }, [setImageTitle]);
 
   const handleToggleTOC = useCallback(() => {
-    if (!editor) return;
-
-    const currentContent = editor.getHTML();
-    
-    if (hasTOC(currentContent)) {
-      // Remove TOC
-      const contentWithoutTOC = removeTOCFromContent(currentContent);
-      isGeneratingTOC.current = true;
-      editor.commands.setContent(contentWithoutTOC);
-      setContent(contentWithoutTOC);
-      setTimeout(() => {
-        isGeneratingTOC.current = false;
-      }, 100);
-    } else {
-      // Add TOC
-      const result = insertTOCIntoContent(currentContent);
-      if (result.tocHTML) {
-        isGeneratingTOC.current = true;
-        editor.commands.setContent(result.content);
-        setContent(result.content);
-        setTimeout(() => {
-          isGeneratingTOC.current = false;
-        }, 100);
-      }
-    }
-  }, [editor, setContent]);
+    // TOC functionality removed
+    console.log('TOC functionality has been removed');
+  }, []);
 
   const menuBar = useMemo(() => {
     if (!editor) return [];
@@ -305,17 +282,9 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         isActive: false,
         tooltip: 'Xóa định dạng',
       },
-      // Nhóm Mục lục
-      {
-        name: 'tableOfContents',
-        icon: FaList,
-        action: handleToggleTOC,
-        isActive: () => hasTOC(content),
-        tooltip: hasTOC(content) ? 'Xóa mục lục' : 'Thêm mục lục',
-        essential: true,
-      },
+
     ];
-  }, [editor, handleImageUpload, handleToggleTOC, content]);
+  }, [editor, handleImageUpload, handleToggleTOC]);
 
   const handleSubmit = (e) => {
     if (e) e.preventDefault();
@@ -368,6 +337,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
           </div>
         </div>
       </div>
+
     </div>
   );
 };
