@@ -62,7 +62,7 @@ const ThreeColumnLayout = ({
                       </div>
 
                       {/* TOC Content - Scrollable list */}
-                      <div className="overflow-y-auto custom-scrollbar max-h-[calc(100vh-8rem)]">
+                      <div className="custom-scrollbar max-h-[calc(100vh-8rem)]">
                         <TableOfContents 
                           content={content}
                           renderOnlyList={true}
