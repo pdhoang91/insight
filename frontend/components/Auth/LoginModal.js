@@ -1,6 +1,8 @@
 // components/Auth/LoginModal.js
 
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaGoogle, FaTimes, FaUser, FaLock } from 'react-icons/fa';
 import { loginWithEmailAndPassword, registerUser, loginWithGoogle } from '../../services/authService';
 import { getUserProfile } from '../../services/userService';
 import { useLoginModal } from '../../hooks/useLoginModal';
@@ -9,20 +11,20 @@ import { useUser } from '../../context/UserContext';
 const LoginModal = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isSignUp, setIsSignUp] = useState(false); // Toggle giữa đăng nhập và đăng ký
-  const { setUser } = useUser(); // Lấy setUser từ UserContext
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { setUser } = useUser();
   useLoginModal(isOpen, onClose);
 
   useEffect(() => {
     if (isOpen) {
-      // Khóa cuộn khi modal mở
       document.body.style.overflow = 'hidden';
+      setError(''); // Clear error when modal opens
     } else {
-      // Mở lại cuộn khi modal đóng
       document.body.style.overflow = 'auto';
     }
 
-    // Dọn dẹp khi component bị unmount
     return () => {
       document.body.style.overflow = 'auto';
     };
@@ -31,90 +33,168 @@ const LoginModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   const handleLogin = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
+    setError('');
+
     try {
       await loginWithEmailAndPassword(email, password);
-      const userData = await getUserProfile(); // Lấy thông tin người dùng
-      setUser(userData); // Cập nhật trạng thái người dùng trong UserContext
-      onClose(); // Đóng modal
+      const userData = await getUserProfile();
+      setUser(userData);
+      onClose();
     } catch (error) {
       console.error('Login failed:', error);
-      alert('Đăng nhập thất bại. Vui lòng kiểm tra thông tin và thử lại.');
+      setError('Authentication failed. Please check your credentials.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleSignUp = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
+    setError('');
+
     try {
       await registerUser(email, password);
-      const userData = await getUserProfile(); // Lấy thông tin người dùng sau khi đăng ký
-      setUser(userData); // Cập nhật trạng thái người dùng trong UserContext
-      setIsSignUp(false); // Chuyển sang chế độ đăng nhập sau khi đăng ký
-      alert('Đăng ký thành công! Bạn đã được đăng nhập.');
+      const userData = await getUserProfile();
+      setUser(userData);
+      setIsSignUp(false);
+      onClose();
     } catch (error) {
       console.error('Sign up failed:', error);
-      alert('Đăng ký thất bại. Vui lòng kiểm tra thông tin và thử lại.');
+      setError('Registration failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
+    setError('');
+
+    try {
+      await loginWithGoogle();
+      const userData = await getUserProfile();
+      setUser(userData);
+      onClose();
+    } catch (error) {
+      console.error('Google login failed:', error);
+      setError('Google authentication failed. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div
-      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-60 transition-opacity duration-300 ease-out z-50"
-      onClick={onClose}
-    >
-      <div
-        className="card py-8 w-full max-w-md mx-4 transform transition-transform duration-300 ease-out scale-95 hover:scale-100 opacity-100 z-60"
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          animation: 'fadeIn 0.3s ease-out',
-        }}
+    <AnimatePresence>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.2 }}
+        className="fixed inset-0 flex items-center justify-center bg-terminal-black/80 backdrop-blur-sm z-50"
+        onClick={onClose}
       >
-        <h2 className="text-3xl font-extrabold text-green-400 mb-6 text-center font-mono">
-          {isSignUp ? 'create_account()' : 'login()'}
-        </h2>
-        <p className="text-gray-400 mb-8 text-center font-mono text-sm">
-          {isSignUp ? '// sign up to get started' : '// sign in to continue your journey'}
-        </p>
-        <div className="flex flex-col items-center space-y-4">
-          <input
-            type="email"
-            placeholder="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full py-3 p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-green-400 focus:outline-none font-mono"
-          />
-          <input
-            type="password"
-            placeholder="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full py-3 p-3 rounded-lg bg-gray-700 text-white border border-gray-600 focus:border-green-400 focus:outline-none font-mono"
-          />
-          <button
-            onClick={isSignUp ? handleSignUp : handleLogin}
-            className="bg-gradient-to-r from-green-500 to-blue-500 text-gray-900 w-full py-3 rounded-lg text-lg font-semibold font-mono shadow-md transition-transform transform hover:scale-105 active:scale-95 hover:shadow-xl"
-          >
-            {isSignUp ? 'signup()' : 'signin()'}
-          </button>
-          <button
-            onClick={loginWithGoogle}
-            className="bg-gradient-to-r from-red-500 to-orange-400 text-white w-full py-3 rounded-lg text-lg font-semibold font-mono shadow-md transition-transform transform hover:scale-105 active:scale-95 hover:shadow-xl"
-          >
-            google_auth()
-          </button>
-          <button
-            onClick={onClose}
-            className="w-full py-3 rounded-lg text-lg font-semibold font-mono text-gray-300 bg-gray-700 hover:bg-gray-600 transition-colors hover:text-white border border-gray-600"
-          >
-            cancel()
-          </button>
-          <button
-            onClick={() => setIsSignUp(!isSignUp)}
-            className="w-full py-3 rounded-lg text-lg font-semibold text-gray-400 hover:text-gray-300 transition-colors font-mono"
-          >
-            {isSignUp ? '// already have account?' : "// don't have account?"}
-          </button>
-        </div>
-      </div>
-    </div>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: 20 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="relative w-full max-w-sm mx-4"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Ultra Transparent Modal */}
+          <div className="bg-terminal-black/20 backdrop-blur-lg rounded-lg p-8 space-y-6 relative">
+            {/* Close Button */}
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-4 text-matrix-green/60 hover:text-hacker-red transition-colors"
+            >
+              <FaTimes className="w-4 h-4" />
+            </button>
+
+            {/* Simple Header */}
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl font-bold text-matrix-green font-mono">
+                {isSignUp ? 'Sign Up' : 'Sign In'}
+              </h2>
+            </div>
+
+            {/* Error Display */}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-hacker-red/20 backdrop-blur-sm rounded-md p-3 text-hacker-red text-sm font-mono text-center"
+              >
+                {error}
+              </motion.div>
+            )}
+
+            {/* Form */}
+            <div className="space-y-4">
+              <div className="relative">
+                <FaUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-matrix-green/60 w-4 h-4" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-terminal-black/20 backdrop-blur-sm rounded-md text-text-primary font-mono placeholder-text-muted/60 focus:bg-terminal-black/30 focus:outline-none transition-all"
+                  placeholder="Email"
+                  disabled={isLoading}
+                />
+              </div>
+              
+              <div className="relative">
+                <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-matrix-green/60 w-4 h-4" />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-terminal-black/20 backdrop-blur-sm rounded-md text-text-primary font-mono placeholder-text-muted/60 focus:bg-terminal-black/30 focus:outline-none transition-all"
+                  placeholder="Password"
+                  disabled={isLoading}
+                />
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="space-y-3">
+              <button
+                onClick={isSignUp ? handleSignUp : handleLogin}
+                disabled={isLoading || !email || !password}
+                className="w-full py-3 bg-matrix-green/20 backdrop-blur-sm text-matrix-green rounded-md font-mono font-medium hover:bg-matrix-green/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+              >
+                {isLoading ? (
+                  <div className="w-4 h-4 border-2 border-matrix-green/30 border-t-matrix-green rounded-full animate-spin"></div>
+                ) : (
+                  <span>{isSignUp ? 'Sign Up' : 'Sign In'}</span>
+                )}
+              </button>
+
+              <button
+                onClick={handleGoogleLogin}
+                disabled={isLoading}
+                className="w-full py-3 bg-terminal-black/20 backdrop-blur-sm text-text-primary rounded-md font-mono font-medium hover:bg-terminal-black/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+              >
+                <FaGoogle className="w-4 h-4" />
+                <span>Continue with Google</span>
+              </button>
+
+              <button
+                onClick={() => setIsSignUp(!isSignUp)}
+                disabled={isLoading}
+                className="w-full py-2 text-text-muted/80 hover:text-matrix-green transition-colors font-mono text-sm disabled:opacity-50"
+              >
+                {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+              </button>
+            </div>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
   );
 };
 
