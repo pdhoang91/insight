@@ -71,39 +71,11 @@ module.exports = {
       },
       animation: {
         'matrix-rain': 'matrix-rain 20s linear infinite',
-        'terminal-blink': 'terminal-blink 1s infinite',
-        'glitch': 'glitch 0.3s infinite',
-        'neon-pulse': 'neon-pulse 2s ease-in-out infinite alternate',
-        'scan-line': 'scan-line 2s linear infinite',
         'typing': 'typing 3.5s steps(40, end)',
       },
       keyframes: {
         'matrix-rain': {
           '0%': { transform: 'translateY(-100vh)' },
-          '100%': { transform: 'translateY(100vh)' }
-        },
-        'terminal-blink': {
-          '0%, 50%': { opacity: '1' },
-          '51%, 100%': { opacity: '0' }
-        },
-        'glitch': {
-          '0%': { transform: 'translate(0)' },
-          '20%': { transform: 'translate(-2px, 2px)' },
-          '40%': { transform: 'translate(-2px, -2px)' },
-          '60%': { transform: 'translate(2px, 2px)' },
-          '80%': { transform: 'translate(2px, -2px)' },
-          '100%': { transform: 'translate(0)' }
-        },
-        'neon-pulse': {
-          'from': { 
-            textShadow: '0 0 5px #00ff00, 0 0 10px #00ff00, 0 0 15px #00ff00, 0 0 20px #00ff00'
-          },
-          'to': { 
-            textShadow: '0 0 2px #00ff00, 0 0 5px #00ff00, 0 0 8px #00ff00, 0 0 12px #00ff00'
-          }
-        },
-        'scan-line': {
-          '0%': { transform: 'translateY(-100%)' },
           '100%': { transform: 'translateY(100vh)' }
         },
         'typing': {
@@ -113,13 +85,8 @@ module.exports = {
       },
       boxShadow: {
         'neon-green': '0 0 5px #00ff00, 0 0 10px #00ff00, 0 0 15px #00ff00',
-        'neon-cyan': '0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff',
-        'neon-red': '0 0 5px #ff0040, 0 0 10px #ff0040, 0 0 15px #ff0040',
-        'terminal': '0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2)',
       },
-      backdropBlur: {
-        'terminal': '8px',
-      }
+
     },
   },
   plugins: [
