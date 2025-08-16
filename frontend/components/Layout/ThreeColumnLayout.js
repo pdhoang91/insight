@@ -33,9 +33,6 @@ const ThreeColumnLayout = ({
                 <div className="lg:hidden mb-6">
                   <div className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
                     <div className="mb-3">
-                      <h3 className="text-base font-semibold text-text-primary flex items-center gap-2">
-                        MỤC LỤC
-                      </h3>
                     </div>
                     <TableOfContents content={content} renderOnlyList={true} />
                   </div>
@@ -56,9 +53,6 @@ const ThreeColumnLayout = ({
                     <div className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
                       {/* Header */}
                       <div className="mb-3">
-                        <h3 className="text-base font-semibold text-text-primary flex items-center gap-2">
-                          MỤC LỤC
-                        </h3>
                       </div>
 
                       {/* TOC Content - Scrollable list */}
