@@ -29,10 +29,12 @@ import {
   FaAlignCenter,
   FaAlignRight,
   FaAlignJustify,
+  FaList,
 } from 'react-icons/fa';
 import Toolbar from './Toolbar';
 import TitleInput from './TitleInput';
 import ContentEditor from './ContentEditor';
+import { insertTOCIntoContent, removeTOCFromContent, hasTOC } from '../../utils/tocGenerator';
 import 'tippy.js/dist/tippy.css';
 
 const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTitle, isFullscreen = false }) => {
@@ -128,6 +130,34 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       }
     };
   }, [setImageTitle]);
+
+  const handleToggleTOC = useCallback(() => {
+    if (!editor) return;
+
+    const currentContent = editor.getHTML();
+    
+    if (hasTOC(currentContent)) {
+      // Remove TOC
+      const contentWithoutTOC = removeTOCFromContent(currentContent);
+      isGeneratingTOC.current = true;
+      editor.commands.setContent(contentWithoutTOC);
+      setContent(contentWithoutTOC);
+      setTimeout(() => {
+        isGeneratingTOC.current = false;
+      }, 100);
+    } else {
+      // Add TOC
+      const result = insertTOCIntoContent(currentContent);
+      if (result.tocHTML) {
+        isGeneratingTOC.current = true;
+        editor.commands.setContent(result.content);
+        setContent(result.content);
+        setTimeout(() => {
+          isGeneratingTOC.current = false;
+        }, 100);
+      }
+    }
+  }, [editor, setContent]);
 
   const menuBar = useMemo(() => {
     if (!editor) return [];
@@ -275,8 +305,17 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         isActive: false,
         tooltip: 'Clear Format',
       },
+      // Nhóm Mục lục
+      {
+        name: 'tableOfContents',
+        icon: FaList,
+        action: handleToggleTOC,
+        isActive: () => hasTOC(content),
+        tooltip: hasTOC(content) ? 'Remove Table of Contents' : 'Add Table of Contents',
+        essential: true,
+      },
     ];
-  }, [editor, handleImageUpload]);
+  }, [editor, handleImageUpload, handleToggleTOC, content]);
 
   const handleSubmit = (e) => {
     if (e) e.preventDefault();

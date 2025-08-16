@@ -1,10 +1,11 @@
 // components/Post/PostDetail.js
 import React, { useRef, useState } from 'react';
-import { FaComment, FaEye } from 'react-icons/fa';
+import { FaComment, FaEye, FaShare, FaBookmark } from 'react-icons/fa';
 import { FaHandsClapping } from 'react-icons/fa6';
 import { useUser } from '../../context/UserContext';
 import { clapPost } from '../../services/activityService';
 import CommentSection from '../Comment/CommentSection';
+import ThreeColumnLayout from '../Layout/ThreeColumnLayout';
 
 export const PostDetail = ({ post }) => {
   const commentSectionRef = useRef(null);
@@ -41,11 +42,11 @@ export const PostDetail = ({ post }) => {
   };
 
   return (
-    <div className="min-h-screen bg-terminal-black">
-      {/* Main Content */}
+    <ThreeColumnLayout 
+      content={post.content}
+    >
       <div className="py-4 sm:py-6 lg:py-8">
-        <div className="max-w-4xl mx-auto p-3 sm:p-3 lg:p-4">
-          <article className="rounded-lg">
+        <article className="rounded-lg max-w-4xl mx-auto">
             {/* Header Section */}
             <header>
               <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-text-primary mb-3 sm:mb-4 leading-tight">
@@ -104,14 +105,13 @@ export const PostDetail = ({ post }) => {
               />
             </div>
 
-            {/* Comments Section */}
-            <div ref={commentSectionRef} className="mt-6 sm:mt-8">
-              <CommentSection postId={post.id} user={user} />
-            </div>
-          </article>
-        </div>
+          {/* Comments Section */}
+          <div ref={commentSectionRef} className="mt-6 sm:mt-8">
+            <CommentSection postId={post.id} user={user} />
+          </div>
+        </article>
       </div>
-    </div>
+    </ThreeColumnLayout>
   );
 };
 
