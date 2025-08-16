@@ -256,22 +256,6 @@ const Navbar = ({ onPublish }) => {
               <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-matrix-green to-transparent animate-pulse" />
 
               <div className="relative p-5 space-y-5">
-                {/* Terminal Header */}
-                <motion.div 
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="flex items-center space-x-2 text-matrix-green text-sm font-mono"
-                >
-                  <FaTerminal className="w-4 h-4" />
-                  <span>~/dev/insight $</span>
-                  <motion.span
-                    animate={{ opacity: [1, 0, 1] }}
-                    transition={{ duration: 1, repeat: Infinity }}
-                    className="w-2 h-4 bg-matrix-green inline-block"
-                  />
-                </motion.div>
-
                 {/* Search Bar with enhanced styling */}
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
