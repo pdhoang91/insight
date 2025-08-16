@@ -14,32 +14,40 @@ const Home = () => {
   } = useInfinitePosts();
 
   return (
-    <div className="min-h-screen bg-terminal-black">
-      {/* Main Content */}
-      <div className="pb-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            {/* Posts Area */}
-            <div className="lg:col-span-3">
-              <PostListTimeline
-                posts={posts}
-                isLoading={isLoading}
-                isError={isError}
-                setSize={setSize}
-                isReachingEnd={isReachingEnd}
-              />
-            </div>
+    <>
+      {/* Page Content Container */}
+      <section className="min-h-screen bg-terminal-black">
+        {/* Main Content Area */}
+        <div className="pb-6">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+              {/* Primary Content - Posts Feed */}
+              <section className="lg:col-span-3" role="main" aria-label="Danh sách bài viết">
+                <h1 className="sr-only">Trang chủ Insight - Bài viết công nghệ</h1>
+                <PostListTimeline
+                  posts={posts}
+                  isLoading={isLoading}
+                  isError={isError}
+                  setSize={setSize}
+                  isReachingEnd={isReachingEnd}
+                />
+              </section>
 
-            {/* Sidebar */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-12">
-                <BlogSidebar />
-              </div>
+              {/* Complementary Content - Sidebar */}
+              <aside 
+                className="lg:col-span-1" 
+                role="complementary" 
+                aria-label="Thông tin bổ sung và điều hướng"
+              >
+                <div className="sticky top-12">
+                  <BlogSidebar />
+                </div>
+              </aside>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </section>
+    </>
   );
 };
 

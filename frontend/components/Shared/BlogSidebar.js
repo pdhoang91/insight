@@ -47,32 +47,34 @@ const BlogSidebar = () => {
   };
 
   return (
-    <aside className="space-y-6">
-      {/* Popular Posts */}
+    <div className="space-y-6">
+      {/* Popular Posts Section */}
       {!popularPostsLoading && popularPosts.length > 0 && (
-        <div className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
-          <h3 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
+        <section className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
+          <h2 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
             <FaFire className="w-4 h-4 text-hacker-orange" />
             Bài viết phổ biến
-          </h3>
-          <div className="space-y-2.5">
+          </h2>
+          <ul className="space-y-2.5">
             {popularPosts.map((post) => (
-              <CompactPostItem key={post.id} post={post} minimal={true} />
+              <li key={post.id}>
+                <CompactPostItem post={post} minimal={true} />
+              </li>
             ))}
-          </div>
-        </div>
+          </ul>
+        </section>
       )}
 
-      {/* Categories */}
+      {/* Categories Navigation */}
       {!categoriesLoading && categories && categories.length > 0 && (
-        <div className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
-          <h3 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
+        <section className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
+          <h2 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
             <FaCode className="w-4 h-4 text-matrix-green" />
             <Link href="/category" className="hover:text-matrix-green transition-colors">
               Danh mục
             </Link>
-          </h3>
-          <div className="flex flex-wrap gap-2">
+          </h2>
+          <nav className="flex flex-wrap gap-2" aria-label="Danh mục bài viết">
             {categories.slice(0, 7).map((category, index) => {
               const colorClass = getCategoryColor(index);
               return (
@@ -89,33 +91,35 @@ const BlogSidebar = () => {
                 </Link>
               );
             })}
-          </div>
-        </div>
+          </nav>
+        </section>
       )}
 
-      {/* Latest Posts */}
+      {/* Latest Posts Section */}
       {!latestPostsLoading && latestPosts.length > 0 && (
-        <div className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
-          <h3 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
+        <section className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
+          <h2 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
             <FaClock className="w-4 h-4 text-hacker-blue" />
             Bài viết mới nhất
-          </h3>
-          <div className="space-y-2.5">
+          </h2>
+          <ul className="space-y-2.5">
             {latestPosts.map((post) => (
-              <CompactPostItem key={post.id} post={post} minimal={true} />
+              <li key={post.id}>
+                <CompactPostItem post={post} minimal={true} />
+              </li>
             ))}
-          </div>
-        </div>
+          </ul>
+        </section>
       )}
 
-      {/* Popular Tags */}
+      {/* Popular Tags Navigation */}
       {!tagsLoading && tags && tags.length > 0 && (
-        <div className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
-          <h3 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
+        <section className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
+          <h2 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
             <FaBolt className="w-4 h-4 text-hacker-yellow" />
             Thẻ phổ biến
-          </h3>
-          <div className="flex flex-wrap gap-2">
+          </h2>
+          <nav className="flex flex-wrap gap-2" aria-label="Thẻ phổ biến">
             {tags.slice(0, 9).map((tag) => (
               <Link
                 key={tag.id}
@@ -128,10 +132,10 @@ const BlogSidebar = () => {
                 )}
               </Link>
             ))}
-          </div>
-        </div>
+          </nav>
+        </section>
       )}
-    </aside>
+    </div>
   );
 };
 

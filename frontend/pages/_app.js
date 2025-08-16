@@ -16,9 +16,16 @@ function MyApp({ Component, pageProps }) {
     <PostProvider>
       <UserContext.Provider value={{ user, setUser, setModalOpen, loading, mutate }}>
         <div className="min-h-screen bg-terminal-black">
-          <Navbar />
+          {/* Site Header with Navigation */}
+          <header className="fixed top-0 left-0 right-0 z-50">
+            <Navbar />
+          </header>
+          
+          {/* Modal Dialogs */}
           <LoginModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
-          <main className="pt-16">
+          
+          {/* Main Application Content */}
+          <main className="pt-16" role="main">
             <Component {...pageProps} />
           </main>
         </div>
