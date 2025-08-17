@@ -1,5 +1,5 @@
 // services/imageService.js
-import {axiosPublicInstanceSimple} from '../utils/axiosPublicInstance';
+import {axiosPublicInstance} from '../utils/axiosPublicInstance';
 import {axiosPrivateInstance} from '../utils/axiosPrivateInstance';
 
 export const uploadImage = async (file, type) => {
