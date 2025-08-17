@@ -1,6 +1,6 @@
 // services/authService.js
 
-import { BASE_API_URL, BASE_AUTH_API_URL } from '../config/api';
+import { BASE_API_URL } from '../config/api';
 import axiosPublicInstance from '../utils/axiosPublicInstance';
 import axiosPrivateInstance from '../utils/axiosPrivateInstance';
 import { 

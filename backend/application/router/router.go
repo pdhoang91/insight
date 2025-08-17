@@ -31,7 +31,7 @@ func SetupRouter() *gin.Engine {
 
 	r.Use(cors.New(config))
 	// Đăng ký LoggerMiddleware
-	r.Use(middleware.LoggerMiddleware())
+	//r.Use(middleware.LoggerMiddleware())
 
 	// Auth routes
 	r.POST("/auth/login", controllers.LoginHandler)
