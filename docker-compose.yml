@@ -37,6 +37,10 @@ services:
     container_name: application
     build:
       context: ./backend/application
+      cache_from:
+        - golang:1.23-alpine
+        - alpine:3.19
+      target: runner
     expose:                           # Sử dụng `expose` thay vì `ports`
       - "81"
     ports:
@@ -76,6 +80,10 @@ services:
     container_name: image_service
     build:
       context: ./backend/image-service
+      cache_from:
+        - golang:1.23-alpine
+        - alpine:3.19
+      target: runner
     expose:
       - "82"
     ports:
@@ -104,6 +112,10 @@ services:
     container_name: search_service
     build:
       context: ./backend/search-service
+      cache_from:
+        - golang:1.23-alpine
+        - alpine:3.19
+      target: runner
     expose:
       - "83"
     ports:
@@ -137,6 +149,10 @@ services:
     container_name: auth_service
     build:
       context: ./backend/auth-service
+      cache_from:
+        - golang:1.23-alpine
+        - alpine:3.19
+      target: runner
     expose:                           # Sử dụng `expose` thay vì `ports`
       - "84"
     ports:
@@ -198,6 +214,9 @@ services:
     container_name: frontend
     build:
       context: ./frontend
+      cache_from:
+        - node:22-alpine
+      target: runner
     expose:
       - "3000"
     ports:
