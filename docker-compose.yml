@@ -6,7 +6,7 @@ services:
    ports:
      - "80:80"        # Cổng chính để truy cập từ host
    volumes:
-     - ./nginx/local:/etc/nginx/conf.d  # Local config directory without SSL
+     - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf  # Simple local config
    depends_on:
      - frontend
      - application
