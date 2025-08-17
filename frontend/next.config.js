@@ -19,19 +19,7 @@ module.exports = {
       {
         protocol: 'http',
         hostname: 'localhost',
-        port: '8080',
-        pathname: '/**',
-      },
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '82',
-        pathname: '/**',
-      },
-      {
-        protocol: 'http',
-        hostname: 'image_service',
-        port: '82',
+        port: '81',
         pathname: '/**',
       },
       {

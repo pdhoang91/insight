@@ -1,6 +1,6 @@
 // utils/axiosPrivateInstance.js
 import axios from 'axios';
-import { BASE_API_URL, BASE_API_URL_SIMPLE } from '../config/api';
+import { BASE_API_URL } from '../config/api';
 
 export const axiosPrivateInstance = axios.create({
   baseURL: BASE_API_URL || 'http://localhost:81',
@@ -22,9 +22,7 @@ axiosPrivateInstance.interceptors.request.use(
 
 export default axiosPrivateInstance;
 
-export const axiosPrivateInstanceSimple = axios.create({
-  baseURL: BASE_API_URL_SIMPLE || 'http://localhost:81',
-});
+// Removed axiosPrivateInstanceSimple - unified with axiosPrivateInstance
 
 axiosPrivateInstanceSimple.interceptors.request.use(
   (config) => {

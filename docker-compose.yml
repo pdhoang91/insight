@@ -63,7 +63,7 @@ services:
       - BASE_SEARCH_API_URL=http://search_service:83
       - BASE_API_URL=${BASE_API_URL}
       - BASE_FE_URL=${BASE_FE_URL}
-      - BASE_BE_URL=${BASE_BE_URL}
+      - BASE_API_URL=${BASE_API_URL}
       - LOG_LEVEL=DEBUG
       
       # AWS S3 Configuration (migrated from image-service)
@@ -105,7 +105,7 @@ services:
       - DB_PASSWORD=postgres
       - DB_NAME=postgres
 
-      - BASE_BE_URL=${BASE_BE_URL}
+      - BASE_API_URL=${BASE_API_URL}
       - logger.level=debug
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
@@ -154,19 +154,15 @@ services:
         - node:22-alpine
       target: runner
       args:
-        - NEXT_PUBLIC_BASE_API_URL_SIMPLE=${NEXT_PUBLIC_BASE_API_URL_SIMPLE}
         - NEXT_PUBLIC_BASE_API_URL=${NEXT_PUBLIC_BASE_API_URL}
         - NEXT_PUBLIC_BASE_FE_URL=${NEXT_PUBLIC_BASE_FE_URL}
-        - NEXT_PUBLIC_BASE_AIAPI_URL=${NEXT_PUBLIC_BASE_AIAPI_URL}
     expose:
       - "3000"
     ports:
       - "3000:3000"  # Bạn có thể giữ hoặc loại bỏ dòng này nếu muốn frontend chỉ truy cập thông qua Nginx
     environment:
-      - NEXT_PUBLIC_BASE_API_URL_SIMPLE=${NEXT_PUBLIC_BASE_API_URL_SIMPLE}
       - NEXT_PUBLIC_BASE_API_URL=${NEXT_PUBLIC_BASE_API_URL}
       - NEXT_PUBLIC_BASE_FE_URL=${NEXT_PUBLIC_BASE_FE_URL}
-      - NEXT_PUBLIC_BASE_AIAPI_URL=${NEXT_PUBLIC_BASE_AIAPI_URL}
     # depends_on:
     #   - fluentd
     networks:
