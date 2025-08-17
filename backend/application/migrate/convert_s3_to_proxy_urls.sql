@@ -11,12 +11,12 @@ SELECT * FROM post_contents
 WHERE content LIKE '%https://insight.storage.s3.amazonaws.com/uploads/%';
 
 -- Update post_contents table to use proxy URLs instead of direct S3 URLs
--- Replace with your actual image service URL
+-- Updated to use application service URL (migrated from image-service)
 UPDATE post_contents 
 SET content = REPLACE(
     content, 
     'https://insight.storage.s3.amazonaws.com/uploads/', 
-    'http://localhost:82/images/proxy/'  -- Update this URL based on your environment
+    'http://localhost:81/images/proxy/'  -- Updated to application service
 ),
 updated_at = CURRENT_TIMESTAMP
 WHERE content LIKE '%https://insight.storage.s3.amazonaws.com/uploads/%';

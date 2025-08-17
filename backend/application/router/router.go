@@ -90,8 +90,19 @@ func SetupRouter() *gin.Engine {
 	r.GET("/public/:username/bookmarks", controllers.GetPublicUserBookmarks)
 	r.GET("/public/:username/follow", controllers.GetPublicUserFollow)
 
-	// Images
-	//r.POST("/images/upload", controllers.UploadImage)
+	// Images - integrated image service functionality
+	imageController := controllers.NewImageProxyController()
+
+	// Public image routes (no auth required for viewing)
+	r.GET("/images/proxy/:userID/:date/:type/:filename", imageController.ProxyImage)
+	r.GET("/images/info/:userID/:date/:type/:filename", imageController.GetImageInfo)
+
+	// Protected image routes
+	protected := r.Group("/")
+	protected.Use(middleware.AuthMiddleware())
+	{
+		protected.POST("/images/upload/v2/:type", controllers.UploadImageV2)
+	}
 
 	// API routes
 	api := r.Group("/api")

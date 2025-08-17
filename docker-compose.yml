@@ -12,7 +12,6 @@ services:
    depends_on:
      - frontend
      - application
-     - image-service
    networks:
      - app-network
 
@@ -49,7 +48,6 @@ services:
       - ./backend/application/uploads:/app/uploads  # Mount thư mục uploads của backend
     depends_on:
       - db
-      - image-service
       #- fluentd
     environment:
       - DB_HOST=db
@@ -67,6 +65,13 @@ services:
       - BASE_FE_URL=${BASE_FE_URL}
       - BASE_BE_URL=${BASE_BE_URL}
       - LOG_LEVEL=DEBUG
+      
+      # AWS S3 Configuration (migrated from image-service)
+      - AWS_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      # AWS_SESSION_TOKEN only needed for temporary credentials
+      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN:-}
     networks:
       - app-network
     # logging:
@@ -75,37 +80,6 @@ services:
     #     fluentd-address: localhost:24224
     #     tag: docker.application
 
-  image-service:
-    container_name: image_service
-    build:
-      context: ./backend/image-service
-      cache_from:
-        - golang:1.23-alpine
-        - alpine:3.19
-      target: runner
-    expose:
-      - "82"
-    ports:
-      - "82:82"
-    volumes:
-      - image-data:/app/images/uploads
-    depends_on:
-      - db
-      #- fluentd
-    environment:
-      - BASE_BE_URL=${BASE_BE_URL}
-      - LOG_LEVEL=DEBUG
-      - AWS_REGION=${AWS_REGION}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN}
-    networks:
-      - app-network
-    # logging:
-    #   driver: "fluentd"
-    #   options:
-    #     fluentd-address: localhost:24224
-    #     tag: docker.image_service
 
   search-service:
     container_name: search_service
@@ -242,4 +216,3 @@ networks:
 volumes:
   db-data:
   grafana-data:
-  image-data:

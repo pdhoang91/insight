@@ -29,6 +29,12 @@ module.exports = {
         pathname: '/**',
       },
       {
+        protocol: 'http',
+        hostname: 'image_service',
+        port: '82',
+        pathname: '/**',
+      },
+      {
         protocol: 'https',
         hostname: 'www.w3schools.com',
         port: '',
@@ -106,11 +112,8 @@ module.exports = {
     // Enable dangerous allow all for development (remove in production)
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    // Disable SSL verification for development (remove in production)
-    ...(process.env.NODE_ENV === 'development' && {
-      unoptimized: false,
-      loader: 'default',
-    }),
+    // Disable optimization for external images to avoid Docker network issues
+    unoptimized: true,
   },
   // Add experimental flag to handle SSL issues in development
   experimental: {

@@ -11,7 +11,7 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/pdhoang91/image-service/config"
+	"github.com/pdhoang91/blog/config"
 )
 
 const (
@@ -48,15 +48,17 @@ func (s *S3Service) UploadFile(ctx context.Context, file *multipart.FileHeader, 
 	// Tạo key cho S3 object
 	currentDate := time.Now().Format("2006-01-02")
 	safeFilename := filepath.Base(file.Filename)
+
+	// Tạo key theo format: uploads/userID/date/type/prefix_filename
 	s3Key := fmt.Sprintf("uploads/%s/%s/%s/%s_%s", userID, currentDate, imageType, prefix, safeFilename)
 
 	// Upload file lên S3
 	_, err = s.client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket:      aws.String(BucketName),
-		Key:         aws.String(s3Key),
-		Body:        src,
-		ContentType: aws.String(file.Header.Get("Content-Type")),
+		Bucket: aws.String(BucketName),
+		Key:    aws.String(s3Key),
+		Body:   src,
 	})
+
 	if err != nil {
 		return "", err
 	}
