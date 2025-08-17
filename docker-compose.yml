@@ -179,10 +179,20 @@ services:
       cache_from:
         - node:22-alpine
       target: runner
+      args:
+        - NEXT_PUBLIC_BASE_API_URL_SIMPLE=${NEXT_PUBLIC_BASE_API_URL_SIMPLE}
+        - NEXT_PUBLIC_BASE_API_URL=${NEXT_PUBLIC_BASE_API_URL}
+        - NEXT_PUBLIC_BASE_FE_URL=${NEXT_PUBLIC_BASE_FE_URL}
+        - NEXT_PUBLIC_BASE_AIAPI_URL=${NEXT_PUBLIC_BASE_AIAPI_URL}
     expose:
       - "3000"
     ports:
       - "3000:3000"  # Bạn có thể giữ hoặc loại bỏ dòng này nếu muốn frontend chỉ truy cập thông qua Nginx
+    environment:
+      - NEXT_PUBLIC_BASE_API_URL_SIMPLE=${NEXT_PUBLIC_BASE_API_URL_SIMPLE}
+      - NEXT_PUBLIC_BASE_API_URL=${NEXT_PUBLIC_BASE_API_URL}
+      - NEXT_PUBLIC_BASE_FE_URL=${NEXT_PUBLIC_BASE_FE_URL}
+      - NEXT_PUBLIC_BASE_AIAPI_URL=${NEXT_PUBLIC_BASE_AIAPI_URL}
     # depends_on:
     #   - fluentd
     networks:
