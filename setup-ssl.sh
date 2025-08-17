@@ -16,16 +16,28 @@ mkdir -p certbot/conf
 # Check if domain is properly pointed to this server
 echo "🔍 Checking domain resolution..."
 DOMAIN_IP=$(dig +short www.insight.io.vn)
-SERVER_IP=$(curl -s ifconfig.me)
+SERVER_IP=$(curl -s ifconfig.me || curl -s ipinfo.io/ip || curl -s icanhazip.com)
+
+echo "Domain www.insight.io.vn resolves to: $DOMAIN_IP"
+echo "Server public IP: $SERVER_IP"
 
 if [ "$DOMAIN_IP" != "$SERVER_IP" ]; then
     echo "⚠️  WARNING: Domain www.insight.io.vn ($DOMAIN_IP) doesn't point to this server ($SERVER_IP)"
     echo "Please update your DNS records before continuing."
+    echo "You need to:"
+    echo "1. Set A record for insight.io.vn to $SERVER_IP"
+    echo "2. Set A record for www.insight.io.vn to $SERVER_IP"
     read -p "Continue anyway? (y/N): " -n 1 -r
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
         exit 1
     fi
+fi
+
+# Check if ports 80 and 443 are accessible
+echo "🔍 Checking if ports are accessible..."
+if ! nc -z localhost 80 2>/dev/null; then
+    echo "⚠️  Port 80 is not accessible. Make sure nginx is running and port 80 is open."
 fi
 
 # Create temporary nginx config for certificate generation
