@@ -14,8 +14,17 @@ const useAuth = () => {
     getUserProfile,
     {
       revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-      dedupingInterval: 10000, // Prevent duplicate requests within 10 seconds
+      revalidateOnReconnect: true, // Enable revalidation on reconnect for better auth sync
+      dedupingInterval: 5000, // Reduce to 5 seconds to catch auth state changes faster
+      errorRetryCount: 2, // Limit retries to prevent infinite loops
+      errorRetryInterval: 1000, // Wait 1s between retries
+      onError: (error) => {
+        // Clear token on 401/403 errors
+        if (error?.response?.status === 401 || error?.response?.status === 403) {
+          localStorage.removeItem('token');
+          setUser(null);
+        }
+      }
     }
   );
 
@@ -37,7 +46,31 @@ const useAuth = () => {
       // Check if we have a token in localStorage
       const existingToken = localStorage.getItem('token');
       if (existingToken) {
-        setInitialized(true); // This will trigger SWR to fetch user data
+        // Validate token format and expiration before using
+        try {
+          const tokenParts = existingToken.split('.');
+          if (tokenParts.length === 3) {
+            const payload = JSON.parse(atob(tokenParts[1]));
+            const currentTime = Math.floor(Date.now() / 1000);
+            
+            // Check if token is expired
+            if (payload.exp && payload.exp > currentTime) {
+              setInitialized(true); // Token is valid, trigger SWR
+            } else {
+              // Token expired, remove it
+              localStorage.removeItem('token');
+              setUser(null);
+            }
+          } else {
+            // Invalid token format
+            localStorage.removeItem('token');
+            setUser(null);
+          }
+        } catch (error) {
+          // Token parsing error
+          localStorage.removeItem('token');
+          setUser(null);
+        }
       }
     } catch (error) {
       console.error('Error during authentication:', error);

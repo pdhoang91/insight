@@ -63,7 +63,6 @@ services:
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - GOOGLE_REDIRECT_URL=${GOOGLE_REDIRECT_URL}
       - BASE_SEARCH_API_URL=http://search_service:83
-      - BASE_AUTH_API_URL=${BASE_AUTH_API_URL}
       - BASE_API_URL=${BASE_API_URL}
       - BASE_FE_URL=${BASE_FE_URL}
       - BASE_BE_URL=${BASE_BE_URL}
@@ -145,44 +144,7 @@ services:
     #     fluentd-address: localhost:24224
     #     tag: docker.search_service
 
-  auth-service:
-    container_name: auth_service
-    build:
-      context: ./backend/auth-service
-      cache_from:
-        - golang:1.23-alpine
-        - alpine:3.19
-      target: runner
-    expose:                           # Sử dụng `expose` thay vì `ports`
-      - "84"
-    ports:
-      - "84:84"
-    depends_on:
-      - db
-    #  - fluentd
-    environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_NAME=postgres
 
-      - JWT_SECRET=${JWT_SECRET}
-      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
-      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
-      - GOOGLE_REDIRECT_URL=${GOOGLE_REDIRECT_URL}
-      - BASE_SEARCH_API_URL=${BASE_SEARCH_API_URL}
-      - BASE_API_URL=${BASE_API_URL}
-      - BASE_FE_URL=${BASE_FE_URL}
-      - BASE_BE_URL=${BASE_BE_URL}
-      - LOG_LEVEL=DEBUG
-    networks:
-      - app-network
-    # logging:
-    #   driver: "fluentd"
-    #   options:
-    #     fluentd-address: localhost:24224
-    #     tag: docker.auth_service
 
 
 

@@ -3,7 +3,9 @@ package middleware
 
 import (
 	"errors"
+	"log"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -80,7 +82,7 @@ func AuthMiddleware2() gin.HandlerFunc {
 		if claims, ok := token.Claims.(jwt.MapClaims); ok {
 			// Set only the user ID in context
 			c.Set("userID", claims["user_id"])
-			c.Set("role", claims["user_id"])
+			c.Set("role", claims["role"]) // Fixed: use role claim instead of user_id
 			c.Set("exp", claims["exp"])
 			c.Set("iat", claims["iat"])
 		}
@@ -91,7 +93,15 @@ func AuthMiddleware2() gin.HandlerFunc {
 }
 
 // jwtSecret is your secret key used for signing tokens
-var jwtSecret = []byte("your_secret_key") // Make sure to replace this with your environment variable
+var jwtSecret = []byte(getJWTSecret()) // Use environment variable
+
+func getJWTSecret() string {
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		log.Fatal("JWT_SECRET environment variable is required")
+	}
+	return secret
+}
 
 // VerifyJWT verifies a given JWT token and returns the token if valid
 func VerifyJWT(tokenString string) (*jwt.Token, error) {
