@@ -1,6 +1,24 @@
 // services/userService.js
 import axiosPublicInstance from '../utils/axiosPublicInstance';
 import axiosPrivateInstance from '../utils/axiosPrivateInstance';
+import { BASE_AUTH_API_URL } from '../config/api';
+import axios from 'axios';
+
+// Create auth service axios instance for user profile
+const axiosAuthInstance = axios.create({
+  baseURL: BASE_AUTH_API_URL || 'http://localhost:84',
+});
+
+axiosAuthInstance.interceptors.request.use(
+  (config) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // Get current user profile (authenticated)
 export const getUserProfile = async () => {

@@ -1,6 +1,6 @@
 // services/authService.js
 
-import { BASE_API_URL } from '../config/api';
+import { BASE_API_URL, BASE_AUTH_API_URL } from '../config/api';
 import axiosPublicInstance from '../utils/axiosPublicInstance';
 import axiosPrivateInstance from '../utils/axiosPrivateInstance';
 import { 
@@ -90,6 +90,7 @@ export const getRoleDisplayName = (role) => {
 
 
 export const loginWithGoogle = () => {
+  // Use application service endpoint for Google OAuth (matches redirect_uri in Google Console)
   window.location.href = `${BASE_API_URL}/auth/google`;
 };
 

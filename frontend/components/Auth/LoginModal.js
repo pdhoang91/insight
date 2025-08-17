@@ -69,20 +69,18 @@ const LoginModal = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = () => {
     if (isLoading) return;
     setIsLoading(true);
     setError('');
 
     try {
-      await loginWithGoogle();
-      const userData = await getUserProfile();
-      setUser(userData);
-      onClose();
+      // loginWithGoogle() redirects to Google OAuth, no need to await
+      // User authentication and profile fetching will be handled by useAuth hook after redirect
+      loginWithGoogle();
     } catch (error) {
       console.error('Google login failed:', error);
       setError('Xác thực Google thất bại. Vui lòng thử lại.');
-    } finally {
       setIsLoading(false);
     }
   };
