@@ -1,20 +1,33 @@
 
 services:
-#  nginx:
-#   image: nginx:latest
-#   container_name: nginx_proxy
-#   ports:
-#     - "80:80"        # HTTP only for now
-#     # - "443:443"      # HTTPS (disabled until SSL certs are configured)
-#   volumes:
-#     - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf  # Config with SSL support
-#     - ./nginx/certs:/etc/nginx/certs:ro                  # SSL certificates
-#     - ./certbot/www:/var/www/certbot:ro                  # Let's Encrypt ACME challenge
-#   depends_on:
-#     - frontend
-#     - application
-#   networks:
-#     - app-network
+  nginx:
+    image: nginx:latest
+    container_name: nginx_proxy
+    ports:
+      - "80:80"        # HTTP for development and production
+      - "443:443"      # HTTPS for production
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/certs:/etc/nginx/certs:ro                  # SSL certificates (optional)
+      - ./certbot/www:/var/www/certbot:ro                  # Let's Encrypt ACME challenge
+    depends_on:
+      - frontend
+      - application
+      - search-service
+    networks:
+      - app-network
+
+  # Certbot service for SSL certificate management
+  certbot:
+    image: certbot/certbot:latest
+    container_name: certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    # This service runs on-demand, not continuously
+    command: echo "Certbot service ready for SSL certificate operations"
+    networks:
+      - app-network
 
   db:
     image: postgres:13
@@ -41,10 +54,8 @@ services:
         - golang:1.23-alpine
         - alpine:3.19
       target: runner
-    expose:                           # Sử dụng `expose` thay vì `ports`
+    expose:                           # Internal port only, accessed via nginx
       - "81"
-    ports:
-      - "81:81"
     volumes:
       - ./backend/application/uploads:/app/uploads  # Mount thư mục uploads của backend
     depends_on:
@@ -90,10 +101,8 @@ services:
         - golang:1.23-alpine
         - alpine:3.19
       target: runner
-    expose:
+    expose:                           # Internal port only, accessed via nginx
       - "83"
-    ports:
-      - "83:83"
     # volumes:
     #   - ./search-service/images:/app/images/uploads  # Mount thư mục uploads của image-service
     depends_on:
@@ -157,10 +166,10 @@ services:
       args:
         - NEXT_PUBLIC_BASE_API_URL=${NEXT_PUBLIC_BASE_API_URL}
         - NEXT_PUBLIC_BASE_FE_URL=${NEXT_PUBLIC_BASE_FE_URL}
-    expose:
+    expose:                           # Internal port only, accessed via nginx
       - "3000"
-    ports:
-      - "3000:3000"  # Bạn có thể giữ hoặc loại bỏ dòng này nếu muốn frontend chỉ truy cập thông qua Nginx
+    # ports:
+    #   - "3000:3000"                     # Disabled - access via nginx only
     environment:
       - NEXT_PUBLIC_BASE_API_URL=${NEXT_PUBLIC_BASE_API_URL}
       - NEXT_PUBLIC_BASE_FE_URL=${NEXT_PUBLIC_BASE_FE_URL}
