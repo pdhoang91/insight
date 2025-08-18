@@ -273,10 +273,14 @@ func NewImageProxyController() *ImageProxyController {
 // ProxyImage serves images from S3
 // URL format: /images/proxy/{userID}/{date}/{type}/{filename}
 func (ipc *ImageProxyController) ProxyImage(c *gin.Context) {
+	fmt.Printf("DEBUG PROXY: ProxyImage called - URL: %s\n", c.Request.URL.Path)
+
 	userID := c.Param("userID")
 	date := c.Param("date")
 	imageType := c.Param("type")
 	filename := c.Param("filename")
+
+	fmt.Printf("DEBUG PROXY: Params - userID: %s, date: %s, type: %s, filename: %s\n", userID, date, imageType, filename)
 
 	// Validate parameters
 	if userID == "" || date == "" || imageType == "" || filename == "" {
