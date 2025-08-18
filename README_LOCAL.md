@@ -103,6 +103,41 @@ docker-compose up -d --build frontend
 - **search-service**: Search API (internal port 83)
 - **database**: PostgreSQL (port 5433)
 
+## 🔐 SSL Certificate Management
+
+### Generate/Renew SSL Certificates
+```bash
+# Generate SSL certificates for your domain
+./generate-cert.sh your-domain.com your-email@example.com
+
+# Example
+./generate-cert.sh insight.io.vn pdhoang91@gmail.com
+```
+
+### Check Certificate Status
+```bash
+# Check all certificates
+./check-cert.sh
+
+# Check specific domain
+./check-cert.sh insight.io.vn
+```
+
+### Remove SSL (back to HTTP-only)
+```bash
+# Remove SSL configuration and restore HTTP-only
+./remove-ssl.sh
+```
+
+### Features:
+- ✅ **No docker-compose changes needed** - Scripts handle everything
+- ✅ **Automatic nginx config update** - Adds SSL support while keeping localhost HTTP
+- ✅ **Let's Encrypt integration** - Free SSL certificates
+- ✅ **Certificate renewal** - Run the same script to renew
+- ✅ **Easy rollback** - Remove SSL anytime with one command
+
+📖 **Chi tiết**: Xem `SSL_SETUP_GUIDE.md`
+
 ---
 
-**🎯 Simple local development setup - no SSL, no production complexity!**
+**🎯 Simple local development setup - có thể dễ dàng chuyển sang production với SSL!**
