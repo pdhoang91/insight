@@ -16,7 +16,7 @@ const ThreeColumnLayout = ({
       {/* Main Content - Using BlogSidebar pattern */}
       <div className="pb-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className={`grid grid-cols-1 gap-6 ${leftSidebar ? 'lg:grid-cols-4' : 'lg:grid-cols-1'}`} style={{overflow: 'visible'}}>
             {/* Left Sidebar - Optional */}
             {leftSidebar && (
               <div className="hidden lg:block lg:col-span-1">
@@ -27,7 +27,7 @@ const ThreeColumnLayout = ({
             )}
             
             {/* Main Content Area */}
-            <div className={`${leftSidebar ? 'lg:col-span-2' : 'lg:col-span-3'}`}>
+            <div className={`${leftSidebar ? 'lg:col-span-3' : 'w-full'} ${showTOC && content ? 'lg:pr-80' : ''}`}>
               {/* Mobile TOC - Only show on mobile/tablet */}
               {showTOC && content && (
                 <div className="lg:hidden mb-6">
@@ -43,26 +43,16 @@ const ThreeColumnLayout = ({
               {children}
             </div>
             
-            {/* Right Sidebar - TOC (Desktop only) - Fixed position for reliable sticking */}
+            {/* Fixed TOC - Positioned outside grid */}
             {showTOC && content && (
-              <div className="hidden lg:block lg:col-span-1">
-                {/* Placeholder to maintain grid spacing */}
-                <div className="w-full">
-                  {/* Fixed TOC */}
-                  <div className="toc-fixed-grid">
-                    <div className="rounded-lg p-4">
-                      {/* Header */}
-                      <div className="mb-3">
-                      </div>
-
-                      {/* TOC Content - Scrollable list */}
-                      <div className="custom-scrollbar max-h-[calc(100vh-8rem)]">
-                        <TableOfContents 
-                          content={content}
-                          renderOnlyList={true}
-                        />
-                      </div>
-                    </div>
+              <div className="toc-fixed-grid">
+                <div className="rounded-lg p-4 shadow-lg shadow-matrix-green/20">
+                  {/* TOC Content - Scrollable list */}
+                  <div className="custom-scrollbar max-h-[calc(100vh-10rem)] overflow-y-auto">
+                    <TableOfContents 
+                      content={content}
+                      renderOnlyList={true}
+                    />
                   </div>
                 </div>
               </div>

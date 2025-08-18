@@ -819,6 +819,40 @@ button, a, [role="button"] {
 
 
 
+/* TOC Fixed Grid - Fixed positioning for reliable desktop TOC */
+.toc-fixed-grid {
+  position: fixed;
+  top: 4.5rem; /* Fixed below navbar (3.5rem) + small offset */
+  right: 1rem; /* Fixed right margin */
+  width: 280px; /* Fixed width for consistency */
+  height: fit-content;
+  max-height: calc(100vh - 6rem);
+  overflow-y: auto;
+  z-index: 40;
+}
+
+/* Responsive positioning for different screen sizes */
+@media (min-width: 1280px) {
+  .toc-fixed-grid {
+    right: calc((100vw - 1280px) / 2 + 1rem); /* Center align with max-width container */
+  }
+}
+
+@media (max-width: 1024px) {
+  .toc-fixed-grid {
+    display: none; /* Hide on smaller screens */
+  }
+}
+
+/* Custom sidebar for TOC */
+.toc-custom-sidebar {
+  position: sticky;
+  top: 1rem;
+  height: fit-content;
+  max-height: calc(100vh - 8rem);
+  overflow-y: auto;
+}
+
 @media (max-width: 768px) {
   .table-of-contents {
     margin: 1rem 0;
