@@ -1,0 +1,161 @@
+import React, { useState } from 'react';
+import Image from 'next/image';
+
+const SafeImage = ({ 
+  src, 
+  alt, 
+  width, 
+  height, 
+  className = '', 
+  fallbackSrc = '/favicon.png',
+  priority = false,
+  fill = false,
+  sizes,
+  ...props 
+}) => {
+  // Transform S3 URLs to avoid SSL certificate issues
+  const transformS3Url = (originalSrc) => {
+    if (!originalSrc || !originalSrc.includes('s3.amazonaws.com')) {
+      return originalSrc;
+    }
+
+    try {
+      // Convert insight.storage.s3.amazonaws.com to s3.amazonaws.com format
+      if (originalSrc.includes('insight.storage.s3.amazonaws.com')) {
+        // Extract the path after the domain
+        const url = new URL(originalSrc);
+        const path = url.pathname;
+        // Convert to standard S3 URL format
+        return `https://s3.amazonaws.com/insight.storage${path}${url.search || ''}`;
+      }
+    } catch (error) {
+
+    }
+    
+    return originalSrc;
+  };
+
+  // Use proxy for S3 images in development to bypass SSL issues
+  const getProxiedSrc = (originalSrc) => {
+    if (!originalSrc) return originalSrc;
+
+    // First try to transform the URL
+    const transformedSrc = transformS3Url(originalSrc);
+    
+    if (process.env.NODE_ENV === 'development' && transformedSrc?.includes('s3.amazonaws.com')) {
+      return `/api/image-proxy?url=${encodeURIComponent(transformedSrc)}`;
+    }
+    return transformedSrc;
+  };
+
+  // Check if image is SVG
+  const isSvg = (imageSrc) => {
+    return imageSrc?.includes('.svg') || imageSrc?.includes('data:image/svg');
+  };
+
+  const [imageSrc, setImageSrc] = useState(getProxiedSrc(src));
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+
+  const handleError = () => {
+
+    
+    // Try to retry with different approach for S3 images
+    if (retryCount < 2 && src && src.includes('s3.amazonaws.com')) {
+      setRetryCount(prev => prev + 1);
+      
+      if (retryCount === 0) {
+        // First retry: try direct S3 URL without proxy
+        const directUrl = transformS3Url(src);
+
+        setImageSrc(directUrl);
+        return;
+      } else if (retryCount === 1) {
+        // Second retry: try with timestamp
+        const timestampedUrl = getProxiedSrc(`${src}${src.includes('?') ? '&' : '?'}t=${Date.now()}`);
+
+        setImageSrc(timestampedUrl);
+        return;
+      }
+    }
+
+    if (imageSrc !== fallbackSrc) {
+      setImageSrc(fallbackSrc);
+      setHasError(false);
+      setRetryCount(0);
+    } else {
+      setHasError(true);
+    }
+    setIsLoading(false);
+  };
+
+  const handleLoad = () => {
+    setIsLoading(false);
+    setHasError(false);
+    setRetryCount(0);
+  };
+
+  // If there's an error with the fallback image, show a placeholder div
+  if (hasError) {
+    return (
+      <div 
+        className={`bg-gray-100 flex items-center justify-center ${className}`}
+        style={{ width: fill ? '100%' : width, height: fill ? '100%' : height }}
+        {...props}
+      >
+        <div className="text-center">
+          <svg 
+            className="w-12 h-12 text-gray-400 mx-auto mb-2" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              strokeWidth={1.5} 
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" 
+            />
+          </svg>
+          <p className="text-xs text-gray-500">Image not available</p>
+        </div>
+      </div>
+    );
+  }
+
+  const imageProps = {
+    src: imageSrc,
+    alt: alt || 'Image',
+    onError: handleError,
+    onLoad: handleLoad,
+    priority,
+    className: `${className} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`,
+    // Add unoptimized for SVG images and S3 images with SSL issues in development
+    ...((isSvg(imageSrc) || (process.env.NODE_ENV === 'development' && imageSrc?.includes('s3.amazonaws.com'))) && {
+      unoptimized: true
+    }),
+    ...props
+  };
+
+  if (fill) {
+    return (
+      <Image
+        {...imageProps}
+        fill
+        sizes={sizes}
+      />
+    );
+  }
+
+  return (
+    <Image
+      {...imageProps}
+      width={width}
+      height={height}
+      sizes={sizes}
+    />
+  );
+};
+
+export default SafeImage; 

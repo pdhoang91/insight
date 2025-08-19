@@ -1,0 +1,59 @@
+# Storage Configuration
+# This file contains configuration for different storage providers
+
+storage:
+  # Default storage provider to use
+  default_provider: "s3"
+  
+  # Configuration for different storage providers
+  providers:
+    # AWS S3 Configuration
+    s3:
+      bucket: "insight.storage"
+      region: "us-east-1"
+      base_path: "uploads"
+      cdn_domain: ""  # Optional CDN domain (e.g., "d1234567890.cloudfront.net")
+      
+    # Local Storage Configuration (for development/testing)
+    local:
+      base_path: "./uploads"
+      base_url: "${BASE_API_URL}/static"
+      
+    # Google Cloud Storage Configuration (example)
+    gcs:
+      bucket: "insight-gcs-bucket"
+      base_path: "media"
+      project_id: "your-gcp-project-id"
+      
+    # Cloudinary Configuration (example)
+    cloudinary:
+      cloud_name: "your-cloud-name"
+      folder: "insight-posts"
+      
+# Image processing settings
+image:
+  max_size: 10485760  # 10MB in bytes
+  allowed_types:
+    - "image/jpeg"
+    - "image/png" 
+    - "image/gif"
+    - "image/webp"
+  
+  # Image optimization settings
+  optimization:
+    enabled: true
+    quality: 85
+    auto_format: true
+    
+# Migration settings
+migration:
+  # Batch size for migrating legacy images
+  batch_size: 100
+  
+  # Whether to backup data before migration
+  backup_before_migration: true
+  
+  # Legacy URL patterns to migrate
+  legacy_patterns:
+    - "/images/proxy/"
+    - "https://insight.storage.s3.amazonaws.com/uploads/"

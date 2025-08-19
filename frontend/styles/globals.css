@@ -1,0 +1,880 @@
+/* styles/globals.css */
+
+/* Import Google Fonts + Hacker Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
+
+
+
+/* Tailwind CSS Base, Components, and Utilities */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Fixed Navbar Spacing */
+body {
+  scroll-padding-top: 4rem; /* 64px for navbar height */
+}
+
+/* Hacker/Terminal Theme CSS Custom Properties */
+:root {
+  /* Terminal Colors */
+  --terminal-black: #0d1117;
+  --terminal-dark: #161b22;
+  --terminal-gray: #21262d;
+  --terminal-light: #30363d;
+  --terminal-border: #363b42;
+  
+  /* Matrix/Neon Colors (Softer) */
+  --matrix-green: #4ade80;
+  --matrix-dark-green: #22c55e;
+  --matrix-light-green: #86efac;
+  --matrix-cyan: #22d3ee;
+  --matrix-blue: #3b82f6;
+  
+  /* Hacker Theme Colors (Softer) */
+  --hacker-red: #ef4444;
+  --hacker-orange: #f97316;
+  --hacker-yellow: #eab308;
+  --hacker-purple: #a855f7;
+  --hacker-pink: #ec4899;
+  
+  /* Tech Theme Colors (Enhanced) */
+  --color-tech-green: #00ff00;
+  --color-tech-green-400: #39ff14;
+  --color-tech-blue: #0080ff;
+  --color-tech-blue-400: #00ffff;
+  --color-tech-yellow: #ffff00;
+  --color-tech-yellow-400: #fff200;
+  --color-tech-red: #ff0040;
+  --color-tech-red-400: #ff4070;
+  
+  /* Original Colors (updated for hacker theme) */
+  --color-primary-50: #001100;
+  --color-primary-100: #002200;
+  --color-primary-500: #00ff00;
+  --color-primary-600: #00cc00;
+  --color-primary-700: #009900;
+  --color-primary-900: #004400;
+  
+  --color-purple-500: #bf00ff;
+  --color-purple-600: #9900cc;
+  
+  /* Dark Terminal Grays */
+  --color-gray-50: #f0f6fc;
+  --color-gray-100: #c9d1d9;
+  --color-gray-200: #b1bac4;
+  --color-gray-300: #8b949e;
+  --color-gray-400: #7d8590;
+  --color-gray-500: #656d76;
+  --color-gray-600: #484f58;
+  --color-gray-700: #30363d;
+  --color-gray-800: #21262d;
+  --color-gray-900: #161b22;
+  
+  /* Terminal Background Colors */
+  --bg-primary: #0d1117;
+  --bg-secondary: #161b22;
+  --bg-card: #21262d;
+  --bg-hover: #30363d;
+  
+  /* Enhanced shadows with neon glow */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  --shadow-neon: 0 0 5px var(--matrix-green), 0 0 10px var(--matrix-green), 0 0 15px var(--matrix-green);
+  
+  --border-radius-sm: 0.125rem;
+  --border-radius: 0.25rem;
+  --border-radius-md: 0.375rem;
+  --border-radius-lg: 0.5rem;
+  --border-radius-xl: 0.75rem;
+  --border-radius-2xl: 1rem;
+  --border-radius-3xl: 1.5rem;
+  
+  --spacing-1: 0.25rem;
+  --spacing-2: 0.5rem;
+  --spacing-3: 0.75rem;
+  --spacing-4: 1rem;
+  --spacing-6: 1.5rem;
+  --spacing-8: 2rem;
+  --spacing-12: 3rem;
+  --spacing-16: 4rem;
+}
+
+/* To ensure all elements use border-box sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Global Styles for HTML and Body - Terminal/Hacker Theme */
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: 'JetBrains Mono', 'Share Tech Mono', 'Courier New', monospace;
+  line-height: 1.6;
+  color: #f0f6fc;
+  background-color: #0d1117;
+  overflow-x: hidden;
+  font-feature-settings: 'rlig' 1, 'calt' 1;
+  /* Terminal scan line effect */
+  background-image: 
+    linear-gradient(
+      90deg,
+      transparent 98%,
+      rgba(0, 255, 0, 0.03) 100%
+    );
+  background-size: 3px 100%;
+}
+
+/* Matrix Rain Background Effect */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(ellipse at center, transparent 65%, rgba(0, 0, 0, 0.3)),
+    linear-gradient(90deg, transparent 98%, rgba(0, 255, 0, 0.01) 100%);
+  background-size: 100% 100%, 2px 100%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Terminal Typography - Hacker Theme */
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Orbitron', 'JetBrains Mono', monospace;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  color: #f0f6fc;
+  margin-top: 0;
+  margin-bottom: 0.5em;
+  word-break: break-word;
+  text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+/* Enhanced Mono Font Classes */
+.font-mono {
+  font-family: 'JetBrains Mono', 'Share Tech Mono', 'Monaco', 'Consolas', monospace !important;
+}
+
+
+
+h1 {
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+
+h2 {
+  font-size: 1.875rem;
+  font-weight: 700;
+}
+
+h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+h5 {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+h6 {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Paragraphs */
+p {
+  margin: 0 0 1em 0;
+  color: var(--color-gray-300);
+  line-height: 1.7;
+  word-break: break-word;
+}
+
+/* Links - Hacker Style */
+a {
+  color: var(--matrix-green);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+a:hover {
+  color: var(--matrix-light-green);
+  text-shadow: 0 0 5px var(--matrix-green);
+}
+
+/* Removed a:hover::before rule that was causing > icon to appear on hover */
+
+/* Terminal/Hacker Gradient Utilities */
+@layer utilities {
+  .shadow-neon-green {
+    box-shadow: 0 0 5px var(--matrix-green), 0 0 10px var(--matrix-green), 0 0 15px var(--matrix-green);
+  }
+}
+
+/* Enhanced Search Bar Animations */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Search Bar Specific Animations */
+.animate-slide-up {
+  animation: slideUp 0.2s ease-out forwards;
+}
+
+
+
+
+
+
+
+/* Enhanced Custom Utilities */
+.terminal-window {
+  background: var(--terminal-dark);
+  border: 1px solid var(--matrix-green);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-neon);
+  position: relative;
+  overflow: hidden;
+}
+
+.terminal-header {
+  background: var(--terminal-gray);
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--matrix-green);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875rem;
+  color: var(--matrix-green);
+}
+
+.terminal-header::before {
+  content: '● ● ● ';
+  color: var(--hacker-red);
+  margin-right: 1rem;
+}
+
+
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced Content Styles - Terminal Theme */
+.content {
+  width: 100%;
+  word-break: break-word;
+  color: var(--color-gray-300);
+  line-height: 1.7;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.content img {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 2rem auto;
+  border-radius: var(--border-radius-lg);
+}
+
+.content pre {
+  background-color: var(--terminal-black);
+  border: 1px solid var(--matrix-green);
+  border-radius: var(--border-radius-md);
+  padding: 1rem;
+  overflow-x: auto;
+  font-family: 'JetBrains Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--matrix-green);
+  box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.1);
+  position: relative;
+}
+
+.content pre::before {
+  content: '$ ';
+  color: var(--matrix-green);
+  font-weight: bold;
+}
+
+.content code {
+  background-color: var(--terminal-gray);
+  color: var(--matrix-green);
+  padding: 0.125rem 0.25rem;
+  border-radius: var(--border-radius-sm);
+  font-family: 'JetBrains Mono', 'Monaco', 'Consolas', monospace;
+  font-size: 0.875em;
+  border: 1px solid rgba(0, 255, 0, 0.2);
+}
+
+.content blockquote {
+  border-left: 4px solid var(--matrix-green);
+  margin: 1.5rem 0;
+  padding-left: 1rem;
+  color: var(--color-gray-400);
+  font-style: italic;
+  background-color: var(--terminal-gray);
+  border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
+  padding: 1rem;
+  box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.05);
+}
+
+.content blockquote::before {
+  content: '// ';
+  color: var(--matrix-green);
+  font-weight: bold;
+}
+
+.content ul,
+.content ol {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+
+.content li {
+  margin: 0.5rem 0;
+  color: var(--color-gray-300);
+}
+
+.content li::marker {
+  color: var(--matrix-green);
+}
+
+.content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  background-color: var(--terminal-dark);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--matrix-green);
+  box-shadow: var(--shadow-neon);
+}
+
+.content th,
+.content td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid var(--terminal-border);
+  color: var(--color-gray-300);
+}
+
+.content th {
+  background-color: var(--terminal-gray);
+  font-weight: 600;
+  color: var(--matrix-green);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Editor Styles - Enhanced */
+.editor-content {
+  @apply content;
+  min-height: 300px;
+  height: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  background: var(--terminal-dark);
+  border: 1px solid var(--matrix-green);
+  border-radius: var(--border-radius-lg);
+  padding: 1rem;
+}
+
+.editor-content::-webkit-scrollbar {
+  display: none;
+}
+
+/* ProseMirror Customizations - Clean Theme */
+.ProseMirror {
+  border: none !important;
+  outline: none !important;
+  color: var(--text-primary);
+  line-height: 1.7;
+  font-family: var(--font-primary);
+  font-size: 1rem;
+  padding: 1rem;
+  min-height: 300px;
+}
+
+/* ProseMirror Image Styles - Full Width */
+.ProseMirror img {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 2rem auto;
+  border-radius: var(--border-radius-lg);
+}
+
+/* Prose Content Image Styles - Full Width */
+.prose img {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 2rem auto;
+  border-radius: var(--border-radius-lg);
+}
+
+.ProseMirror:focus {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove default focus rings globally for editor components */
+.ProseMirror *:focus,
+input:focus,
+textarea:focus,
+button:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Override Tailwind's default focus ring */
+*:focus {
+  --tw-ring-shadow: none !important;
+  box-shadow: none !important;
+}
+
+/* TipTap Placeholder Styles - Clean Theme */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--text-muted);
+  pointer-events: none;
+  height: 0;
+  font-style: normal;
+  opacity: 0.6;
+}
+
+/* Terminal Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--terminal-dark);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--matrix-green);
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--matrix-light-green);
+  box-shadow: 0 0 5px var(--matrix-green);
+}
+
+.custom-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--matrix-green) var(--terminal-dark);
+}
+
+/* Enhanced Mobile Search Bar Styles */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 1.875rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  h3 {
+    font-size: 1.25rem;
+  }
+  
+  .content {
+    font-size: 0.95rem;
+  }
+
+
+}
+
+
+
+/* Focus States - Neon Theme */
+*:focus-visible {
+  outline: 2px solid var(--matrix-green);
+  outline-offset: 2px;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+/* Selection - Matrix Theme */
+::selection {
+  background-color: rgba(0, 255, 0, 0.2);
+  color: var(--matrix-light-green);
+}
+
+/* Loading Animation - Enhanced */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Smooth Transitions - Enhanced */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Enhanced Pentagon Tag Category Buttons - Hacker Style */
+.category-pentagon-tag {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px 6px 18px;
+  margin: 4px;
+  background-color: var(--terminal-gray);
+  color: var(--matrix-green);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  font-family: 'JetBrains Mono', monospace;
+  border: 1px solid var(--matrix-green);
+  /* Pentagon shape: rectangle with triangle on left */
+  clip-path: polygon(0 50%, 15px 0, 100% 0, 100% 100%, 15px 100%);
+  box-shadow: 0 0 5px rgba(0, 255, 0, 0.2);
+}
+
+.category-pentagon-tag:hover {
+  background-color: var(--terminal-light);
+  color: var(--matrix-light-green);
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+}
+
+/* Center dot in triangle area - Enhanced */
+.category-pentagon-tag::before {
+  content: '';
+  position: absolute;
+  left: 7.5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  background-color: var(--matrix-green);
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  box-shadow: 0 0 3px var(--matrix-green);
+}
+
+.category-pentagon-tag:hover::before {
+  background-color: var(--matrix-light-green);
+  box-shadow: 0 0 6px var(--matrix-light-green);
+}
+
+.category-pentagon-tag-count {
+  position: relative;
+  margin-left: 6px;
+  padding: 1px 6px;
+  background-color: var(--terminal-black);
+  color: var(--matrix-green);
+  font-size: 0.625rem;
+  font-weight: normal;
+  border-radius: 9999px;
+  transition: all 0.2s ease;
+  border: 1px solid rgba(0, 255, 0, 0.3);
+}
+
+.category-pentagon-tag:hover .category-pentagon-tag-count {
+  background-color: var(--terminal-dark);
+  color: var(--matrix-light-green);
+  box-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+}
+
+/* Loading skeleton for pentagon tag - Enhanced */
+.category-pentagon-tag-skeleton {
+  height: 28px;
+  width: 60px;
+  background-color: var(--terminal-gray);
+  clip-path: polygon(0 50%, 15px 0, 100% 0, 100% 100%, 15px 100%);
+  position: relative;
+  animation: neon-pulse 2s ease-in-out infinite alternate;
+}
+
+.category-pentagon-tag-skeleton::before {
+  content: '';
+  position: absolute;
+  left: 7.5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  background-color: var(--matrix-green);
+  border-radius: 50%;
+  animation: terminal-blink 1s infinite;
+}
+
+
+
+/* Prevent unwanted pseudo-elements and improve performance */
+* {
+  box-sizing: border-box;
+}
+
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Optimize transitions for better performance */
+.transition-colors {
+  transition-property: color, background-color, border-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Prevent layout shifts from hover effects */
+button, a, [role="button"] {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Smooth scrolling optimization */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Table of Contents Styles - Terminal/Hacker Theme */
+.table-of-contents {
+  background: var(--terminal-dark);
+  border: 1px solid var(--matrix-green);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.table-of-contents .terminal-header {
+  background: var(--terminal-gray);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--matrix-green);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875rem;
+  color: var(--matrix-green);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.table-of-contents .terminal-header::before {
+  content: '● ● ● ';
+  color: var(--hacker-red);
+  margin-right: 0.5rem;
+}
+
+.toc-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.toc-item {
+  margin: 0;
+  padding: 0;
+}
+
+.toc-link {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  color: var(--color-gray-300);
+  text-decoration: none;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  border-left: 2px solid transparent;
+  position: relative;
+}
+
+.toc-link:hover {
+  background-color: var(--terminal-gray);
+  color: var(--matrix-green);
+  border-left-color: var(--matrix-green);
+  text-decoration: none;
+  transform: translateX(2px);
+}
+
+.toc-link.active {
+  background-color: var(--terminal-gray);
+  color: var(--matrix-green);
+  border-left-color: var(--matrix-green);
+  box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.1);
+}
+
+.toc-link::before {
+  content: '▸';
+  margin-right: 0.5rem;
+  color: var(--matrix-green);
+  font-size: 0.75rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.toc-link:hover::before,
+.toc-link.active::before {
+  opacity: 1;
+}
+
+/* TOC nested levels */
+.toc-item .toc-item {
+  margin-left: 1rem;
+}
+
+.toc-item .toc-item .toc-link {
+  font-size: 0.8125rem;
+  color: var(--color-gray-400);
+}
+
+.toc-item .toc-item .toc-item {
+  margin-left: 1.5rem;
+}
+
+.toc-item .toc-item .toc-item .toc-link {
+  font-size: 0.75rem;
+  color: var(--color-gray-500);
+}
+
+
+
+
+
+
+
+
+
+
+
+/* TOC Fixed Grid - Fixed positioning for reliable desktop TOC */
+.toc-fixed-grid {
+  position: fixed;
+  top: 4.5rem; /* Fixed below navbar (3.5rem) + small offset */
+  right: 1rem; /* Fixed right margin */
+  width: 280px; /* Fixed width for consistency */
+  height: fit-content;
+  max-height: calc(100vh - 6rem);
+  overflow-y: auto;
+  z-index: 40;
+}
+
+/* Responsive positioning for different screen sizes */
+@media (min-width: 1280px) {
+  .toc-fixed-grid {
+    right: calc((100vw - 1280px) / 2 + 1rem); /* Center align with max-width container */
+  }
+}
+
+@media (max-width: 1024px) {
+  .toc-fixed-grid {
+    display: none; /* Hide on smaller screens */
+  }
+}
+
+/* Custom sidebar for TOC */
+.toc-custom-sidebar {
+  position: sticky;
+  top: 1rem;
+  height: fit-content;
+  max-height: calc(100vh - 8rem);
+  overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+  .table-of-contents {
+    margin: 1rem 0;
+    font-size: 0.875rem;
+  }
+  
+  .toc-link {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8125rem;
+  }
+  
+  .toc-item .toc-item {
+    margin-left: 0.75rem;
+  }
+  
+  .toc-item .toc-item .toc-item {
+    margin-left: 1rem;
+  }
+  
+  .content-with-toc {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
+

@@ -1,0 +1,62 @@
+// components/Category/CategoryItem.js
+import React from 'react';
+import Link from 'next/link';
+import PostItemCategories from '../Post/PostItemCategories';
+import { usePostsByCategory } from '../../hooks/usePostsByCategory';
+import { FaFolder, FaSpinner } from 'react-icons/fa';
+
+const CategoryItem = ({ category }) => {
+  const { posts, isLoading, isError } = usePostsByCategory(category.name, 2);
+
+  return (
+    <div className="py-6">
+      {/* Category Header */}
+      <header className="mb-6">
+        <div className="flex items-center gap-3 mb-3">
+          <h2 className="text-2xl font-bold text-primary">
+            <Link 
+              href={`/category/${encodeURIComponent(category.name)}`} 
+              className="hover:text-primary-hover transition-colors"
+            >
+              {category.name}
+            </Link>
+          </h2>
+        </div>
+        {category.description && (
+          <p className="text-secondary font-mono text-sm">// {category.description}</p>
+        )}
+      </header>
+
+      {/* Posts Section */}
+      <div className="mt-6">
+        {isError && (
+          <div className="p-4 border border-danger/20 rounded-lg bg-danger/5">
+            <p className="text-danger font-mono text-sm">// Failed to load posts</p>
+          </div>
+        )}
+        
+        {isLoading ? (
+          <div className="flex items-center gap-2 p-4">
+            <FaSpinner className="animate-spin text-primary w-4 h-4" />
+            <span className="text-secondary font-mono text-sm">Loading posts...</span>
+          </div>
+        ) : (
+          <div className="space-y-6 border-b border-border-primary/20">
+            {posts.length > 0 ? (
+              posts.map(post => (
+                <PostItemCategories key={post.id} post={post} />
+              ))
+            ) : (
+              <div className="p-4 border border-border-primary rounded-lg bg-elevated/50">
+                <p className="text-muted font-mono text-sm text-center">// No posts available in this category</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default CategoryItem;
+

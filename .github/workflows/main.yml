@@ -1,0 +1,42 @@
+name: CI/CD Deployment
+
+on:
+  push:
+    branches:
+      - main  # Hoặc nhánh bạn muốn theo dõi
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Bước 1: Kiểm tra mã nguồn
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Bước 2: Thiết lập SSH Agent và thêm Private Key
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      # Bước 3: Test SSH Connection
+      - name: Test SSH Connection
+        run: |
+          ssh -o StrictHostKeyChecking=no -p ${{ secrets.SERVER_PORT }} ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_IP }} "echo 'SSH Connection Successful'"
+
+      # Bước 4: Deploy to Server
+      - name: Deploy to Server
+        env:
+          SERVER_IP: ${{ secrets.SERVER_IP }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+        run: |
+          ssh -o StrictHostKeyChecking=no $SERVER_USER@$SERVER_IP -p $SERVER_PORT << EOF
+            cd $DEPLOY_PATH
+            git pull origin main
+            docker-compose pull
+            docker-compose up -d --build
+            docker system prune -f
+          EOF
