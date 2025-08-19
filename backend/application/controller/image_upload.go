@@ -2,20 +2,37 @@
 package controller
 
 import (
-	"fmt"
-	"io"
 	"net/http"
-	"os"
-	"path/filepath"
-	"strings"
-	"time"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
+
+	"github.com/pdhoang91/blog/database"
+	"github.com/pdhoang91/blog/models"
+	"github.com/pdhoang91/blog/services"
 	"github.com/pdhoang91/blog/utils"
 )
 
-// UploadImage handles simple image upload to local storage
-func UploadImage(c *gin.Context) {
+// ImageController handles image-related operations
+type ImageController struct {
+	s3Service *services.S3Service
+}
+
+// NewImageController creates a new image controller
+func NewImageController() (*ImageController, error) {
+	s3Service, err := services.NewS3Service()
+	if err != nil {
+		return nil, err
+	}
+
+	return &ImageController{
+		s3Service: s3Service,
+	}, nil
+}
+
+// UploadImage handles image upload to S3
+func (ic *ImageController) UploadImage(c *gin.Context) {
 	// Get user ID from context
 	userID, err := utils.GetUserIDFromContext(c)
 	if err != nil {
@@ -24,9 +41,13 @@ func UploadImage(c *gin.Context) {
 	}
 
 	// Get upload type from URL parameter
-	uploadType := c.Param("type")
-	if uploadType == "" {
-		uploadType = "general"
+	uploadTypeStr := c.Param("type")
+	imageType := models.ImageType(uploadTypeStr)
+
+	// Validate image type
+	if !isValidImageType(imageType) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid image type. Allowed: avatar, title, content, general"})
+		return
 	}
 
 	// Parse multipart form
@@ -37,79 +58,192 @@ func UploadImage(c *gin.Context) {
 	}
 	defer file.Close()
 
-	// Validate file type
-	if !isValidImageType(header.Filename) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid file type. Only PNG, JPG, JPEG, GIF are allowed"})
-		return
-	}
-
-	// Create upload directory if not exists
-	uploadDir := filepath.Join("uploads", "images", uploadType)
-	if err := os.MkdirAll(uploadDir, 0755); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create upload directory"})
-		return
-	}
-
-	// Generate unique filename
-	timestamp := time.Now().Unix()
-	ext := filepath.Ext(header.Filename)
-	filename := fmt.Sprintf("%s_%d%s", userID, timestamp, ext)
-	filePath := filepath.Join(uploadDir, filename)
-
-	// Create the file
-	dst, err := os.Create(filePath)
+	// Upload to S3
+	result, err := ic.s3Service.UploadImage(userID, imageType, file, header)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create file"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	defer dst.Close()
-
-	// Copy file content
-	if _, err := io.Copy(dst, file); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save file"})
-		return
-	}
-
-	// Generate URL for the uploaded file
-	baseURL := getBaseURL(c)
-	fileURL := fmt.Sprintf("%s/uploads/images/%s/%s", baseURL, uploadType, filename)
 
 	c.JSON(http.StatusOK, gin.H{
-		"url":      fileURL,
-		"filename": filename,
-		"type":     uploadType,
+		"success": true,
+		"data":    result,
 	})
 }
 
-// isValidImageType checks if the file extension is valid
-func isValidImageType(filename string) bool {
-	ext := strings.ToLower(filepath.Ext(filename))
-	validTypes := []string{".jpg", ".jpeg", ".png", ".gif"}
+// DeleteImage handles image deletion
+func (ic *ImageController) DeleteImage(c *gin.Context) {
+	// Get user ID from context
+	userID, err := utils.GetUserIDFromContext(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	// Get image ID from URL parameter
+	imageIDStr := c.Param("id")
+	imageID, err := uuid.FromString(imageIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid image ID"})
+		return
+	}
+
+	// Delete image
+	if err := ic.s3Service.DeleteImage(imageID, userID); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Image deleted successfully",
+	})
+}
+
+// GetUserImages returns paginated list of user's images
+func (ic *ImageController) GetUserImages(c *gin.Context) {
+	// Get user ID from context
+	userID, err := utils.GetUserIDFromContext(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	// Get pagination parameters
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	imageType := c.Query("type") // Optional filter by type
+
+	if page < 1 {
+		page = 1
+	}
+	if limit < 1 || limit > 100 {
+		limit = 20
+	}
+
+	offset := (page - 1) * limit
+
+	// Build query
+	query := database.DB.Where("user_id = ? AND status = ?", userID, models.ImageStatusActive)
+	if imageType != "" {
+		query = query.Where("type = ?", imageType)
+	}
+
+	// Get total count
+	var total int64
+	query.Model(&models.Image{}).Count(&total)
+
+	// Get images
+	var images []models.Image
+	err = query.Order("created_at DESC").
+		Limit(limit).
+		Offset(offset).
+		Find(&images).Error
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch images"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data": gin.H{
+			"images":      images,
+			"total":       total,
+			"page":        page,
+			"limit":       limit,
+			"total_pages": (total + int64(limit) - 1) / int64(limit),
+		},
+	})
+}
+
+// GetImageInfo returns information about a specific image
+func (ic *ImageController) GetImageInfo(c *gin.Context) {
+	// Get image ID from URL parameter
+	imageIDStr := c.Param("id")
+	imageID, err := uuid.FromString(imageIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid image ID"})
+		return
+	}
+
+	// Get image record
+	var image models.Image
+	err = database.DB.Where("id = ? AND status = ?", imageID, models.ImageStatusActive).First(&image).Error
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Image not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    image,
+	})
+}
+
+// LinkImageToPost links an image to a post
+func (ic *ImageController) LinkImageToPost(c *gin.Context) {
+	var input struct {
+		ImageID uuid.UUID `json:"image_id" binding:"required"`
+		PostID  uuid.UUID `json:"post_id" binding:"required"`
+		Usage   string    `json:"usage" binding:"required"` // "title" or "content"
+		Order   int       `json:"order"`
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Get user ID from context
+	userID, err := utils.GetUserIDFromContext(c)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	// Verify image ownership
+	var image models.Image
+	err = database.DB.Where("id = ? AND user_id = ? AND status = ?", input.ImageID, userID, models.ImageStatusActive).First(&image).Error
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Image not found or access denied"})
+		return
+	}
+
+	// Verify post ownership
+	var post models.Post
+	err = database.DB.Where("id = ? AND user_id = ?", input.PostID, userID).First(&post).Error
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "Post not found or access denied"})
+		return
+	}
+
+	// Link image to post
+	if err := ic.s3Service.LinkImageToPost(input.ImageID, input.PostID, input.Usage, input.Order); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "Image linked to post successfully",
+	})
+}
+
+// Helper functions
+
+func isValidImageType(imageType models.ImageType) bool {
+	validTypes := []models.ImageType{
+		models.ImageTypeAvatar,
+		models.ImageTypeTitle,
+		models.ImageTypeContent,
+		models.ImageTypeGeneral,
+	}
 
 	for _, validType := range validTypes {
-		if ext == validType {
+		if imageType == validType {
 			return true
 		}
 	}
 	return false
-}
-
-// getBaseURL extracts base URL from request
-func getBaseURL(c *gin.Context) string {
-	scheme := "http"
-	if c.Request.TLS != nil {
-		scheme = "https"
-	}
-
-	// Check for forwarded headers
-	if forwarded := c.GetHeader("X-Forwarded-Proto"); forwarded != "" {
-		scheme = forwarded
-	}
-
-	host := c.Request.Host
-	if forwarded := c.GetHeader("X-Forwarded-Host"); forwarded != "" {
-		host = forwarded
-	}
-
-	return fmt.Sprintf("%s://%s", scheme, host)
 }

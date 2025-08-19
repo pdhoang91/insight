@@ -52,6 +52,8 @@ func AutoMigrate(database *gorm.DB) {
 		&models.Reply{},
 		&models.PostTag{},
 		&models.Tag{},
+		&models.Image{},
+		&models.PostImage{},
 	)
 	if err != nil {
 		log.Fatal("Failed to migrate tables in database!", err)

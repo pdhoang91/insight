@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/pdhoang91/blog/config"
+	"github.com/pdhoang91/blog/controller"
 	"github.com/pdhoang91/blog/database"
 	"github.com/pdhoang91/blog/router"
 )
@@ -17,6 +18,15 @@ func main() {
 
 	// Initialize database
 	database.DB = database.ConnectDatabase()
+
+	// Initialize controllers
+	controllers, err := controller.InitControllers()
+	if err != nil {
+		log.Fatal("Failed to initialize controllers: ", err)
+	}
+
+	log.Printf("Controllers initialized: Image, Post, Search, Comment, User, Auth, Category, Tag")
+	_ = controllers // Controllers are accessible via global variables
 
 	// Setup router
 	r := router.SetupRouter()

@@ -25,6 +25,13 @@ func SetupRouter() *gin.Engine {
 	}
 	r.Use(cors.New(config))
 
+	// Get controller instances (they should be initialized by now)
+	imageCtrl := controllers.GetImageController()
+	// Other controllers can be accessed similarly:
+	// postCtrl := controllers.GetPostController()
+	// searchCtrl := controllers.GetSearchController()
+	// etc.
+
 	// Auth routes
 	r.POST("/auth/login", controllers.LoginHandler)
 	r.POST("/auth/register", controllers.RegisterHandler)
@@ -61,14 +68,28 @@ func SetupRouter() *gin.Engine {
 	r.GET("/public/:username/posts", controllers.GetPublicUserPosts)
 	r.GET("/public/:username/follow", controllers.GetPublicUserFollow)
 
-	// Static file serving for uploaded images
-	r.Static("/uploads", "./uploads")
-
-	// Protected image upload routes
-	protected := r.Group("/images")
-	protected.Use(middleware.AuthMiddleware())
+	// Public image routes
+	imageRoutes := r.Group("/images")
 	{
-		protected.POST("/upload/v2/:type", controllers.UploadImage)
+		// Public image info (no auth required for viewing)
+		imageRoutes.GET("/:id/info", imageCtrl.GetImageInfo)
+	}
+
+	// Protected image routes
+	protectedImages := r.Group("/images")
+	protectedImages.Use(middleware.AuthMiddleware())
+	{
+		// Upload images
+		protectedImages.POST("/upload/v2/:type", imageCtrl.UploadImage)
+
+		// Delete images
+		protectedImages.DELETE("/:id", imageCtrl.DeleteImage)
+
+		// List user's images
+		protectedImages.GET("/my", imageCtrl.GetUserImages)
+
+		// Link image to post
+		protectedImages.POST("/link", imageCtrl.LinkImageToPost)
 	}
 
 	// API routes

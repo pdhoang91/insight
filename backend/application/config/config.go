@@ -6,15 +6,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/credentials"
-	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 )
 
 var GoogleOauthConfig *oauth2.Config
-var S3Client *s3.Client
 
 func Init() error {
 	// Initialize Google OAuth config
@@ -37,27 +33,15 @@ func InitS3Client() {
 	region := os.Getenv("AWS_REGION")
 	accessKey := os.Getenv("AWS_ACCESS_KEY_ID")
 	secretKey := os.Getenv("AWS_SECRET_ACCESS_KEY")
-	sessionToken := os.Getenv("AWS_SESSION_TOKEN") // có thể để trống nếu không dùng
+	_ = os.Getenv("AWS_SESSION_TOKEN") // session token not used in current implementation
 
 	if region == "" || accessKey == "" || secretKey == "" {
 		log.Printf("Warning: Missing AWS credentials, some features may not work")
 		return // Don't fatal, just return
 	}
 
-	// Skip session token if it's a placeholder value
-	if sessionToken == "your-aws-session-token" || sessionToken == "" {
-		sessionToken = ""
-	}
-
-	// Tạo credentials provider từ package credentials
-	creds := aws.NewCredentialsCache(credentials.NewStaticCredentialsProvider(accessKey, secretKey, sessionToken))
-
-	cfg := aws.Config{
-		Region:      region,
-		Credentials: creds,
-	}
-
-	S3Client = s3.NewFromConfig(cfg)
+	// AWS configuration is now handled by individual services
+	log.Println("AWS credentials configured successfully")
 }
 
 // Get -

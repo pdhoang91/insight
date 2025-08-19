@@ -16,6 +16,7 @@ import (
 	"github.com/pdhoang91/blog/database"
 	"github.com/pdhoang91/blog/external/search"
 	"github.com/pdhoang91/blog/models"
+	"github.com/pdhoang91/blog/services"
 	"github.com/pdhoang91/blog/utils"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
@@ -672,6 +673,9 @@ func UpdatePost(c *gin.Context) {
 		}
 	}(searchPost)
 
+	// Trigger image cleanup for updated post (async)
+	services.TriggerImageCleanup(post.ID, "update")
+
 	// Trả về bài viết đã được cập nhật
 	c.JSON(http.StatusOK, gin.H{"data": post})
 }
@@ -786,6 +790,9 @@ func DeletePost(c *gin.Context) {
 			log.Printf("Failed to DeletePostFromIndex postID %s: %v", postID, err)
 		}
 	}(postID)
+
+	// Trigger image cleanup for deleted post (async)
+	services.TriggerImageCleanup(postID, "delete")
 
 	// Trả về phản hồi thành công
 	c.JSON(http.StatusOK, gin.H{"message": "Post and related data deleted successfully"})
