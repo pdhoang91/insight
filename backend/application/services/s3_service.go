@@ -33,7 +33,7 @@ type ObjectInfo struct {
 
 func NewS3Service() *S3Service {
 	return &S3Service{
-		client: config.S3Client,
+		client: config.S3Client, // This might be nil if AWS config failed
 	}
 }
 
@@ -72,6 +72,10 @@ func (s *S3Service) UploadFile(ctx context.Context, file *multipart.FileHeader, 
 
 // GetObject retrieves an object from S3
 func (s *S3Service) GetObject(ctx context.Context, key string) (io.ReadCloser, string, error) {
+	if s.client == nil {
+		return nil, "", fmt.Errorf("S3 client not initialized")
+	}
+
 	result, err := s.client.GetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(BucketName),
 		Key:    aws.String(key),

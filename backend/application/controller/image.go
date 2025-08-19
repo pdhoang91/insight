@@ -13,7 +13,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/pdhoang91/blog/services"
-	"github.com/pdhoang91/blog/utils"
+	"github.com/pdhoang91/blog/storage"
+	uuid "github.com/satori/go.uuid"
 )
 
 // Danh sách các MIME type được phép
@@ -173,7 +174,7 @@ func GetUserIDFromContext(c *gin.Context) (string, error) {
 	}
 }
 
-// UploadImageV2 handles image upload to S3
+// UploadImageV2 handles image upload using new storage system
 func UploadImageV2(c *gin.Context) {
 	fmt.Printf("DEBUG UPLOAD: Starting image upload\n")
 
@@ -227,35 +228,26 @@ func UploadImageV2(c *gin.Context) {
 		return
 	}
 
-	prefix, err := generateImagePrefix()
+	// Use new storage manager
+	manager := GetStorageManager()
+	uploadReq := &storage.UploadRequest{
+		File:   file,
+		UserID: uuid.FromStringOrNil(userID),
+		Type:   imageType,
+	}
+
+	response, err := manager.UploadImage(c.Request.Context(), uploadReq)
 	if err != nil {
-		fmt.Printf("DEBUG UPLOAD: generateImagePrefix error: %v\n", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể tạo tên tệp duy nhất"})
+		fmt.Printf("DEBUG UPLOAD: Storage manager error: %v\n", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể tải ảnh lên"})
 		return
 	}
 
-	fmt.Printf("DEBUG UPLOAD: Prefix: %s\n", prefix)
+	fmt.Printf("DEBUG UPLOAD: Upload successful - ImageID: %s, URL: %s\n", response.ImageID, response.URL)
 
-	// Create S3 service
-	s3Service := services.NewS3Service()
-	fmt.Printf("DEBUG UPLOAD: S3Service created\n")
-
-	// Upload to S3 and get the direct S3 URL
-	s3URL, err := s3Service.UploadFile(c.Request.Context(), file, userID, imageType, prefix)
-	if err != nil {
-		fmt.Printf("DEBUG UPLOAD: S3 UploadFile error: %v\n", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Không thể tải ảnh lên S3"})
-		return
-	}
-
-	fmt.Printf("DEBUG UPLOAD: S3 URL: %s\n", s3URL)
-
-	// Convert S3 URL to proxy URL
-	proxyURL := utils.ConvertS3URLToProxy(s3URL)
-
+	// Return in same format as before for compatibility
 	c.JSON(http.StatusOK, gin.H{
-		"url":    proxyURL,
-		"s3_url": s3URL, // Optional: keep for debugging/migration
+		"url": response.URL,
 	})
 }
 
@@ -288,7 +280,18 @@ func (ipc *ImageProxyController) ProxyImage(c *gin.Context) {
 		return
 	}
 
-	// Construct S3 key
+	// Try new system first - check if this is a migrated image
+	manager := GetStorageManager()
+	legacyURL := fmt.Sprintf("/images/proxy/%s/%s/%s/%s", userID, date, imageType, filename)
+
+	if imageID, err := manager.LegacyURLToImageID(legacyURL); err == nil {
+		// Found in new system, redirect to new endpoint
+		newURL := manager.GetImageURL(imageID)
+		c.Redirect(http.StatusMovedPermanently, newURL)
+		return
+	}
+
+	// Fallback to legacy S3 proxy
 	s3Key := fmt.Sprintf("uploads/%s/%s/%s/%s", userID, date, imageType, filename)
 
 	// Get image from S3

@@ -18,7 +18,6 @@ import (
 
 	"github.com/pdhoang91/blog/config"
 	"github.com/pdhoang91/blog/database"
-
 	"github.com/pdhoang91/blog/middleware"
 	"github.com/pdhoang91/blog/models"
 	"github.com/pdhoang91/blog/utils"
@@ -26,6 +25,11 @@ import (
 
 func GoogleLoginHandler(c *gin.Context) {
 	cfg := config.Get()
+	if cfg == nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "OAuth configuration not available"})
+		return
+	}
+
 	url := cfg.AuthCodeURL("state", oauth2.AccessTypeOffline)
 	c.Redirect(http.StatusTemporaryRedirect, url)
 }

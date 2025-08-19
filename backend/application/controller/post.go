@@ -151,8 +151,13 @@ func GetPostByID(c *gin.Context) {
 		return
 	}
 
-	// Content is already converted to proxy URLs at write time
-	post.Content = post.PostContent.Content
+	// Process content for display (convert data-image-id to URLs)
+	if globalStorageManager != nil {
+		displayContent := globalStorageManager.ProcessContent(post.PostContent.Content)
+		post.Content = displayContent
+	} else {
+		post.Content = post.PostContent.Content
+	}
 
 	// Tăng số lượt xem
 	database.DB.Model(&post).UpdateColumn("views", gorm.Expr("views + ?", 1))
@@ -179,51 +184,6 @@ func GetPostByID(c *gin.Context) {
 	})
 }
 
-// GetMostViewedPosts trả về danh sách các bài viết có lượt xem cao nhất
-func GetMostViewedPosts(c *gin.Context) {
-	var posts []models.Post
-	var total int64
-
-	// Lấy tham số phân trang từ query
-	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
-	if err != nil || page < 1 {
-		page = 1
-	}
-	limit, err := strconv.Atoi(c.DefaultQuery("limit", "10"))
-	if err != nil || limit < 1 {
-		limit = 10
-	}
-	offset := (page - 1) * limit
-
-	// Đếm tổng số bài viết
-	if err := database.DB.Model(&models.Post{}).Count(&total).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Lấy danh sách bài viết, sắp xếp theo views giảm dần
-	result := database.DB.
-		Preload("User").     // Eager load thông tin User
-		Order("views DESC"). // Sắp xếp theo số lượt xem giảm dần
-		Limit(limit).
-		Offset(offset).
-		Find(&posts)
-
-	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
-		return
-	}
-
-	// Calculate clap_count and comments_count for each post
-	calculatePostCounts(posts)
-
-	// Trả về kết quả
-	c.JSON(http.StatusOK, gin.H{
-		"data":        posts,
-		"total_count": total,
-	})
-}
-
 func GetPostByName(c *gin.Context) {
 	titleName := c.Param("title_name")
 	var post models.Post
@@ -241,8 +201,13 @@ func GetPostByName(c *gin.Context) {
 		return
 	}
 
-	// Content is already converted to proxy URLs at write time
-	post.Content = postContent.Content
+	// Process content for display (convert data-image-id to URLs)
+	if globalStorageManager != nil {
+		displayContent := globalStorageManager.ProcessContent(postContent.Content)
+		post.Content = displayContent
+	} else {
+		post.Content = postContent.Content
+	}
 
 	// Tăng số lượt xem
 	database.DB.Model(&post).UpdateColumn("views", gorm.Expr("views + ?", 1))
@@ -407,10 +372,24 @@ func CreatePost(c *gin.Context) {
 		return
 	}
 
+	// Process content with new image system
+	var processedContent string
+	if globalStorageManager != nil {
+		var err error
+		processedContent, err = globalStorageManager.ProcessContentForSaving(input.Content, post.ID)
+		if err != nil {
+			// Log warning but don't fail the operation
+			log.Printf("Warning: failed to process content for saving: %v", err)
+			processedContent = utils.ConvertS3URLToProxy(input.Content) // Fallback to legacy
+		}
+	} else {
+		processedContent = utils.ConvertS3URLToProxy(input.Content) // Fallback to legacy
+	}
+
 	// Create PostContent
 	postContent := models.PostContent{
-		PostID:    post.ID,                                  // Assign PostID from the new Post
-		Content:   utils.ConvertS3URLToProxy(input.Content), // Convert S3 URLs to proxy URLs at write time
+		PostID:    post.ID,
+		Content:   processedContent,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
@@ -616,10 +595,23 @@ func UpdatePost(c *gin.Context) {
 	var postContent models.PostContent
 	if err := database.DB.Where("post_id = ?", post.ID).First(&postContent).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
+			// Process content with new image system
+			var processedContent string
+			if globalStorageManager != nil {
+				var err error
+				processedContent, err = globalStorageManager.ProcessContentForSaving(input.Content, post.ID)
+				if err != nil {
+					log.Printf("Warning: failed to process content for saving: %v", err)
+					processedContent = utils.ConvertS3URLToProxy(input.Content) // Fallback to legacy
+				}
+			} else {
+				processedContent = utils.ConvertS3URLToProxy(input.Content) // Fallback to legacy
+			}
+
 			// Tạo mới PostContent nếu không tồn tại
 			postContent = models.PostContent{
 				PostID:    post.ID,
-				Content:   utils.ConvertS3URLToProxy(input.Content), // Convert at write time
+				Content:   processedContent,
 				CreatedAt: time.Now(),
 				UpdatedAt: time.Now(),
 			}
@@ -632,8 +624,21 @@ func UpdatePost(c *gin.Context) {
 			return
 		}
 	} else {
+		// Process content with new image system for update
+		var processedContent string
+		if globalStorageManager != nil {
+			var err error
+			processedContent, err = globalStorageManager.ProcessContentForSaving(input.Content, post.ID)
+			if err != nil {
+				log.Printf("Warning: failed to process content for saving: %v", err)
+				processedContent = utils.ConvertS3URLToProxy(input.Content) // Fallback to legacy
+			}
+		} else {
+			processedContent = utils.ConvertS3URLToProxy(input.Content) // Fallback to legacy
+		}
+
 		// Cập nhật nội dung PostContent nếu đã tồn tại
-		postContent.Content = utils.ConvertS3URLToProxy(input.Content) // Convert at write time
+		postContent.Content = processedContent
 		postContent.UpdatedAt = time.Now()
 		if err := database.DB.Save(&postContent).Error; err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update post content"})

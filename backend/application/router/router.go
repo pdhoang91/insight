@@ -2,8 +2,6 @@
 package router
 
 import (
-	"fmt"
-	"os"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -13,14 +11,11 @@ import (
 	"github.com/pdhoang91/blog/middleware"
 )
 
-func SetupRouter() *gin.Engine {
+func SetupRouter(imageController *controllers.ImageProxyController) *gin.Engine {
 	r := gin.Default()
 
-	//r.Static("/uploads", "./uploads") // Serve the uploads directory
-	allowOrigins := os.Getenv("BASE_FE_URL")
-	fmt.Println("allowOrigins", allowOrigins)
+	// CORS Configuration
 	config := cors.Config{
-		//AllowOrigins:     []string{allowOrigins, "http://localhost:3000", "http://202.92.6.77:3000"}, // Thay đổi tùy vào frontend
 		AllowOrigins:     []string{"http://202.92.6.77:3000", "http://localhost:3000", "https://insight.io.vn", "https://www.insight.io.vn"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
@@ -28,10 +23,7 @@ func SetupRouter() *gin.Engine {
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}
-
 	r.Use(cors.New(config))
-	// Đăng ký LoggerMiddleware
-	//r.Use(middleware.LoggerMiddleware())
 
 	// Auth routes
 	r.POST("/auth/login", controllers.LoginHandler)
@@ -41,13 +33,10 @@ func SetupRouter() *gin.Engine {
 
 	// Routes cho Posts and Comments, Ratings
 	r.GET("/posts", controllers.GetPosts)
-	r.GET("/posts/populer", controllers.GetMostViewedPosts)
 	r.GET("/posts/popular", controllers.GetPopularPosts)
 	r.GET("/posts/latest", controllers.GetLatestPosts)
-	//r.GET("/posts/:id", controllers.GetPostByID)
 	r.GET("/p/:title_name", controllers.GetPostByName)
 	r.GET("/posts/:id/comments", controllers.GetComments)
-	//r.POST("/posts/:id/comments", controllers.CreateComment)
 	r.GET("/posts/:id/ratings", controllers.GetRatingForPost)
 
 	// Routes cho Categories
@@ -90,18 +79,21 @@ func SetupRouter() *gin.Engine {
 	r.GET("/public/:username/bookmarks", controllers.GetPublicUserBookmarks)
 	r.GET("/public/:username/follow", controllers.GetPublicUserFollow)
 
-	// Images - integrated image service functionality
-	imageController := controllers.NewImageProxyController()
-
 	// Public image routes (no auth required for viewing)
 	r.GET("/images/proxy/:userID/:date/:type/:filename", imageController.ProxyImage)
 	r.GET("/images/info/:userID/:date/:type/:filename", imageController.GetImageInfo)
+
+	// New image system routes
+	r.GET("/images/v2/:id", controllers.ServeImageV2)        // Serve image by ID
+	r.GET("/images/v2/:id/info", controllers.GetImageInfoV2) // Get image metadata
 
 	// Protected image routes
 	protected := r.Group("/")
 	protected.Use(middleware.AuthMiddleware())
 	{
-		protected.POST("/images/upload/v2/:type", controllers.UploadImageV2)
+		protected.POST("/images/upload/v2/:type", controllers.UploadImageV2) // Updated to use new system
+		protected.DELETE("/images/v2/:id", controllers.DeleteImageV2)        // Delete image
+		protected.GET("/images/my", controllers.ListUserImages)              // List user's images
 	}
 
 	// API routes
@@ -112,8 +104,8 @@ func SetupRouter() *gin.Engine {
 		api.PUT("/users/:id", controllers.UpdateUser)
 		api.GET("/users/:id/posts", controllers.GetUserPosts)
 
-		api.POST("/posts", controllers.CreatePost)
-		api.PUT("/posts/:id", controllers.UpdatePost)
+		api.POST("/posts", controllers.CreatePost)    // Updated to use new system
+		api.PUT("/posts/:id", controllers.UpdatePost) // Updated to use new system
 		api.DELETE("/posts/:id", controllers.DeletePost)
 		api.POST("/posts/:id/comments", controllers.CreateComment)
 		api.POST("/posts/:id/ratings", controllers.CreateRating)

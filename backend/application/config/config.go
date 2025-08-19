@@ -40,7 +40,8 @@ func InitS3Client() {
 	sessionToken := os.Getenv("AWS_SESSION_TOKEN") // có thể để trống nếu không dùng
 
 	if region == "" || accessKey == "" || secretKey == "" {
-		log.Fatal("Thiếu biến môi trường: AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY")
+		log.Printf("Warning: Missing AWS credentials, some features may not work")
+		return // Don't fatal, just return
 	}
 
 	// Skip session token if it's a placeholder value
