@@ -154,11 +154,11 @@ func (pis *PostImageService) ProcessContentForDisplay(content string) string {
 		}
 
 		var image models.Image
-		if err := database.DB.Where("id = ? AND status = ?", imageID, models.ImageStatusActive).First(&image).Error; err != nil {
+		if err := database.DB.Where("id = ?", imageID).First(&image).Error; err != nil {
 			return match // Image not found, keep original
 		}
 
-		return fmt.Sprintf(`<img src="%s" alt="%s" class="content-image">`, image.GetCDNURL(), image.Filename)
+		return fmt.Sprintf(`<img src="%s" alt="%s" class="content-image">`, image.GetCDNURL(), image.OriginalFilename)
 	})
 
 	// Handle <img data-image-id="uuid"> format
@@ -175,7 +175,7 @@ func (pis *PostImageService) ProcessContentForDisplay(content string) string {
 		}
 
 		var image models.Image
-		if err := database.DB.Where("id = ? AND status = ?", imageID, models.ImageStatusActive).First(&image).Error; err != nil {
+		if err := database.DB.Where("id = ?", imageID).First(&image).Error; err != nil {
 			return match // Image not found, keep original
 		}
 
@@ -274,8 +274,8 @@ func (pis *PostImageService) ValidateImageOwnership(content string, titleImageID
 	// Check ownership for all images
 	for _, imageID := range imageIDs {
 		var image models.Image
-		err := database.DB.Where("id = ? AND user_id = ? AND status = ?",
-			imageID, userID, models.ImageStatusActive).First(&image).Error
+		err := database.DB.Where("id = ? AND user_id = ?",
+			imageID, userID).First(&image).Error
 
 		if err != nil {
 			return fmt.Errorf("image %s not found or access denied", imageID)
@@ -296,9 +296,9 @@ func (pis *PostImageService) GetImageUsageStats(userID uuid.UUID) (map[string]in
 	}
 
 	err := database.DB.Model(&models.Image{}).
-		Select("type, count(*) as count").
-		Where("user_id = ? AND status = ?", userID, models.ImageStatusActive).
-		Group("type").
+		Select("image_type as type, count(*) as count").
+		Where("user_id = ?", userID).
+		Group("image_type").
 		Find(&typeCounts).Error
 
 	if err != nil {
@@ -312,17 +312,17 @@ func (pis *PostImageService) GetImageUsageStats(userID uuid.UUID) (map[string]in
 		totalImages += tc.Count
 	}
 
-	// Orphaned images
+	// Orphaned images (images not linked to any post)
 	var orphanedCount int64
 	database.DB.Model(&models.Image{}).
-		Where("user_id = ? AND status = ?", userID, models.ImageStatusOrphaned).
+		Where("user_id = ? AND id NOT IN (SELECT DISTINCT image_id FROM post_images)", userID).
 		Count(&orphanedCount)
 
 	// Storage usage
 	var totalSize int64
 	database.DB.Model(&models.Image{}).
-		Select("COALESCE(SUM(size), 0)").
-		Where("user_id = ? AND status = ?", userID, models.ImageStatusActive).
+		Select("COALESCE(SUM(file_size), 0)").
+		Where("user_id = ?", userID).
 		Row().Scan(&totalSize)
 
 	stats["total_images"] = totalImages

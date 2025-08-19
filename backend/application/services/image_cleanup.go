@@ -151,17 +151,10 @@ func (ics *ImageCleanupService) handleOrphanedImage(imageID uuid.UUID) {
 			return
 		}
 
-		// Mark as orphaned
-		image.MarkAsOrphaned()
-		if err := database.DB.Save(&image).Error; err != nil {
-			log.Printf("Error marking image %s as orphaned: %v", imageID, err)
-			return
-		}
-
-		// Schedule for deletion after a delay (give time for potential recovery)
+		// Since we don't have status field, directly schedule for deletion
 		ics.scheduleImageDeletion(imageID, 24*time.Hour) // Delete after 24 hours
 
-		log.Printf("Image %s marked as orphaned and scheduled for deletion", imageID)
+		log.Printf("Image %s scheduled for deletion", imageID)
 	}
 }
 
@@ -187,16 +180,15 @@ func (ics *ImageCleanupService) scheduleImageDeletion(imageID uuid.UUID, delay t
 		}
 
 		// Delete from S3
-		if err := ics.s3Service.DeleteFromS3(image.S3Key); err != nil {
+		if err := ics.s3Service.DeleteFromS3(image.StorageKey); err != nil {
 			log.Printf("Error deleting image %s from S3: %v", imageID, err)
 		} else {
 			log.Printf("Successfully deleted image %s from S3", imageID)
 		}
 
-		// Mark as deleted in database
-		image.MarkAsDeleted()
-		if err := database.DB.Save(&image).Error; err != nil {
-			log.Printf("Error marking image %s as deleted: %v", imageID, err)
+		// Delete from database
+		if err := database.DB.Delete(&image).Error; err != nil {
+			log.Printf("Error deleting image %s from database: %v", imageID, err)
 		}
 
 		log.Printf("Image %s cleanup completed", imageID)
@@ -208,12 +200,12 @@ func (ics *ImageCleanupService) CleanupUserImagesAsync(userID uuid.UUID) {
 	go func() {
 		log.Printf("Starting user image cleanup for user %s", userID)
 
-		// Find user's orphaned images older than 24 hours
+		// Find user's images that are not linked to any post and older than 24 hours
 		cutoffTime := time.Now().Add(-24 * time.Hour)
 
 		var orphanedImages []models.Image
-		err := database.DB.Where("user_id = ? AND status = ? AND updated_at < ?",
-			userID, models.ImageStatusOrphaned, cutoffTime).Find(&orphanedImages).Error
+		err := database.DB.Where("user_id = ? AND created_at < ? AND id NOT IN (SELECT DISTINCT image_id FROM post_images)",
+			userID, cutoffTime).Find(&orphanedImages).Error
 
 		if err != nil {
 			log.Printf("Error finding orphaned images for user %s: %v", userID, err)
@@ -228,15 +220,14 @@ func (ics *ImageCleanupService) CleanupUserImagesAsync(userID uuid.UUID) {
 		cleaned := 0
 		for _, image := range orphanedImages {
 			// Delete from S3
-			if err := ics.s3Service.DeleteFromS3(image.S3Key); err != nil {
+			if err := ics.s3Service.DeleteFromS3(image.StorageKey); err != nil {
 				log.Printf("Error deleting image %s from S3: %v", image.ID, err)
 				continue
 			}
 
-			// Mark as deleted
-			image.MarkAsDeleted()
-			if err := database.DB.Save(&image).Error; err != nil {
-				log.Printf("Error marking image %s as deleted: %v", image.ID, err)
+			// Delete from database
+			if err := database.DB.Delete(&image).Error; err != nil {
+				log.Printf("Error deleting image %s from database: %v", image.ID, err)
 				continue
 			}
 

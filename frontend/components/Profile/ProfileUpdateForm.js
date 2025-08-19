@@ -27,9 +27,12 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
     const file = e.target.files[0];
     if (!file) return;
 
+    console.log('Starting avatar upload...', file.name); // Debug log
+
     setIsUploading(true);
     try {
       const imageUrl = await uploadImage(file, "avatar");
+      console.log('Upload successful, setting avatar URL:', imageUrl); // Debug log
       setAvatarUrl(imageUrl);
     } catch (error) {
       console.error("Failed to upload avatar:", error);
@@ -74,11 +77,16 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
               {/* Avatar Section */}
               <div className="flex items-center space-x-3">
                 <div className="relative">
-                  <img 
-                    src={avatarUrl || '/images/placeholder.svg'} 
-                    alt="Avatar" 
-                    className="w-16 h-16 rounded-full object-cover" 
-                  />
+                                  <img 
+                  src={avatarUrl || '/images/placeholder.svg'} 
+                  alt="Avatar" 
+                  className="w-16 h-16 rounded-full object-cover" 
+                  onError={(e) => {
+                    console.error('Avatar image failed to load:', avatarUrl);
+                    e.target.src = '/images/placeholder.svg';
+                  }}
+                  onLoad={() => console.log('Avatar image loaded successfully:', avatarUrl)}
+                />
                   {isUploading && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
                       <div className="w-4 h-4 border-2 border-matrix-green border-t-transparent rounded-full animate-spin"></div>

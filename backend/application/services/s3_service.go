@@ -9,6 +9,7 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 	"io"
+	"log"
 	"mime/multipart"
 	"path/filepath"
 	"strings"
@@ -111,7 +112,7 @@ func (s *S3Service) UploadImage(userID uuid.UUID, imageType models.ImageType, fi
 	s3Key := s.config.GetS3Key(userID.String(), string(imageType), filename)
 
 	// Upload to S3
-	result, err := s.uploader.Upload(&s3manager.UploadInput{
+	_, err = s.uploader.Upload(&s3manager.UploadInput{
 		Bucket:      aws.String(s.config.S3Config.Bucket),
 		Key:         aws.String(s3Key),
 		Body:        bytes.NewReader(fileContent),
@@ -129,17 +130,15 @@ func (s *S3Service) UploadImage(userID uuid.UUID, imageType models.ImageType, fi
 
 	// Create image record in database
 	imageRecord := &models.Image{
-		UserID:      userID,
-		OriginalURL: s.config.GetPublicURL(s3Key),
-		S3Key:       s3Key,
-		S3Bucket:    s.config.S3Config.Bucket,
-		Filename:    header.Filename,
-		ContentType: s.getContentType(header.Filename),
-		Size:        header.Size,
-		Width:       width,
-		Height:      height,
-		Type:        imageType,
-		Status:      models.ImageStatusActive,
+		UserID:           userID,
+		StorageKey:       s3Key,
+		StorageProvider:  s.config.S3Config.Bucket,
+		OriginalFilename: header.Filename,
+		ContentType:      s.getContentType(header.Filename),
+		FileSize:         header.Size,
+		Width:            width,
+		Height:           height,
+		ImageType:        string(imageType),
 	}
 
 	if err := database.DB.Create(imageRecord).Error; err != nil {
@@ -150,11 +149,11 @@ func (s *S3Service) UploadImage(userID uuid.UUID, imageType models.ImageType, fi
 
 	return &UploadResult{
 		ImageID:     imageRecord.ID,
-		URL:         result.Location,
+		URL:         imageRecord.GetPublicURL(),
 		S3Key:       s3Key,
-		Filename:    filename,
+		Filename:    imageRecord.OriginalFilename,
 		ContentType: imageRecord.ContentType,
-		Size:        imageRecord.Size,
+		Size:        imageRecord.FileSize,
 		Width:       width,
 		Height:      height,
 	}, nil
@@ -169,14 +168,13 @@ func (s *S3Service) DeleteImage(imageID uuid.UUID, userID uuid.UUID) error {
 	}
 
 	// Delete from S3
-	if err := s.deleteFromS3(imageRecord.S3Key); err != nil {
+	if err := s.deleteFromS3(imageRecord.StorageKey); err != nil {
 		return fmt.Errorf("failed to delete from S3: %w", err)
 	}
 
-	// Mark as deleted in database
-	imageRecord.MarkAsDeleted()
-	if err := database.DB.Save(&imageRecord).Error; err != nil {
-		return fmt.Errorf("failed to update image status: %w", err)
+	// Delete from database (since we don't have status/deleted_at in current schema)
+	if err := database.DB.Delete(&imageRecord).Error; err != nil {
+		return fmt.Errorf("failed to delete image record: %w", err)
 	}
 
 	return nil
@@ -205,7 +203,7 @@ func (s *S3Service) GetImagesByPost(postID uuid.UUID) ([]models.Image, error) {
 
 	err := database.DB.
 		Joins("JOIN post_images ON images.id = post_images.image_id").
-		Where("post_images.post_id = ? AND images.status = ?", postID, models.ImageStatusActive).
+		Where("post_images.post_id = ?", postID).
 		Order("post_images.usage, post_images.order").
 		Find(&images).Error
 
@@ -218,18 +216,23 @@ func (s *S3Service) CleanupOrphanedImages() error {
 	var orphanedImages []models.Image
 
 	err := database.DB.
-		Where("id NOT IN (SELECT DISTINCT image_id FROM post_images) AND created_at < ? AND status = ?",
-			time.Now().Add(-24*time.Hour), models.ImageStatusActive).
+		Where("id NOT IN (SELECT DISTINCT image_id FROM post_images) AND created_at < ?",
+			time.Now().Add(-24*time.Hour)).
 		Find(&orphanedImages).Error
 
 	if err != nil {
 		return err
 	}
 
-	// Mark as orphaned
+	// Delete orphaned images directly (since we don't have status field)
 	for _, img := range orphanedImages {
-		img.MarkAsOrphaned()
-		database.DB.Save(&img)
+		// Delete from S3
+		if err := s.DeleteFromS3(img.StorageKey); err != nil {
+			log.Printf("Failed to delete orphaned image %s from S3: %v", img.ID, err)
+		}
+
+		// Delete from database
+		database.DB.Delete(&img)
 	}
 
 	return nil
