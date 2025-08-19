@@ -38,12 +38,8 @@ func calculatePostCounts(posts []models.Post) {
 		PostID    uuid.UUID `json:"post_id"`
 		ClapCount int64     `json:"clap_count"`
 	}
-	var clapCounts []ClapCountResult
-	database.DB.Model(&models.UserActivity{}).
-		Select("post_id, COUNT(*) as clap_count").
-		Where("post_id IN ? AND action_type = ?", postIDs, "clap_post").
-		Group("post_id").
-		Scan(&clapCounts)
+	// Clap counts - disabled since UserActivity model removed
+	var clapCounts []ClapCountResult = []ClapCountResult{}
 
 	// Bulk query for comment counts
 	type CommentCountResult struct {
@@ -77,12 +73,8 @@ func calculatePostCounts(posts []models.Post) {
 
 // calculateSinglePostCounts calculates clap_count and comments_count for a single post
 func calculateSinglePostCounts(post *models.Post) {
-	// Get clap count
-	var clapCount int64
-	database.DB.Model(&models.UserActivity{}).
-		Where("post_id = ? AND action_type = ?", post.ID, "clap_post").
-		Count(&clapCount)
-	post.ClapCount = uint64(clapCount)
+	// Get clap count - disabled since UserActivity model removed
+	post.ClapCount = 0
 
 	// Get comment count
 	var commentCount int64
@@ -151,13 +143,8 @@ func GetPostByID(c *gin.Context) {
 		return
 	}
 
-	// Process content for display (convert data-image-id to URLs)
-	if globalStorageManager != nil {
-		displayContent := globalStorageManager.ProcessContent(post.PostContent.Content)
-		post.Content = displayContent
-	} else {
-		post.Content = post.PostContent.Content
-	}
+	// Set content for display
+	post.Content = post.PostContent.Content
 
 	// Tăng số lượt xem
 	database.DB.Model(&post).UpdateColumn("views", gorm.Expr("views + ?", 1))
@@ -165,16 +152,8 @@ func GetPostByID(c *gin.Context) {
 	// Calculate clap_count and comments_count for the post
 	calculateSinglePostCounts(&post)
 
-	// Kiểm tra xem người dùng đã clap post này chưa
-	userIDInterface, exists := c.Get("userID")
-	var hasClapped bool
-	if exists {
-		var activity models.UserActivity
-		err := database.DB.Where("user_id = ? AND post_id = ? AND action_type = ?", userIDInterface, post.ID, "clap_post").First(&activity).Error
-		if err == nil {
-			hasClapped = true
-		}
-	}
+	// Clap checking disabled since UserActivity model removed
+	hasClapped := false
 
 	c.JSON(http.StatusOK, gin.H{
 		"data": map[string]interface{}{
@@ -202,12 +181,7 @@ func GetPostByName(c *gin.Context) {
 	}
 
 	// Process content for display (convert data-image-id to URLs)
-	if globalStorageManager != nil {
-		displayContent := globalStorageManager.ProcessContent(postContent.Content)
-		post.Content = displayContent
-	} else {
-		post.Content = postContent.Content
-	}
+	post.Content = postContent.Content
 
 	// Tăng số lượt xem
 	database.DB.Model(&post).UpdateColumn("views", gorm.Expr("views + ?", 1))
@@ -372,19 +346,8 @@ func CreatePost(c *gin.Context) {
 		return
 	}
 
-	// Process content with new image system
-	var processedContent string
-	if globalStorageManager != nil {
-		var err error
-		processedContent, err = globalStorageManager.ProcessContentForSaving(input.Content, post.ID)
-		if err != nil {
-			// Log warning but don't fail the operation
-			log.Printf("Warning: failed to process content for saving: %v", err)
-			processedContent = utils.ConvertS3URLToProxy(input.Content) // Fallback to legacy
-		}
-	} else {
-		processedContent = utils.ConvertS3URLToProxy(input.Content) // Fallback to legacy
-	}
+	// Process content
+	processedContent := input.Content
 
 	// Create PostContent
 	postContent := models.PostContent{
@@ -595,18 +558,8 @@ func UpdatePost(c *gin.Context) {
 	var postContent models.PostContent
 	if err := database.DB.Where("post_id = ?", post.ID).First(&postContent).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			// Process content with new image system
-			var processedContent string
-			if globalStorageManager != nil {
-				var err error
-				processedContent, err = globalStorageManager.ProcessContentForSaving(input.Content, post.ID)
-				if err != nil {
-					log.Printf("Warning: failed to process content for saving: %v", err)
-					processedContent = utils.ConvertS3URLToProxy(input.Content) // Fallback to legacy
-				}
-			} else {
-				processedContent = utils.ConvertS3URLToProxy(input.Content) // Fallback to legacy
-			}
+			// Process content
+			processedContent := input.Content
 
 			// Tạo mới PostContent nếu không tồn tại
 			postContent = models.PostContent{
@@ -624,18 +577,8 @@ func UpdatePost(c *gin.Context) {
 			return
 		}
 	} else {
-		// Process content with new image system for update
-		var processedContent string
-		if globalStorageManager != nil {
-			var err error
-			processedContent, err = globalStorageManager.ProcessContentForSaving(input.Content, post.ID)
-			if err != nil {
-				log.Printf("Warning: failed to process content for saving: %v", err)
-				processedContent = utils.ConvertS3URLToProxy(input.Content) // Fallback to legacy
-			}
-		} else {
-			processedContent = utils.ConvertS3URLToProxy(input.Content) // Fallback to legacy
-		}
+		// Process content for update
+		processedContent := input.Content
 
 		// Cập nhật nội dung PostContent nếu đã tồn tại
 		postContent.Content = processedContent
@@ -797,26 +740,7 @@ func DeletePost(c *gin.Context) {
 		}
 	}
 
-	// Xóa Bookmarks liên quan đến bài viết
-	if err := tx.Where("post_id = ?", postID).Delete(&models.Bookmark{}).Error; err != nil {
-		tx.Rollback()
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete bookmarks"})
-		return
-	}
-
-	// Xóa UserActivity liên quan đến bài viết
-	if err := tx.Where("post_id = ?", postID).Delete(&models.UserActivity{}).Error; err != nil {
-		tx.Rollback()
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user activities"})
-		return
-	}
-
-	// Xóa Rating liên quan đến bài viết
-	if err := tx.Where("post_id = ?", postID).Delete(&models.Rating{}).Error; err != nil {
-		tx.Rollback()
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete ratings"})
-		return
-	}
+	// Related data cleanup - models removed, skip deletion
 
 	// Tìm và xóa tất cả các bình luận liên quan đến bài viết
 	var comments []models.Comment

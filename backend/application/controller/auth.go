@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -20,7 +19,6 @@ import (
 	"github.com/pdhoang91/blog/database"
 	"github.com/pdhoang91/blog/middleware"
 	"github.com/pdhoang91/blog/models"
-	"github.com/pdhoang91/blog/utils"
 )
 
 func GoogleLoginHandler(c *gin.Context) {
@@ -151,12 +149,7 @@ func RegisterHandler(c *gin.Context) {
 		return
 	}
 
-	// Generate verification token
-	token, err := utils.GenerateVerificationToken()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating verification token"})
-		return
-	}
+	// Verification token generation disabled - utils removed
 
 	// Kiểm tra xem người dùng đã tồn tại trong cơ sở dữ liệu hay chưa
 	var user models.User
@@ -166,7 +159,7 @@ func RegisterHandler(c *gin.Context) {
 			newUser := models.User{
 				Email:             input.Email,
 				Password:          string(hashedPassword),
-				VerificationToken: token,
+				VerificationToken: "", // Verification disabled
 				Username:          "@" + strings.Split(input.Email, "@")[0],
 				Name:              strings.Split(input.Email, "@")[0],
 				AvatarURL:         "https://www.w3schools.com/w3images/avatar2.png",
@@ -201,108 +194,16 @@ func RegisterHandler(c *gin.Context) {
 }
 
 func VerifyEmail(c *gin.Context) {
-	token := c.Query("token")
-	if token == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Token is required"})
-		return
-	}
-
-	var user models.User
-	if err := database.DB.Where("verification_token = ?", token).First(&user).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid token"})
-		return
-	}
-
-	user.EmailVerified = true
-	user.VerificationToken = "" // Clear token
-	if err := database.DB.Save(&user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to verify email"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Email verified successfully"})
+	// Email verification feature disabled - utils removed
+	c.JSON(http.StatusNotImplemented, gin.H{"error": "Email verification feature not implemented"})
 }
 
 func RequestPasswordReset(c *gin.Context) {
-	var input struct {
-		Email string `json:"email" binding:"required,email"`
-	}
-
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
-		return
-	}
-
-	var user models.User
-	if err := database.DB.Where("email = ?", input.Email).First(&user).Error; err != nil {
-		// To prevent email enumeration, respond with success even if user not found
-		c.JSON(http.StatusOK, gin.H{"message": "If the email exists, a reset link has been sent"})
-		return
-	}
-
-	// Generate reset token
-	token, err := utils.GeneratePasswordResetToken()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error generating reset token"})
-		return
-	}
-
-	user.PasswordResetToken = token
-	user.PasswordResetExpiresAt = utils.GetPasswordResetExpiry()
-
-	if err := database.DB.Save(&user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save reset token"})
-		return
-	}
-
-	baseFeURL := os.Getenv("BASE_FE_URL")
-	// Send reset email
-	resetURL := fmt.Sprintf("%s/password-reset?token=%s", baseFeURL, token)
-	if err := utils.SendPasswordResetEmail(user.Email, resetURL); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send reset email"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "If the email exists, a reset link has been sent"})
+	// Password reset feature disabled - utils removed
+	c.JSON(http.StatusNotImplemented, gin.H{"error": "Password reset feature not implemented"})
 }
 
 func ConfirmPasswordReset(c *gin.Context) {
-	var input struct {
-		Token       string `json:"token" binding:"required"`
-		NewPassword string `json:"new_password" binding:"required,min=6"`
-	}
-
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
-		return
-	}
-
-	var user models.User
-	if err := database.DB.Where("password_reset_token = ?", input.Token).First(&user).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid or expired token"})
-		return
-	}
-
-	if time.Now().After(user.PasswordResetExpiresAt) {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Token has expired"})
-		return
-	}
-
-	// Hash new password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(input.NewPassword), 10)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error hashing password"})
-		return
-	}
-
-	user.Password = string(hashedPassword)
-	user.PasswordResetToken = ""
-	user.PasswordResetExpiresAt = time.Time{}
-
-	if err := database.DB.Save(&user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to reset password"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "Password reset successfully"})
+	// Password reset feature disabled - utils removed
+	c.JSON(http.StatusNotImplemented, gin.H{"error": "Password reset feature not implemented"})
 }

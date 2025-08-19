@@ -4,10 +4,8 @@ package controller
 import (
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/gin-gonic/gin"
-	uuid "github.com/satori/go.uuid"
 
 	"github.com/pdhoang91/blog/constants"
 	"github.com/pdhoang91/blog/database"
@@ -82,120 +80,6 @@ func UpdateUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": user})
-}
-
-// Fetch user's posts
-func GetUserPosts(c *gin.Context) {
-	userID := c.Param("id")
-	var posts []models.Post
-
-	pagingParams, err := utils.GetPagingParams(c)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid paging parameters"})
-		return
-	}
-	offset := (pagingParams.Page - 1) * pagingParams.Limit
-	limit := pagingParams.Limit
-
-	//var posts []models.Post
-	var total int64
-
-	db := database.DB.Model(&models.Post{}).Where("user_id = ?", userID)
-	db.Count(&total) // Count total posts for the user
-
-	db.Preload("User"). // Eager load User
-				Order("created_at DESC").
-				Limit(limit).
-				Offset(offset).
-				Find(&posts)
-
-	// Calculate clap_count and comments_count for each post
-	calculatePostCounts(posts)
-
-	c.JSON(http.StatusOK, gin.H{
-		"data":        posts,
-		"total_count": total,
-	})
-}
-
-func SearchUsers(c *gin.Context) {
-	query := c.Query("q") // Nhận từ khóa tìm kiếm
-	if query == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Search query is required"})
-		return
-	}
-
-	var users []models.User
-	var total int64
-	page, err := strconv.Atoi(c.DefaultQuery("page", "1"))
-	if err != nil || page < 1 {
-		page = 1
-	}
-	limit, err := strconv.Atoi(c.DefaultQuery("limit", "10"))
-	if err != nil || limit < 1 {
-		limit = 10
-	}
-	offset := (page - 1) * limit
-
-	// Tạo query cơ bản cho bảng User
-	db := database.DB.Model(&models.User{})
-
-	// Thêm điều kiện tìm kiếm dựa trên tiêu chí name, email, và bio (case & accent insensitive)
-	db = db.Where(`
-		lower(unaccent(name)) LIKE ? OR name ILIKE ? OR 
-		lower(unaccent(email)) LIKE ? OR email ILIKE ? OR 
-		lower(unaccent(bio)) LIKE ? OR bio ILIKE ?`,
-		"%"+strings.ToLower(query)+"%", "%"+query+"%",
-		"%"+strings.ToLower(query)+"%", "%"+query+"%",
-		"%"+strings.ToLower(query)+"%", "%"+query+"%")
-
-	// Đếm tổng số người dùng phù hợp với tiêu chí tìm kiếm
-	if err := db.Count(&total).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Lấy danh sách người dùng với phân trang và sắp xếp
-	result := db.
-		Order("created_at DESC").
-		Limit(limit).
-		Offset(offset).
-		Find(&users)
-
-	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
-		return
-	}
-
-	// Chuẩn bị dữ liệu phản hồi
-	type UserResponse struct {
-		ID        uuid.UUID `json:"id"`
-		Name      string    `json:"name"`
-		UserName  string    `json:"username"`
-		Email     string    `json:"email"`
-		Bio       string    `json:"bio"`
-		AvatarURL string    `json:"avatar_url"`
-	}
-
-	var userResponses []UserResponse
-	for _, user := range users {
-		userResponses = append(userResponses, UserResponse{
-			ID:        user.ID,
-			UserName:  user.Username,
-			Name:      user.Name,
-			Email:     user.Email,
-			Bio:       user.Bio,
-			AvatarURL: user.AvatarURL,
-		})
-	}
-
-	// Trả về JSON bao gồm data, tổng số người dùng, và thông tin phân trang
-	c.JSON(http.StatusOK, gin.H{
-		"data":        userResponses,
-		"total_count": total,
-		//"page":        page,
-		//"limit":       limit,
-	})
 }
 
 // GetUserProfile returns public profile information of a user by username
@@ -276,39 +160,6 @@ func GetPublicUserPosts(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"data":        posts,
-		"total_count": total,
-	})
-}
-
-// GetUserBookmarks returns paginated posts bookmarked by the user
-func GetPublicUserBookmarks(c *gin.Context) {
-	username := c.Param("username")
-	page, limit := getPaginationParams(c)
-
-	var user models.User
-	if err := database.DB.Where("username = ?", username).First(&user).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-		return
-	}
-
-	var bookmarks []models.Post
-	var total int64
-
-	// Assuming you have a "bookmarks" table that relates users and posts
-	db := database.DB.Table("bookmarks").
-		Joins("JOIN posts ON posts.id = bookmarks.post_id").
-		Where("bookmarks.user_id = ?", user.ID).
-		Select("posts.*")
-
-	db.Count(&total) // Count total bookmarked posts for the user
-
-	db.Order("bookmarks.created_at DESC").
-		Limit(limit).
-		Offset((page - 1) * limit).
-		Find(&bookmarks)
-
-	c.JSON(http.StatusOK, gin.H{
-		"data":        bookmarks,
 		"total_count": total,
 	})
 }

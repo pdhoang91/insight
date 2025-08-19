@@ -93,59 +93,6 @@ func SearchPostsHandler(c *gin.Context) {
 	})
 }
 
-// SearchSuggestionsHandler xử lý yêu cầu gợi ý tìm kiếm
-func SearchSuggestionsHandler(c *gin.Context) {
-	query := c.Query("q")
-	limitStr := c.DefaultQuery("limit", "5")
-
-	limit, err := strconv.Atoi(limitStr)
-	if err != nil || limit < 1 {
-		limit = 5
-	}
-
-	client := search.New()
-
-	// Context với timeout
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-	defer cancel()
-
-	suggestions, err := client.GetSearchSuggestions(ctx, query, limit)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get suggestions", "details": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"suggestions": suggestions,
-	})
-}
-
-// PopularSearchesHandler xử lý yêu cầu lấy các tìm kiếm phổ biến
-func PopularSearchesHandler(c *gin.Context) {
-	limitStr := c.DefaultQuery("limit", "10")
-
-	limit, err := strconv.Atoi(limitStr)
-	if err != nil || limit < 1 {
-		limit = 10
-	}
-
-	client := search.New()
-
-	// Context với timeout
-	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-	defer cancel()
-
-	searches, err := client.GetPopularSearches(ctx, limit)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get popular searches", "details": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"popular_searches": searches,
-	})
-}
-
 // TrackSearchHandler xử lý việc theo dõi search analytics
 func TrackSearchHandler(c *gin.Context) {
 	var request struct {

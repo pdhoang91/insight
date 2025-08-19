@@ -2,7 +2,6 @@ package controller
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"regexp"
 
@@ -111,31 +110,12 @@ func CreateComment(c *gin.Context) {
 		return
 	}
 
-	// Ghi lại hoạt động tạo bình luận
-	userActivity := models.UserActivity{
-		UserID:     userID,
-		PostID:     &comment.PostID,
-		CommentID:  &comment.ID,
-		ActionType: "comment_created",
-	}
-	database.DB.Create(&userActivity)
+	// User activity and notifications disabled - models removed
 
 	// Preload User và Replies sau khi tạo bình luận
 	if err = database.DB.Preload("User").Preload("Replies").First(&comment, comment.ID).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
-	}
-
-	// Parse mentions from content
-	mentionedUserIDs, err := parseMentions(comment.Content)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-	}
-
-	// Create notifications for mentioned users
-	for _, mentionedUserID := range mentionedUserIDs {
-		message := fmt.Sprintf("You were mentioned in a comment by %s.", user.Name)
-		utils.CreateNotification(mentionedUserID, models.NotificationTypeMention, message, comment.ID)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": comment})
@@ -213,14 +193,7 @@ func CreateReply(c *gin.Context) {
 		return
 	}
 
-	// Ghi lại hoạt động tạo phản hồi
-	userActivity := models.UserActivity{
-		UserID:     userID,
-		CommentID:  &reply.CommentID,
-		ReplyID:    &reply.ID,
-		ActionType: "reply_created",
-	}
-	database.DB.Create(&userActivity)
+	// User activity disabled - model removed
 
 	c.JSON(http.StatusOK, gin.H{"data": reply})
 }

@@ -47,18 +47,11 @@ func AutoMigrate(database *gorm.DB) {
 		&models.PostContent{},
 		&models.Comment{},
 		&models.Category{},
-		&models.Rating{},
 		&models.User{},
 		&models.PostCategory{},
-		&models.Follow{},
-		&models.Bookmark{},
-		&models.UserActivity{},
 		&models.Reply{},
 		&models.PostTag{},
 		&models.Tag{},
-		&models.Tab{},
-		&models.Image{},
-		&models.ImageReference{},
 	)
 	if err != nil {
 		log.Fatal("Failed to migrate tables in database!", err)

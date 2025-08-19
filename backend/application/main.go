@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/pdhoang91/blog/config"
-	"github.com/pdhoang91/blog/controller"
 	"github.com/pdhoang91/blog/database"
 	"github.com/pdhoang91/blog/router"
 )
@@ -19,14 +18,8 @@ func main() {
 	// Initialize database
 	database.DB = database.ConnectDatabase()
 
-	// Initialize all global services (storage manager, image proxy, etc.)
-	controller.InitGlobalServices()
-
-	// Initialize controllers
-	imageController := controller.NewImageProxyController()
-
-	// Setup router with dependencies
-	r := router.SetupRouter(imageController)
+	// Setup router
+	r := router.SetupRouter()
 
 	// Get port from environment or use default
 	port := os.Getenv("PORT")

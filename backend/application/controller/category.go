@@ -103,33 +103,6 @@ func GetTopCategories(c *gin.Context) {
 	})
 }
 
-func CreateCategory(c *gin.Context) {
-	var input struct {
-		Name string `json:"name" binding:"required"`
-	}
-
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	category := models.Category{Name: input.Name}
-	result := database.DB.Create(&category)
-	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
-		return
-	}
-
-	// Indexing tag vào Elasticsearch
-	//err := search.IndexCategory(category)
-	//if err != nil {
-	//	c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to index category"})
-	//	return
-	//}
-
-	c.JSON(http.StatusOK, gin.H{"data": category})
-}
-
 // GetPopularCategories trả về danh sách các category có nhiều bài post nhất cho sidebar
 func GetPopularCategories(c *gin.Context) {
 	// Lấy các tham số phân trang từ query string với giá trị mặc định
