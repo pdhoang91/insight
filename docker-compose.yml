@@ -45,6 +45,12 @@ services:
       - db-data:/var/lib/postgresql/data
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "postgres", "-U", "postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
 
   application:
     container_name: application
@@ -61,7 +67,8 @@ services:
     volumes:
       - ./backend/application/uploads:/app/uploads  # Mount thư mục uploads của backend
     depends_on:
-      - db
+      db:
+        condition: service_healthy
       #- fluentd
     environment:
       - DB_HOST=db
@@ -110,7 +117,8 @@ services:
     # volumes:
     #   - ./search-service/images:/app/images/uploads  # Mount thư mục uploads của image-service
     depends_on:
-      - db
+      db:
+        condition: service_healthy
       #- fluentd
     environment:
       - DB_HOST=db
