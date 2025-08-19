@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaUpload, FaTimes, FaUser, FaFileAlt, FaTerminal, FaCode, FaLaptopCode, FaRocket } from 'react-icons/fa';
+import { FaTimes } from 'react-icons/fa';
 import { uploadImage } from '../../services/imageService';
 
 const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
@@ -42,200 +42,106 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50"
+        className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50 p-2"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.3 }}
+        transition={{ duration: 0.2 }}
         onClick={onCancel}
       >
         <motion.div 
-          className="bg-gradient-to-br from-terminal-dark via-terminal-black to-terminal-dark rounded-xl shadow-2xl border border-matrix-green/30 w-full max-w-lg mx-4 relative overflow-hidden"
-          initial={{ scale: 0.8, opacity: 0, y: 50 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          exit={{ scale: 0.8, opacity: 0, y: 50 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+          className="bg-black/20 backdrop-blur-sm rounded-lg w-full max-w-sm mx-2 relative"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 10 }}
+          transition={{ duration: 0.15 }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Glowing border effect */}
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-matrix-green to-transparent animate-pulse" />
           {/* Header */}
-          <div className="relative p-6 border-b border-matrix-green/20">        
-            <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold text-text-primary font-mono">update_profile()</h2>
-              <button
-                className="p-2 text-text-muted hover:text-matrix-green rounded-lg hover:bg-terminal-gray/50 transition-colors"
-                onClick={onCancel}
-                aria-label="Close"
-              >
-                <FaTimes className="w-5 h-5" />
-              </button>
-            </div>
+          <div className="flex items-center justify-between px-4 py-3">
+            <h2 className="text-lg font-mono text-matrix-green">$ edit_profile</h2>
+            <button
+              className="text-gray-400 hover:text-white transition-colors"
+              onClick={onCancel}
+            >
+              <FaTimes className="w-4 h-4" />
+            </button>
           </div>
 
           {/* Form Content */}
-          <div className="p-6">
-            <motion.p 
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-text-muted mb-6 font-mono text-sm"
-            >
-              <span className="text-matrix-green">//</span> cập nhật thông tin hồ sơ của bạn
-            </motion.p>
-
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="p-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {/* Avatar Section */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="relative"
-              >
-                <div className="absolute -inset-1 bg-gradient-to-r from-matrix-green/20 to-matrix-cyan/20 rounded-lg blur opacity-75" />
-                <div className="relative flex items-center space-x-4 p-4 bg-terminal-gray/50 rounded-lg border border-matrix-green/20">
-                  <div className="relative">
-                    <img 
-                      src={avatarUrl || '/images/placeholder.svg'} 
-                      alt="Ảnh đại diện" 
-                      className="w-16 h-16 rounded-full object-cover border-2 border-matrix-green/40" 
-                    />
-                    {/* Tech badge */}
-                    <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-matrix-green rounded-full flex items-center justify-center border-2 border-terminal-dark">
-                      <FaLaptopCode className="w-2 h-2 text-terminal-black" />
-                    </div>
-                    {isUploading && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
-                        <svg className="animate-spin h-6 w-6 text-matrix-green" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle 
-                            className="opacity-25" 
-                            cx="12" 
-                            cy="12" 
-                            r="10" 
-                            stroke="currentColor" 
-                            strokeWidth="4">
-                          </circle>
-                          <path 
-                            className="opacity-75" 
-                            fill="currentColor" 
-                            d="M4 12a8 8 0 018-8v8H4z">
-                          </path>
-                        </svg>
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <button
-                      type="button"
-                      onClick={handleAvatarUploadClick}
-                      disabled={isUploading}
-                      className="group relative overflow-hidden bg-gradient-to-r from-matrix-green/10 to-matrix-green/5 border border-matrix-green/30 rounded-lg px-4 py-2 hover:border-matrix-green/50 transition-all duration-300 font-mono text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                      aria-label="Tải lên ảnh đại diện"
-                    >
-                      <div className="absolute inset-0 bg-gradient-to-r from-matrix-green/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      <div className="relative flex items-center space-x-2">
-                        <FaUpload className="w-3 h-3 text-matrix-green" />
-                        <span className="text-matrix-green">
-                          {isUploading ? 'đang_tải_lên...' : 'tải_lên_avatar()'}
-                        </span>
-                      </div>
-                    </button>
-                    <p className="text-text-muted text-xs font-mono mt-1">
-                      <span className="text-matrix-green">//</span> jpg, png, gif (tối đa 5MB)
-                    </p>
-                  </div>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    className="hidden"
+              <div className="flex items-center space-x-3">
+                <div className="relative">
+                  <img 
+                    src={avatarUrl || '/images/placeholder.svg'} 
+                    alt="Avatar" 
+                    className="w-16 h-16 rounded-full object-cover" 
                   />
+                  {isUploading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
+                      <div className="w-4 h-4 border-2 border-matrix-green border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  )}
                 </div>
-              </motion.div>
+                <button
+                  type="button"
+                  onClick={handleAvatarUploadClick}
+                  disabled={isUploading}
+                  className="text-matrix-green text-sm font-mono hover:text-matrix-green/80 transition-colors disabled:opacity-50"
+                >
+                  {isUploading ? 'uploading...' : 'change_avatar()'}
+                </button>
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+              </div>
 
               {/* Name Field */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="space-y-3"
-              >
-                <label className="block text-sm font-mono text-matrix-green flex items-center gap-2">
-                  <FaUser className="text-matrix-green" size={14} />
-                  <span>tên</span>
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className="w-full px-4 py-3 font-mono bg-terminal-gray/50 border border-matrix-green/20 text-text-primary placeholder-text-muted focus:border-matrix-green/50 rounded-lg focus:outline-none transition-colors"
-                    placeholder="'tên_của_bạn'"
-                    required
-                  />
-                </div>
-              </motion.div>
+              <div>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-3 py-2 bg-transparent text-white placeholder-gray-400 border-b border-matrix-green/30 focus:border-matrix-green font-mono focus:outline-none transition-colors"
+                  placeholder="your_name"
+                  required
+                />
+              </div>
 
               {/* Bio Field */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="space-y-3"
-              >
-                <label className="block text-sm font-mono text-matrix-green flex items-center gap-2">
-                  <FaCode className="text-matrix-green" size={14} />
-                  <span>tiểu_sử</span>
-                </label>
-                <div className="relative">
-                  <textarea
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                    className="w-full px-4 py-3 font-mono bg-terminal-gray/50 border border-matrix-green/20 text-text-primary placeholder-text-muted focus:border-matrix-green/50 rounded-lg resize-none focus:outline-none transition-colors"
-                    placeholder="'giới_thiệu_về_bản_thân'"
-                    rows={4}
-                    maxLength={500}
-                  />
-                </div>
-                <p className="text-text-muted text-xs font-mono">
-                  <span className="text-matrix-green">//</span> tối đa 500 ký tự ({bio.length}/500)
-                </p>
-              </motion.div>
+              <div>
+                <textarea
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  className="w-full px-3 py-2 bg-transparent text-white placeholder-gray-400 border-b border-matrix-green/30 focus:border-matrix-green font-mono resize-none focus:outline-none transition-colors"
+                  placeholder="your_bio"
+                  rows={3}
+                  maxLength={500}
+                />
+              </div>
 
               {/* Action Buttons */}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
-                className="flex gap-3 pt-6"
-              >
-                <motion.button 
+              <div className="flex gap-3 pt-2">
+                <button 
                   type="submit" 
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex-1 group relative overflow-hidden bg-gradient-to-r from-matrix-green/10 to-matrix-green/5 border border-matrix-green/30 rounded-lg py-3 hover:border-matrix-green/50 transition-all duration-300"
+                  className="flex-1 text-matrix-green font-mono hover:bg-matrix-green/10 rounded py-2 transition-colors"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-matrix-green/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="relative flex items-center justify-center space-x-2">
-                    <FaRocket className="w-4 h-4 text-matrix-green" />
-                    <span className="font-mono text-sm font-semibold text-matrix-green">update()</span>
-                  </div>
-                </motion.button>
-                <motion.button 
+                  ./update
+                </button>
+                <button 
                   type="button" 
                   onClick={onCancel}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex-1 group relative overflow-hidden bg-terminal-gray/50 border border-matrix-green/20 rounded-lg py-3 hover:border-matrix-green/40 transition-all duration-300"
+                  className="flex-1 text-gray-400 font-mono hover:bg-gray-400/10 rounded py-2 transition-colors"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-hacker-red/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  <div className="relative flex items-center justify-center space-x-2">
-                    <FaTimes className="w-4 h-4 text-text-muted group-hover:text-hacker-red transition-colors" />
-                    <span className="font-mono text-sm font-semibold text-text-muted group-hover:text-hacker-red transition-colors">cancel()</span>
-                  </div>
-                </motion.button>
-              </motion.div>
+                  ./cancel
+                </button>
+              </div>
             </form>
           </div>
         </motion.div>
