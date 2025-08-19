@@ -11,7 +11,7 @@ import (
 	"github.com/pdhoang91/blog/middleware"
 )
 
-func SetupRouter() *gin.Engine {
+func SetupRouter(controllers *controllers.Controllers) *gin.Engine {
 	r := gin.Default()
 
 	// CORS Configuration
@@ -25,87 +25,89 @@ func SetupRouter() *gin.Engine {
 	}
 	r.Use(cors.New(config))
 
-	// Get controller instances (they should be initialized by now)
-	imageCtrl := controllers.GetImageController()
-	// Other controllers can be accessed similarly:
-	// postCtrl := controllers.GetPostController()
-	// searchCtrl := controllers.GetSearchController()
-	// etc.
+	// Use the main controller
+	mainCtrl := controllers.Main
 
 	// Auth routes
-	r.POST("/auth/login", controllers.LoginHandler)
-	r.POST("/auth/register", controllers.RegisterHandler)
-	r.GET("/auth/google", controllers.GoogleLoginHandler)
-	r.GET("/auth/google/callback", controllers.GoogleCallbackHandler)
+	r.POST("/auth/login", mainCtrl.LoginHandler)
+	r.POST("/auth/register", mainCtrl.RegisterHandler)
+	r.GET("/auth/google", mainCtrl.GoogleLoginHandler)
+	r.GET("/auth/google/callback", mainCtrl.GoogleCallbackHandler)
 
 	// Routes cho Posts and Comments
-	r.GET("/posts", controllers.GetPosts)
-	r.GET("/posts/popular", controllers.GetPopularPosts)
-	r.GET("/posts/latest", controllers.GetLatestPosts)
-	r.GET("/p/:title_name", controllers.GetPostByName)
-	r.GET("/posts/:id/comments", controllers.GetComments)
+	r.GET("/posts", mainCtrl.GetPosts)
+	r.GET("/posts/popular", mainCtrl.GetPopularPosts)
+	r.GET("/posts/latest", mainCtrl.GetLatestPosts)
+	r.GET("/p/:title_name", mainCtrl.GetPostByName)
+	r.GET("/posts/:id/comments", mainCtrl.GetComments)
 
 	// Routes cho Categories
-	r.GET("/categories", controllers.GetCategories)
-	r.GET("/categories/:category/posts", controllers.GetPostsByCategory)
-	r.GET("/categories_top", controllers.GetTopCategories)
-	r.GET("/categories/popular", controllers.GetPopularCategories)
+	r.GET("/categories", mainCtrl.GetCategories)
+	r.GET("/categories/:name/posts", mainCtrl.GetPostsByCategory)
+	r.GET("/categories_top", mainCtrl.GetTopCategories)
+	r.GET("/categories/popular", mainCtrl.GetPopularCategories)
 
 	// Routes cho Tags
-	r.GET("/tags", controllers.GetTags)
-	r.GET("/tags/search", controllers.SearchTags)
-	r.GET("/tags/popular", controllers.GetPopularTags)
-	r.POST("/tags", controllers.CreateTag)
-	//r.DELETE("/tags/:id", controllers.DeleteTag)
-	r.POST("/tag/:tag_id/posts/:post_id", controllers.AddTagToPost)
-	r.DELETE("/tag/:tag_id/posts/:post_id", controllers.RemoveTagFromPost)
+	r.GET("/tags", mainCtrl.GetTags)
+	r.GET("/tags/search", mainCtrl.SearchTags)
+	r.GET("/tags/popular", mainCtrl.GetPopularTags)
+	r.POST("/tags", mainCtrl.CreateTag)
+	//r.DELETE("/tags/:id", mainCtrl.DeleteTag)
+	r.POST("/tag/:tag_id/posts/:post_id", mainCtrl.AddTagToPost)
+	r.DELETE("/tag/:tag_id/posts/:post_id", mainCtrl.RemoveTagFromPost)
 
-	r.GET("/search/posts", controllers.SearchPostsHandler)
-	r.POST("/search/track", controllers.TrackSearchHandler)
+	r.GET("/search/posts", mainCtrl.SearchPostsHandler)
+	r.POST("/search/track", mainCtrl.TrackSearchHandler)
 
 	// Public User Profile routes (with optional auth for admin features)
-	r.GET("/public/:username/profile", middleware.OptionalAuthMiddleware(), controllers.GetPublicUserProfile)
-	r.GET("/public/:username/posts", controllers.GetPublicUserPosts)
-	r.GET("/public/:username/follow", controllers.GetPublicUserFollow)
+	r.GET("/public/:username/profile", middleware.OptionalAuthMiddleware(), mainCtrl.GetPublicUserProfile)
+	r.GET("/public/:username/posts", mainCtrl.GetPublicUserPosts)
+	r.GET("/public/:username/follow", mainCtrl.GetPublicUserFollow)
 
 	// Public image routes
 	imageRoutes := r.Group("/images")
 	{
 		// Public image info (no auth required for viewing)
-		imageRoutes.GET("/:id/info", imageCtrl.GetImageInfo)
+		imageRoutes.GET("/:id/info", mainCtrl.GetImageInfo)
 	}
+
+	// Public clap routes (can be viewed without auth, but auth required for clapping)
+	r.GET("/claps", mainCtrl.GetClaps)
 
 	// Protected image routes
 	protectedImages := r.Group("/images")
 	protectedImages.Use(middleware.AuthMiddleware())
 	{
 		// Upload images
-		protectedImages.POST("/upload/v2/:type", imageCtrl.UploadImage)
+		protectedImages.POST("/upload/v2/:type", mainCtrl.UploadImage)
 
 		// Delete images
-		protectedImages.DELETE("/:id", imageCtrl.DeleteImage)
+		protectedImages.DELETE("/:id", mainCtrl.DeleteImage)
 
 		// List user's images
-		protectedImages.GET("/my", imageCtrl.GetUserImages)
+		protectedImages.GET("/my", mainCtrl.GetUserImages)
 
 		// Link image to post
-		protectedImages.POST("/link", imageCtrl.LinkImageToPost)
+		protectedImages.POST("/link", mainCtrl.LinkImageToPost)
 	}
 
 	// API routes
 	api := r.Group("/api")
 	api.Use(middleware.AuthMiddleware()) // Apply auth middleware to protect these routes
 	{
-		api.GET("/me", controllers.GetUserProfile)
-		api.PUT("/users/:id", controllers.UpdateUser)
+		api.GET("/me", mainCtrl.GetUserProfile)
+		api.PUT("/users/:id", mainCtrl.UpdateUser)
 
-		api.POST("/posts", controllers.CreatePost)
-		api.PUT("/posts/:id", controllers.UpdatePost)
-		api.DELETE("/posts/:id", controllers.DeletePost)
-		api.POST("/posts/:id/comments", controllers.CreateComment)
+		api.POST("/posts", mainCtrl.CreatePost)
+		api.PUT("/posts/:id", mainCtrl.UpdatePost)
+		api.DELETE("/posts/:id", mainCtrl.DeletePost)
+		api.POST("/posts/:id/comments", mainCtrl.CreateComment)
+		api.POST("/post/:id/clap", mainCtrl.ClapPost)
+		api.POST("/comment/:id/clap", mainCtrl.ClapComment)
+		api.POST("/reply/:id/clap", mainCtrl.ClapReply)
 
 		// Comments replies
-		api.POST("/comments/:comment_id/replies", controllers.CreateReply)
+		api.POST("/comments/:comment_id/replies", mainCtrl.CreateReply)
 	}
 
 	return r

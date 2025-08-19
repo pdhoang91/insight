@@ -16,8 +16,8 @@ func main() {
 		log.Fatal("Failed to initialize config:", err)
 	}
 
-	// Initialize database
-	database.DB = database.ConnectDatabase()
+	// Initialize database with migration
+	database.DB = database.InitializeDatabase()
 
 	// Initialize controllers
 	controllers, err := controller.InitControllers()
@@ -26,10 +26,9 @@ func main() {
 	}
 
 	log.Printf("Controllers initialized: Image, Post, Search, Comment, User, Auth, Category, Tag")
-	_ = controllers // Controllers are accessible via global variables
 
-	// Setup router
-	r := router.SetupRouter()
+	// Setup router with injected controllers
+	r := router.SetupRouter(controllers)
 
 	// Get port from environment or use default
 	port := os.Getenv("PORT")
