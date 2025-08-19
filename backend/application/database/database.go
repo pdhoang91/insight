@@ -36,12 +36,12 @@ func ConnectDatabase() *gorm.DB {
 
 // AutoMigrate migrates the database schema for the defined models.
 func AutoMigrate(database *gorm.DB) {
-
-	// Tạo extension uuid-ossp nếu nó chưa tồn tại
+	// Create UUID extension (essential for GORM models)
 	if err := database.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`).Error; err != nil {
 		log.Fatal("Failed to create uuid-ossp extension!", err)
 	}
 
+	// Auto-migrate all models - GORM handles table creation, constraints, and basic indexes
 	err := database.AutoMigrate(
 		&models.Post{},
 		&models.PostContent{},
@@ -57,10 +57,15 @@ func AutoMigrate(database *gorm.DB) {
 		&models.PostTag{},
 		&models.Tag{},
 		&models.Tab{},
+		&models.Image{},
+		&models.ImageReference{},
 	)
 	if err != nil {
 		log.Fatal("Failed to migrate tables in database!", err)
 	}
+
+	log.Println("Database auto-migration completed successfully")
+	log.Println("Note: Run migrate/init.sql manually for search extensions and indexes")
 }
 
 // InitializeDatabase initializes the database connection, migration, and hooks.
