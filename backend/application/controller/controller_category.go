@@ -75,7 +75,14 @@ func (ctrl *Controller) GetPostsByCategory(c *gin.Context) {
 	// Find category
 	var category models.Category
 	if err := database.DB.Where("name = ?", categoryName).First(&category).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Category not found"})
+		// If category not found, return empty result instead of error
+		c.JSON(http.StatusOK, gin.H{
+			"data":        []models.Post{},
+			"total_count": 0,
+			"page":        page,
+			"limit":       limit,
+			"total_pages": 0,
+		})
 		return
 	}
 

@@ -30,17 +30,32 @@ const useAuth = () => {
 
   const initializeUser = async () => {
     try {
-      // Lấy token từ fragment URL (ví dụ: #token=...)
-      const hash = typeof window !== 'undefined' ? window.location.hash.substr(1) : '';
-      const params = new URLSearchParams(hash);
-      const token = params.get('token');
+      let token = null;
+      
+      // Try to get token from query parameter first (?token=...)
+      if (typeof window !== 'undefined') {
+        const urlParams = new URLSearchParams(window.location.search);
+        token = urlParams.get('token');
+        
+        // If not found in query, try hash fragment (#token=...)
+        if (!token) {
+          const hash = window.location.hash.substr(1);
+          const hashParams = new URLSearchParams(hash);
+          token = hashParams.get('token');
+        }
+      }
 
       if (token) {
         // Lưu token vào localStorage
         localStorage.setItem('token', token);
 
-        // Loại bỏ fragment từ URL
-        window.history.replaceState({}, document.title, window.location.pathname);
+        // Loại bỏ token từ URL (both query and fragment)
+        if (typeof window !== 'undefined') {
+          const url = new URL(window.location);
+          url.searchParams.delete('token');
+          url.hash = '';
+          window.history.replaceState({}, document.title, url.pathname + url.search);
+        }
       }
 
       // Check if we have a token in localStorage

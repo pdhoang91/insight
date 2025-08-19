@@ -33,6 +33,7 @@ func SetupRouter(controllers *controllers.Controllers) *gin.Engine {
 	r.POST("/auth/register", mainCtrl.RegisterHandler)
 	r.GET("/auth/google", mainCtrl.GoogleLoginHandler)
 	r.GET("/auth/google/callback", mainCtrl.GoogleCallbackHandler)
+	r.GET("/auth/callback", mainCtrl.GoogleCallbackHandler) // Alternative route for frontend
 
 	// Routes cho Posts and Comments
 	r.GET("/posts", mainCtrl.GetPosts)
