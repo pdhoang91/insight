@@ -54,7 +54,8 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		// Public user routes
 		public.GET("/users/:id", controller.GetUser)
 		public.GET("/users/:id/posts", controller.GetUserPosts)
-		public.GET("/public/:username/posts", controller.GetUserPostsByUsername) // Frontend compatibility
+		public.GET("/public/:username/posts", controller.GetUserPostsByUsername)     // Frontend compatibility
+		public.GET("/public/:username/profile", controller.GetUserProfileByUsername) // Frontend compatibility
 
 		// Public image routes (no auth required for viewing)
 		public.GET("/images/proxy/:userID/:date/:type/:filename", controller.ProxyImage)

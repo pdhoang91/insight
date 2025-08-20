@@ -8,7 +8,8 @@ import axiosPrivateInstance from '../utils/axiosPrivateInstance';
 // Get current user profile (authenticated)
 export const getUserProfile = async () => {
   const response = await axiosPrivateInstance.get('/api/me');
-  return response.data;
+  // Backend returns {"data": userResponse}, extract the user data
+  return response.data.data || response.data;
 };
 
 // Update user profile
@@ -55,11 +56,11 @@ export const fetchUserProfile = async (username) => {
     // Try authenticated request first (for admin users to get role info)
     try {
       const response = await axiosPrivateInstance.get(`/public/${username}/profile`);
-      return response.data;
+      return response.data.data || response.data;
     } catch (authError) {
       // Fallback to public request if auth fails
       const response = await axiosPublicInstance.get(`/public/${username}/profile`);
-      return response.data;
+      return response.data.data || response.data;
     }
   } catch (error) {
     console.error(`Error fetching profile for ${username}:`, error);

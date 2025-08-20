@@ -116,7 +116,29 @@ func (c *Controller) GetProfile(ctx *gin.Context) {
 		return
 	}
 
+	// Debug log for /api/me endpoint
+	log.Printf("DEBUG /api/me response: ID=%s, Username='%s', Email='%s'",
+		response.ID, response.Username, response.Email)
+
 	ctx.JSON(http.StatusOK, gin.H{"data": response})
+}
+
+// GetUserProfileByUsername retrieves user profile by username (public endpoint)
+func (c *Controller) GetUserProfileByUsername(ctx *gin.Context) {
+	username := ctx.Param("username")
+	if username == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Username is required"})
+		return
+	}
+
+	// Get user by username
+	user, err := c.service.GetUserByUsername(username)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"data": user})
 }
 
 // UpdateProfile updates current user's profile
