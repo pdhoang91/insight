@@ -9,6 +9,7 @@ import (
 	"github.com/pdhoang91/blog/config"
 	"github.com/pdhoang91/blog/internal"
 	"github.com/pdhoang91/blog/internal/controller"
+	"github.com/pdhoang91/blog/internal/database"
 	"github.com/pdhoang91/blog/internal/entities"
 	"github.com/pdhoang91/blog/internal/service"
 	"gorm.io/gorm"
@@ -30,6 +31,16 @@ func main() {
 	if err := runAutoMigration(db); err != nil {
 		panic("Failed to run database migrate: " + err.Error())
 	}
+
+	// Create optimized indexes
+	log.Println("Creating optimized database indexes...")
+	if err := database.CreateOptimizedIndexes(db); err != nil {
+		log.Printf("Warning: Failed to create some indexes: %v", err)
+	}
+	if err := database.CreateCompositeIndexes(db); err != nil {
+		log.Printf("Warning: Failed to create some composite indexes: %v", err)
+	}
+	log.Println("Database indexes created successfully")
 
 	// Create a new Gin router
 	r := gin.New()
@@ -86,6 +97,8 @@ func runAutoMigration(db *gorm.DB) error {
 		&entities.Bookmark{},
 		&entities.Follow{},
 		&entities.Rating{},
+		&entities.PostView{},
+		&entities.Clap{},
 		&entities.Notification{},
 		&entities.UserActivity{},
 		&entities.Tab{},

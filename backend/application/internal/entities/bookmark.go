@@ -11,7 +11,7 @@ import (
 type Bookmark struct {
 	ID           uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
 	PostID       uuid.UUID `json:"post_id" gorm:"type:uuid;not null;index;constraint:OnDelete:CASCADE;"`
-	UserID       uuid.UUID `json:"user_id" gorm:"type:uuid;not null;constraint:OnDelete:CASCADE;"`
+	UserID       uuid.UUID `json:"user_id" gorm:"type:uuid;not null;index;constraint:OnDelete:CASCADE;"`
 	IsBookmarked bool      `json:"is_bookmarked"`
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`

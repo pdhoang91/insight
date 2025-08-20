@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/pdhoang91/blog/internal/entities"
 	"github.com/pdhoang91/blog/internal/dto"
+	"github.com/pdhoang91/blog/internal/entities"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -19,6 +19,9 @@ type InsightService struct {
 	Bookmark    *entities.Bookmark
 	Tag         *entities.Tag
 	PostContent *entities.PostContent
+	Rating      *entities.Rating
+	PostView    *entities.PostView
+	Clap        *entities.Clap
 
 	// External clients (to be implemented later)
 	// Logger         *clog.Clog
@@ -48,6 +51,9 @@ func NewInsightService(
 		Bookmark:    &entities.Bookmark{},
 		Tag:         &entities.Tag{},
 		PostContent: &entities.PostContent{},
+		Rating:      &entities.Rating{},
+		PostView:    &entities.PostView{},
+		Clap:        &entities.Clap{},
 	}
 }
 

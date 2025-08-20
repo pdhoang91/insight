@@ -23,6 +23,15 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		public.POST("/auth/logout", controller.Logout)
 		public.POST("/auth/refresh", controller.RefreshToken)
 
+		// Email verification routes
+		public.POST("/auth/verify-email", controller.VerifyEmail)
+		public.POST("/auth/resend-verification", controller.ResendEmailVerification)
+
+		// Password reset routes
+		public.POST("/auth/forgot-password", controller.RequestPasswordReset)
+		public.POST("/auth/reset-password", controller.ResetPassword)
+		public.GET("/auth/validate-reset-token", controller.ValidatePasswordResetToken)
+
 		// Debug route
 		public.GET("/debug-jwt", controller.DebugJWT)
 
@@ -46,6 +55,15 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		public.GET("/categories/popular", controller.GetPopularCategories)
 		public.GET("/categories/:id", controller.GetCategory)
 
+		// Public rating routes
+		public.GET("/posts/:post_id/ratings", controller.GetPostRatings)
+		public.GET("/posts/:post_id/rating/average", controller.GetPostAverageRating)
+
+		// Public clap routes
+		public.GET("/posts/:post_id/claps", controller.GetPostClaps)
+		public.GET("/posts/:post_id/clap/stats", controller.GetPostClapStats)
+		public.GET("/posts/top-clapped", controller.GetTopClappedPosts)
+
 		// Public tag routes
 		public.GET("/tags", controller.ListTags)
 		public.GET("/tags/popular", controller.GetPopularTags)
@@ -67,6 +85,13 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		protected.PUT("/profile", controller.UpdateProfile)
 		protected.DELETE("/profile", controller.DeleteProfile)
 		protected.GET("/api/users/:id/posts", controller.GetUserPosts) // Frontend compatibility
+
+		// Email verification routes (protected)
+		protected.POST("/email/send-verification", controller.SendEmailVerification)
+		protected.GET("/email/verification-status", controller.CheckEmailVerificationStatus)
+
+		// Password change route (protected)
+		protected.POST("/auth/change-password", controller.ChangePassword)
 
 		// Post routes
 		protected.POST("/posts", controller.CreatePost)
@@ -101,6 +126,17 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		protected.POST("/bookmarks/remove", controller.Unbookmark)
 		protected.GET("/bookmarks", controller.GetUserBookmarks)
 		protected.GET("/bookmarks/status/:post_id", controller.CheckBookmarkStatus)
+
+		// Rating routes
+		protected.POST("/ratings", controller.RatePost)
+		protected.GET("/posts/:post_id/rating", controller.GetPostRating)
+		protected.DELETE("/posts/:post_id/rating", controller.DeleteRating)
+
+		// Clap routes
+		protected.POST("/claps", controller.ClapPost)
+		protected.GET("/posts/:post_id/clap", controller.GetUserClap)
+		protected.DELETE("/posts/:post_id/clap", controller.RemoveClap)
+		protected.GET("/claps", controller.GetUserClaps)
 	}
 
 	// Admin routes (admin role required)
