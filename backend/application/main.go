@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/gin-contrib/cors"
 	"log"
 	"os"
 
@@ -39,7 +40,7 @@ func main() {
 	r.Use(gin.Recovery())
 
 	// Enable CORS with custom settings
-	internal.ConfigureCORS(r)
+	ConfigureCORS(r)
 
 	// Create base service with common dependencies
 	baseService := service.NewBaseService(
@@ -90,4 +91,15 @@ func runAutoMigration(db *gorm.DB) error {
 		&entities.UserActivity{},
 		&entities.Tab{},
 	)
+}
+
+// ConfigureCORS sets up CORS middleware for the application
+func ConfigureCORS(r *gin.Engine) {
+	config := cors.DefaultConfig()
+	config.AllowAllOrigins = true
+	config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"}
+	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization", "X-Requested-With"}
+	config.AllowCredentials = true
+
+	r.Use(cors.New(config))
 }
