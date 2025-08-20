@@ -11,7 +11,7 @@ import (
 	"github.com/pdhoang91/blog/middleware"
 )
 
-func SetupRouter(imageController *controllers.ImageProxyController) *gin.Engine {
+func SetupRouter(ctrl *controllers.Controller) *gin.Engine {
 	r := gin.Default()
 
 	// CORS Configuration
@@ -26,134 +26,140 @@ func SetupRouter(imageController *controllers.ImageProxyController) *gin.Engine 
 	r.Use(cors.New(config))
 
 	// Auth routes
-	r.POST("/auth/login", controllers.LoginHandler)
-	r.POST("/auth/register", controllers.RegisterHandler)
-	r.GET("/auth/google", controllers.GoogleLoginHandler)
-	r.GET("/auth/google/callback", controllers.GoogleCallbackHandler)
+	r.POST("/auth/login", ctrl.LoginHandler)
+	r.POST("/auth/register", ctrl.RegisterHandler)
+	r.GET("/auth/google", ctrl.GoogleLoginHandler)
+	r.GET("/auth/google/callback", ctrl.GoogleCallbackHandler)
 
 	// Routes cho Posts and Comments, Ratings
-	r.GET("/posts", controllers.GetPosts)
-	r.GET("/posts/popular", controllers.GetPopularPosts)
-	r.GET("/posts/latest", controllers.GetLatestPosts)
-	r.GET("/p/:title_name", controllers.GetPostByName)
-	r.GET("/posts/:id/comments", controllers.GetComments)
-	r.GET("/posts/:id/ratings", controllers.GetRatingForPost)
+	r.GET("/posts", ctrl.GetPosts)
+	r.GET("/posts/popular", ctrl.GetPopularPosts)
+	r.GET("/posts/latest", ctrl.GetLatestPosts)
+	r.GET("/p/:title_name", ctrl.GetPostByName)
+	r.GET("/posts/:id/comments", ctrl.GetComments)
+	r.GET("/posts/:id/ratings", ctrl.GetRatingForPost)
 
 	// Routes cho Categories
-	r.GET("/categories", controllers.GetCategories)
-	r.POST("/categories", controllers.CreateCategory)
-	r.GET("/categories/:category/posts", controllers.GetPostsByCategory)
-	r.GET("/categories_top", controllers.GetTopCategories)
-	r.GET("/categories/popular", controllers.GetPopularCategories)
+	r.GET("/categories", ctrl.GetCategories)
+	r.POST("/categories", ctrl.CreateCategory)
+	r.GET("/categories/:category/posts", ctrl.GetPostsByCategory)
+	r.GET("/categories_top", ctrl.GetTopCategories)
+	r.GET("/categories/popular", ctrl.GetPopularCategories)
 
 	// Routes cho Tags
-	r.GET("/tags", controllers.GetTags)
-	r.GET("/tags/search", controllers.SearchTags)
-	r.GET("/tags/popular", controllers.GetPopularTags)
-	r.POST("/tags", controllers.CreateTag)
+	r.GET("/tags", ctrl.GetTags)
+	r.GET("/tags/search", ctrl.SearchTags)
+	r.GET("/tags/popular", ctrl.GetPopularTags)
+	r.POST("/tags", ctrl.CreateTag)
 	//r.DELETE("/tags/:id", controllers.DeleteTag)
-	r.POST("/tag/:tag_id/posts/:post_id", controllers.AddTagToPost)
-	r.DELETE("/tag/:tag_id/posts/:post_id", controllers.RemoveTagFromPost)
+	r.POST("/tag/:tag_id/posts/:post_id", ctrl.AddTagToPost)
+	r.DELETE("/tag/:tag_id/posts/:post_id", ctrl.RemoveTagFromPost)
 
 	// Routes cho UserActivity
-	r.GET("/users/:user_id/activities", controllers.GetUserActivities)
+	r.GET("/users/:user_id/activities", ctrl.GetUserActivities)
 
 	// Utils
-	r.GET("/claps", controllers.GetClapsCount)
-	r.GET("/topics/recommended", controllers.GetRecommendedTopics)
+	r.GET("/claps", ctrl.GetClapsCount)
+	r.GET("/topics/recommended", ctrl.GetRecommendedTopics)
 
-	r.GET("/search/posts", controllers.SearchPostsHandler)
-	r.GET("/search/suggestions", controllers.SearchSuggestionsHandler)
-	r.GET("/search/popular", controllers.PopularSearchesHandler)
-	r.POST("/search/track", controllers.TrackSearchHandler)
+	r.GET("/search/posts", ctrl.SearchPostsHandler)
+	r.GET("/search/suggestions", ctrl.SearchSuggestionsHandler)
+	r.GET("/search/popular", ctrl.PopularSearchesHandler)
+	r.POST("/search/track", ctrl.TrackSearchHandler)
 
-	r.GET("/search/people", controllers.SearchUsers)
+	r.GET("/search/people", ctrl.SearchUsers)
 
-	r.GET("/tabs", controllers.GetTabs)
-	r.GET("/follow/writers", controllers.GetTopWriters)
-	r.GET("/follow/topics", controllers.GetTopTopics)
+	r.GET("/tabs", ctrl.GetTabs)
+	r.GET("/follow/writers", ctrl.GetTopWriters)
+	r.GET("/follow/topics", ctrl.GetTopTopics)
 
 	// Public User Profile routes (with optional auth for admin features)
-	r.GET("/public/:username/profile", middleware.OptionalAuthMiddleware(), controllers.GetPublicUserProfile)
-	r.GET("/public/:username/posts", controllers.GetPublicUserPosts)
-	r.GET("/public/:username/bookmarks", controllers.GetPublicUserBookmarks)
-	r.GET("/public/:username/follow", controllers.GetPublicUserFollow)
+	r.GET("/public/:username/profile", middleware.OptionalAuthMiddleware(), ctrl.GetPublicUserProfile)
+	r.GET("/public/:username/posts", ctrl.GetPublicUserPosts)
+	r.GET("/public/:username/bookmarks", ctrl.GetPublicUserBookmarks)
+	r.GET("/public/:username/follow", ctrl.GetPublicUserFollow)
 
 	// Public image routes (no auth required for viewing)
-	r.GET("/images/proxy/:userID/:date/:type/:filename", imageController.ProxyImage)
-	r.GET("/images/info/:userID/:date/:type/:filename", imageController.GetImageInfo)
+	r.GET("/images/proxy/:userID/:date/:type/:filename", ctrl.ProxyImage)
+	r.GET("/images/info/:userID/:date/:type/:filename", ctrl.GetImageInfo)
 
 	// New image system routes
-	r.GET("/images/v2/:id", controllers.ServeImageV2)        // Serve image by ID
-	r.GET("/images/v2/:id/info", controllers.GetImageInfoV2) // Get image metadata
+	r.GET("/images/v2/:id", ctrl.ServeImageV2)        // Serve image by ID
+	r.GET("/images/v2/:id/info", ctrl.GetImageInfoV2) // Get image metadata
 
 	// Protected image routes
 	protected := r.Group("/")
 	protected.Use(middleware.AuthMiddleware())
 	{
-		protected.POST("/images/upload/v2/:type", controllers.UploadImageV2) // Updated to use new system
-		protected.DELETE("/images/v2/:id", controllers.DeleteImageV2)        // Delete image
-		protected.GET("/images/my", controllers.ListUserImages)              // List user's images
+		protected.POST("/images/upload/v2/:type", ctrl.UploadImageV2) // Updated to use unified controller
+		protected.DELETE("/images/v2/:id", ctrl.DeleteImageV2)        // Delete image
+		protected.GET("/images/my", ctrl.ListUserImages)              // List user's images
 	}
 
 	// API routes
 	api := r.Group("/api")
 	api.Use(middleware.AuthMiddleware()) // Apply auth middleware to protect these routes
 	{
-		api.GET("/me", controllers.GetUserProfile)
-		api.PUT("/users/:id", controllers.UpdateUser)
-		api.GET("/users/:id/posts", controllers.GetUserPosts)
+		api.GET("/me", ctrl.GetUserProfile)
+		api.PUT("/users/:id", ctrl.UpdateUser)
+		api.GET("/users/:id/posts", ctrl.GetUserPosts)
 
-		api.POST("/posts", controllers.CreatePost)    // Updated to use new system
-		api.PUT("/posts/:id", controllers.UpdatePost) // Updated to use new system
-		api.DELETE("/posts/:id", controllers.DeletePost)
-		api.POST("/posts/:id/comments", controllers.CreateComment)
-		api.POST("/posts/:id/ratings", controllers.CreateRating)
+		api.POST("/posts", ctrl.CreatePost)    // Updated to use unified controller
+		api.PUT("/posts/:id", ctrl.UpdatePost) // Updated to use unified controller
+		api.DELETE("/posts/:id", ctrl.DeletePost)
+
+		// Optimized post endpoints (new design)
+		api.POST("/posts/v2", ctrl.OptimizedCreatePost)    // Optimized version
+		api.PUT("/posts/v2/:id", ctrl.OptimizedUpdatePost) // Optimized version
+		api.POST("/posts/:id/comments", ctrl.CreateComment)
+		api.POST("/posts/:id/ratings", ctrl.CreateRating)
 		//api.DELETE("/posts/:id", controllers.DeletePost)
 
-		api.GET("/bookmarks", controllers.GetBookmarks)
-		api.POST("/bookmarks", controllers.CreateBookmark)
-		api.POST("/bookmarks/unbookmark", controllers.Unbookmark)
-		api.GET("/bookmarks/isBookmarked/:post_id", controllers.IsBookmarked)
+		api.GET("/bookmarks", ctrl.GetBookmarks)
+		api.POST("/bookmarks", ctrl.CreateBookmark)
+		api.POST("/bookmarks/unbookmark", ctrl.Unbookmark)
+		api.GET("/bookmarks/isBookmarked/:post_id", ctrl.IsBookmarked)
 
-		api.POST("/follow", controllers.FollowUser)
-		api.DELETE("/unfollow/:id", controllers.UnfollowUser)
-		api.GET("/following/posts", controllers.GetFollowingPosts)
-		api.GET("/follow/status/:id", controllers.CheckFollowingStatus)
-		api.GET("/follow/suggested-profiles", controllers.GetSuggestedProfiles) // Route mới
-		api.GET("/follow/people-you-may-know", controllers.GetPeopleYouMayKnow) // Route mới
+		api.POST("/follow", ctrl.FollowUser)
+		api.DELETE("/unfollow/:id", ctrl.UnfollowUser)
+		api.GET("/following/posts", ctrl.GetFollowingPosts)
+		api.GET("/follow/status/:id", ctrl.CheckFollowingStatus)
+		api.GET("/follow/suggested-profiles", ctrl.GetSuggestedProfiles) // Route mới
+		api.GET("/follow/people-you-may-know", ctrl.GetPeopleYouMayKnow) // Route mới
 
 		// Notification routes
-		api.GET("/notifications", controllers.GetNotifications)
-		api.PUT("/notifications/:id/read", controllers.MarkNotificationAsRead)
-		api.GET("/verify", controllers.VerifyEmail)
-		api.POST("/password-reset/request", controllers.RequestPasswordReset)
-		api.POST("/password-reset/confirm", controllers.ConfirmPasswordReset)
+		api.GET("/notifications", ctrl.GetNotifications)
+		api.PUT("/notifications/:id/read", ctrl.MarkNotificationAsRead)
+		api.GET("/verify", ctrl.VerifyEmail)
+		api.POST("/password-reset/request", ctrl.RequestPasswordReset)
+		api.POST("/password-reset/confirm", ctrl.ConfirmPasswordReset)
 
 		// Clap actions
-		api.POST("/post/:id/clap", controllers.HandleClapPost)
-		api.POST("/post/:id/unclap", controllers.HandleUnclapPost)
-		api.POST("/comment/:id/clap", controllers.HandleClapComment)
-		api.POST("/reply/:id/clap", controllers.HandleClapReply)
+		api.POST("/post/:id/clap", ctrl.HandleClapPost)
+		api.POST("/post/:id/unclap", ctrl.HandleUnclapPost)
+		api.POST("/comment/:id/clap", ctrl.HandleClapComment)
+		api.POST("/comment/:id/unclap", ctrl.HandleUnclapComment)
+		api.POST("/reply/:id/clap", ctrl.HandleClapReply)
+		api.POST("/reply/:id/unclap", ctrl.HandleUnclapReply)
 
 		// Comments replies
-		api.POST("/comments/:comment_id/replies", controllers.CreateReply)
+		api.POST("/comments/:comment_id/replies", ctrl.CreateReply)
 
 		// Tab
-		api.POST("/tabs/add", controllers.AddFollowCategory)
-		api.POST("/tabs/remove", controllers.RemoveFollowCategory)
+		api.POST("/tabs/add", ctrl.AddFollowCategory)
+		api.POST("/tabs/remove", ctrl.RemoveFollowCategory)
 		//GetTabs
 		//api.GET("/user-tabs", controllers.GetUserTabs)
 		//api.GET("/tabs", controllers.GetTabs)
-		api.GET("/tabs", controllers.GetUserTabs)
+		api.GET("/tabs", ctrl.GetUserTabs)
 	}
 
 	// Admin routes
 	admin := api.Group("/admin")
 	admin.Use(middleware.RequireAdminRole())
 	{
-		admin.GET("/users", controllers.AdminGetUsers)
-		admin.DELETE("/users/:id", controllers.AdminDeleteUser)
+		admin.GET("/users", ctrl.AdminGetUsers)
+		admin.DELETE("/users/:id", ctrl.AdminDeleteUser)
 
 	}
 

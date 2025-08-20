@@ -52,6 +52,21 @@ services:
       retries: 5
       start_period: 30s
 
+  migrate:
+    container_name: migrate
+    build:
+      context: ./backend/application/migrate
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    networks:
+      - app-network
+    restart: "no"  # Run once and exit
+
   application:
     container_name: application
     build:
@@ -69,6 +84,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
       #- fluentd
     environment:
       - DB_HOST=db
@@ -119,6 +136,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
       #- fluentd
     environment:
       - DB_HOST=db

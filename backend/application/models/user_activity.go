@@ -25,8 +25,10 @@ type UserActivity struct {
 	PostID     *uuid.UUID `json:"post_id,omitempty" gorm:"type:uuid;constraint:OnDelete:CASCADE;"`
 	CommentID  *uuid.UUID `json:"comment_id,omitempty" gorm:"type:uuid;constraint:OnDelete:CASCADE;"`
 	ReplyID    *uuid.UUID `json:"reply_id,omitempty" gorm:"type:uuid;constraint:OnDelete:CASCADE;"`
-	ActionType string     `json:"action_type"` // Loại hành động: clap, thả icon, v.v.
-	CreatedAt  time.Time  `json:"created_at"`  // Thời gian tạo hoạt động
+	ActionType string     `json:"action_type" gorm:"default:'clap_post'"` // Loại hành động: clap, thả icon, v.v.
+	ClapCount  int        `json:"clap_count" gorm:"default:1"`            // Số lượng clap từ user này
+	CreatedAt  time.Time  `json:"created_at"`                             // Thời gian tạo hoạt động
+	UpdatedAt  time.Time  `json:"updated_at"`                             // Thời gian cập nhật hoạt động
 
 	// Mối quan hệ với các mô hình khác
 	User    User    `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;" json:"user"`

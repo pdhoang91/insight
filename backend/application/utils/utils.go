@@ -4,7 +4,9 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"fmt"
+	"regexp"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
@@ -63,4 +65,33 @@ func GetUniquePrefix() string {
 	rand.Read(b)
 	prefix := hex.EncodeToString(b)
 	return prefix
+}
+
+// GenerateTitleName generates a URL-friendly title name from a title
+func GenerateTitleName(title string) string {
+	// Convert to lowercase
+	titleName := strings.ToLower(title)
+
+	// Replace spaces with hyphens
+	titleName = strings.ReplaceAll(titleName, " ", "-")
+
+	// Remove special characters, keep only alphanumeric, hyphens, and underscores
+	re := regexp.MustCompile(`[^a-z0-9\-_]`)
+	titleName = re.ReplaceAllString(titleName, "")
+
+	// Remove multiple consecutive hyphens
+	re = regexp.MustCompile(`-+`)
+	titleName = re.ReplaceAllString(titleName, "-")
+
+	// Trim hyphens from start and end
+	titleName = strings.Trim(titleName, "-")
+
+	// Limit length to 100 characters
+	if len(titleName) > 100 {
+		titleName = titleName[:100]
+		// Trim trailing hyphen if any
+		titleName = strings.TrimSuffix(titleName, "-")
+	}
+
+	return titleName
 }

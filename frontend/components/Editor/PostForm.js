@@ -9,6 +9,7 @@ import Underline from '@tiptap/extension-underline';
 import TextAlign from '@tiptap/extension-text-align';
 import Placeholder from '@tiptap/extension-placeholder';
 import { uploadImage } from '../../services/imageService';
+import { uploadImageV2 } from '../../services/optimizedPostService';
 import {
   FaBold,
   FaItalic,
@@ -37,8 +38,9 @@ import ContentEditor from './ContentEditor';
 import { insertTOCIntoContent, removeTOCFromContent, hasTOC } from '../../utils/tocGenerator';
 import 'tippy.js/dist/tippy.css';
 
-const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTitle, isFullscreen = false }) => {
+const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTitle, isFullscreen = false, onImagesChange }) => {
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState([]); // Track uploaded images with IDs
   const [isUploadingTitle, setIsUploadingTitle] = useState(false);
   const [isContentEmpty, setIsContentEmpty] = useState(!content || content.trim() === '');
 
@@ -98,8 +100,21 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       if (!file) return;
       setIsUploading(true);
       try {
-        const imageUrl = await uploadImage(file, 'content');
-        editor.chain().focus().setImage({ src: imageUrl }).run();
+        // Use optimized upload that returns both URL and ID
+        const { url: imageUrl, id: imageId } = await uploadImageV2(file, 'content');
+        
+        // Track uploaded image
+        setUploadedImages(prev => {
+          const newImages = [...prev, { id: imageId, url: imageUrl, type: 'content' }];
+          onImagesChange?.(newImages);
+          return newImages;
+        });
+        
+        // Insert image with data-image-id attribute for easy extraction
+        editor.chain().focus().setImage({ 
+          src: imageUrl,
+          'data-image-id': imageId 
+        }).run();
       } catch (error) {
         console.error('Error uploading image', error);
         alert('Đã xảy ra lỗi khi tải lên hình ảnh.');
@@ -120,7 +135,16 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       if (!file) return;
       setIsUploadingTitle(true);
       try {
-        const uploadedUrl = await uploadImage(file, 'title');
+        // Use optimized upload that returns both URL and ID
+        const { url: uploadedUrl, id: imageId } = await uploadImageV2(file, 'title');
+        
+        // Track uploaded title image
+        setUploadedImages(prev => {
+          const newImages = [...prev, { id: imageId, url: uploadedUrl, type: 'title' }];
+          onImagesChange?.(newImages);
+          return newImages;
+        });
+        
         setImageTitle(uploadedUrl);
       } catch (error) {
         console.error('Error uploading image title', error);

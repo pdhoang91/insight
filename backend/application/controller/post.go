@@ -22,74 +22,62 @@ import (
 )
 
 // calculatePostCounts calculates clap_count and comments_count for a slice of posts
+// Now uses denormalized counts for better performance
 func calculatePostCounts(posts []models.Post) {
 	if len(posts) == 0 {
 		return
 	}
 
-	// Extract post IDs for bulk queries
-	postIDs := make([]uuid.UUID, len(posts))
-	for i, post := range posts {
-		postIDs[i] = post.ID
-	}
-
-	// Bulk query for clap counts
-	type ClapCountResult struct {
-		PostID    uuid.UUID `json:"post_id"`
-		ClapCount int64     `json:"clap_count"`
-	}
-	var clapCounts []ClapCountResult
-	database.DB.Model(&models.UserActivity{}).
-		Select("post_id, COUNT(*) as clap_count").
-		Where("post_id IN ? AND action_type = ?", postIDs, "clap_post").
-		Group("post_id").
-		Scan(&clapCounts)
-
-	// Bulk query for comment counts
-	type CommentCountResult struct {
-		PostID       uuid.UUID `json:"post_id"`
-		CommentCount int64     `json:"comment_count"`
-	}
-	var commentCounts []CommentCountResult
-	database.DB.Model(&models.Comment{}).
-		Select("post_id, COUNT(*) as comment_count").
-		Where("post_id IN ?", postIDs).
-		Group("post_id").
-		Scan(&commentCounts)
-
-	// Create maps for quick lookup
-	clapCountMap := make(map[uuid.UUID]int64)
-	for _, cc := range clapCounts {
-		clapCountMap[cc.PostID] = cc.ClapCount
-	}
-
-	commentCountMap := make(map[uuid.UUID]int64)
-	for _, cc := range commentCounts {
-		commentCountMap[cc.PostID] = cc.CommentCount
-	}
-
-	// Assign counts to posts
+	// Use denormalized counts from database - much faster!
 	for i := range posts {
-		posts[i].ClapCount = uint64(clapCountMap[posts[i].ID])
-		posts[i].CommentsCount = uint64(commentCountMap[posts[i].ID])
+		// Use denormalized counts directly from database
+		posts[i].ClapCount = posts[i].ClapsCount // Use denormalized field
+		// CommentsCount is already set from database query
+
+		// Fallback to real-time calculation if denormalized count seems wrong (0 but should have data)
+		if posts[i].ClapCount == 0 {
+			var realTimeClapCount int64
+			database.DB.Model(&models.UserActivity{}).
+				Select("COALESCE(SUM(clap_count), 0)").
+				Where("post_id = ? AND action_type = ?", posts[i].ID, "clap_post").
+				Scan(&realTimeClapCount)
+			posts[i].ClapCount = uint64(realTimeClapCount)
+		}
+
+		if posts[i].CommentsCount == 0 {
+			var realTimeCommentCount int64
+			database.DB.Model(&models.Comment{}).
+				Where("post_id = ? AND status = ?", posts[i].ID, "active").
+				Count(&realTimeCommentCount)
+			posts[i].CommentsCount = uint64(realTimeCommentCount)
+		}
 	}
 }
 
 // calculateSinglePostCounts calculates clap_count and comments_count for a single post
+// Now uses denormalized counts for better performance
 func calculateSinglePostCounts(post *models.Post) {
-	// Get clap count
-	var clapCount int64
-	database.DB.Model(&models.UserActivity{}).
-		Where("post_id = ? AND action_type = ?", post.ID, "clap_post").
-		Count(&clapCount)
-	post.ClapCount = uint64(clapCount)
+	// Use denormalized counts directly from database - much faster!
+	post.ClapCount = post.ClapsCount // Use denormalized field
+	// CommentsCount is already set from database query
 
-	// Get comment count
-	var commentCount int64
-	database.DB.Model(&models.Comment{}).
-		Where("post_id = ?", post.ID).
-		Count(&commentCount)
-	post.CommentsCount = uint64(commentCount)
+	// Fallback to real-time calculation if denormalized count seems wrong
+	if post.ClapCount == 0 {
+		var realTimeClapCount int64
+		database.DB.Model(&models.UserActivity{}).
+			Select("COALESCE(SUM(clap_count), 0)").
+			Where("post_id = ? AND action_type = ?", post.ID, "clap_post").
+			Scan(&realTimeClapCount)
+		post.ClapCount = uint64(realTimeClapCount)
+	}
+
+	if post.CommentsCount == 0 {
+		var realTimeCommentCount int64
+		database.DB.Model(&models.Comment{}).
+			Where("post_id = ? AND status = ?", post.ID, "active").
+			Count(&realTimeCommentCount)
+		post.CommentsCount = uint64(realTimeCommentCount)
+	}
 }
 
 // GetPosts lấy danh sách các bài viết với phân trang
@@ -106,16 +94,17 @@ func GetPosts(c *gin.Context) {
 	}
 	offset := (page - 1) * limit
 
-	// Đếm tổng số bài viết
-	if err := database.DB.Model(&models.Post{}).Count(&total).Error; err != nil {
+	// Đếm tổng số bài viết (chỉ published posts)
+	if err := database.DB.Model(&models.Post{}).Where("status = ?", "published").Count(&total).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	// Lấy các bài viết, preload thông tin User và sắp xếp theo ngày tạo mới nhất
 	result := database.DB.
-		Preload("User").          // Eager load User
-		Order("created_at DESC"). // Sắp xếp theo ngày CreatedAt mới nhất
+		Where("status = ?", "published"). // Only show published posts
+		Preload("User").                  // Eager load User
+		Order("created_at DESC").         // Sắp xếp theo ngày CreatedAt mới nhất
 		Limit(limit).
 		Offset(offset).
 		Find(&posts)

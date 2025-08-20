@@ -13,3 +13,8 @@ type PostContent struct {
 	CreatedAt time.Time `json:"created_at"`                                      // Thời gian tạo bài viết
 	UpdatedAt time.Time `json:"updated_at"`                                      // Thời gian cập nhật bài viết
 }
+
+// TableName specifies the table name for PostContent model
+func (PostContent) TableName() string {
+	return "post_content"
+}

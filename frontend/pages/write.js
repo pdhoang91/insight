@@ -6,6 +6,7 @@ import PostForm from '../components/Editor/PostForm';
 import LoadingSpinner from '../components/Shared/LoadingSpinner';
 import Navbar from '../components/Navbar/Navbar';
 import { createPost } from '../services/postService';
+import { createPostV2 } from '../services/optimizedPostService';
 import { usePostContext } from '../context/PostContext';
 import { FaTimes } from 'react-icons/fa';
 
@@ -20,6 +21,7 @@ const Write = () => {
   const [showPopup, setShowPopup] = useState(false);
   const [saveStatus, setSaveStatus] = useState('idle'); // idle, saving, saved, error
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState([]); // Track uploaded images
 
   // Function definitions
   const handleSaveDraft = async () => {
@@ -111,19 +113,38 @@ const Write = () => {
       return;
     }
     try {
-      const res = await createPost({
+      // Use optimized API v2
+      const res = await createPostV2({
         title,
         content,
         image_title: imageTitle,
-        author_id: user.id,
-        author: user.name,
+        preview_content: '', // Can be extracted from content if needed
         categories: categories ? categories.split(',').map(cat => cat.trim()) : [],
         tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
       });
+      
+      console.log('✅ Post created successfully with optimized API:', res);
       router.push(`/p/${res.data.title_name}`);
     } catch (error) {
-      console.error('Failed to create post:', error);
-      alert('Không thể tạo bài viết.');
+      console.error('❌ Failed to create post with optimized API:', error);
+      
+      // Fallback to legacy API if optimized fails
+      try {
+        console.log('🔄 Falling back to legacy API...');
+        const res = await createPost({
+          title,
+          content,
+          image_title: imageTitle,
+          author_id: user.id,
+          author: user.name,
+          categories: categories ? categories.split(',').map(cat => cat.trim()) : [],
+          tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
+        });
+        router.push(`/p/${res.data.title_name}`);
+      } catch (fallbackError) {
+        console.error('❌ Legacy API also failed:', fallbackError);
+        alert('Không thể tạo bài viết.');
+      }
     }
   }, [user, title, content, imageTitle, router]);
 
@@ -193,15 +214,16 @@ const Write = () => {
 
             {/* Editor Container */}
             <div className={`transition-all duration-300 ${isFullscreen ? 'h-[calc(100vh-3.5rem)]' : ''}`}>
-              <PostForm
-                title={title}
-                setTitle={setTitle}
-                content={content}
-                setContent={setContent}
-                imageTitle={imageTitle}
-                setImageTitle={setImageTitle}
-                isFullscreen={isFullscreen}
-              />
+                          <PostForm
+              title={title}
+              setTitle={setTitle}
+              content={content}
+              setContent={setContent}
+              imageTitle={imageTitle}
+              setImageTitle={setImageTitle}
+              isFullscreen={isFullscreen}
+              onImagesChange={setUploadedImages}
+            />
             </div>
 
  

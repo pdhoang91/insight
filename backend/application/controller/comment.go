@@ -16,8 +16,82 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// calculateCommentClapCounts calculates clap counts for comments and their replies
+func (ctrl *Controller) calculateCommentClapCounts(comments []models.Comment) {
+	if len(comments) == 0 {
+		return
+	}
+
+	// Extract comment IDs and reply IDs for bulk queries
+	commentIDs := make([]uuid.UUID, len(comments))
+	var replyIDs []uuid.UUID
+
+	for i, comment := range comments {
+		commentIDs[i] = comment.ID
+		for _, reply := range comment.Replies {
+			replyIDs = append(replyIDs, reply.ID)
+		}
+	}
+
+	// Bulk query for comment clap counts
+	type ClapCountResult struct {
+		ID        uuid.UUID `json:"id"`
+		ClapCount int64     `json:"clap_count"`
+	}
+
+	var commentClapCounts []ClapCountResult
+	if len(commentIDs) > 0 {
+		ctrl.DB.Model(&models.UserActivity{}).
+			Select("comment_id as id, COALESCE(SUM(clap_count), 0) as clap_count").
+			Where("comment_id IN ? AND action_type = ?", commentIDs, "clap_comment").
+			Group("comment_id").
+			Scan(&commentClapCounts)
+	}
+
+	// Bulk query for reply clap counts
+	var replyClapCounts []ClapCountResult
+	if len(replyIDs) > 0 {
+		ctrl.DB.Model(&models.UserActivity{}).
+			Select("reply_id as id, COALESCE(SUM(clap_count), 0) as clap_count").
+			Where("reply_id IN ? AND action_type = ?", replyIDs, "clap_reply").
+			Group("reply_id").
+			Scan(&replyClapCounts)
+	}
+
+	// Create maps for quick lookup
+	commentClapCountMap := make(map[uuid.UUID]int64)
+	for _, cc := range commentClapCounts {
+		commentClapCountMap[cc.ID] = cc.ClapCount
+	}
+
+	replyClapCountMap := make(map[uuid.UUID]int64)
+	for _, rc := range replyClapCounts {
+		replyClapCountMap[rc.ID] = rc.ClapCount
+	}
+
+	// Assign clap counts to comments and replies
+	// Now uses denormalized counts for better performance with fallback
+	for i := range comments {
+		// Use denormalized count first, fallback to calculated if needed
+		if comments[i].ClapsCount > 0 {
+			comments[i].ClapCount = comments[i].ClapsCount
+		} else {
+			comments[i].ClapCount = uint64(commentClapCountMap[comments[i].ID])
+		}
+
+		for j := range comments[i].Replies {
+			// Use denormalized count first, fallback to calculated if needed
+			if comments[i].Replies[j].ClapsCount > 0 {
+				comments[i].Replies[j].ClapCount = comments[i].Replies[j].ClapsCount
+			} else {
+				comments[i].Replies[j].ClapCount = uint64(replyClapCountMap[comments[i].Replies[j].ID])
+			}
+		}
+	}
+}
+
 // GetComments lấy danh sách bình luận cho một bài viết cùng với các reply và user của mỗi reply
-func GetComments(c *gin.Context) {
+func (ctrl *Controller) GetComments(c *gin.Context) {
 
 	postIDStr := c.Param("id")
 	postID, err := uuid.FromString(postIDStr)
@@ -38,15 +112,15 @@ func GetComments(c *gin.Context) {
 	offset := (pagingParams.Page - 1) * pagingParams.Limit
 	limit := pagingParams.Limit
 
-	// Đếm tổng số bình luận liên quan đến bài post
-	if err := database.DB.Model(&models.Comment{}).Where("post_id = ?", postID).Count(&totalComments).Error; err != nil {
+	// Đếm tổng số bình luận liên quan đến bài post (chỉ active comments)
+	if err := ctrl.DB.Model(&models.Comment{}).Where("post_id = ? AND status = ?", postID, "active").Count(&totalComments).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
 	// Lấy danh sách bình luận, preload Replies cùng với User cho mỗi Reply và User cho Comment
-	result := database.DB.Preload("Replies.User").Preload("User").
-		Where("post_id = ?", postID).
+	result := ctrl.DB.Preload("Replies", "status = ?", "active").Preload("Replies.User").Preload("User").
+		Where("post_id = ? AND status = ?", postID, "active").
 		Order("created_at desc").
 		Limit(limit).
 		Offset(offset).
@@ -56,6 +130,9 @@ func GetComments(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 		return
 	}
+
+	// Calculate clap counts for comments and replies
+	ctrl.calculateCommentClapCounts(comments)
 
 	// Tính tổng số reply cho mỗi comment
 	totalCommentReply := totalComments
@@ -162,7 +239,8 @@ func parseMentions(content string) ([]uuid.UUID, error) {
 	return userIDs, nil
 }
 
-func CreateReply(c *gin.Context) {
+// CreateReply creates a new reply for a comment using unified controller
+func (ctrl *Controller) CreateReply(c *gin.Context) {
 	// Lấy userID từ context
 	userID, err := utils.GetUserIDFromContext(c)
 	if err != nil {
@@ -182,7 +260,7 @@ func CreateReply(c *gin.Context) {
 
 	// Kiểm tra xem UserID có tồn tại trong bảng Users không
 	var user models.User
-	if err = database.DB.First(&user, userID).Error; err != nil {
+	if err = ctrl.DB.First(&user, userID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "User not found"})
 			return
@@ -193,7 +271,7 @@ func CreateReply(c *gin.Context) {
 
 	// Kiểm tra xem CommentID có tồn tại trong bảng Comments không
 	var comment models.Comment
-	if err = database.DB.First(&comment, input.CommentID).Error; err != nil {
+	if err = ctrl.DB.First(&comment, input.CommentID).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Comment not found"})
 			return
@@ -204,11 +282,12 @@ func CreateReply(c *gin.Context) {
 
 	reply := models.Reply{
 		CommentID: input.CommentID,
+		PostID:    comment.PostID, // Get PostID from the comment
 		UserID:    userID,
 		Content:   input.Content,
 	}
 
-	if err = database.DB.Create(&reply).Error; err != nil {
+	if err = ctrl.DB.Create(&reply).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -220,7 +299,7 @@ func CreateReply(c *gin.Context) {
 		ReplyID:    &reply.ID,
 		ActionType: "reply_created",
 	}
-	database.DB.Create(&userActivity)
+	ctrl.DB.Create(&userActivity)
 
 	c.JSON(http.StatusOK, gin.H{"data": reply})
 }

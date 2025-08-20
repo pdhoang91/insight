@@ -15,12 +15,15 @@ type Post struct {
 	TitleName      string      `json:"title_name"`
 	PreviewContent string      `json:"preview_content"`                             // Nội dung tóm tắt bài viết
 	UserID         uuid.UUID   `json:"user_id"`                                     // ID của tác giả
+	Status         string      `json:"status" gorm:"default:'published'"`           // Trạng thái bài viết
 	CreatedAt      time.Time   `json:"created_at"`                                  // Thời gian tạo bài viết
 	UpdatedAt      time.Time   `json:"updated_at"`                                  // Thời gian cập nhật bài viết
-	Views          uint64      `json:"views"`                                       // Số lượt xem
-	Content        string      `gorm:"-" json:"content"`                            // Hình ảnh bài viết
-	ClapCount      uint64      `gorm:"-" json:"clap_count"`                         // Tổng số claps cho bài viết
-	CommentsCount  uint64      `gorm:"-" json:"comments_count"`                     // Tổng số bình luận cho bài viết
+	Views          uint64      `json:"views"`                                       // Số lượt xem (legacy)
+	ViewsCount     uint64      `json:"views_count" gorm:"default:0"`                // Số lượt xem (new)
+	CommentsCount  uint64      `json:"comments_count" gorm:"default:0"`             // Số bình luận (denormalized)
+	ClapsCount     uint64      `json:"claps_count" gorm:"default:0"`                // Số claps (denormalized)
+	Content        string      `gorm:"-" json:"content"`                            // Nội dung bài viết (computed)
+	ClapCount      uint64      `gorm:"-" json:"clap_count"`                         // Legacy field for backward compatibility
 	AverageRating  float64     `gorm:"-" json:"average_rating"`                     // Điểm trung bình của rating
 	User           User        `gorm:"foreignKey:UserID" json:"user"`               // Mối quan hệ với User
 	Comments       []Comment   `gorm:"foreignKey:PostID" json:"comments"`           // Mối quan hệ với Comments
