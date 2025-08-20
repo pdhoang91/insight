@@ -1,0 +1,122 @@
+package entities
+
+import (
+	"time"
+
+	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
+)
+
+// Post represents a blog post entity in the domain
+type Post struct {
+	ID             uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
+	Title          string    `json:"title"`
+	ImageTitle     string    `json:"image_title"`
+	TitleName      string    `json:"title_name"`
+	PreviewContent string    `json:"preview_content"`
+	UserID         uuid.UUID `json:"user_id"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+	Views          uint64    `json:"views"`
+	Content        string    `gorm:"-" json:"content"`
+	ClapCount      uint64    `gorm:"-" json:"clap_count"`
+	CommentsCount  uint64    `gorm:"-" json:"comments_count"`
+	AverageRating  float64   `gorm:"-" json:"average_rating"`
+
+	// Relationships
+	User        User        `gorm:"foreignKey:UserID" json:"user"`
+	Comments    []Comment   `gorm:"foreignKey:PostID" json:"comments"`
+	Categories  []Category  `gorm:"many2many:post_categories" json:"categories"`
+	Tags        []Tag       `gorm:"many2many:post_tags" json:"tags"`
+	PostContent PostContent `gorm:"foreignKey:PostID" json:"post_content"`
+}
+
+func (Post) TableName() string {
+	return "posts"
+}
+
+// PostCategory represents the many-to-many relationship between posts and categories
+type PostCategory struct {
+	PostID     uuid.UUID `gorm:"type:uuid;primaryKey"`
+	CategoryID uuid.UUID `gorm:"type:uuid;primaryKey"`
+}
+
+func (PostCategory) TableName() string {
+	return "post_categories"
+}
+
+// PostTag represents the many-to-many relationship between posts and tags
+type PostTag struct {
+	PostID uuid.UUID `gorm:"type:uuid;primaryKey"`
+	TagID  uuid.UUID `gorm:"type:uuid;primaryKey"`
+}
+
+func (PostTag) TableName() string {
+	return "post_tags"
+}
+
+// ==================== POST REPOSITORY METHODS ====================
+
+// Create creates a new post in the database
+func (p *Post) Create(db *gorm.DB) error {
+	return db.Create(p).Error
+}
+
+// Update updates the post in the database
+func (p *Post) Update(db *gorm.DB) error {
+	return db.Save(p).Error
+}
+
+// Delete deletes the post from the database
+func (p *Post) Delete(db *gorm.DB) error {
+	return db.Delete(p).Error
+}
+
+// FindByID finds a post by ID with preloaded relationships
+func (*Post) FindByID(db *gorm.DB, id uuid.UUID) (*Post, error) {
+	var post Post
+	err := db.Preload("User").Preload("Categories").Preload("Tags").Where("id = ?", id).First(&post).Error
+	if err != nil {
+		return nil, err
+	}
+	return &post, nil
+}
+
+// FindByUserID finds posts by user ID with pagination
+func (*Post) FindByUserID(db *gorm.DB, userID uuid.UUID, limit, offset int) ([]*Post, error) {
+	var posts []*Post
+	err := db.Preload("User").Preload("Categories").Preload("Tags").
+		Where("user_id = ?", userID).
+		Limit(limit).Offset(offset).
+		Find(&posts).Error
+	return posts, err
+}
+
+// DeleteByID deletes a post by ID
+func (*Post) DeleteByID(db *gorm.DB, id uuid.UUID) error {
+	return db.Delete(&Post{}, "id = ?", id).Error
+}
+
+// List retrieves posts with pagination and preloaded relationships
+func (*Post) List(db *gorm.DB, limit, offset int) ([]*Post, error) {
+	var posts []*Post
+	err := db.Preload("User").Preload("Categories").Preload("Tags").
+		Limit(limit).Offset(offset).
+		Find(&posts).Error
+	return posts, err
+}
+
+// Search searches posts by title or content
+func (*Post) Search(db *gorm.DB, query string, limit, offset int) ([]*Post, error) {
+	var posts []*Post
+	err := db.Preload("User").Preload("Categories").Preload("Tags").
+		Where("title ILIKE ? OR preview_content ILIKE ?", "%"+query+"%", "%"+query+"%").
+		Limit(limit).Offset(offset).
+		Find(&posts).Error
+	return posts, err
+}
+
+// IncrementViews increments the view count for a post
+func (p *Post) IncrementViews(db *gorm.DB) error {
+	return db.Model(p).Update("views", gorm.Expr("views + ?", 1)).Error
+}
