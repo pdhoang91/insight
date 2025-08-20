@@ -82,6 +82,16 @@ func (*Post) FindByID(db *gorm.DB, id uuid.UUID) (*Post, error) {
 	return &post, nil
 }
 
+// FindByTitleName finds a post by title name
+func (*Post) FindByTitleName(db *gorm.DB, titleName string) (*Post, error) {
+	var post Post
+	err := db.Where("title_name = ?", titleName).First(&post).Error
+	if err != nil {
+		return nil, err
+	}
+	return &post, nil
+}
+
 // FindByUserID finds posts by user ID with pagination
 func (*Post) FindByUserID(db *gorm.DB, userID uuid.UUID, limit, offset int) ([]*Post, error) {
 	var posts []*Post
@@ -95,6 +105,23 @@ func (*Post) FindByUserID(db *gorm.DB, userID uuid.UUID, limit, offset int) ([]*
 // DeleteByID deletes a post by ID
 func (*Post) DeleteByID(db *gorm.DB, id uuid.UUID) error {
 	return db.Delete(&Post{}, "id = ?", id).Error
+}
+
+// FindAll finds all posts with pagination
+func (*Post) FindAll(db *gorm.DB, limit, offset int) ([]*Post, error) {
+	var posts []*Post
+	err := db.Preload("User").Preload("Categories").Preload("Tags").
+		Order("created_at DESC").
+		Limit(limit).Offset(offset).
+		Find(&posts).Error
+	return posts, err
+}
+
+// Count returns total number of posts
+func (*Post) Count(db *gorm.DB) (int64, error) {
+	var count int64
+	err := db.Model(&Post{}).Count(&count).Error
+	return count, err
 }
 
 // List retrieves posts with pagination and preloaded relationships

@@ -93,6 +93,7 @@ type CreateBookmarkRequest struct {
 
 // Pagination request
 type PaginationRequest struct {
-	Limit  int `json:"limit,omitempty" validate:"omitempty,min=1,max=100"`
+	Page   int `form:"page" json:"page,omitempty"`
+	Limit  int `form:"limit" json:"limit,omitempty" validate:"omitempty,min=1,max=100"`
 	Offset int `json:"offset,omitempty" validate:"omitempty,min=0"`
 }

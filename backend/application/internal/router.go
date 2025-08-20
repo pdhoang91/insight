@@ -30,6 +30,7 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		public.GET("/posts/popular", controller.GetPopularPosts)
 		public.GET("/posts/top", controller.GetTopPosts)
 		public.GET("/posts/:id", controller.GetPost)
+		public.GET("/p/:titleName", controller.GetPostByTitleName) // Frontend compatibility
 
 		// Search routes
 		public.GET("/search/posts", controller.SearchPosts)
@@ -50,6 +51,7 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		// Public user routes
 		public.GET("/users/:id", controller.GetUser)
 		public.GET("/users/:id/posts", controller.GetUserPosts)
+		public.GET("/public/:username/posts", controller.GetUserPostsByUsername) // Frontend compatibility
 	}
 
 	// Protected routes (authentication required)
@@ -58,11 +60,14 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 	{
 		// User routes
 		protected.GET("/profile", controller.GetProfile)
+		protected.GET("/api/me", controller.GetProfile) // Alias for frontend compatibility
 		protected.PUT("/profile", controller.UpdateProfile)
 		protected.DELETE("/profile", controller.DeleteProfile)
+		protected.GET("/api/users/:id/posts", controller.GetUserPosts) // Frontend compatibility
 
 		// Post routes
 		protected.POST("/posts", controller.CreatePost)
+		protected.POST("/api/posts", controller.CreatePost) // Frontend compatibility
 		protected.PUT("/posts/:id", controller.UpdatePost)
 		protected.DELETE("/posts/:id", controller.DeletePost)
 

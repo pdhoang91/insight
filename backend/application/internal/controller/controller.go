@@ -24,35 +24,76 @@ func NewController(service *service.InsightService) *Controller {
 
 // Success sends a successful response
 func (c *Controller) Success(ctx *gin.Context, data interface{}) {
-	response := model.SuccessResponse{
-		Status: "success",
-		Code:   http.StatusOK,
-		Data:   data,
+	// For auth responses, return as-is
+	if loginResp, ok := data.(*model.LoginResponse); ok {
+		ctx.JSON(http.StatusOK, loginResp)
+		return
+	}
+
+	// Ensure data is never null - use empty array if nil and it's expected to be an array
+	if data == nil {
+		data = []interface{}{}
+	}
+
+	// For other responses, wrap in data field
+	response := gin.H{
+		"data": data,
 	}
 	ctx.JSON(http.StatusOK, response)
 }
 
 // SuccessWithStatus sends a successful response with custom status code
 func (c *Controller) SuccessWithStatus(ctx *gin.Context, statusCode int, data interface{}) {
-	response := model.SuccessResponse{
-		Status: "success",
-		Code:   statusCode,
-		Data:   data,
+	// For auth responses, return as-is
+	if loginResp, ok := data.(*model.LoginResponse); ok {
+		ctx.JSON(statusCode, loginResp)
+		return
+	}
+
+	// Ensure data is never null - use empty array if nil and it's expected to be an array
+	if data == nil {
+		data = []interface{}{}
+	}
+
+	// For other responses, wrap in data field
+	response := gin.H{
+		"data": data,
 	}
 	ctx.JSON(statusCode, response)
 }
 
 // PaginatedSuccess sends a successful paginated response
 func (c *Controller) PaginatedSuccess(ctx *gin.Context, data interface{}, total int64, limit, offset int) {
-	response := model.PaginatedResponse{
-		Status: "success",
-		Code:   http.StatusOK,
-		Data:   data,
-		Meta: model.MetaData{
-			Total:  total,
-			Limit:  limit,
-			Offset: offset,
-		},
+	// Ensure data is never null - use empty array if nil or empty slice
+	if data == nil {
+		data = []interface{}{}
+	} else {
+		// Check if it's an empty slice and convert to empty array for JSON
+		switch v := data.(type) {
+		case []*model.PostResponse:
+			if len(v) == 0 {
+				data = []interface{}{}
+			}
+		case []*model.CategoryResponse:
+			if len(v) == 0 {
+				data = []interface{}{}
+			}
+		case []*model.TagResponse:
+			if len(v) == 0 {
+				data = []interface{}{}
+			}
+		case []*model.CommentResponse:
+			if len(v) == 0 {
+				data = []interface{}{}
+			}
+		}
+	}
+
+	response := gin.H{
+		"data":        data,
+		"total_count": total,
+		"limit":       limit,
+		"offset":      offset,
 	}
 	ctx.JSON(http.StatusOK, response)
 }
@@ -91,6 +132,17 @@ func (c *Controller) BindAndValidateQuery(ctx *gin.Context, req interface{}) err
 	if err := ctx.ShouldBindQuery(req); err != nil {
 		return appError.BadRequest("Invalid query parameters", err)
 	}
+
+	// Convert page-based pagination to offset-based
+	if paginationReq, ok := req.(*model.PaginationRequest); ok {
+		if paginationReq.Page > 0 && paginationReq.Limit > 0 {
+			paginationReq.Offset = (paginationReq.Page - 1) * paginationReq.Limit
+		}
+		if paginationReq.Limit == 0 {
+			paginationReq.Limit = 10 // Default limit
+		}
+	}
+
 	return nil
 }
 

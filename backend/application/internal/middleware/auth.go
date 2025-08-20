@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
 	"github.com/pdhoang91/blog/internal/model"
+	jwtUtil "github.com/pdhoang91/blog/pkg/jwt"
 )
 
 // AuthMiddleware validates JWT tokens
@@ -35,13 +35,9 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Parse and validate token
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			// TODO: Use proper JWT secret from config
-			return []byte("your-secret-key"), nil
-		})
-
-		if err != nil || !token.Valid {
+		// Parse and validate token using JWT utility
+		claims, err := jwtUtil.VerifyJWT(tokenString)
+		if err != nil {
 			c.JSON(http.StatusUnauthorized, model.ErrorResponse{
 				Status:  "error",
 				Code:    http.StatusUnauthorized,
@@ -51,11 +47,9 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Extract claims
-		if claims, ok := token.Claims.(jwt.MapClaims); ok {
-			c.Set("user_id", claims["user_id"])
-			c.Set("user_role", claims["role"])
-		}
+		// Set user information in context
+		c.Set("user_id", claims.UserID.String())
+		c.Set("user_role", claims.Role)
 
 		c.Next()
 	}

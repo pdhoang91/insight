@@ -71,3 +71,19 @@ func (*Category) List(db *gorm.DB, limit, offset int) ([]*Category, error) {
 	err := db.Limit(limit).Offset(offset).Find(&categories).Error
 	return categories, err
 }
+
+// FindAll finds all categories with pagination
+func (*Category) FindAll(db *gorm.DB, limit, offset int) ([]*Category, error) {
+	var categories []*Category
+	err := db.Order("created_at DESC").
+		Limit(limit).Offset(offset).
+		Find(&categories).Error
+	return categories, err
+}
+
+// Count returns total number of categories
+func (*Category) Count(db *gorm.DB) (int64, error) {
+	var count int64
+	err := db.Model(&Category{}).Count(&count).Error
+	return count, err
+}

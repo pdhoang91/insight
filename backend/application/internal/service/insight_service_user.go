@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"strings"
 	"time"
 
@@ -11,6 +12,7 @@ import (
 	"github.com/pdhoang91/blog/internal/entities"
 	"github.com/pdhoang91/blog/internal/model"
 	appError "github.com/pdhoang91/blog/pkg/error"
+	jwtUtil "github.com/pdhoang91/blog/pkg/jwt"
 	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/oauth2"
@@ -80,9 +82,14 @@ func (s *InsightService) Login(req *model.LoginRequest) (*model.LoginResponse, e
 		return nil, appError.Unauthorized("Invalid credentials", nil)
 	}
 
-	// TODO: Generate JWT token using TokenMaker
+	// Generate JWT token using TokenMaker
+	jwtToken, err := jwtUtil.GenerateJWT(user)
+	if err != nil {
+		return nil, appError.InternalServerError("Failed to generate token", err)
+	}
+
 	response := &model.LoginResponse{
-		Token: "jwt-token-here", // Placeholder
+		Token: jwtToken,
 		User:  model.NewUserResponse(user),
 	}
 
@@ -102,14 +109,18 @@ func (s *InsightService) GoogleLogin() (string, error) {
 
 // GoogleCallback handles Google OAuth callback
 func (s *InsightService) GoogleCallback(code string) (*model.LoginResponse, error) {
+	log.Printf("GoogleCallback called with code: %s", code)
+
 	cfg := config.Get()
 	if cfg == nil {
+		log.Printf("OAuth configuration not available")
 		return nil, appError.InternalServerError("OAuth configuration not available", nil)
 	}
 
 	// Exchange code for token
 	token, err := cfg.Exchange(context.Background(), code)
 	if err != nil {
+		log.Printf("Could not exchange token: %v", err)
 		return nil, appError.InternalServerError("Could not exchange token", err)
 	}
 
@@ -119,6 +130,7 @@ func (s *InsightService) GoogleCallback(code string) (*model.LoginResponse, erro
 	// Get user info from Google
 	resp, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
 	if err != nil {
+		log.Printf("Could not fetch user info: %v", err)
 		return nil, appError.InternalServerError("Could not fetch user info", err)
 	}
 	defer resp.Body.Close()
@@ -128,8 +140,11 @@ func (s *InsightService) GoogleCallback(code string) (*model.LoginResponse, erro
 		Name  string `json:"name"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
+		log.Printf("Could not decode user info: %v", err)
 		return nil, appError.InternalServerError("Could not decode user info", err)
 	}
+
+	log.Printf("User info received: email=%s, name=%s", userInfo.Email, userInfo.Name)
 
 	// Check if user exists in database
 	user, err := s.User.FindByEmail(s.DB, userInfo.Email)
@@ -139,6 +154,7 @@ func (s *InsightService) GoogleCallback(code string) (*model.LoginResponse, erro
 
 	// Create user if doesn't exist
 	if err == gorm.ErrRecordNotFound {
+		log.Printf("Creating new user for email: %s", userInfo.Email)
 		user = &entities.User{
 			ID:            uuid.NewV4(),
 			Email:         userInfo.Email,
@@ -152,17 +168,41 @@ func (s *InsightService) GoogleCallback(code string) (*model.LoginResponse, erro
 		}
 
 		if err := user.Create(s.DB); err != nil {
+			log.Printf("Could not create user: %v", err)
 			return nil, appError.InternalServerError("Could not create user", err)
 		}
+		log.Printf("User created successfully with ID: %s", user.ID)
+	} else {
+		log.Printf("User found with ID: %s", user.ID)
 	}
 
-	// TODO: Generate JWT token using TokenMaker
+	// Generate JWT token using TokenMaker
+	jwtToken, err := jwtUtil.GenerateJWT(user)
+	if err != nil {
+		log.Printf("Failed to generate token: %v", err)
+		return nil, appError.InternalServerError("Failed to generate token", err)
+	}
+
+	log.Printf("JWT token generated successfully")
+
 	response := &model.LoginResponse{
-		Token: "jwt-token-here", // Placeholder
+		Token: jwtToken,
 		User:  model.NewUserResponse(user),
 	}
 
 	return response, nil
+}
+
+// GetUserByUsername gets a user by username
+func (s *InsightService) GetUserByUsername(username string) (*entities.User, error) {
+	user, err := s.User.FindByUsername(s.DBR2, username)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, appError.NotFound("User not found", err)
+		}
+		return nil, appError.InternalServerError("Failed to get user", err)
+	}
+	return user, nil
 }
 
 // Logout handles user logout

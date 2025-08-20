@@ -19,9 +19,15 @@ func (s *InsightService) ListCategories(req *model.PaginationRequest) ([]*model.
 	}
 
 	// Use read replica for better performance
-	categories, err := s.Category.List(s.DBR2, req.Limit, req.Offset)
+	categories, err := s.Category.FindAll(s.DBR2, req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, appError.InternalServerError("Failed to get categories", err)
+	}
+
+	// Get total count
+	total, err := s.Category.Count(s.DBR2)
+	if err != nil {
+		return nil, 0, appError.InternalServerError("Failed to count categories", err)
 	}
 
 	var responses []*model.CategoryResponse
@@ -29,8 +35,12 @@ func (s *InsightService) ListCategories(req *model.PaginationRequest) ([]*model.
 		responses = append(responses, model.NewCategoryResponse(category))
 	}
 
-	// TODO: Get total count from repository
-	return responses, int64(len(responses)), nil
+	// Ensure we return empty array instead of nil
+	if responses == nil {
+		responses = []*model.CategoryResponse{}
+	}
+
+	return responses, total, nil
 }
 
 // GetTopCategories retrieves top categories (Technology, Music, Movies, AI, Golang)
@@ -107,21 +117,18 @@ func (s *InsightService) GetPopularCategories(req *model.PaginationRequest) ([]m
 	return categories, totalCount, nil
 }
 
-// GetCategory retrieves a category by ID
-func (s *InsightService) GetCategory(id uuid.UUID) (*model.CategoryResponse, error) {
-	category, err := s.Category.FindByID(s.DBR2, id)
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, appError.NotFound("Category not found", err)
-		}
-		return nil, appError.InternalServerError("Failed to get category", err)
-	}
-
-	return model.NewCategoryResponse(category), nil
-}
-
 // CreateCategory creates a new category
 func (s *InsightService) CreateCategory(req *model.CreateCategoryRequest) (*model.CategoryResponse, error) {
+	// Check if category already exists
+	existingCategory, err := s.Category.FindByName(s.DB, req.Name)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, appError.InternalServerError("Failed to check existing category", err)
+	}
+	if existingCategory != nil {
+		return nil, appError.Conflict("Category with this name already exists", nil)
+	}
+
+	// Create category
 	category := &entities.Category{
 		ID:          uuid.NewV4(),
 		Name:        req.Name,
@@ -140,7 +147,20 @@ func (s *InsightService) CreateCategory(req *model.CreateCategoryRequest) (*mode
 	return model.NewCategoryResponse(category), nil
 }
 
-// UpdateCategory updates a category
+// GetCategory retrieves a category by ID
+func (s *InsightService) GetCategory(id uuid.UUID) (*model.CategoryResponse, error) {
+	category, err := s.Category.FindByID(s.DBR2, id)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, appError.NotFound("Category not found", err)
+		}
+		return nil, appError.InternalServerError("Failed to get category", err)
+	}
+
+	return model.NewCategoryResponse(category), nil
+}
+
+// UpdateCategory updates a category by ID
 func (s *InsightService) UpdateCategory(id uuid.UUID, req *model.UpdateCategoryRequest) (*model.CategoryResponse, error) {
 	category, err := s.Category.FindByID(s.DB, id)
 	if err != nil {
@@ -150,7 +170,16 @@ func (s *InsightService) UpdateCategory(id uuid.UUID, req *model.UpdateCategoryR
 		return nil, appError.InternalServerError("Failed to get category", err)
 	}
 
+	// Update fields if provided
 	if req.Name != "" {
+		// Check if new name already exists (excluding current category)
+		existingCategory, err := s.Category.FindByName(s.DB, req.Name)
+		if err != nil && err != gorm.ErrRecordNotFound {
+			return nil, appError.InternalServerError("Failed to check existing category", err)
+		}
+		if existingCategory != nil && existingCategory.ID != id {
+			return nil, appError.Conflict("Category with this name already exists", nil)
+		}
 		category.Name = req.Name
 	}
 	if req.Description != "" {
@@ -168,8 +197,26 @@ func (s *InsightService) UpdateCategory(id uuid.UUID, req *model.UpdateCategoryR
 	return model.NewCategoryResponse(category), nil
 }
 
-// DeleteCategory deletes a category
+// DeleteCategory deletes a category by ID
 func (s *InsightService) DeleteCategory(id uuid.UUID) error {
+	_, err := s.Category.FindByID(s.DB, id)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return appError.NotFound("Category not found", err)
+		}
+		return appError.InternalServerError("Failed to get category", err)
+	}
+
+	// Check if category is being used by posts
+	var postCount int64
+	if err := s.DB.Table("post_categories").Where("category_id = ?", id).Count(&postCount).Error; err != nil {
+		return appError.InternalServerError("Failed to check category usage", err)
+	}
+
+	if postCount > 0 {
+		return appError.BadRequest("Cannot delete category that is being used by posts", nil)
+	}
+
 	if err := s.Category.DeleteByID(s.DB, id); err != nil {
 		return appError.InternalServerError("Failed to delete category", err)
 	}

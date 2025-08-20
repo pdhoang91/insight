@@ -74,6 +74,30 @@ func (c *Controller) GetPost(ctx *gin.Context) {
 	c.Success(ctx, response)
 }
 
+// GetPostByTitleName retrieves a post by title name (for frontend compatibility)
+func (c *Controller) GetPostByTitleName(ctx *gin.Context) {
+	titleName := ctx.Param("titleName")
+	if titleName == "" {
+		c.Error(ctx, appError.BadRequest("Title name is required", nil))
+		return
+	}
+
+	response, err := c.service.GetPostByTitleName(titleName)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	// Frontend expects { data: { post: ... } }
+	result := gin.H{
+		"data": gin.H{
+			"post": response,
+		},
+	}
+
+	ctx.JSON(http.StatusOK, result)
+}
+
 // UpdatePost updates a post by ID
 func (c *Controller) UpdatePost(ctx *gin.Context) {
 	userIDStr, err := c.GetUserIDFromContext(ctx)
@@ -253,4 +277,35 @@ func (c *Controller) SearchAll(ctx *gin.Context) {
 	}
 
 	c.Success(ctx, response)
+}
+
+// GetUserPostsByUsername retrieves posts by username (for frontend compatibility)
+func (c *Controller) GetUserPostsByUsername(ctx *gin.Context) {
+	username := ctx.Param("username")
+	if username == "" {
+		c.Error(ctx, appError.BadRequest("Username is required", nil))
+		return
+	}
+
+	var req model.PaginationRequest
+	if err := c.BindAndValidateQuery(ctx, &req); err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	// Get user by username first
+	user, err := c.service.GetUserByUsername(username)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	// Get user posts
+	responses, total, err := c.service.GetUserPosts(user.ID, &req)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	c.PaginatedSuccess(ctx, responses, total, req.Limit, req.Offset)
 }
