@@ -25,6 +25,7 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		// Public post routes
 		public.GET("/posts", controller.ListPosts)
 		public.GET("/posts/latest", controller.GetLatestPosts)
+		public.GET("/posts/popular", controller.GetPopularPosts)
 		public.GET("/posts/:id", controller.GetPost)
 
 		// Search routes

@@ -54,7 +54,10 @@ func (c *Controller) ListPosts(ctx *gin.Context) {
 		return
 	}
 
-	c.PaginatedSuccess(ctx, responses, total, req.Limit, req.Offset)
+	ctx.JSON(http.StatusOK, gin.H{
+		"data":        responses,
+		"total_count": total,
+	})
 }
 
 // GetPost retrieves a post by ID
@@ -162,7 +165,10 @@ func (c *Controller) GetUserPosts(ctx *gin.Context) {
 		return
 	}
 
-	c.PaginatedSuccess(ctx, responses, total, req.Limit, req.Offset)
+	ctx.JSON(http.StatusOK, gin.H{
+		"data":        responses,
+		"total_count": total,
+	})
 }
 
 // SearchPosts searches for posts
@@ -185,7 +191,10 @@ func (c *Controller) SearchPosts(ctx *gin.Context) {
 		return
 	}
 
-	c.PaginatedSuccess(ctx, responses, total, req.Limit, req.Offset)
+	ctx.JSON(http.StatusOK, gin.H{
+		"data":        responses,
+		"total_count": total,
+	})
 }
 
 // SearchAll searches across all content
@@ -219,7 +228,10 @@ func (c *Controller) GetAllPosts(ctx *gin.Context) {
 		return
 	}
 
-	c.PaginatedSuccess(ctx, responses, total, req.Limit, req.Offset)
+	ctx.JSON(http.StatusOK, gin.H{
+		"data":        responses,
+		"total_count": total,
+	})
 }
 
 // GetLatestPosts handles GET /posts/latest
@@ -231,6 +243,25 @@ func (c *Controller) GetLatestPosts(ctx *gin.Context) {
 	}
 
 	posts, err := c.service.GetLatestPosts(limit)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	c.Success(ctx, gin.H{
+		"posts": posts,
+	})
+}
+
+// GetPopularPosts handles GET /posts/popular
+func (c *Controller) GetPopularPosts(ctx *gin.Context) {
+	limitStr := ctx.DefaultQuery("limit", "5")
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit <= 0 {
+		limit = 5
+	}
+
+	posts, err := c.service.GetPopularPosts(limit)
 	if err != nil {
 		c.Error(ctx, err)
 		return

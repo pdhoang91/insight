@@ -231,3 +231,23 @@ func (s *InsightService) GetLatestPosts(limit int) ([]*model.PostResponse, error
 
 	return responses, nil
 }
+
+// GetPopularPosts retrieves popular posts based on engagement
+func (s *InsightService) GetPopularPosts(limit int) ([]*model.PostResponse, error) {
+	if limit == 0 {
+		limit = 5
+	}
+
+	// Use read replica for better performance
+	posts, err := s.Post.GetPopular(s.DBR2, limit)
+	if err != nil {
+		return nil, appError.InternalServerError("Failed to get popular posts", err)
+	}
+
+	var responses []*model.PostResponse
+	for _, post := range posts {
+		responses = append(responses, model.NewPostResponse(post))
+	}
+
+	return responses, nil
+}
