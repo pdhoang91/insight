@@ -183,7 +183,7 @@ func (s *InsightService) ListPosts(req *dto.PaginationRequest) ([]*dto.PostRespo
 	return responses, total, nil
 }
 
-// GetPost retrieves a post by ID (public access, no view tracking)
+// GetPost retrieves a post by ID
 func (s *InsightService) GetPost(id uuid.UUID) (*dto.PostResponse, error) {
 	// Use read replica for better performance
 	post, err := s.Post.FindByID(s.DBR2, id)
@@ -192,6 +192,12 @@ func (s *InsightService) GetPost(id uuid.UUID) (*dto.PostResponse, error) {
 			return nil, errors.New("not found")
 		}
 		return nil, errors.New("internal server error")
+	}
+
+	// Increment view count (use write database for this)
+	if err := s.DB.Model(post).UpdateColumn("views", gorm.Expr("views + ?", 1)).Error; err != nil {
+		// Log error but don't fail the request
+		// TODO: Use proper logger
 	}
 
 	// Load post content using PostContentRepo
@@ -651,38 +657,3 @@ func (s *InsightService) GetPostsByCategory(categoryName string, req *dto.Pagina
 }
 
 // SearchPosts searches posts by query
-
-// GetPostWithViewTracking retrieves a post by ID and tracks the view
-func (s *InsightService) GetPostWithViewTracking(id uuid.UUID, userID *uuid.UUID, ipAddress, userAgent string) (*dto.PostResponse, error) {
-	// Get post first
-	post, err := s.Post.FindByID(s.DBR2, id)
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("not found")
-		}
-		return nil, errors.New("internal server error")
-	}
-
-	// Track view (async, don't fail request if this fails)
-	go func() {
-		if err := s.TrackPostView(id, userID, ipAddress, userAgent); err != nil {
-			// TODO: Log error
-		}
-	}()
-
-	// Load post content
-	postContent, err := s.PostContent.FindByPostID(s.DBR2, id)
-	if err != nil && err != gorm.ErrRecordNotFound {
-		return nil, errors.New("internal server error")
-	}
-	if postContent != nil {
-		post.Content = postContent.Content
-	}
-
-	// Load categories and tags
-	if err := s.DBR2.Preload("User").Preload("Categories").Preload("Tags").First(post, post.ID).Error; err != nil {
-		return nil, errors.New("internal server error")
-	}
-
-	return dto.NewPostResponse(post), nil
-}

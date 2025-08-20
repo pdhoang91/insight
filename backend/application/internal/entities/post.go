@@ -12,12 +12,12 @@ type Post struct {
 	ID             uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
 	Title          string    `json:"title"`
 	ImageTitle     string    `json:"image_title"`
-	TitleName      string    `gorm:"uniqueIndex" json:"title_name"`
+	TitleName      string    `json:"title_name"`
 	PreviewContent string    `json:"preview_content"`
-	UserID         uuid.UUID `gorm:"index;not null" json:"user_id"`
-	CreatedAt      time.Time `gorm:"index" json:"created_at"`
+	UserID         uuid.UUID `json:"user_id"`
+	CreatedAt      time.Time `json:"created_at"`
 	UpdatedAt      time.Time `json:"updated_at"`
-	Views          uint64    `gorm:"index" json:"views"`
+	Views          uint64    `json:"views"`
 	Content        string    `gorm:"-" json:"content"`
 	ClapCount      uint64    `gorm:"-" json:"clap_count"`
 	CommentsCount  uint64    `gorm:"-" json:"comments_count"`
@@ -181,5 +181,3 @@ func (*Post) CountByCategory(db *gorm.DB, categoryID uuid.UUID) (int64, error) {
 		Count(&count).Error
 	return count, err
 }
-
-// List retrieves posts with pagination

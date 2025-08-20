@@ -14,21 +14,21 @@ type UserRole = constants.UserRole
 // User represents a user entity in the domain
 type User struct {
 	ID                     uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
-	Email                  string    `gorm:"uniqueIndex;not null" json:"email"`
+	Email                  string    `json:"email"`
 	Name                   string    `json:"name"`
-	Username               string    `gorm:"uniqueIndex;not null" json:"username"`
+	Username               string    `json:"username"`
 	Password               string    `json:"-"`
-	GoogleID               string    `gorm:"index" json:"google_id"`
+	GoogleID               string    `json:"google_id"`
 	AvatarURL              string    `json:"avatar_url"`
 	Bio                    string    `json:"bio"`
 	Phone                  string    `json:"phone"`
 	Dob                    string    `json:"dob"`
 	Role                   UserRole  `json:"role" gorm:"default:'user'"`
 	EmailVerified          bool      `json:"email_verified" gorm:"default:false"`
-	VerificationToken      string    `gorm:"index" json:"-"`
-	PasswordResetToken     string    `gorm:"index" json:"-"`
+	VerificationToken      string    `json:"-"`
+	PasswordResetToken     string    `json:"-"`
 	PasswordResetExpiresAt time.Time `json:"-"`
-	CreatedAt              time.Time `gorm:"index" json:"created_at"`
+	CreatedAt              time.Time `json:"created_at"`
 	UpdatedAt              time.Time `json:"updated_at"`
 }
 
@@ -104,5 +104,3 @@ func (*User) List(db *gorm.DB, limit, offset int) ([]*User, error) {
 	err := db.Limit(limit).Offset(offset).Find(&users).Error
 	return users, err
 }
-
-// FindByEmail finds a user by email
