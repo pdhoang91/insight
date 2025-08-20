@@ -54,7 +54,20 @@ func (c *Controller) GetPost(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": response})
+	// Check if user has clapped this post (if authenticated)
+	var hasClapped bool
+	if userIDStr, exists := ctx.Get("userID"); exists {
+		if userID, err := uuid.FromString(userIDStr.(string)); err == nil {
+			hasClapped, _ = c.service.HasUserClappedPost(userID, id)
+		}
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"data": map[string]interface{}{
+			"post":        response,
+			"has_clapped": hasClapped,
+		},
+	})
 }
 
 // ListPosts retrieves all posts with pagination
@@ -334,10 +347,22 @@ func (c *Controller) GetPostByTitleName(ctx *gin.Context) {
 		return
 	}
 
-	// Frontend expects { data: { post: ... } }
+	// Check if user has clapped this post (if authenticated)
+	var hasClapped bool
+	if userIDStr, exists := ctx.Get("userID"); exists {
+		if userID, err := uuid.FromString(userIDStr.(string)); err == nil {
+			// Get post ID from response
+			if postID, err := uuid.FromString(response.ID.String()); err == nil {
+				hasClapped, _ = c.service.HasUserClappedPost(userID, postID)
+			}
+		}
+	}
+
+	// Frontend expects { data: { post: ..., has_clapped: ... } }
 	ctx.JSON(http.StatusOK, gin.H{
 		"data": gin.H{
-			"post": response,
+			"post":        response,
+			"has_clapped": hasClapped,
 		},
 	})
 }

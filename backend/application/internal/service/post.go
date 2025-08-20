@@ -2,6 +2,8 @@ package service
 
 import (
 	"errors"
+	"fmt"
+	"os"
 	"time"
 
 	"github.com/pdhoang91/blog/internal/dto"
@@ -9,6 +11,7 @@ import (
 
 	"github.com/pdhoang91/blog/pkg/image"
 	"github.com/pdhoang91/blog/pkg/notification"
+	"github.com/pdhoang91/blog/pkg/utils"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -28,12 +31,41 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 		}
 	}()
 
+	// Generate image_title if not provided
+	imageTitle := ""
+	if imageTitle == "" {
+		feURL := os.Getenv("BASE_FE_URL")
+		if feURL == "" {
+			feURL = "http://localhost:3000" // fallback
+		}
+		imageTitle = feURL + "/images/insight.jpg"
+	}
+
+	// Generate title_name (slug) from title
+	titleName := utils.CreateSlug(req.Title)
+
+	// Ensure unique title_name
+	var existingPost entities.Post
+	if err := s.DB.Where("title_name = ?", titleName).First(&existingPost).Error; err == nil {
+		// Title name already exists, add unique prefix
+		uniquePrefix := utils.GetUniquePrefix()
+		titleName = fmt.Sprintf("%s-%s", titleName, uniquePrefix)
+	}
+
+	// Generate preview_content from content (first 55 words)
+	previewContent := req.PreviewContent
+	if previewContent == "" && req.Content != "" {
+		previewContent = utils.ExtractPreviewContent(req.Content, 55)
+	}
+
 	// Create post
 	post := &entities.Post{
 		ID:             uuid.NewV4(),
 		UserID:         userID,
 		Title:          req.Title,
-		PreviewContent: req.PreviewContent,
+		ImageTitle:     imageTitle,
+		TitleName:      titleName,
+		PreviewContent: previewContent,
 		CreatedAt:      time.Now(),
 		UpdatedAt:      time.Now(),
 	}
@@ -45,10 +77,18 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 
 	// Handle post content creation using PostContentRepo
 	if req.Content != "" {
+		// Process content for saving (convert image URLs to data-image-id references)
+		processedContent, err := s.ProcessContentForSaving(req.Content, post.ID)
+		if err != nil {
+			// Log warning but don't fail the operation
+			// TODO: Use proper logger
+			processedContent = image.ConvertS3URLToProxy(req.Content) // Fallback to legacy
+		}
+
 		postContent := &entities.PostContent{
 			ID:        uuid.NewV4(),
 			PostID:    post.ID,
-			Content:   req.Content,
+			Content:   processedContent,
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		}
@@ -170,6 +210,12 @@ func (s *InsightService) ListPosts(req *dto.PaginationRequest) ([]*dto.PostRespo
 		return nil, 0, errors.New("internal server error")
 	}
 
+	// Calculate counts for all posts efficiently
+	if err := entities.CalculateCountsForPosts(s.DBR2, posts); err != nil {
+		// Log error but don't fail the request
+		// TODO: Use proper logger
+	}
+
 	var responses []*dto.PostResponse
 	for _, post := range posts {
 		responses = append(responses, dto.NewPostResponse(post))
@@ -206,12 +252,19 @@ func (s *InsightService) GetPost(id uuid.UUID) (*dto.PostResponse, error) {
 		return nil, errors.New("internal server error")
 	}
 	if postContent != nil {
-		post.Content = postContent.Content
+		// Process content for display (convert data-image-id to URLs)
+		post.Content = s.ProcessContentForDisplay(postContent.Content)
 	}
 
 	// Load categories and tags
 	if err := s.DBR2.Preload("User").Preload("Categories").Preload("Tags").First(post, post.ID).Error; err != nil {
 		return nil, errors.New("internal server error")
+	}
+
+	// Calculate clap_count and comments_count
+	if err := post.CalculateCounts(s.DBR2); err != nil {
+		// Log error but don't fail the request
+		// TODO: Use proper logger
 	}
 
 	return dto.NewPostResponse(post), nil
@@ -236,12 +289,19 @@ func (s *InsightService) GetPostByTitleName(titleName string) (*dto.PostResponse
 	// Load post content
 	postContent, err := s.PostContent.FindByPostID(s.DBR2, post.ID)
 	if err == nil && postContent != nil {
-		post.Content = postContent.Content
+		// Process content for display (convert data-image-id to URLs)
+		post.Content = s.ProcessContentForDisplay(postContent.Content)
 	}
 
 	// Preload relationships
 	if err := s.DBR2.Preload("User").Preload("Categories").Preload("Tags").First(post, post.ID).Error; err != nil {
 		return nil, errors.New("internal server error")
+	}
+
+	// Calculate clap_count and comments_count
+	if err := post.CalculateCounts(s.DBR2); err != nil {
+		// Log error but don't fail the request
+		// TODO: Use proper logger
 	}
 
 	return dto.NewPostResponse(post), nil
@@ -654,6 +714,19 @@ func (s *InsightService) GetPostsByCategory(categoryName string, req *dto.Pagina
 	}
 
 	return responses, total, nil
+}
+
+// HasUserClappedPost checks if a user has clapped a specific post
+func (s *InsightService) HasUserClappedPost(userID, postID uuid.UUID) (bool, error) {
+	var activity entities.UserActivity
+	err := s.DB.Where("user_id = ? AND post_id = ? AND action_type = ?", userID, postID, "clap_post").First(&activity).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
 
 // SearchPosts searches posts by query
