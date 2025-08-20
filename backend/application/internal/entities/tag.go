@@ -75,3 +75,19 @@ func (*Tag) GetPopular(db *gorm.DB, limit int) ([]*Tag, error) {
 func (*Tag) DeleteByID(db *gorm.DB, id uuid.UUID) error {
 	return db.Where("id = ?", id).Delete(&Tag{}).Error
 }
+
+// FindAll retrieves all tags with pagination
+func (*Tag) FindAll(db *gorm.DB, limit, offset int) ([]*Tag, error) {
+	var tags []*Tag
+	err := db.Order("created_at DESC").
+		Limit(limit).Offset(offset).
+		Find(&tags).Error
+	return tags, err
+}
+
+// Count returns total number of tags
+func (*Tag) Count(db *gorm.DB) (int64, error) {
+	var count int64
+	err := db.Model(&Tag{}).Count(&count).Error
+	return count, err
+}

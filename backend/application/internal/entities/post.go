@@ -159,3 +159,25 @@ func (*Post) GetPopular(db *gorm.DB, limit int) ([]*Post, error) {
 		Find(&posts).Error
 	return posts, err
 }
+
+// FindByCategory finds posts by category ID
+func (*Post) FindByCategory(db *gorm.DB, categoryID uuid.UUID, limit, offset int) ([]*Post, error) {
+	var posts []*Post
+	err := db.Preload("User").Preload("Categories").Preload("Tags").
+		Joins("JOIN post_categories ON posts.id = post_categories.post_id").
+		Where("post_categories.category_id = ?", categoryID).
+		Order("posts.created_at DESC").
+		Limit(limit).Offset(offset).
+		Find(&posts).Error
+	return posts, err
+}
+
+// CountByCategory counts posts by category ID
+func (*Post) CountByCategory(db *gorm.DB, categoryID uuid.UUID) (int64, error) {
+	var count int64
+	err := db.Model(&Post{}).
+		Joins("JOIN post_categories ON posts.id = post_categories.post_id").
+		Where("post_categories.category_id = ?", categoryID).
+		Count(&count).Error
+	return count, err
+}

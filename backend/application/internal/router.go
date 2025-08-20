@@ -23,6 +23,9 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		public.POST("/auth/logout", controller.Logout)
 		public.POST("/auth/refresh", controller.RefreshToken)
 
+		// Debug route
+		public.GET("/debug-jwt", controller.DebugJWT)
+
 		// Public post routes
 		public.GET("/posts", controller.ListPosts)
 		public.GET("/posts/latest", controller.GetLatestPosts)
