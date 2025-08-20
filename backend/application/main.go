@@ -50,7 +50,6 @@ func main() {
 
 	// Create insight service with all dependencies
 	insightService := service.NewInsightService(
-		false, // productionMode
 		baseService,
 	)
 

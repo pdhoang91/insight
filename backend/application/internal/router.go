@@ -25,7 +25,9 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		// Public post routes
 		public.GET("/posts", controller.ListPosts)
 		public.GET("/posts/latest", controller.GetLatestPosts)
+		public.GET("/posts/recent", controller.GetRecentPosts)
 		public.GET("/posts/popular", controller.GetPopularPosts)
+		public.GET("/posts/top", controller.GetTopPosts)
 		public.GET("/posts/:id", controller.GetPost)
 
 		// Search routes
@@ -35,6 +37,7 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		// Public category routes
 		public.GET("/categories", controller.ListCategories)
 		public.GET("/categories/top", controller.GetTopCategories)
+		public.GET("/categories_top", controller.GetTopCategories) // Alias for frontend typo
 		public.GET("/categories/popular", controller.GetPopularCategories)
 		public.GET("/categories/:id", controller.GetCategory)
 

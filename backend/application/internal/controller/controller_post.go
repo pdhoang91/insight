@@ -54,6 +54,11 @@ func (c *Controller) ListPosts(ctx *gin.Context) {
 		return
 	}
 
+	// Ensure data is never null
+	if responses == nil {
+		responses = []*model.PostResponse{}
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"data":        responses,
 		"total_count": total,
@@ -165,6 +170,11 @@ func (c *Controller) GetUserPosts(ctx *gin.Context) {
 		return
 	}
 
+	// Ensure data is never null
+	if responses == nil {
+		responses = []*model.PostResponse{}
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"data":        responses,
 		"total_count": total,
@@ -189,6 +199,11 @@ func (c *Controller) SearchPosts(ctx *gin.Context) {
 	if err != nil {
 		c.Error(ctx, err)
 		return
+	}
+
+	// Ensure data is never null
+	if responses == nil {
+		responses = []*model.PostResponse{}
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
@@ -228,6 +243,11 @@ func (c *Controller) GetAllPosts(ctx *gin.Context) {
 		return
 	}
 
+	// Ensure data is never null
+	if responses == nil {
+		responses = []*model.PostResponse{}
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"data":        responses,
 		"total_count": total,
@@ -248,8 +268,13 @@ func (c *Controller) GetLatestPosts(ctx *gin.Context) {
 		return
 	}
 
-	c.Success(ctx, gin.H{
-		"posts": posts,
+	// Ensure data is never null
+	if posts == nil {
+		posts = []*model.PostResponse{}
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"data": posts,
 	})
 }
 
@@ -267,7 +292,60 @@ func (c *Controller) GetPopularPosts(ctx *gin.Context) {
 		return
 	}
 
-	c.Success(ctx, gin.H{
-		"posts": posts,
+	// Ensure data is never null
+	if posts == nil {
+		posts = []*model.PostResponse{}
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"data": posts,
+	})
+}
+
+// GetRecentPosts handles GET /posts/recent
+func (c *Controller) GetRecentPosts(ctx *gin.Context) {
+	limitStr := ctx.DefaultQuery("limit", "10")
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit <= 0 {
+		limit = 10
+	}
+
+	posts, err := c.service.GetRecentPosts(limit)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	// Ensure data is never null
+	if posts == nil {
+		posts = []*model.PostResponse{}
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"data": posts,
+	})
+}
+
+// GetTopPosts handles GET /posts/top
+func (c *Controller) GetTopPosts(ctx *gin.Context) {
+	limitStr := ctx.DefaultQuery("limit", "10")
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit <= 0 {
+		limit = 10
+	}
+
+	posts, err := c.service.GetTopPosts(limit)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	// Ensure data is never null
+	if posts == nil {
+		posts = []*model.PostResponse{}
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"data": posts,
 	})
 }

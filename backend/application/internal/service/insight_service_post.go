@@ -251,3 +251,13 @@ func (s *InsightService) GetPopularPosts(limit int) ([]*model.PostResponse, erro
 
 	return responses, nil
 }
+
+// GetRecentPosts retrieves recent posts (alias for GetLatestPosts)
+func (s *InsightService) GetRecentPosts(limit int) ([]*model.PostResponse, error) {
+	return s.GetLatestPosts(limit)
+}
+
+// GetTopPosts retrieves top posts (alias for GetPopularPosts)
+func (s *InsightService) GetTopPosts(limit int) ([]*model.PostResponse, error) {
+	return s.GetPopularPosts(limit)
+}

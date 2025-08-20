@@ -9,7 +9,6 @@ import (
 // InsightService contains all dependencies and business logic
 type InsightService struct {
 	*BaseService
-	ProductionMode bool
 
 	// Entity instances for method calls
 	User        *entities.User
@@ -37,20 +36,18 @@ type InsightService struct {
 
 // NewInsightService creates a new insight service with all dependencies
 func NewInsightService(
-	productionMode bool,
 	baseService *BaseService,
 ) *InsightService {
 	return &InsightService{
-		BaseService:    baseService,
-		ProductionMode: productionMode,
-		User:           &entities.User{},
-		Post:           &entities.Post{},
-		Category:       &entities.Category{},
-		Comment:        &entities.Comment{},
-		Reply:          &entities.Reply{},
-		Bookmark:       &entities.Bookmark{},
-		Tag:            &entities.Tag{},
-		PostContent:    &entities.PostContent{},
+		BaseService: baseService,
+		User:        &entities.User{},
+		Post:        &entities.Post{},
+		Category:    &entities.Category{},
+		Comment:     &entities.Comment{},
+		Reply:       &entities.Reply{},
+		Bookmark:    &entities.Bookmark{},
+		Tag:         &entities.Tag{},
+		PostContent: &entities.PostContent{},
 	}
 }
 

@@ -121,11 +121,13 @@ func (p *Post) IncrementViews(db *gorm.DB) error {
 	return db.Model(p).Update("views", gorm.Expr("views + ?", 1)).Error
 }
 
-// GetPopular retrieves popular posts based on views, claps, and comments
+// GetPopular retrieves popular posts based on views and comments
 func (*Post) GetPopular(db *gorm.DB, limit int) ([]*Post, error) {
 	var posts []*Post
+	// Use subquery to calculate comments count and order by views + comments
 	err := db.Preload("User").Preload("Categories").Preload("Tags").
-		Order("(views * 0.3 + clap_count * 0.5 + comments_count * 0.2) DESC").
+		Select("posts.*, COALESCE((SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id), 0) as comments_count").
+		Order("(posts.views * 0.7 + COALESCE((SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id), 0) * 0.3) DESC").
 		Limit(limit).
 		Find(&posts).Error
 	return posts, err

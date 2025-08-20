@@ -39,11 +39,14 @@ func (c *Controller) ListTags(ctx *gin.Context) {
 		return
 	}
 
-	c.Success(ctx, gin.H{
-		"tags":  tags,
-		"total": total,
-		"page":  page,
-		"limit": limit,
+	// Ensure data is never null
+	if tags == nil {
+		tags = []*model.TagResponse{}
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"data":        tags,
+		"total_count": total,
 	})
 }
 
@@ -61,8 +64,13 @@ func (c *Controller) GetPopularTags(ctx *gin.Context) {
 		return
 	}
 
-	c.Success(ctx, gin.H{
-		"tags": tags,
+	// Ensure data is never null
+	if tags == nil {
+		tags = []*model.TagResponse{}
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"data": tags,
 	})
 }
 

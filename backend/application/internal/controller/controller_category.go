@@ -23,6 +23,11 @@ func (c *Controller) ListCategories(ctx *gin.Context) {
 		return
 	}
 
+	// Ensure data is never null
+	if responses == nil {
+		responses = []*model.CategoryResponse{}
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"data":        responses,
 		"total_count": total,
