@@ -55,18 +55,26 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		public.GET("/users/:id", controller.GetUser)
 		public.GET("/users/:id/posts", controller.GetUserPosts)
 		public.GET("/public/:username/posts", controller.GetUserPostsByUsername) // Frontend compatibility
+
+		// Public image routes (no auth required for viewing)
+		public.GET("/images/proxy/:userID/:date/:type/:filename", controller.ProxyImage)
+		public.GET("/images/info/:userID/:date/:type/:filename", controller.GetImageInfo)
+
+		// New image system routes
+		public.GET("/images/v2/:id", controller.ServeImageV2)        // Serve image by ID
+		public.GET("/images/v2/:id/info", controller.GetImageInfoV2) // Get image metadata
 	}
 
 	// Protected routes (authentication required)
-	protected := v1.Group("")
+	protected := v1.Group("/api")
 	protected.Use(middleware.AuthMiddleware())
 	{
 		// User routes
 		protected.GET("/profile", controller.GetProfile)
-		protected.GET("/api/me", controller.GetProfile) // Alias for frontend compatibility
+		protected.GET("/me", controller.GetProfile) // Alias for frontend compatibility
 		protected.PUT("/profile", controller.UpdateProfile)
 		protected.DELETE("/profile", controller.DeleteProfile)
-		protected.GET("/api/users/:id/posts", controller.GetUserPosts) // Frontend compatibility
+		protected.GET("/users/:id/posts", controller.GetUserPosts) // Frontend compatibility
 
 		// Post routes
 		protected.POST("/posts", controller.CreatePost)
@@ -101,6 +109,10 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		protected.POST("/bookmarks/remove", controller.Unbookmark)
 		protected.GET("/bookmarks", controller.GetUserBookmarks)
 		protected.GET("/bookmarks/status/:post_id", controller.CheckBookmarkStatus)
+
+		protected.POST("/images/upload/v2/:type", controller.UploadImageV2) // Updated to use new system
+		protected.DELETE("/images/v2/:id", controller.DeleteImageV2)        // Delete image
+		protected.GET("/images/my", controller.ListUserImages)
 	}
 
 	// Admin routes (admin role required)

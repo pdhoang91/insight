@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/gin-contrib/cors"
 	"log"
 	"os"
+
+	"github.com/gin-contrib/cors"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pdhoang91/blog/config"
@@ -27,6 +28,11 @@ func main() {
 	}
 	defer config.CloseDBConnection(db)
 
+	// Ensure UUID extension is enabled
+	if err := ensureUUIDExtension(db); err != nil {
+		log.Printf("Warning: Failed to enable UUID extension: %v", err)
+	}
+
 	// Run database migrate
 	if err := runAutoMigration(db); err != nil {
 		panic("Failed to run database migrate: " + err.Error())
@@ -48,6 +54,9 @@ func main() {
 		config.GoogleOauthConfig,
 		config.S3Client,
 	)
+
+	// Initialize storage manager
+	service.InitStorageManager(db)
 
 	// Create insight service with all dependencies
 	insightService := service.NewInsightService(
@@ -72,6 +81,11 @@ func main() {
 	}
 }
 
+// ensureUUIDExtension ensures the uuid-ossp extension is enabled
+func ensureUUIDExtension(db *gorm.DB) error {
+	return db.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`).Error
+}
+
 // runAutoMigration runs database auto-migration for all entities
 func runAutoMigration(db *gorm.DB) error {
 	return db.AutoMigrate(
@@ -90,6 +104,8 @@ func runAutoMigration(db *gorm.DB) error {
 		&entities.Notification{},
 		&entities.UserActivity{},
 		&entities.Tab{},
+		&entities.Image{},
+		&entities.ImageReference{},
 	)
 }
 

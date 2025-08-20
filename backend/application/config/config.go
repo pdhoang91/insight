@@ -33,6 +33,8 @@ type Config struct {
 	AWS_ACCESS_KEY_ID     string
 	AWS_SECRET_ACCESS_KEY string
 	AWS_SESSION_TOKEN     string
+	AWS_S3_BUCKET         string
+	AWS_CDN_DOMAIN        string
 }
 
 var (
@@ -56,6 +58,8 @@ func NewConfig() *Config {
 		AWS_ACCESS_KEY_ID:     GetString("AWS_ACCESS_KEY_ID", ""),
 		AWS_SECRET_ACCESS_KEY: GetString("AWS_SECRET_ACCESS_KEY", ""),
 		AWS_SESSION_TOKEN:     GetString("AWS_SESSION_TOKEN", ""),
+		AWS_S3_BUCKET:         GetString("AWS_S3_BUCKET", "insight.storage"),
+		AWS_CDN_DOMAIN:        GetString("AWS_CDN_DOMAIN", ""),
 	}
 
 	// Initialize OAuth and S3 clients
@@ -180,4 +184,12 @@ func Get() *oauth2.Config {
 		panic("OAuth config was not initialized")
 	}
 	return GoogleOauthConfig
+}
+
+// GetS3Config returns S3 configuration values
+func GetS3Config() (bucket, region, cdnDomain string) {
+	bucket = GetString("AWS_S3_BUCKET", "insight.storage")
+	region = GetString("AWS_REGION", "us-east-1")
+	cdnDomain = GetString("AWS_CDN_DOMAIN", "")
+	return
 }
