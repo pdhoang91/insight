@@ -1,14 +1,19 @@
 package service
 
 import (
+	"context"
+	"encoding/json"
+	"strings"
 	"time"
 
+	"github.com/pdhoang91/blog/config"
 	"github.com/pdhoang91/blog/constants"
 	"github.com/pdhoang91/blog/internal/entities"
 	"github.com/pdhoang91/blog/internal/model"
 	appError "github.com/pdhoang91/blog/pkg/error"
 	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/oauth2"
 	"gorm.io/gorm"
 )
 
@@ -84,10 +89,80 @@ func (s *InsightService) Login(req *model.LoginRequest) (*model.LoginResponse, e
 	return response, nil
 }
 
-// GoogleAuth handles Google OAuth authentication
-func (s *InsightService) GoogleAuth() error {
-	// TODO: Implement Google OAuth flow
-	return appError.BadRequest("Google auth not implemented yet", nil)
+// GoogleLogin initiates Google OAuth login
+func (s *InsightService) GoogleLogin() (string, error) {
+	cfg := config.Get()
+	if cfg == nil {
+		return "", appError.InternalServerError("OAuth configuration not available", nil)
+	}
+
+	url := cfg.AuthCodeURL("state", oauth2.AccessTypeOffline)
+	return url, nil
+}
+
+// GoogleCallback handles Google OAuth callback
+func (s *InsightService) GoogleCallback(code string) (*model.LoginResponse, error) {
+	cfg := config.Get()
+	if cfg == nil {
+		return nil, appError.InternalServerError("OAuth configuration not available", nil)
+	}
+
+	// Exchange code for token
+	token, err := cfg.Exchange(context.Background(), code)
+	if err != nil {
+		return nil, appError.InternalServerError("Could not exchange token", err)
+	}
+
+	// Create client from token
+	client := cfg.Client(context.Background(), token)
+
+	// Get user info from Google
+	resp, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
+	if err != nil {
+		return nil, appError.InternalServerError("Could not fetch user info", err)
+	}
+	defer resp.Body.Close()
+
+	var userInfo struct {
+		Email string `json:"email"`
+		Name  string `json:"name"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
+		return nil, appError.InternalServerError("Could not decode user info", err)
+	}
+
+	// Check if user exists in database
+	user, err := s.User.FindByEmail(s.DB, userInfo.Email)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, appError.InternalServerError("Could not check user", err)
+	}
+
+	// Create user if doesn't exist
+	if err == gorm.ErrRecordNotFound {
+		user = &entities.User{
+			ID:            uuid.NewV4(),
+			Email:         userInfo.Email,
+			Username:      "@" + strings.Split(userInfo.Email, "@")[0],
+			Name:          userInfo.Name,
+			AvatarURL:     "https://www.w3schools.com/w3images/avatar2.png",
+			Role:          constants.RoleUser,
+			EmailVerified: true, // Google users are pre-verified
+			CreatedAt:     time.Now(),
+			UpdatedAt:     time.Now(),
+		}
+
+		if err := user.Create(s.DB); err != nil {
+			return nil, appError.InternalServerError("Could not create user", err)
+		}
+	}
+
+	// TODO: Generate JWT token using TokenMaker
+	response := &model.LoginResponse{
+		Token: "jwt-token-here", // Placeholder
+		User:  model.NewUserResponse(user),
+	}
+
+	return response, nil
 }
 
 // Logout handles user logout

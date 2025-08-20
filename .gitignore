@@ -62,3 +62,4 @@ fluentd/buffer/*
 backend/fluentd/buffer/elasticsearch/
 backend/news-fast/static/mp3/*
 .cursor/
+insight_bk/

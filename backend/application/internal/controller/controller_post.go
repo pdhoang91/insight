@@ -2,7 +2,6 @@ package controller
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pdhoang91/blog/internal/model"
@@ -54,15 +53,7 @@ func (c *Controller) ListPosts(ctx *gin.Context) {
 		return
 	}
 
-	// Ensure data is never null
-	if responses == nil {
-		responses = []*model.PostResponse{}
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"data":        responses,
-		"total_count": total,
-	})
+	c.PaginatedSuccess(ctx, responses, total, req.Limit, req.Offset)
 }
 
 // GetPost retrieves a post by ID
@@ -85,13 +76,6 @@ func (c *Controller) GetPost(ctx *gin.Context) {
 
 // UpdatePost updates a post by ID
 func (c *Controller) UpdatePost(ctx *gin.Context) {
-	idParam := ctx.Param("id")
-	postID, err := c.ParseUUID(idParam)
-	if err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
 	userIDStr, err := c.GetUserIDFromContext(ctx)
 	if err != nil {
 		c.Error(ctx, err)
@@ -99,6 +83,13 @@ func (c *Controller) UpdatePost(ctx *gin.Context) {
 	}
 
 	userID, err := c.ParseUUID(userIDStr)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	idParam := ctx.Param("id")
+	postID, err := c.ParseUUID(idParam)
 	if err != nil {
 		c.Error(ctx, err)
 		return
@@ -121,13 +112,6 @@ func (c *Controller) UpdatePost(ctx *gin.Context) {
 
 // DeletePost deletes a post by ID
 func (c *Controller) DeletePost(ctx *gin.Context) {
-	idParam := ctx.Param("id")
-	postID, err := c.ParseUUID(idParam)
-	if err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
 	userIDStr, err := c.GetUserIDFromContext(ctx)
 	if err != nil {
 		c.Error(ctx, err)
@@ -135,6 +119,13 @@ func (c *Controller) DeletePost(ctx *gin.Context) {
 	}
 
 	userID, err := c.ParseUUID(userIDStr)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	idParam := ctx.Param("id")
+	postID, err := c.ParseUUID(idParam)
 	if err != nil {
 		c.Error(ctx, err)
 		return
@@ -170,22 +161,14 @@ func (c *Controller) GetUserPosts(ctx *gin.Context) {
 		return
 	}
 
-	// Ensure data is never null
-	if responses == nil {
-		responses = []*model.PostResponse{}
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"data":        responses,
-		"total_count": total,
-	})
+	c.PaginatedSuccess(ctx, responses, total, req.Limit, req.Offset)
 }
 
 // SearchPosts searches for posts
 func (c *Controller) SearchPosts(ctx *gin.Context) {
 	query := ctx.Query("q")
 	if query == "" {
-		c.Error(ctx, appError.BadRequest("Search query is required", nil))
+		c.Error(ctx, appError.BadRequest("Query parameter 'q' is required", nil))
 		return
 	}
 
@@ -201,32 +184,41 @@ func (c *Controller) SearchPosts(ctx *gin.Context) {
 		return
 	}
 
-	// Ensure data is never null
-	if responses == nil {
-		responses = []*model.PostResponse{}
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"data":        responses,
-		"total_count": total,
-	})
+	c.PaginatedSuccess(ctx, responses, total, req.Limit, req.Offset)
 }
 
-// SearchAll searches across all content
-func (c *Controller) SearchAll(ctx *gin.Context) {
-	query := ctx.Query("q")
-	if query == "" {
-		c.Error(ctx, appError.BadRequest("Search query is required", nil))
-		return
-	}
-
-	response, err := c.service.SearchAll(query)
+// GetLatestPosts retrieves latest posts
+func (c *Controller) GetLatestPosts(ctx *gin.Context) {
+	limit := 5
+	responses, err := c.service.GetLatestPosts(limit)
 	if err != nil {
 		c.Error(ctx, err)
 		return
 	}
 
-	c.Success(ctx, response)
+	c.Success(ctx, responses)
+}
+
+// GetRecentPosts retrieves recent posts (alias for GetLatestPosts)
+func (c *Controller) GetRecentPosts(ctx *gin.Context) {
+	c.GetLatestPosts(ctx)
+}
+
+// GetPopularPosts retrieves popular posts
+func (c *Controller) GetPopularPosts(ctx *gin.Context) {
+	limit := 5
+	responses, err := c.service.GetPopularPosts(limit)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	c.Success(ctx, responses)
+}
+
+// GetTopPosts retrieves top posts (alias for GetPopularPosts)
+func (c *Controller) GetTopPosts(ctx *gin.Context) {
+	c.GetPopularPosts(ctx)
 }
 
 // GetAllPosts retrieves all posts (admin only)
@@ -243,109 +235,22 @@ func (c *Controller) GetAllPosts(ctx *gin.Context) {
 		return
 	}
 
-	// Ensure data is never null
-	if responses == nil {
-		responses = []*model.PostResponse{}
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"data":        responses,
-		"total_count": total,
-	})
+	c.PaginatedSuccess(ctx, responses, total, req.Limit, req.Offset)
 }
 
-// GetLatestPosts handles GET /posts/latest
-func (c *Controller) GetLatestPosts(ctx *gin.Context) {
-	limitStr := ctx.DefaultQuery("limit", "5")
-	limit, err := strconv.Atoi(limitStr)
-	if err != nil || limit <= 0 {
-		limit = 5
+// SearchAll searches across all content
+func (c *Controller) SearchAll(ctx *gin.Context) {
+	query := ctx.Query("q")
+	if query == "" {
+		c.Error(ctx, appError.BadRequest("Query parameter 'q' is required", nil))
+		return
 	}
 
-	posts, err := c.service.GetLatestPosts(limit)
+	response, err := c.service.SearchAll(query)
 	if err != nil {
 		c.Error(ctx, err)
 		return
 	}
 
-	// Ensure data is never null
-	if posts == nil {
-		posts = []*model.PostResponse{}
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"data": posts,
-	})
-}
-
-// GetPopularPosts handles GET /posts/popular
-func (c *Controller) GetPopularPosts(ctx *gin.Context) {
-	limitStr := ctx.DefaultQuery("limit", "5")
-	limit, err := strconv.Atoi(limitStr)
-	if err != nil || limit <= 0 {
-		limit = 5
-	}
-
-	posts, err := c.service.GetPopularPosts(limit)
-	if err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
-	// Ensure data is never null
-	if posts == nil {
-		posts = []*model.PostResponse{}
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"data": posts,
-	})
-}
-
-// GetRecentPosts handles GET /posts/recent
-func (c *Controller) GetRecentPosts(ctx *gin.Context) {
-	limitStr := ctx.DefaultQuery("limit", "10")
-	limit, err := strconv.Atoi(limitStr)
-	if err != nil || limit <= 0 {
-		limit = 10
-	}
-
-	posts, err := c.service.GetRecentPosts(limit)
-	if err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
-	// Ensure data is never null
-	if posts == nil {
-		posts = []*model.PostResponse{}
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"data": posts,
-	})
-}
-
-// GetTopPosts handles GET /posts/top
-func (c *Controller) GetTopPosts(ctx *gin.Context) {
-	limitStr := ctx.DefaultQuery("limit", "10")
-	limit, err := strconv.Atoi(limitStr)
-	if err != nil || limit <= 0 {
-		limit = 10
-	}
-
-	posts, err := c.service.GetTopPosts(limit)
-	if err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
-	// Ensure data is never null
-	if posts == nil {
-		posts = []*model.PostResponse{}
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"data": posts,
-	})
+	c.Success(ctx, response)
 }

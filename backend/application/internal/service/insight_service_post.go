@@ -14,6 +14,17 @@ import (
 
 // CreatePost creates a new post
 func (s *InsightService) CreatePost(userID uuid.UUID, req *model.CreatePostRequest) (*model.PostResponse, error) {
+	// Start transaction for data consistency
+	tx := s.DB.Begin()
+	if tx.Error != nil {
+		return nil, appError.InternalServerError("Failed to start transaction", tx.Error)
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
 	// Create post
 	post := &entities.Post{
 		ID:             uuid.NewV4(),
@@ -24,15 +35,102 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *model.CreatePostReque
 		UpdatedAt:      time.Now(),
 	}
 
-	if err := post.Create(s.DB); err != nil {
+	if err := tx.Create(post).Error; err != nil {
+		tx.Rollback()
 		return nil, appError.InternalServerError("Failed to create post", err)
 	}
 
-	// TODO: Handle post content creation using PostContentRepo
-	// TODO: Handle category associations using CategoryRepo
-	// TODO: Handle tag associations using TagRepo
+	// Handle post content creation using PostContentRepo
+	if req.Content != "" {
+		postContent := &entities.PostContent{
+			ID:        uuid.NewV4(),
+			PostID:    post.ID,
+			Content:   req.Content,
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		}
+
+		if err := postContent.Create(tx); err != nil {
+			tx.Rollback()
+			return nil, appError.InternalServerError("Failed to create post content", err)
+		}
+	}
+
+	// Handle category associations using CategoryRepo
+	if len(req.CategoryIDs) > 0 {
+		var categories []entities.Category
+		for _, categoryIDStr := range req.CategoryIDs {
+			categoryID, err := uuid.FromString(categoryIDStr)
+			if err != nil {
+				tx.Rollback()
+				return nil, appError.BadRequest("Invalid category ID format", err)
+			}
+
+			category, err := s.Category.FindByID(tx, categoryID)
+			if err != nil {
+				if err == gorm.ErrRecordNotFound {
+					tx.Rollback()
+					return nil, appError.NotFound("Category not found", err)
+				}
+				tx.Rollback()
+				return nil, appError.InternalServerError("Failed to find category", err)
+			}
+			categories = append(categories, *category)
+		}
+
+		// Associate categories with post
+		if err := tx.Model(post).Association("Categories").Append(&categories); err != nil {
+			tx.Rollback()
+			return nil, appError.InternalServerError("Failed to associate categories", err)
+		}
+	}
+
+	// Handle tag associations using TagRepo
+	if len(req.TagNames) > 0 {
+		var tags []entities.Tag
+		for _, tagName := range req.TagNames {
+			// Try to find existing tag
+			tag, err := s.Tag.FindByName(tx, tagName)
+			if err != nil {
+				if err == gorm.ErrRecordNotFound {
+					// Create new tag if it doesn't exist
+					tag = &entities.Tag{
+						ID:        uuid.NewV4(),
+						Name:      tagName,
+						CreatedAt: time.Now(),
+						UpdatedAt: time.Now(),
+					}
+					if err := tag.Create(tx); err != nil {
+						tx.Rollback()
+						return nil, appError.InternalServerError("Failed to create tag", err)
+					}
+				} else {
+					tx.Rollback()
+					return nil, appError.InternalServerError("Failed to find tag", err)
+				}
+			}
+			tags = append(tags, *tag)
+		}
+
+		// Associate tags with post
+		if err := tx.Model(post).Association("Tags").Append(&tags); err != nil {
+			tx.Rollback()
+			return nil, appError.InternalServerError("Failed to associate tags", err)
+		}
+	}
+
 	// TODO: Process images using ImgCvt
 	// TODO: Send notifications using EventProcessor
+
+	// Commit transaction
+	if err := tx.Commit().Error; err != nil {
+		return nil, appError.InternalServerError("Failed to commit transaction", err)
+	}
+
+	// Load relationships for response
+	if err := s.DB.Preload("User").Preload("Categories").Preload("Tags").First(post, post.ID).Error; err != nil {
+		return nil, appError.InternalServerError("Failed to load post relationships", err)
+	}
 
 	return model.NewPostResponse(post), nil
 }
@@ -68,17 +166,45 @@ func (s *InsightService) GetPost(id uuid.UUID) (*model.PostResponse, error) {
 		return nil, appError.InternalServerError("Failed to get post", err)
 	}
 
-	// TODO: Increment view count
-	// TODO: Load post content using PostContentRepo
-	// TODO: Load categories and tags
+	// Increment view count (use write database for this)
+	if err := s.DB.Model(post).UpdateColumn("views", gorm.Expr("views + ?", 1)).Error; err != nil {
+		// Log error but don't fail the request
+		// TODO: Use proper logger
+	}
+
+	// Load post content using PostContentRepo
+	postContent, err := s.PostContent.FindByPostID(s.DBR2, id)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, appError.InternalServerError("Failed to load post content", err)
+	}
+	if postContent != nil {
+		post.Content = postContent.Content
+	}
+
+	// Load categories and tags
+	if err := s.DBR2.Preload("User").Preload("Categories").Preload("Tags").First(post, post.ID).Error; err != nil {
+		return nil, appError.InternalServerError("Failed to load post relationships", err)
+	}
 
 	return model.NewPostResponse(post), nil
 }
 
 // UpdatePost updates a post by ID
 func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *model.UpdatePostRequest) (*model.PostResponse, error) {
-	post, err := s.Post.FindByID(s.DB, id)
+	// Start transaction for data consistency
+	tx := s.DB.Begin()
+	if tx.Error != nil {
+		return nil, appError.InternalServerError("Failed to start transaction", tx.Error)
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	post, err := s.Post.FindByID(tx, id)
 	if err != nil {
+		tx.Rollback()
 		if err == gorm.ErrRecordNotFound {
 			return nil, appError.NotFound("Post not found", err)
 		}
@@ -87,6 +213,7 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *model.U
 
 	// Check if user owns the post
 	if post.UserID != userID {
+		tx.Rollback()
 		return nil, appError.Forbidden("You can only update your own posts", nil)
 	}
 
@@ -99,23 +226,138 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *model.U
 	}
 
 	post.UpdatedAt = time.Now()
-	if err := post.Update(s.DB); err != nil {
+	if err := tx.Save(post).Error; err != nil {
+		tx.Rollback()
 		return nil, appError.InternalServerError("Failed to update post", err)
 	}
 
-	// TODO: Update post content using PostContentRepo
-	// TODO: Update category associations
-	// TODO: Update tag associations
+	// Update post content using PostContentRepo
+	if req.Content != "" {
+		postContent, err := s.PostContent.FindByPostID(tx, post.ID)
+		if err != nil {
+			if err == gorm.ErrRecordNotFound {
+				// Create new post content if it doesn't exist
+				postContent = &entities.PostContent{
+					ID:        uuid.NewV4(),
+					PostID:    post.ID,
+					Content:   req.Content,
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+				}
+				if err := postContent.Create(tx); err != nil {
+					tx.Rollback()
+					return nil, appError.InternalServerError("Failed to create post content", err)
+				}
+			} else {
+				tx.Rollback()
+				return nil, appError.InternalServerError("Failed to find post content", err)
+			}
+		} else {
+			// Update existing post content
+			postContent.Content = req.Content
+			postContent.UpdatedAt = time.Now()
+			if err := postContent.Update(tx); err != nil {
+				tx.Rollback()
+				return nil, appError.InternalServerError("Failed to update post content", err)
+			}
+		}
+	}
+
+	// Update category associations
+	if len(req.CategoryIDs) > 0 {
+		var categories []entities.Category
+		for _, categoryIDStr := range req.CategoryIDs {
+			categoryID, err := uuid.FromString(categoryIDStr)
+			if err != nil {
+				tx.Rollback()
+				return nil, appError.BadRequest("Invalid category ID format", err)
+			}
+
+			category, err := s.Category.FindByID(tx, categoryID)
+			if err != nil {
+				if err == gorm.ErrRecordNotFound {
+					tx.Rollback()
+					return nil, appError.NotFound("Category not found", err)
+				}
+				tx.Rollback()
+				return nil, appError.InternalServerError("Failed to find category", err)
+			}
+			categories = append(categories, *category)
+		}
+
+		// Replace categories
+		if err := tx.Model(post).Association("Categories").Replace(&categories); err != nil {
+			tx.Rollback()
+			return nil, appError.InternalServerError("Failed to update categories", err)
+		}
+	}
+
+	// Update tag associations
+	if len(req.TagNames) > 0 {
+		var tags []entities.Tag
+		for _, tagName := range req.TagNames {
+			// Try to find existing tag
+			tag, err := s.Tag.FindByName(tx, tagName)
+			if err != nil {
+				if err == gorm.ErrRecordNotFound {
+					// Create new tag if it doesn't exist
+					tag = &entities.Tag{
+						ID:        uuid.NewV4(),
+						Name:      tagName,
+						CreatedAt: time.Now(),
+						UpdatedAt: time.Now(),
+					}
+					if err := tag.Create(tx); err != nil {
+						tx.Rollback()
+						return nil, appError.InternalServerError("Failed to create tag", err)
+					}
+				} else {
+					tx.Rollback()
+					return nil, appError.InternalServerError("Failed to find tag", err)
+				}
+			}
+			tags = append(tags, *tag)
+		}
+
+		// Replace tags
+		if err := tx.Model(post).Association("Tags").Replace(&tags); err != nil {
+			tx.Rollback()
+			return nil, appError.InternalServerError("Failed to update tags", err)
+		}
+	}
+
 	// TODO: Process images using ImgCvt
 	// TODO: Send update notifications using EventProcessor
+
+	// Commit transaction
+	if err := tx.Commit().Error; err != nil {
+		return nil, appError.InternalServerError("Failed to commit transaction", err)
+	}
+
+	// Load relationships for response
+	if err := s.DB.Preload("User").Preload("Categories").Preload("Tags").First(post, post.ID).Error; err != nil {
+		return nil, appError.InternalServerError("Failed to load post relationships", err)
+	}
 
 	return model.NewPostResponse(post), nil
 }
 
 // DeletePost deletes a post by ID
 func (s *InsightService) DeletePost(userID uuid.UUID, id uuid.UUID) error {
-	post, err := s.Post.FindByID(s.DB, id)
+	// Start transaction for data consistency
+	tx := s.DB.Begin()
+	if tx.Error != nil {
+		return appError.InternalServerError("Failed to start transaction", tx.Error)
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	post, err := s.Post.FindByID(tx, id)
 	if err != nil {
+		tx.Rollback()
 		if err == gorm.ErrRecordNotFound {
 			return appError.NotFound("Post not found", err)
 		}
@@ -124,16 +366,40 @@ func (s *InsightService) DeletePost(userID uuid.UUID, id uuid.UUID) error {
 
 	// Check if user owns the post
 	if post.UserID != userID {
+		tx.Rollback()
 		return appError.Forbidden("You can only delete your own posts", nil)
 	}
 
-	if err := s.Post.DeleteByID(s.DB, id); err != nil {
+	// Delete associated post content
+	if err := s.PostContent.DeleteByPostID(tx, id); err != nil {
+		tx.Rollback()
+		return appError.InternalServerError("Failed to delete post content", err)
+	}
+
+	// Clear category and tag associations
+	if err := tx.Model(post).Association("Categories").Clear(); err != nil {
+		tx.Rollback()
+		return appError.InternalServerError("Failed to clear category associations", err)
+	}
+
+	if err := tx.Model(post).Association("Tags").Clear(); err != nil {
+		tx.Rollback()
+		return appError.InternalServerError("Failed to clear tag associations", err)
+	}
+
+	// Delete the post
+	if err := tx.Delete(post).Error; err != nil {
+		tx.Rollback()
 		return appError.InternalServerError("Failed to delete post", err)
 	}
 
-	// TODO: Delete associated post content
 	// TODO: Delete associated images using S3
 	// TODO: Send delete notifications using EventProcessor
+
+	// Commit transaction
+	if err := tx.Commit().Error; err != nil {
+		return appError.InternalServerError("Failed to commit transaction", err)
+	}
 
 	return nil
 }

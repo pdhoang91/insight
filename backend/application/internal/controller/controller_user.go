@@ -1,10 +1,13 @@
 package controller
 
 import (
+	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pdhoang91/blog/internal/model"
+	appError "github.com/pdhoang91/blog/pkg/error"
 )
 
 // ==================== USER ROUTES ====================
@@ -43,15 +46,38 @@ func (c *Controller) Login(ctx *gin.Context) {
 	c.Success(ctx, response)
 }
 
-// GoogleAuth handles Google OAuth authentication
-func (c *Controller) GoogleAuth(ctx *gin.Context) {
-	err := c.service.GoogleAuth()
+// GoogleLogin initiates Google OAuth login
+func (c *Controller) GoogleLogin(ctx *gin.Context) {
+	url, err := c.service.GoogleLogin()
 	if err != nil {
 		c.Error(ctx, err)
 		return
 	}
 
-	c.Success(ctx, gin.H{"message": "Google auth successful"})
+	ctx.Redirect(http.StatusTemporaryRedirect, url)
+}
+
+// GoogleCallback handles Google OAuth callback
+func (c *Controller) GoogleCallback(ctx *gin.Context) {
+	code := ctx.Query("code")
+	if code == "" {
+		c.Error(ctx, appError.BadRequest("Authorization code not provided", nil))
+		return
+	}
+
+	response, err := c.service.GoogleCallback(code)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	// Redirect to frontend with token
+	baseFeURL := os.Getenv("BASE_FE_URL")
+	if baseFeURL == "" {
+		baseFeURL = "http://localhost:3000"
+	}
+	frontendURL := fmt.Sprintf("%s/#token=%s", baseFeURL, response.Token)
+	ctx.Redirect(http.StatusTemporaryRedirect, frontendURL)
 }
 
 // Logout handles user logout

@@ -9,34 +9,6 @@ import (
 
 // ==================== COMMENT ROUTES ====================
 
-// GetPostComments retrieves comments for a post
-func (c *Controller) GetPostComments(ctx *gin.Context) {
-	idParam := ctx.Param("id")
-	postID, err := c.ParseUUID(idParam)
-	if err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
-	var req model.PaginationRequest
-	if err := c.BindAndValidateQuery(ctx, &req); err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
-	responses, totalComments, totalCommentReply, err := c.service.GetPostComments(postID, &req)
-	if err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"data":                responses,
-		"total_count":         totalComments,
-		"total_comment_reply": totalCommentReply,
-	})
-}
-
 // CreateComment creates a new comment
 func (c *Controller) CreateComment(ctx *gin.Context) {
 	userIDStr, err := c.GetUserIDFromContext(ctx)
@@ -63,18 +35,11 @@ func (c *Controller) CreateComment(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": response})
+	c.SuccessWithStatus(ctx, http.StatusCreated, response)
 }
 
-// UpdateComment updates a comment
+// UpdateComment updates a comment by ID
 func (c *Controller) UpdateComment(ctx *gin.Context) {
-	idParam := ctx.Param("id")
-	commentID, err := c.ParseUUID(idParam)
-	if err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
 	userIDStr, err := c.GetUserIDFromContext(ctx)
 	if err != nil {
 		c.Error(ctx, err)
@@ -82,6 +47,13 @@ func (c *Controller) UpdateComment(ctx *gin.Context) {
 	}
 
 	userID, err := c.ParseUUID(userIDStr)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	idParam := ctx.Param("id")
+	commentID, err := c.ParseUUID(idParam)
 	if err != nil {
 		c.Error(ctx, err)
 		return
@@ -102,15 +74,8 @@ func (c *Controller) UpdateComment(ctx *gin.Context) {
 	c.Success(ctx, response)
 }
 
-// DeleteComment deletes a comment
+// DeleteComment deletes a comment by ID
 func (c *Controller) DeleteComment(ctx *gin.Context) {
-	idParam := ctx.Param("id")
-	commentID, err := c.ParseUUID(idParam)
-	if err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
 	userIDStr, err := c.GetUserIDFromContext(ctx)
 	if err != nil {
 		c.Error(ctx, err)
@@ -123,6 +88,13 @@ func (c *Controller) DeleteComment(ctx *gin.Context) {
 		return
 	}
 
+	idParam := ctx.Param("id")
+	commentID, err := c.ParseUUID(idParam)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
 	err = c.service.DeleteComment(userID, commentID)
 	if err != nil {
 		c.Error(ctx, err)
@@ -130,6 +102,36 @@ func (c *Controller) DeleteComment(ctx *gin.Context) {
 	}
 
 	c.Success(ctx, gin.H{"message": "Comment deleted successfully"})
+}
+
+// GetPostComments retrieves comments for a post
+func (c *Controller) GetPostComments(ctx *gin.Context) {
+	idParam := ctx.Param("id")
+	postID, err := c.ParseUUID(idParam)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	var req model.PaginationRequest
+	if err := c.BindAndValidateQuery(ctx, &req); err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	responses, totalComments, totalReplies, err := c.service.GetPostComments(postID, &req)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	// Create custom response with additional metadata
+	result := gin.H{
+		"comments":      responses,
+		"total_replies": totalReplies,
+	}
+
+	c.PaginatedSuccess(ctx, result, totalComments, req.Limit, req.Offset)
 }
 
 // ==================== REPLY ROUTES ====================
@@ -160,7 +162,73 @@ func (c *Controller) CreateReply(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"data": response})
+	c.SuccessWithStatus(ctx, http.StatusCreated, response)
+}
+
+// UpdateReply updates a reply by ID
+func (c *Controller) UpdateReply(ctx *gin.Context) {
+	userIDStr, err := c.GetUserIDFromContext(ctx)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	userID, err := c.ParseUUID(userIDStr)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	idParam := ctx.Param("id")
+	replyID, err := c.ParseUUID(idParam)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	var req model.UpdateReplyRequest
+	if err := c.BindAndValidate(ctx, &req); err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	response, err := c.service.UpdateReply(userID, replyID, &req)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	c.Success(ctx, response)
+}
+
+// DeleteReply deletes a reply by ID
+func (c *Controller) DeleteReply(ctx *gin.Context) {
+	userIDStr, err := c.GetUserIDFromContext(ctx)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	userID, err := c.ParseUUID(userIDStr)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	idParam := ctx.Param("id")
+	replyID, err := c.ParseUUID(idParam)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	err = c.service.DeleteReply(userID, replyID)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	c.Success(ctx, gin.H{"message": "Reply deleted successfully"})
 }
 
 // GetCommentReplies retrieves replies for a comment
@@ -185,70 +253,4 @@ func (c *Controller) GetCommentReplies(ctx *gin.Context) {
 	}
 
 	c.PaginatedSuccess(ctx, responses, total, req.Limit, req.Offset)
-}
-
-// UpdateReply updates a reply
-func (c *Controller) UpdateReply(ctx *gin.Context) {
-	idParam := ctx.Param("id")
-	replyID, err := c.ParseUUID(idParam)
-	if err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
-	userIDStr, err := c.GetUserIDFromContext(ctx)
-	if err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
-	userID, err := c.ParseUUID(userIDStr)
-	if err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
-	var req model.UpdateReplyRequest
-	if err := c.BindAndValidate(ctx, &req); err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
-	response, err := c.service.UpdateReply(userID, replyID, &req)
-	if err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
-	c.Success(ctx, response)
-}
-
-// DeleteReply deletes a reply
-func (c *Controller) DeleteReply(ctx *gin.Context) {
-	idParam := ctx.Param("id")
-	replyID, err := c.ParseUUID(idParam)
-	if err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
-	userIDStr, err := c.GetUserIDFromContext(ctx)
-	if err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
-	userID, err := c.ParseUUID(userIDStr)
-	if err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
-	err = c.service.DeleteReply(userID, replyID)
-	if err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
-	c.Success(ctx, gin.H{"message": "Reply deleted successfully"})
 }

@@ -18,7 +18,8 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		// Auth routes
 		public.POST("/auth/register", controller.Register)
 		public.POST("/auth/login", controller.Login)
-		public.POST("/auth/google", controller.GoogleAuth)
+		public.GET("/auth/google", controller.GoogleLogin)
+		public.GET("/auth/google/callback", controller.GoogleCallback)
 		public.POST("/auth/logout", controller.Logout)
 		public.POST("/auth/refresh", controller.RefreshToken)
 

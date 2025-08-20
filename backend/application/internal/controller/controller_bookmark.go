@@ -9,7 +9,7 @@ import (
 
 // ==================== BOOKMARK ROUTES ====================
 
-// CreateBookmark creates or reactivates a bookmark
+// CreateBookmark creates a new bookmark
 func (c *Controller) CreateBookmark(ctx *gin.Context) {
 	userIDStr, err := c.GetUserIDFromContext(ctx)
 	if err != nil {
@@ -35,13 +35,10 @@ func (c *Controller) CreateBookmark(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"message": "Bookmark created",
-		"data":    response,
-	})
+	c.SuccessWithStatus(ctx, http.StatusCreated, response)
 }
 
-// Unbookmark removes or deactivates a bookmark
+// Unbookmark removes a bookmark
 func (c *Controller) Unbookmark(ctx *gin.Context) {
 	userIDStr, err := c.GetUserIDFromContext(ctx)
 	if err != nil {
@@ -55,7 +52,7 @@ func (c *Controller) Unbookmark(ctx *gin.Context) {
 		return
 	}
 
-	var req model.CreateBookmarkRequest
+	var req model.CreateBookmarkRequest // Reuse the same request structure
 	if err := c.BindAndValidate(ctx, &req); err != nil {
 		c.Error(ctx, err)
 		return
@@ -67,7 +64,7 @@ func (c *Controller) Unbookmark(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "Bookmark removed"})
+	c.Success(ctx, gin.H{"message": "Bookmark removed successfully"})
 }
 
 // GetUserBookmarks retrieves user's bookmarks
@@ -90,17 +87,18 @@ func (c *Controller) GetUserBookmarks(ctx *gin.Context) {
 		return
 	}
 
-	posts, username, total, err := c.service.GetUserBookmarksWithUsername(userID, &req)
+	responses, username, total, err := c.service.GetUserBookmarksWithUsername(userID, &req)
 	if err != nil {
 		c.Error(ctx, err)
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"username":    username,
-		"data":        posts,
-		"total_count": total,
-	})
+	result := gin.H{
+		"posts":    responses,
+		"username": username,
+	}
+
+	c.PaginatedSuccess(ctx, result, total, req.Limit, req.Offset)
 }
 
 // CheckBookmarkStatus checks if a post is bookmarked by user
@@ -130,5 +128,5 @@ func (c *Controller) CheckBookmarkStatus(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"is_bookmarked": isBookmarked})
+	c.Success(ctx, gin.H{"is_bookmarked": isBookmarked})
 }

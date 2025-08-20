@@ -9,6 +9,23 @@ import (
 
 // ==================== CATEGORY ROUTES ====================
 
+// CreateCategory creates a new category
+func (c *Controller) CreateCategory(ctx *gin.Context) {
+	var req model.CreateCategoryRequest
+	if err := c.BindAndValidate(ctx, &req); err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	response, err := c.service.CreateCategory(&req)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	c.SuccessWithStatus(ctx, http.StatusCreated, response)
+}
+
 // ListCategories retrieves all categories
 func (c *Controller) ListCategories(ctx *gin.Context) {
 	var req model.PaginationRequest
@@ -23,55 +40,7 @@ func (c *Controller) ListCategories(ctx *gin.Context) {
 		return
 	}
 
-	// Ensure data is never null
-	if responses == nil {
-		responses = []*model.CategoryResponse{}
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"data":        responses,
-		"total_count": total,
-	})
-}
-
-// GetTopCategories retrieves top categories (Technology, Music, Movies, AI, Golang)
-func (c *Controller) GetTopCategories(ctx *gin.Context) {
-	var req model.PaginationRequest
-	if err := c.BindAndValidateQuery(ctx, &req); err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
-	responses, total, err := c.service.GetTopCategories(&req)
-	if err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"data":        responses,
-		"total_count": total,
-	})
-}
-
-// GetPopularCategories returns categories with most posts for sidebar
-func (c *Controller) GetPopularCategories(ctx *gin.Context) {
-	var req model.PaginationRequest
-	if err := c.BindAndValidateQuery(ctx, &req); err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
-	responses, total, err := c.service.GetPopularCategories(&req)
-	if err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"data":        responses,
-		"total_count": total,
-	})
+	c.PaginatedSuccess(ctx, responses, total, req.Limit, req.Offset)
 }
 
 // GetCategory retrieves a category by ID
@@ -92,24 +61,7 @@ func (c *Controller) GetCategory(ctx *gin.Context) {
 	c.Success(ctx, response)
 }
 
-// CreateCategory creates a new category
-func (c *Controller) CreateCategory(ctx *gin.Context) {
-	var req model.CreateCategoryRequest
-	if err := c.BindAndValidate(ctx, &req); err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
-	response, err := c.service.CreateCategory(&req)
-	if err != nil {
-		c.Error(ctx, err)
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{"data": response})
-}
-
-// UpdateCategory updates a category
+// UpdateCategory updates a category by ID
 func (c *Controller) UpdateCategory(ctx *gin.Context) {
 	idParam := ctx.Param("id")
 	categoryID, err := c.ParseUUID(idParam)
@@ -133,7 +85,7 @@ func (c *Controller) UpdateCategory(ctx *gin.Context) {
 	c.Success(ctx, response)
 }
 
-// DeleteCategory deletes a category
+// DeleteCategory deletes a category by ID
 func (c *Controller) DeleteCategory(ctx *gin.Context) {
 	idParam := ctx.Param("id")
 	categoryID, err := c.ParseUUID(idParam)
@@ -149,4 +101,46 @@ func (c *Controller) DeleteCategory(ctx *gin.Context) {
 	}
 
 	c.Success(ctx, gin.H{"message": "Category deleted successfully"})
+}
+
+// GetTopCategories retrieves top categories
+func (c *Controller) GetTopCategories(ctx *gin.Context) {
+	var req model.PaginationRequest
+	if err := c.BindAndValidateQuery(ctx, &req); err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	if req.Limit == 0 {
+		req.Limit = 10
+	}
+
+	responses, total, err := c.service.GetTopCategories(&req)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	c.PaginatedSuccess(ctx, responses, total, req.Limit, req.Offset)
+}
+
+// GetPopularCategories retrieves popular categories
+func (c *Controller) GetPopularCategories(ctx *gin.Context) {
+	var req model.PaginationRequest
+	if err := c.BindAndValidateQuery(ctx, &req); err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	if req.Limit == 0 {
+		req.Limit = 10
+	}
+
+	responses, total, err := c.service.GetPopularCategories(&req)
+	if err != nil {
+		c.Error(ctx, err)
+		return
+	}
+
+	c.PaginatedSuccess(ctx, responses, total, req.Limit, req.Offset)
 }
