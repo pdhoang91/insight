@@ -769,29 +769,25 @@ func (s *InsightService) HasUserClappedPost(userID, postID uuid.UUID) (bool, err
 	return true, nil
 }
 
-// ClapPost adds or removes a clap for a post
+// ClapPost adds a clap for a post (supports multiple claps per user)
 func (s *InsightService) ClapPost(userID, postID uuid.UUID) (bool, error) {
-	// Check if user already clapped
-	hasClapped, err := s.HasUserClappedPost(userID, postID)
-	if err != nil {
+	// Check if user already has activity for this post
+	var existingActivity entities.UserActivity
+	err := s.DB.Where("user_id = ? AND post_id = ? AND action_type = ?", userID, postID, "clap_post").
+		First(&existingActivity).Error
+
+	if err != nil && err != gorm.ErrRecordNotFound {
 		return false, err
 	}
 
-	if hasClapped {
-		// Remove clap (unclap)
-		err = s.DB.Where("user_id = ? AND post_id = ? AND action_type = ?", userID, postID, "clap_post").
-			Delete(&entities.UserActivity{}).Error
-		if err != nil {
-			return false, err
-		}
-		return false, nil // false means unclapped
-	} else {
-		// Add clap
+	if err == gorm.ErrRecordNotFound {
+		// Create new activity with count = 1
 		activity := &entities.UserActivity{
 			ID:         uuid.NewV4(),
 			UserID:     userID,
 			PostID:     &postID,
 			ActionType: "clap_post",
+			Count:      1,
 			CreatedAt:  time.Now(),
 		}
 		err = s.DB.Create(activity).Error
@@ -799,39 +795,36 @@ func (s *InsightService) ClapPost(userID, postID uuid.UUID) (bool, error) {
 			return false, err
 		}
 		return true, nil // true means clapped
-	}
-}
-
-// ClapComment adds or removes a clap for a comment
-func (s *InsightService) ClapComment(userID, commentID uuid.UUID) (bool, error) {
-	// Check if user already clapped this comment
-	var activity entities.UserActivity
-	err := s.DB.Where("user_id = ? AND comment_id = ? AND action_type = ?", userID, commentID, "clap_comment").First(&activity).Error
-
-	hasClapped := true
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			hasClapped = false
-		} else {
-			return false, err
-		}
-	}
-
-	if hasClapped {
-		// Remove clap (unclap)
-		err = s.DB.Where("user_id = ? AND comment_id = ? AND action_type = ?", userID, commentID, "clap_comment").
-			Delete(&entities.UserActivity{}).Error
+	} else {
+		// Increment existing count
+		err = s.DB.Model(&existingActivity).
+			Update("count", gorm.Expr("count + ?", 1)).Error
 		if err != nil {
 			return false, err
 		}
-		return false, nil // false means unclapped
-	} else {
-		// Add clap
+		return true, nil // true means clapped (incremented)
+	}
+}
+
+// ClapComment adds a clap for a comment (supports multiple claps per user)
+func (s *InsightService) ClapComment(userID, commentID uuid.UUID) (bool, error) {
+	// Check if user already has activity for this comment
+	var existingActivity entities.UserActivity
+	err := s.DB.Where("user_id = ? AND comment_id = ? AND action_type = ?", userID, commentID, "clap_comment").
+		First(&existingActivity).Error
+
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return false, err
+	}
+
+	if err == gorm.ErrRecordNotFound {
+		// Create new activity with count = 1
 		activity := &entities.UserActivity{
 			ID:         uuid.NewV4(),
 			UserID:     userID,
 			CommentID:  &commentID,
 			ActionType: "clap_comment",
+			Count:      1,
 			CreatedAt:  time.Now(),
 		}
 		err = s.DB.Create(activity).Error
@@ -839,39 +832,36 @@ func (s *InsightService) ClapComment(userID, commentID uuid.UUID) (bool, error) 
 			return false, err
 		}
 		return true, nil // true means clapped
-	}
-}
-
-// ClapReply adds or removes a clap for a reply
-func (s *InsightService) ClapReply(userID, replyID uuid.UUID) (bool, error) {
-	// Check if user already clapped this reply
-	var activity entities.UserActivity
-	err := s.DB.Where("user_id = ? AND reply_id = ? AND action_type = ?", userID, replyID, "clap_reply").First(&activity).Error
-
-	hasClapped := true
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			hasClapped = false
-		} else {
-			return false, err
-		}
-	}
-
-	if hasClapped {
-		// Remove clap (unclap)
-		err = s.DB.Where("user_id = ? AND reply_id = ? AND action_type = ?", userID, replyID, "clap_reply").
-			Delete(&entities.UserActivity{}).Error
+	} else {
+		// Increment existing count
+		err = s.DB.Model(&existingActivity).
+			Update("count", gorm.Expr("count + ?", 1)).Error
 		if err != nil {
 			return false, err
 		}
-		return false, nil // false means unclapped
-	} else {
-		// Add clap
+		return true, nil // true means clapped (incremented)
+	}
+}
+
+// ClapReply adds a clap for a reply (supports multiple claps per user)
+func (s *InsightService) ClapReply(userID, replyID uuid.UUID) (bool, error) {
+	// Check if user already has activity for this reply
+	var existingActivity entities.UserActivity
+	err := s.DB.Where("user_id = ? AND reply_id = ? AND action_type = ?", userID, replyID, "clap_reply").
+		First(&existingActivity).Error
+
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return false, err
+	}
+
+	if err == gorm.ErrRecordNotFound {
+		// Create new activity with count = 1
 		activity := &entities.UserActivity{
 			ID:         uuid.NewV4(),
 			UserID:     userID,
 			ReplyID:    &replyID,
 			ActionType: "clap_reply",
+			Count:      1,
 			CreatedAt:  time.Now(),
 		}
 		err = s.DB.Create(activity).Error
@@ -879,6 +869,14 @@ func (s *InsightService) ClapReply(userID, replyID uuid.UUID) (bool, error) {
 			return false, err
 		}
 		return true, nil // true means clapped
+	} else {
+		// Increment existing count
+		err = s.DB.Model(&existingActivity).
+			Update("count", gorm.Expr("count + ?", 1)).Error
+		if err != nil {
+			return false, err
+		}
+		return true, nil // true means clapped (incremented)
 	}
 }
 
@@ -902,7 +900,8 @@ func (s *InsightService) GetClapsCount(itemType string, itemID uuid.UUID) (int64
 		return 0, fmt.Errorf("invalid item type: %s", itemType)
 	}
 
-	err := query.Count(&count).Error
+	// Use SUM(count) instead of COUNT(*) to support multiple claps per user
+	err := query.Select("COALESCE(SUM(count), 0)").Row().Scan(&count)
 	return count, err
 }
 
@@ -914,6 +913,30 @@ func (s *InsightService) GetPostIDFromComment(commentID uuid.UUID) (*uuid.UUID, 
 		return nil, err
 	}
 	return &comment.PostID, nil
+}
+
+// HasUserClapped checks if user has clapped an item
+func (s *InsightService) HasUserClapped(userID uuid.UUID, itemType string, itemID uuid.UUID) (bool, error) {
+	var count int64
+	var actionType string
+	var query *gorm.DB
+
+	switch itemType {
+	case "post":
+		actionType = "clap_post"
+		query = s.DB.Model(&entities.UserActivity{}).Where("user_id = ? AND post_id = ? AND action_type = ?", userID, itemID, actionType)
+	case "comment":
+		actionType = "clap_comment"
+		query = s.DB.Model(&entities.UserActivity{}).Where("user_id = ? AND comment_id = ? AND action_type = ?", userID, itemID, actionType)
+	case "reply":
+		actionType = "clap_reply"
+		query = s.DB.Model(&entities.UserActivity{}).Where("user_id = ? AND reply_id = ? AND action_type = ?", userID, itemID, actionType)
+	default:
+		return false, fmt.Errorf("invalid item type: %s", itemType)
+	}
+
+	err := query.Count(&count).Error
+	return count > 0, err
 }
 
 // SearchPosts searches posts by query

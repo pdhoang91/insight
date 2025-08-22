@@ -50,3 +50,31 @@ export const getClapsCount = async (type, id) => {
   }
 };
 
+// Check if user has clapped an item
+export const checkUserClapStatus = async (type, id) => {
+  try {
+    const response = await axiosPublicInstance.get(`/claps/status?type=${type}&id=${id}`);
+    return response.data.has_clapped || false;
+  } catch (error) {
+    console.error(`Error checking clap status for ${type} ${id}:`, error);
+    return false;
+  }
+};
+
+// Get both clap count and user clap status in one call (optimized)
+export const getClapInfo = async (type, id) => {
+  try {
+    const response = await axiosPublicInstance.get(`/claps/info?type=${type}&id=${id}`);
+    return {
+      clapCount: response.data.clap_count || 0,
+      hasClapped: response.data.has_clapped || false,
+    };
+  } catch (error) {
+    console.error(`Error fetching clap info for ${type} ${id}:`, error);
+    return {
+      clapCount: 0,
+      hasClapped: false,
+    };
+  }
+};
+

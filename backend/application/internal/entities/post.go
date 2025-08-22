@@ -184,11 +184,11 @@ func (*Post) CountByCategory(db *gorm.DB, categoryID uuid.UUID) (int64, error) {
 
 // CalculateCounts calculates and sets clap_count and comments_count for the post
 func (p *Post) CalculateCounts(db *gorm.DB) error {
-	// Calculate clap count
+	// Calculate clap count using SUM(count)
 	var clapCount int64
 	if err := db.Model(&UserActivity{}).
 		Where("post_id = ? AND action_type = ?", p.ID, "clap_post").
-		Count(&clapCount).Error; err != nil {
+		Select("COALESCE(SUM(count), 0)").Row().Scan(&clapCount); err != nil {
 		return err
 	}
 	p.ClapCount = uint64(clapCount)
@@ -217,14 +217,14 @@ func CalculateCountsForPosts(db *gorm.DB, posts []*Post) error {
 		postIDs[i] = post.ID
 	}
 
-	// Bulk query for clap counts
+	// Bulk query for clap counts using SUM(count)
 	type ClapCountResult struct {
 		PostID    uuid.UUID `json:"post_id"`
 		ClapCount int64     `json:"clap_count"`
 	}
 	var clapCounts []ClapCountResult
 	if err := db.Model(&UserActivity{}).
-		Select("post_id, COUNT(*) as clap_count").
+		Select("post_id, COALESCE(SUM(count), 0) as clap_count").
 		Where("post_id IN ? AND action_type = ?", postIDs, "clap_post").
 		Group("post_id").
 		Scan(&clapCounts).Error; err != nil {

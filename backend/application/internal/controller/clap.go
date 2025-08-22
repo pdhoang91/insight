@@ -184,3 +184,80 @@ func (c *Controller) CreateReplyForComment(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, gin.H{"data": response})
 }
+
+// CheckUserClapStatus checks if user has clapped an item
+func (c *Controller) CheckUserClapStatus(ctx *gin.Context) {
+	// Get user ID from context (optional - if not authenticated, return false)
+	userIDStr, exists := ctx.Get("userID")
+	if !exists {
+		ctx.JSON(http.StatusOK, gin.H{"has_clapped": false})
+		return
+	}
+
+	userID, err := uuid.FromString(userIDStr.(string))
+	if err != nil {
+		ctx.JSON(http.StatusOK, gin.H{"has_clapped": false})
+		return
+	}
+
+	// Get query parameters
+	itemType := ctx.Query("type")
+	itemIDStr := ctx.Query("id")
+
+	if itemType == "" || itemIDStr == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Missing type or id parameter"})
+		return
+	}
+
+	itemID, err := uuid.FromString(itemIDStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid id format"})
+		return
+	}
+
+	// Check if user has clapped
+	hasClapped, err := c.service.HasUserClapped(userID, itemType, itemID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to check clap status"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"has_clapped": hasClapped})
+}
+
+// GetClapInfo returns both clap count and user clap status in one call
+func (c *Controller) GetClapInfo(ctx *gin.Context) {
+	itemType := ctx.Query("type")
+	itemIDStr := ctx.Query("id")
+
+	if itemType == "" || itemIDStr == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Missing type or id parameter"})
+		return
+	}
+
+	itemID, err := uuid.FromString(itemIDStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID format"})
+		return
+	}
+
+	// Get clap count
+	count, err := c.service.GetClapsCount(itemType, itemID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get claps count"})
+		return
+	}
+
+	// Check if user has clapped (optional - if not authenticated, return false)
+	var hasClapped bool
+	if userIDStr, exists := ctx.Get("userID"); exists {
+		if userID, err := uuid.FromString(userIDStr.(string)); err == nil {
+			hasClapped, _ = c.service.HasUserClapped(userID, itemType, itemID)
+		}
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"clap_count":  count,
+		"has_clapped": hasClapped,
+	})
+}

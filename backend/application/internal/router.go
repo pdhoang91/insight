@@ -67,7 +67,9 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		public.GET("/images/v2/:id/info", controller.GetImageInfoV2) // Get image metadata
 
 		// Public claps count
-		public.GET("/claps", controller.GetClapsCount) // Get claps count
+		public.GET("/claps", controller.GetClapsCount)              // Get claps count
+		public.GET("/claps/status", controller.CheckUserClapStatus) // Check user clap status (works with optional auth)
+		public.GET("/claps/info", controller.GetClapInfo)           // Get both clap count and user status in one call
 	}
 
 	// Protected routes (authentication required)

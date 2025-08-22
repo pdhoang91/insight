@@ -14,6 +14,7 @@ type UserActivity struct {
 	CommentID  *uuid.UUID `json:"comment_id,omitempty" gorm:"type:uuid;constraint:OnDelete:CASCADE;"`
 	ReplyID    *uuid.UUID `json:"reply_id,omitempty" gorm:"type:uuid;constraint:OnDelete:CASCADE;"`
 	ActionType string     `json:"action_type"`
+	Count      uint64     `json:"count" gorm:"default:1"`
 	CreatedAt  time.Time  `json:"created_at"`
 
 	// Relationships
