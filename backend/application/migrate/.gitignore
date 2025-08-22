@@ -1,0 +1,9 @@
+# Ignore built binary
+migrator
+
+# Ignore Go build cache
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib

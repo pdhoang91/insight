@@ -52,6 +52,33 @@ services:
       retries: 5
       start_period: 30s
 
+  # Database Migration Service
+  db-migrate:
+    container_name: db_migrate
+    build:
+      context: ./backend/application/migrate
+      cache_from:
+        - golang:1.23-alpine
+        - alpine:3.19
+      target: runner
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Database connection using same variables as other services
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=postgres
+      - DB_SSLMODE=disable
+      - MIGRATIONS_DIR=/migrations/scripts
+    volumes:
+      - ./backend/application/migrate:/migrations:ro  # Read-only mount
+    networks:
+      - app-network
+    restart: "no"  # Run once and exit
+
   application:
     container_name: application
     build:
@@ -119,6 +146,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      db-migrate:
+        condition: service_completed_successfully
       #- fluentd
     environment:
       - DB_HOST=db

@@ -1,6 +1,6 @@
+-- Migration 002: Clap System Optimizations
 -- Apply all optimizations for post/comment/reply clap system
--- Run this script to apply all improvements at once
--- Make sure to backup your database before running this script
+-- This migration adds count fields, indexes, and constraints for better performance
 
 -- =====================================================
 -- STEP 1: Apply count fields migration (if not already done)
@@ -66,16 +66,62 @@ CREATE INDEX IF NOT EXISTS idx_replies_post_id ON replies(post_id);
 -- STEP 3: Add data integrity constraints
 -- =====================================================
 
+-- Clean up duplicate activities before adding unique constraints
+-- Remove duplicate post activities (keep the one with highest count)
+WITH duplicates AS (
+    SELECT user_id, post_id, action_type, 
+           ROW_NUMBER() OVER (PARTITION BY user_id, post_id, action_type ORDER BY count DESC, created_at DESC) as rn
+    FROM user_activities 
+    WHERE post_id IS NOT NULL AND comment_id IS NULL AND reply_id IS NULL
+)
+DELETE FROM user_activities 
+WHERE id IN (
+    SELECT ua.id 
+    FROM user_activities ua
+    JOIN duplicates d ON ua.user_id = d.user_id AND ua.post_id = d.post_id AND ua.action_type = d.action_type
+    WHERE d.rn > 1 AND ua.post_id IS NOT NULL AND ua.comment_id IS NULL AND ua.reply_id IS NULL
+);
+
 -- Unique constraints for preventing duplicate activities
 -- For post activities
 CREATE UNIQUE INDEX IF NOT EXISTS unique_user_post_activity 
 ON user_activities(user_id, post_id, action_type) 
 WHERE post_id IS NOT NULL AND comment_id IS NULL AND reply_id IS NULL;
 
+-- Clean up duplicate comment activities
+WITH duplicates AS (
+    SELECT user_id, comment_id, action_type, 
+           ROW_NUMBER() OVER (PARTITION BY user_id, comment_id, action_type ORDER BY count DESC, created_at DESC) as rn
+    FROM user_activities 
+    WHERE comment_id IS NOT NULL AND post_id IS NULL AND reply_id IS NULL
+)
+DELETE FROM user_activities 
+WHERE id IN (
+    SELECT ua.id 
+    FROM user_activities ua
+    JOIN duplicates d ON ua.user_id = d.user_id AND ua.comment_id = d.comment_id AND ua.action_type = d.action_type
+    WHERE d.rn > 1 AND ua.comment_id IS NOT NULL AND ua.post_id IS NULL AND ua.reply_id IS NULL
+);
+
 -- For comment activities  
 CREATE UNIQUE INDEX IF NOT EXISTS unique_user_comment_activity 
 ON user_activities(user_id, comment_id, action_type) 
 WHERE comment_id IS NOT NULL AND post_id IS NULL AND reply_id IS NULL;
+
+-- Clean up duplicate reply activities
+WITH duplicates AS (
+    SELECT user_id, reply_id, action_type, 
+           ROW_NUMBER() OVER (PARTITION BY user_id, reply_id, action_type ORDER BY count DESC, created_at DESC) as rn
+    FROM user_activities 
+    WHERE reply_id IS NOT NULL AND post_id IS NULL AND comment_id IS NULL
+)
+DELETE FROM user_activities 
+WHERE id IN (
+    SELECT ua.id 
+    FROM user_activities ua
+    JOIN duplicates d ON ua.user_id = d.user_id AND ua.reply_id = d.reply_id AND ua.action_type = d.action_type
+    WHERE d.rn > 1 AND ua.reply_id IS NOT NULL AND ua.post_id IS NULL AND ua.comment_id IS NULL
+);
 
 -- For reply activities
 CREATE UNIQUE INDEX IF NOT EXISTS unique_user_reply_activity 
@@ -113,61 +159,15 @@ BEGIN
 END $$;
 
 -- =====================================================
--- STEP 4: Verify the optimizations
--- =====================================================
-
--- Check table structures
-SELECT 'user_activities table structure:' as info;
-SELECT column_name, data_type, is_nullable, column_default 
-FROM information_schema.columns 
-WHERE table_name = 'user_activities' 
-ORDER BY ordinal_position;
-
-SELECT 'replies table structure:' as info;
-SELECT column_name, data_type, is_nullable, column_default 
-FROM information_schema.columns 
-WHERE table_name = 'replies' 
-ORDER BY ordinal_position;
-
--- Check indexes
-SELECT 'Indexes on user_activities:' as info;
-SELECT indexname, indexdef 
-FROM pg_indexes 
-WHERE tablename = 'user_activities' 
-ORDER BY indexname;
-
--- Check constraints
-SELECT 'Constraints added:' as info;
-SELECT constraint_name, constraint_type 
-FROM information_schema.table_constraints 
-WHERE table_name IN ('user_activities', 'replies') 
-AND constraint_type IN ('CHECK', 'UNIQUE')
-ORDER BY table_name, constraint_name;
-
--- Sample data verification
-SELECT 'Sample user_activities data:' as info;
-SELECT action_type, COUNT(*) as total_records, SUM(count) as total_claps 
-FROM user_activities 
-GROUP BY action_type 
-ORDER BY action_type;
-
--- =====================================================
 -- COMPLETION MESSAGE
 -- =====================================================
 
 DO $$
 BEGIN
-    RAISE NOTICE '=== POST/COMMENT/REPLY CLAP SYSTEM OPTIMIZATIONS COMPLETED ===';
+    RAISE NOTICE '=== MIGRATION 002: CLAP SYSTEM OPTIMIZATIONS COMPLETED ===';
     RAISE NOTICE 'Applied improvements:';
-    RAISE NOTICE '1. ✅ Fixed clap logic to support multiple claps per user';
+    RAISE NOTICE '1. ✅ Added count fields to user_activities and replies tables';
     RAISE NOTICE '2. ✅ Added performance indexes for faster queries';
     RAISE NOTICE '3. ✅ Added data integrity constraints';
-    RAISE NOTICE '4. ✅ Optimized N+1 queries in comment system';
-    RAISE NOTICE '5. ✅ Combined frontend API calls';
-    RAISE NOTICE '';
-    RAISE NOTICE 'Next steps:';
-    RAISE NOTICE '- Restart your application to use the new logic';
-    RAISE NOTICE '- Monitor query performance with the new indexes';
-    RAISE NOTICE '- Test the multiple claps functionality';
-    RAISE NOTICE '- Consider adding Redis caching for high-traffic scenarios';
+    RAISE NOTICE 'Migration 002 completed successfully';
 END $$;

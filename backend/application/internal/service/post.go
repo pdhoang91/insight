@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"regexp"
 	"time"
 
 	"github.com/pdhoang91/blog/internal/dto"
@@ -76,14 +77,10 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 	}
 
 	// Handle post content creation using PostContentRepo
+	var processedContent string
 	if req.Content != "" {
-		// Process content for saving (convert image URLs to data-image-id references)
-		processedContent, err := s.ProcessContentForSaving(req.Content, post.ID)
-		if err != nil {
-			// Log warning but don't fail the operation
-			// TODO: Use proper logger
-			processedContent = req.Content // Use original content if processing fails
-		}
+		// First, just convert URLs to data-image-id without creating references yet
+		processedContent = s.ProcessContentForSavingWithoutReferences(req.Content)
 
 		postContent := &entities.PostContent{
 			ID:        uuid.NewV4(),
@@ -100,23 +97,28 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 	}
 
 	// Handle category associations using CategoryRepo
-	if len(req.CategoryIDs) > 0 {
+	if len(req.CategoryNames) > 0 {
 		var categories []entities.Category
-		for _, categoryIDStr := range req.CategoryIDs {
-			categoryID, err := uuid.FromString(categoryIDStr)
-			if err != nil {
-				tx.Rollback()
-				return nil, errors.New("bad request")
-			}
-
-			category, err := s.Category.FindByID(tx, categoryID)
+		for _, categoryName := range req.CategoryNames {
+			// Try to find existing category by name
+			category, err := s.Category.FindByName(tx, categoryName)
 			if err != nil {
 				if err == gorm.ErrRecordNotFound {
+					// Create new category if it doesn't exist
+					category = &entities.Category{
+						ID:        uuid.NewV4(),
+						Name:      categoryName,
+						CreatedAt: time.Now(),
+						UpdatedAt: time.Now(),
+					}
+					if err := category.Create(tx); err != nil {
+						tx.Rollback()
+						return nil, errors.New("internal server error")
+					}
+				} else {
 					tx.Rollback()
-					return nil, errors.New("not found")
+					return nil, errors.New("internal server error")
 				}
-				tx.Rollback()
-				return nil, errors.New("internal server error")
 			}
 			categories = append(categories, *category)
 		}
@@ -177,6 +179,14 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 	// Commit transaction
 	if err := tx.Commit().Error; err != nil {
 		return nil, errors.New("internal server error")
+	}
+
+	// After successful commit, create image references
+	if processedContent != "" {
+		if err := s.CreateImageReferencesFromContent(context.Background(), post.ID, processedContent); err != nil {
+			// Log error but don't fail the operation since post is already created
+			// TODO: Use proper logger
+		}
 	}
 
 	// Load relationships for response
@@ -345,18 +355,15 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 	}
 
 	// Update post content using PostContentRepo with V2 image processing
+	var oldContent string
 	if req.Content != "" {
 		postContent, err := s.PostContent.FindByPostID(tx, post.ID)
-		oldContent := ""
+		oldContent = ""
 
 		if err != nil {
 			if err == gorm.ErrRecordNotFound {
 				// Create new post content if it doesn't exist
-				processedContent, err := s.ProcessContentForSaving(req.Content, post.ID)
-				if err != nil {
-					// Log warning but don't fail the operation
-					processedContent = req.Content
-				}
+				processedContent := s.ProcessContentForSavingWithoutReferences(req.Content)
 
 				postContent = &entities.PostContent{
 					ID:        uuid.NewV4(),
@@ -377,11 +384,7 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 			// Update existing post content with cleanup
 			oldContent = postContent.Content
 
-			processedContent, err := s.ProcessContentForSaving(req.Content, post.ID)
-			if err != nil {
-				// Log warning but don't fail the operation
-				processedContent = req.Content
-			}
+			processedContent := s.ProcessContentForSavingWithoutReferences(req.Content)
 
 			postContent.Content = processedContent
 			postContent.UpdatedAt = time.Now()
@@ -401,23 +404,28 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 	}
 
 	// Update category associations
-	if len(req.CategoryIDs) > 0 {
+	if len(req.CategoryNames) > 0 {
 		var categories []entities.Category
-		for _, categoryIDStr := range req.CategoryIDs {
-			categoryID, err := uuid.FromString(categoryIDStr)
-			if err != nil {
-				tx.Rollback()
-				return nil, errors.New("bad request")
-			}
-
-			category, err := s.Category.FindByID(tx, categoryID)
+		for _, categoryName := range req.CategoryNames {
+			// Try to find existing category by name
+			category, err := s.Category.FindByName(tx, categoryName)
 			if err != nil {
 				if err == gorm.ErrRecordNotFound {
+					// Create new category if it doesn't exist
+					category = &entities.Category{
+						ID:        uuid.NewV4(),
+						Name:      categoryName,
+						CreatedAt: time.Now(),
+						UpdatedAt: time.Now(),
+					}
+					if err := category.Create(tx); err != nil {
+						tx.Rollback()
+						return nil, errors.New("internal server error")
+					}
+				} else {
 					tx.Rollback()
-					return nil, errors.New("not found")
+					return nil, errors.New("internal server error")
 				}
-				tx.Rollback()
-				return nil, errors.New("internal server error")
 			}
 			categories = append(categories, *category)
 		}
@@ -478,6 +486,15 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 	// Commit transaction
 	if err := tx.Commit().Error; err != nil {
 		return nil, errors.New("internal server error")
+	}
+
+	// After successful commit, update image references if content was changed
+	if req.Content != "" {
+		processedContent := s.ProcessContentForSavingWithoutReferences(req.Content)
+		if err := s.UpdateImageReferences(context.Background(), post.ID, oldContent, processedContent); err != nil {
+			// Log error but don't fail the operation since post is already updated
+			// TODO: Use proper logger
+		}
 	}
 
 	// Load relationships for response
@@ -937,6 +954,74 @@ func (s *InsightService) HasUserClapped(userID uuid.UUID, itemType string, itemI
 
 	err := query.Count(&count).Error
 	return count > 0, err
+}
+
+// ProcessContentForSavingWithoutReferences converts image URLs to data-image-id without creating references
+func (s *InsightService) ProcessContentForSavingWithoutReferences(content string) string {
+	// Find all image URLs in content and replace with data-image-id
+	re := regexp.MustCompile(`src=['"]([^'"]*\/images\/v2\/([^'"\/]+))['"]`)
+
+	processedContent := re.ReplaceAllStringFunc(content, func(match string) string {
+		// Extract image ID from URL
+		matches := re.FindStringSubmatch(match)
+		if len(matches) < 3 {
+			return match
+		}
+
+		imageID := matches[2]
+		return fmt.Sprintf(`data-image-id="%s"`, imageID)
+	})
+
+	return processedContent
+}
+
+// CreateImageReferencesFromContent creates image references after post is committed
+func (s *InsightService) CreateImageReferencesFromContent(ctx context.Context, postID uuid.UUID, content string) error {
+	// Extract image IDs from content
+	re := regexp.MustCompile(`data-image-id=['"]([^'"]+)['"]`)
+	matches := re.FindAllStringSubmatch(content, -1)
+
+	for _, match := range matches {
+		if len(match) > 1 {
+			imageID := match[1]
+			if err := s.createImageReference(imageID, postID, "content"); err != nil {
+				// Log error but continue with other images
+				// TODO: Use proper logger
+				fmt.Printf("Warning: failed to create image reference %s: %v\n", imageID, err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// createImageReference creates a single image reference
+func (s *InsightService) createImageReference(imageID string, postID uuid.UUID, refType string) error {
+	id, err := uuid.FromString(imageID)
+	if err != nil {
+		return err
+	}
+
+	// Check if reference already exists
+	var existing entities.ImageReference
+	err = s.DB.Where("image_id = ? AND post_id = ? AND ref_type = ?", id, postID, refType).First(&existing).Error
+	if err == nil {
+		return nil // Already exists
+	}
+	if err != gorm.ErrRecordNotFound {
+		return err // Some other error
+	}
+
+	// Create new reference
+	ref := &entities.ImageReference{
+		ID:        uuid.NewV4(),
+		ImageID:   id,
+		PostID:    postID,
+		RefType:   refType,
+		CreatedAt: time.Now(),
+	}
+
+	return s.DB.Create(ref).Error
 }
 
 // SearchPosts searches posts by query

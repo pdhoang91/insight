@@ -1,0 +1,4 @@
+# Ignore files not needed in Docker build
+README.md
+run_migrations.sh
+*.sql
