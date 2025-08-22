@@ -143,3 +143,53 @@ func (s *InsightService) LegacyURLToImageID(legacyURL string) (string, error) {
 
 	return manager.LegacyURLToImageID(legacyURL)
 }
+
+// CleanupOrphanedImages removes images that are no longer referenced
+func (s *InsightService) CleanupOrphanedImages(ctx context.Context, userID uuid.UUID) (int, error) {
+	manager := GetStorageManager()
+	if manager == nil {
+		return 0, fmt.Errorf("storage manager not initialized")
+	}
+
+	return manager.CleanupOrphanedImages(ctx, userID)
+}
+
+// CleanupUserImages removes all images for a user (for user deletion)
+func (s *InsightService) CleanupUserImages(ctx context.Context, userID uuid.UUID) error {
+	manager := GetStorageManager()
+	if manager == nil {
+		return fmt.Errorf("storage manager not initialized")
+	}
+
+	return manager.CleanupUserImages(ctx, userID)
+}
+
+// UpdateImageReferences updates image references when post content changes
+func (s *InsightService) UpdateImageReferences(ctx context.Context, postID uuid.UUID, oldContent, newContent string) error {
+	manager := GetStorageManager()
+	if manager == nil {
+		return fmt.Errorf("storage manager not initialized")
+	}
+
+	return manager.UpdateImageReferences(ctx, postID, oldContent, newContent)
+}
+
+// MigrateLegacyImage migrates a single legacy image to V2 system
+func (s *InsightService) MigrateLegacyImage(ctx context.Context, legacyURL, userID, imageType string) (*entities.Image, error) {
+	manager := GetStorageManager()
+	if manager == nil {
+		return nil, fmt.Errorf("storage manager not initialized")
+	}
+
+	return manager.MigrateLegacyImage(ctx, legacyURL, userID, imageType)
+}
+
+// MigrateLegacyImagesForUser migrates all legacy images for a user
+func (s *InsightService) MigrateLegacyImagesForUser(ctx context.Context, userID string) (int, error) {
+	manager := GetStorageManager()
+	if manager == nil {
+		return 0, fmt.Errorf("storage manager not initialized")
+	}
+
+	return manager.MigrateLegacyImagesForUser(ctx, userID)
+}

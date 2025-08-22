@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -9,7 +10,6 @@ import (
 	"github.com/pdhoang91/blog/internal/dto"
 	"github.com/pdhoang91/blog/internal/entities"
 
-	"github.com/pdhoang91/blog/pkg/image"
 	"github.com/pdhoang91/blog/pkg/notification"
 	"github.com/pdhoang91/blog/pkg/utils"
 	uuid "github.com/satori/go.uuid"
@@ -82,7 +82,7 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 		if err != nil {
 			// Log warning but don't fail the operation
 			// TODO: Use proper logger
-			processedContent = image.ConvertS3URLToProxy(req.Content) // Fallback to legacy
+			processedContent = req.Content // Use original content if processing fails
 		}
 
 		postContent := &entities.PostContent{
@@ -162,19 +162,14 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 		}
 	}
 
-	// Process images in content
-	imageProcessor := image.GetDefaultProcessor()
-	processedImages, err := imageProcessor.ProcessImagesInContent(req.Content)
-	if err != nil {
-		// Log error but don't fail the operation
-		// TODO: Use proper logger
-	}
-	_ = processedImages // Store processed image URLs for future use
+	// Process images in content using V2 system
+	// The content processing is now handled by Storage Manager in ProcessContentForSaving above
+	// No additional processing needed here
 
 	// Send notifications using EventProcessor
 	eventProcessor := notification.GetDefaultProcessor(s.DB)
-	err = eventProcessor.SendPostNotification(notification.EventTypePostCreated, userID, post.ID, "New post created")
-	if err != nil {
+	notifyErr := eventProcessor.SendPostNotification(notification.EventTypePostCreated, userID, post.ID, "New post created")
+	if notifyErr != nil {
 		// Log error but don't fail the operation
 		// TODO: Use proper logger
 	}
@@ -349,16 +344,24 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 		return nil, errors.New("internal server error")
 	}
 
-	// Update post content using PostContentRepo
+	// Update post content using PostContentRepo with V2 image processing
 	if req.Content != "" {
 		postContent, err := s.PostContent.FindByPostID(tx, post.ID)
+		oldContent := ""
+
 		if err != nil {
 			if err == gorm.ErrRecordNotFound {
 				// Create new post content if it doesn't exist
+				processedContent, err := s.ProcessContentForSaving(req.Content, post.ID)
+				if err != nil {
+					// Log warning but don't fail the operation
+					processedContent = req.Content
+				}
+
 				postContent = &entities.PostContent{
 					ID:        uuid.NewV4(),
 					PostID:    post.ID,
-					Content:   req.Content,
+					Content:   processedContent,
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				}
@@ -371,12 +374,28 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 				return nil, errors.New("internal server error")
 			}
 		} else {
-			// Update existing post content
-			postContent.Content = req.Content
+			// Update existing post content with cleanup
+			oldContent = postContent.Content
+
+			processedContent, err := s.ProcessContentForSaving(req.Content, post.ID)
+			if err != nil {
+				// Log warning but don't fail the operation
+				processedContent = req.Content
+			}
+
+			postContent.Content = processedContent
 			postContent.UpdatedAt = time.Now()
 			if err := postContent.Update(tx); err != nil {
 				tx.Rollback()
 				return nil, errors.New("internal server error")
+			}
+
+			// Update image references after successful content update
+			if oldContent != processedContent {
+				if err := s.UpdateImageReferences(context.Background(), post.ID, oldContent, processedContent); err != nil {
+					// Log error but don't fail the operation
+					// TODO: Use proper logger
+				}
 			}
 		}
 	}
@@ -444,14 +463,9 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 		}
 	}
 
-	// Process images in updated content
-	imageProcessor := image.GetDefaultProcessor()
-	processedImages, err := imageProcessor.ProcessImagesInContent(req.Content)
-	if err != nil {
-		// Log error but don't fail the operation
-		// TODO: Use proper logger
-	}
-	_ = processedImages // Store processed image URLs for future use
+	// Process images in updated content using V2 system
+	// The content processing is now handled by Storage Manager in ProcessContentForSaving
+	// No additional processing needed here
 
 	// Send update notifications using EventProcessor
 	eventProcessor := notification.GetDefaultProcessor(s.DB)
@@ -525,15 +539,15 @@ func (s *InsightService) DeletePost(userID uuid.UUID, id uuid.UUID) error {
 		return errors.New("internal server error")
 	}
 
-	// Delete associated images from S3
-	// Get post content before deletion to extract image URLs
+	// Delete associated images using V2 system
+	// Get post content before deletion to extract image references
 	postContent, err := s.PostContent.FindByPostID(s.DB, id)
 	if err == nil && postContent != nil && postContent.Content != "" {
-		imageProcessor := image.GetDefaultProcessor()
-		// Extract image URLs from content and delete them
-		// This is a simplified implementation - in practice you'd parse the content for image URLs
-		// TODO: Implement proper image URL extraction from content
-		_ = imageProcessor // Avoid unused variable error for now
+		// Delete images referenced in the post content
+		if err := s.DeletePostImages(context.Background(), id, userID); err != nil {
+			// Log error but don't fail the operation
+			// TODO: Use proper logger
+		}
 	}
 
 	// Send delete notifications using EventProcessor
@@ -547,6 +561,32 @@ func (s *InsightService) DeletePost(userID uuid.UUID, id uuid.UUID) error {
 	// Commit transaction
 	if err := tx.Commit().Error; err != nil {
 		return errors.New("internal server error")
+	}
+
+	return nil
+}
+
+// DeletePostImages deletes all images referenced in a post
+func (s *InsightService) DeletePostImages(ctx context.Context, postID uuid.UUID, userID uuid.UUID) error {
+	// Get storage manager
+	manager := GetStorageManager()
+	if manager == nil {
+		return fmt.Errorf("storage manager not initialized")
+	}
+
+	// Find all image references for this post
+	var imageRefs []entities.ImageReference
+	if err := s.DB.Where("post_id = ?", postID).Find(&imageRefs).Error; err != nil {
+		return fmt.Errorf("failed to find image references: %w", err)
+	}
+
+	// Delete each referenced image
+	for _, ref := range imageRefs {
+		// Verify the image belongs to the user before deleting
+		if err := s.DeleteImageV2(ctx, ref.ImageID.String(), userID); err != nil {
+			// Log error but continue with other images
+			// TODO: Use proper logger
+		}
 	}
 
 	return nil

@@ -1,18 +1,22 @@
 package service
 
 import (
-	"errors"
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"log"
+	"mime/multipart"
+	"regexp"
 	"strings"
 	"time"
 
 	"github.com/pdhoang91/blog/config"
 	"github.com/pdhoang91/blog/constants"
-	"github.com/pdhoang91/blog/internal/entities"
 	"github.com/pdhoang91/blog/internal/dto"
-	
+	"github.com/pdhoang91/blog/internal/entities"
+	"github.com/pdhoang91/blog/pkg/storage"
+
 	jwtUtil "github.com/pdhoang91/blog/pkg/jwt"
 	uuid "github.com/satori/go.uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -307,16 +311,67 @@ func (s *InsightService) UpdateProfile(userID uuid.UUID, req *dto.UpdateUserRequ
 	return dto.NewUserResponse(user), nil
 }
 
+// UpdateProfileWithAvatar updates user profile with optional avatar upload
+func (s *InsightService) UpdateProfileWithAvatar(ctx context.Context, userID uuid.UUID, req *dto.UpdateUserRequest, avatarFile *multipart.FileHeader) (*dto.UserResponse, error) {
+	user, err := s.User.FindByID(s.DB, userID)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.New("not found")
+		}
+		return nil, errors.New("internal server error")
+	}
+
+	// Handle avatar upload if provided
+	if avatarFile != nil {
+		// Upload new avatar using V2 system
+		uploadResponse, err := s.UpdateUserAvatarV2(ctx, avatarFile, userID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to upload avatar: %w", err)
+		}
+		// Update avatar URL in request
+		req.AvatarURL = uploadResponse.URL
+	}
+
+	// Update user fields
+	if req.Name != "" {
+		user.Name = req.Name
+	}
+	if req.Bio != "" {
+		user.Bio = req.Bio
+	}
+	if req.AvatarURL != "" {
+		user.AvatarURL = req.AvatarURL
+	}
+
+	user.UpdatedAt = time.Now()
+	if err := user.Update(s.DB); err != nil {
+		return nil, errors.New("internal server error")
+	}
+
+	return dto.NewUserResponse(user), nil
+}
+
 // DeleteProfile deletes the current user's account
 func (s *InsightService) DeleteProfile(userID uuid.UUID) error {
-	// Check if user exists
-	_, err := s.User.FindByID(s.DB, userID)
+	// Get user to check if avatar exists
+	user, err := s.User.FindByID(s.DB, userID)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return errors.New("not found")
 		}
 		return errors.New("internal server error")
 	}
+
+	// Delete avatar image if it exists and uses V2 system
+	if user.AvatarURL != "" {
+		if imageID := s.extractImageIDFromURL(user.AvatarURL); imageID != "" {
+			// Delete avatar image from V2 system
+			_ = s.DeleteImageV2(context.Background(), imageID, userID)
+		}
+	}
+
+	// Cleanup all user images
+	_ = s.CleanupUserImages(context.Background(), userID)
 
 	if err := s.User.DeleteByID(s.DB, userID); err != nil {
 		return errors.New("internal server error")
@@ -353,6 +408,51 @@ func (s *InsightService) DeleteUser(id uuid.UUID) error {
 	return nil
 }
 
-// DeleteProfile deletes a user profile
+// UploadAvatarV2 uploads user avatar using V2 system
+func (s *InsightService) UploadAvatarV2(ctx context.Context, file *multipart.FileHeader, userID uuid.UUID) (*storage.UploadResponse, error) {
+	return s.UploadImageV2(ctx, file, userID, "avatar")
+}
 
-// DeleteProfile deletes a user profile
+// UpdateUserAvatarV2 updates user avatar using V2 system with cleanup
+func (s *InsightService) UpdateUserAvatarV2(ctx context.Context, file *multipart.FileHeader, userID uuid.UUID) (*storage.UploadResponse, error) {
+	// Get current user to check existing avatar
+	user, err := s.User.FindByID(s.DB, userID)
+	if err != nil {
+		return nil, errors.New("user not found")
+	}
+
+	// Upload new avatar
+	uploadResponse, err := s.UploadAvatarV2(ctx, file, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	// Update user avatar URL
+	user.AvatarURL = uploadResponse.URL
+	if err := user.Update(s.DB); err != nil {
+		// If user update fails, cleanup the uploaded image
+		_ = s.DeleteImageV2(ctx, uploadResponse.ImageID.String(), userID)
+		return nil, errors.New("failed to update user profile")
+	}
+
+	// Cleanup old avatar if it exists and uses V2 system
+	if user.AvatarURL != "" && user.AvatarURL != uploadResponse.URL {
+		if oldImageID := s.extractImageIDFromURL(user.AvatarURL); oldImageID != "" {
+			// Delete old avatar image (ignore errors as this is cleanup)
+			_ = s.DeleteImageV2(ctx, oldImageID, userID)
+		}
+	}
+
+	return uploadResponse, nil
+}
+
+// extractImageIDFromURL extracts image ID from V2 image URL
+func (s *InsightService) extractImageIDFromURL(imageURL string) string {
+	// Pattern: /images/v2/{imageID}
+	re := regexp.MustCompile(`/images/v2/([a-f0-9-]{36})`)
+	matches := re.FindStringSubmatch(imageURL)
+	if len(matches) > 1 {
+		return matches[1]
+	}
+	return ""
+}

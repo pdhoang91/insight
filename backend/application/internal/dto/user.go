@@ -15,11 +15,12 @@ type CreateUserRequest struct {
 }
 
 type UpdateUserRequest struct {
-	Name     string `json:"name,omitempty" validate:"omitempty,min=2,max=100"`
-	Username string `json:"username,omitempty" validate:"omitempty,min=3,max=50"`
-	Bio      string `json:"bio,omitempty"`
-	Phone    string `json:"phone,omitempty"`
-	Dob      string `json:"dob,omitempty"`
+	Name      string `json:"name,omitempty" validate:"omitempty,min=2,max=100"`
+	Username  string `json:"username,omitempty" validate:"omitempty,min=3,max=50"`
+	Bio       string `json:"bio,omitempty"`
+	Phone     string `json:"phone,omitempty"`
+	Dob       string `json:"dob,omitempty"`
+	AvatarURL string `json:"avatar_url,omitempty"`
 }
 
 type LoginRequest struct {

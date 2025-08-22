@@ -296,3 +296,236 @@ func (m *Manager) LegacyURLToImageID(legacyURL string) (string, error) {
 
 	return image.ID.String(), nil
 }
+
+// CleanupOrphanedImages removes images that are no longer referenced
+func (m *Manager) CleanupOrphanedImages(ctx context.Context, userID uuid.UUID) (int, error) {
+	// Find images that have no references
+	var orphanedImages []entities.Image
+	err := m.db.Where(`
+		user_id = ? AND 
+		id NOT IN (
+			SELECT DISTINCT image_id FROM image_references 
+			WHERE image_id IS NOT NULL
+		) AND 
+		image_type = 'content' AND 
+		created_at < ?
+	`, userID, time.Now().Add(-24*time.Hour)).Find(&orphanedImages).Error
+
+	if err != nil {
+		return 0, fmt.Errorf("failed to find orphaned images: %w", err)
+	}
+
+	deletedCount := 0
+	for _, img := range orphanedImages {
+		if err := m.DeleteImage(ctx, img.ID.String()); err != nil {
+			// Log error but continue with other images
+			fmt.Printf("Warning: failed to delete orphaned image %s: %v\n", img.ID, err)
+			continue
+		}
+		deletedCount++
+	}
+
+	return deletedCount, nil
+}
+
+// CleanupUserImages removes all images for a user (for user deletion)
+func (m *Manager) CleanupUserImages(ctx context.Context, userID uuid.UUID) error {
+	var userImages []entities.Image
+	if err := m.db.Where("user_id = ?", userID).Find(&userImages).Error; err != nil {
+		return fmt.Errorf("failed to find user images: %w", err)
+	}
+
+	for _, img := range userImages {
+		if err := m.DeleteImage(ctx, img.ID.String()); err != nil {
+			// Log error but continue
+			fmt.Printf("Warning: failed to delete user image %s: %v\n", img.ID, err)
+		}
+	}
+
+	return nil
+}
+
+// UpdateImageReferences updates image references when post content changes
+func (m *Manager) UpdateImageReferences(ctx context.Context, postID uuid.UUID, oldContent, newContent string) error {
+	// Extract image IDs from old and new content
+	oldImageIDs := m.extractImageIDsFromContent(oldContent)
+	newImageIDs := m.extractImageIDsFromContent(newContent)
+
+	// Remove references that are no longer used
+	for _, oldID := range oldImageIDs {
+		if !m.containsImageID(newImageIDs, oldID) {
+			// Remove the reference
+			if err := m.db.Where("image_id = ? AND post_id = ?", oldID, postID).Delete(&entities.ImageReference{}).Error; err != nil {
+				fmt.Printf("Warning: failed to remove image reference %s: %v\n", oldID, err)
+			}
+		}
+	}
+
+	// Add references for new images
+	for _, newID := range newImageIDs {
+		if !m.containsImageID(oldImageIDs, newID) {
+			// Create new reference
+			if err := m.createImageReference(newID, postID, "content"); err != nil {
+				fmt.Printf("Warning: failed to create image reference %s: %v\n", newID, err)
+			}
+		}
+	}
+
+	return nil
+}
+
+// Helper methods for cleanup logic
+func (m *Manager) extractImageIDsFromContent(content string) []string {
+	re := regexp.MustCompile(`data-image-id=['"]([^'"]+)['"]`)
+	matches := re.FindAllStringSubmatch(content, -1)
+
+	var imageIDs []string
+	for _, match := range matches {
+		if len(match) > 1 {
+			imageIDs = append(imageIDs, match[1])
+		}
+	}
+
+	return imageIDs
+}
+
+func (m *Manager) containsImageID(imageIDs []string, targetID string) bool {
+	for _, id := range imageIDs {
+		if id == targetID {
+			return true
+		}
+	}
+	return false
+}
+
+// MigrateLegacyImage migrates a single legacy image to V2 system
+func (m *Manager) MigrateLegacyImage(ctx context.Context, legacyURL, userID, imageType string) (*entities.Image, error) {
+	// Parse legacy URL to extract S3 key
+	re := regexp.MustCompile(`/images/proxy/([^/]+)/([^/]+)/([^/]+)/([^/]+)`)
+	matches := re.FindStringSubmatch(legacyURL)
+	if len(matches) != 5 {
+		return nil, fmt.Errorf("invalid legacy URL format: %s", legacyURL)
+	}
+
+	userIDStr := matches[1]
+	date := matches[2]
+	legacyType := matches[3]
+	filename := matches[4]
+
+	// Validate user ID matches
+	if userIDStr != userID {
+		return nil, fmt.Errorf("user ID mismatch in legacy URL")
+	}
+
+	// Construct S3 key
+	s3Key := fmt.Sprintf("uploads/%s/%s/%s/%s", userIDStr, date, legacyType, filename)
+
+	// Check if already migrated
+	var existingImage entities.Image
+	if err := m.db.Where("storage_key = ?", s3Key).First(&existingImage).Error; err == nil {
+		return &existingImage, nil // Already migrated
+	}
+
+	// Get provider to check if file exists
+	provider, err := m.GetProvider("")
+	if err != nil {
+		return nil, err
+	}
+
+	// Get file metadata from storage
+	metadata, err := provider.GetMetadata(ctx, s3Key)
+	if err != nil {
+		return nil, fmt.Errorf("legacy file not found in storage: %w", err)
+	}
+
+	// Create image record
+	userUUID, err := uuid.FromString(userID)
+	if err != nil {
+		return nil, fmt.Errorf("invalid user ID: %w", err)
+	}
+
+	image := &entities.Image{
+		ID:               uuid.NewV4(),
+		StorageKey:       s3Key,
+		StorageProvider:  provider.GetProviderName(),
+		OriginalFilename: filename,
+		ContentType:      metadata.ContentType,
+		FileSize:         metadata.Size,
+		ImageType:        imageType,
+		UserID:           userUUID,
+		CreatedAt:        metadata.LastModified,
+		UpdatedAt:        time.Now(),
+	}
+
+	if err := m.db.Create(image).Error; err != nil {
+		return nil, fmt.Errorf("failed to create image record: %w", err)
+	}
+
+	return image, nil
+}
+
+// MigrateLegacyImagesForUser migrates all legacy images for a user
+func (m *Manager) MigrateLegacyImagesForUser(ctx context.Context, userID string) (int, error) {
+	userUUID, err := uuid.FromString(userID)
+	if err != nil {
+		return 0, fmt.Errorf("invalid user ID: %w", err)
+	}
+
+	// Find all posts by user to extract legacy image URLs from content
+	var posts []entities.Post
+	if err := m.db.Where("user_id = ?", userUUID).Find(&posts).Error; err != nil {
+		return 0, fmt.Errorf("failed to find user posts: %w", err)
+	}
+
+	migratedCount := 0
+	for _, post := range posts {
+		// Get post content
+		var postContent entities.PostContent
+		if err := m.db.Where("post_id = ?", post.ID).First(&postContent).Error; err != nil {
+			continue // Skip posts without content
+		}
+
+		// Extract legacy image URLs from content
+		legacyURLs := m.extractLegacyURLsFromContent(postContent.Content)
+
+		for _, legacyURL := range legacyURLs {
+			_, err := m.MigrateLegacyImage(ctx, legacyURL, userID, "content")
+			if err != nil {
+				fmt.Printf("Warning: failed to migrate legacy image %s: %v\n", legacyURL, err)
+				continue
+			}
+			migratedCount++
+		}
+	}
+
+	// Also check user avatar
+	var user entities.User
+	if err := m.db.Where("id = ?", userUUID).First(&user).Error; err == nil {
+		if user.AvatarURL != "" && strings.Contains(user.AvatarURL, "/images/proxy/") {
+			_, err := m.MigrateLegacyImage(ctx, user.AvatarURL, userID, "avatar")
+			if err == nil {
+				migratedCount++
+			}
+		}
+	}
+
+	return migratedCount, nil
+}
+
+// extractLegacyURLsFromContent extracts legacy proxy URLs from content
+func (m *Manager) extractLegacyURLsFromContent(content string) []string {
+	re := regexp.MustCompile(`/images/proxy/[^/]+/[^/]+/[^/]+/[^"'\s]+`)
+	matches := re.FindAllString(content, -1)
+
+	// Remove duplicates
+	seen := make(map[string]bool)
+	var uniqueURLs []string
+	for _, url := range matches {
+		if !seen[url] {
+			uniqueURLs = append(uniqueURLs, url)
+			seen[url] = true
+		}
+	}
+
+	return uniqueURLs
+}

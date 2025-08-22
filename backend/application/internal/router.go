@@ -73,6 +73,7 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		// User routes
 		protected.GET("/profile", controller.GetProfile)
 		protected.GET("/me", controller.GetProfile) // Alias for frontend compatibility
+		protected.PUT("/users/:id", controller.UpdateProfile)
 		protected.PUT("/profile", controller.UpdateProfile)
 		protected.DELETE("/profile", controller.DeleteProfile)
 		protected.GET("/users/:id/posts", controller.GetUserPosts) // Frontend compatibility
