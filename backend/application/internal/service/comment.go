@@ -22,13 +22,13 @@ func (s *InsightService) GetPostComments(postID uuid.UUID, req *dto.PaginationRe
 
 	// Count total comments
 	var totalComments int64
-	if err := s.DBR2.Model(&entities.Comment{}).Where("post_id = ?", postID).Count(&totalComments).Error; err != nil {
+	if err := s.DB.Model(&entities.Comment{}).Where("post_id = ?", postID).Count(&totalComments).Error; err != nil {
 		return nil, 0, 0, errors.New("internal server error")
 	}
 
-	// Get comments with pagination
+	// Get comments with pagination and preload replies with their users
 	var comments []*entities.Comment
-	if err := s.DBR2.Preload("User").
+	if err := s.DB.Preload("User").Preload("Replies.User").
 		Where("post_id = ?", postID).
 		Order("created_at DESC").
 		Limit(req.Limit).
@@ -39,7 +39,7 @@ func (s *InsightService) GetPostComments(postID uuid.UUID, req *dto.PaginationRe
 
 	// Count total replies for all comments
 	var totalReplies int64
-	if err := s.DBR2.Model(&entities.Reply{}).Where("post_id = ?", postID).Count(&totalReplies).Error; err != nil {
+	if err := s.DB.Model(&entities.Reply{}).Where("post_id = ?", postID).Count(&totalReplies).Error; err != nil {
 		return nil, 0, 0, errors.New("internal server error")
 	}
 
@@ -48,8 +48,22 @@ func (s *InsightService) GetPostComments(postID uuid.UUID, req *dto.PaginationRe
 	for _, comment := range comments {
 		// Count replies for this comment
 		var repliesCount int64
-		if err := s.DBR2.Model(&entities.Reply{}).Where("comment_id = ?", comment.ID).Count(&repliesCount).Error; err == nil {
+		if err := s.DB.Model(&entities.Reply{}).Where("comment_id = ?", comment.ID).Count(&repliesCount).Error; err == nil {
 			comment.RepliesCount = uint64(repliesCount)
+		}
+
+		// Count claps for this comment
+		var commentClaps int64
+		if err := s.DB.Model(&entities.UserActivity{}).Where("comment_id = ? AND action_type = ?", comment.ID, "clap_comment").Count(&commentClaps).Error; err == nil {
+			comment.ClapCount = uint64(commentClaps)
+		}
+
+		// Count claps for each reply
+		for i := range comment.Replies {
+			var replyClaps int64
+			if err := s.DB.Model(&entities.UserActivity{}).Where("reply_id = ? AND action_type = ?", comment.Replies[i].ID, "clap_reply").Count(&replyClaps).Error; err == nil {
+				comment.Replies[i].ClapCount = uint64(replyClaps)
+			}
 		}
 
 		responses = append(responses, dto.NewCommentResponse(comment))

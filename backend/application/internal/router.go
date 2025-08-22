@@ -33,7 +33,8 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		public.GET("/posts/popular", controller.GetPopularPosts)
 		public.GET("/posts/top", controller.GetTopPosts)
 		public.GET("/posts/:id", controller.GetPost)
-		public.GET("/p/:titleName", controller.GetPostByTitleName) // Frontend compatibility
+		public.GET("/posts/:id/comments", controller.GetPostComments) // Public comment reading
+		public.GET("/p/:titleName", controller.GetPostByTitleName)    // Frontend compatibility
 
 		// Search routes
 		public.GET("/search/posts", controller.SearchPosts)
@@ -64,6 +65,9 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		// New image system routes
 		public.GET("/images/v2/:id", controller.ServeImageV2)        // Serve image by ID
 		public.GET("/images/v2/:id/info", controller.GetImageInfoV2) // Get image metadata
+
+		// Public claps count
+		public.GET("/claps", controller.GetClapsCount) // Get claps count
 	}
 
 	// Protected routes (authentication required)
@@ -83,6 +87,7 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		protected.POST("/api/posts", controller.CreatePost) // Frontend compatibility
 		protected.PUT("/posts/:id", controller.UpdatePost)
 		protected.DELETE("/posts/:id", controller.DeletePost)
+		protected.POST("/posts/:id/clap", controller.ClapPost) // Clap/unclap post
 
 		// Category routes (admin only for create/update/delete)
 		protected.POST("/categories", controller.CreateCategory)
@@ -91,9 +96,11 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 
 		// Comment routes
 		protected.POST("/comments", controller.CreateComment)
+		protected.POST("/posts/:id/comments", controller.CreateCommentForPost) // Alternative endpoint for frontend
 		protected.PUT("/comments/:id", controller.UpdateComment)
 		protected.DELETE("/comments/:id", controller.DeleteComment)
 		protected.GET("/posts/:id/comments", controller.GetPostComments)
+		protected.POST("/comments/:id/clap", controller.ClapComment) // Clap comment
 
 		// Tag routes
 		protected.POST("/tags", controller.CreateTag)
@@ -102,9 +109,11 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 
 		// Reply routes
 		protected.POST("/replies", controller.CreateReply)
+		protected.POST("/comments/:id/replies", controller.CreateReplyForComment) // Alternative endpoint for frontend
 		protected.PUT("/replies/:id", controller.UpdateReply)
 		protected.DELETE("/replies/:id", controller.DeleteReply)
 		protected.GET("/comments/:id/replies", controller.GetCommentReplies)
+		protected.POST("/replies/:id/clap", controller.ClapReply) // Clap reply
 
 		// Bookmark routes
 		protected.POST("/bookmarks", controller.CreateBookmark)

@@ -25,7 +25,6 @@ export const addComment = async (postId, content) => {
 // Add reply to comment
 export const addReply = async (commentID, content) => {
   const response = await axiosPrivateInstance.post(`/api/comments/${commentID}/replies`, {
-    comment_id: commentID,
     content,
   });
   return response.data;

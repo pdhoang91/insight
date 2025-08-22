@@ -769,4 +769,151 @@ func (s *InsightService) HasUserClappedPost(userID, postID uuid.UUID) (bool, err
 	return true, nil
 }
 
+// ClapPost adds or removes a clap for a post
+func (s *InsightService) ClapPost(userID, postID uuid.UUID) (bool, error) {
+	// Check if user already clapped
+	hasClapped, err := s.HasUserClappedPost(userID, postID)
+	if err != nil {
+		return false, err
+	}
+
+	if hasClapped {
+		// Remove clap (unclap)
+		err = s.DB.Where("user_id = ? AND post_id = ? AND action_type = ?", userID, postID, "clap_post").
+			Delete(&entities.UserActivity{}).Error
+		if err != nil {
+			return false, err
+		}
+		return false, nil // false means unclapped
+	} else {
+		// Add clap
+		activity := &entities.UserActivity{
+			ID:         uuid.NewV4(),
+			UserID:     userID,
+			PostID:     &postID,
+			ActionType: "clap_post",
+			CreatedAt:  time.Now(),
+		}
+		err = s.DB.Create(activity).Error
+		if err != nil {
+			return false, err
+		}
+		return true, nil // true means clapped
+	}
+}
+
+// ClapComment adds or removes a clap for a comment
+func (s *InsightService) ClapComment(userID, commentID uuid.UUID) (bool, error) {
+	// Check if user already clapped this comment
+	var activity entities.UserActivity
+	err := s.DB.Where("user_id = ? AND comment_id = ? AND action_type = ?", userID, commentID, "clap_comment").First(&activity).Error
+
+	hasClapped := true
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			hasClapped = false
+		} else {
+			return false, err
+		}
+	}
+
+	if hasClapped {
+		// Remove clap (unclap)
+		err = s.DB.Where("user_id = ? AND comment_id = ? AND action_type = ?", userID, commentID, "clap_comment").
+			Delete(&entities.UserActivity{}).Error
+		if err != nil {
+			return false, err
+		}
+		return false, nil // false means unclapped
+	} else {
+		// Add clap
+		activity := &entities.UserActivity{
+			ID:         uuid.NewV4(),
+			UserID:     userID,
+			CommentID:  &commentID,
+			ActionType: "clap_comment",
+			CreatedAt:  time.Now(),
+		}
+		err = s.DB.Create(activity).Error
+		if err != nil {
+			return false, err
+		}
+		return true, nil // true means clapped
+	}
+}
+
+// ClapReply adds or removes a clap for a reply
+func (s *InsightService) ClapReply(userID, replyID uuid.UUID) (bool, error) {
+	// Check if user already clapped this reply
+	var activity entities.UserActivity
+	err := s.DB.Where("user_id = ? AND reply_id = ? AND action_type = ?", userID, replyID, "clap_reply").First(&activity).Error
+
+	hasClapped := true
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			hasClapped = false
+		} else {
+			return false, err
+		}
+	}
+
+	if hasClapped {
+		// Remove clap (unclap)
+		err = s.DB.Where("user_id = ? AND reply_id = ? AND action_type = ?", userID, replyID, "clap_reply").
+			Delete(&entities.UserActivity{}).Error
+		if err != nil {
+			return false, err
+		}
+		return false, nil // false means unclapped
+	} else {
+		// Add clap
+		activity := &entities.UserActivity{
+			ID:         uuid.NewV4(),
+			UserID:     userID,
+			ReplyID:    &replyID,
+			ActionType: "clap_reply",
+			CreatedAt:  time.Now(),
+		}
+		err = s.DB.Create(activity).Error
+		if err != nil {
+			return false, err
+		}
+		return true, nil // true means clapped
+	}
+}
+
+// GetClapsCount returns clap count for post/comment/reply
+func (s *InsightService) GetClapsCount(itemType string, itemID uuid.UUID) (int64, error) {
+	var count int64
+	var actionType string
+	var query *gorm.DB
+
+	switch itemType {
+	case "post":
+		actionType = "clap_post"
+		query = s.DB.Model(&entities.UserActivity{}).Where("post_id = ? AND action_type = ?", itemID, actionType)
+	case "comment":
+		actionType = "clap_comment"
+		query = s.DB.Model(&entities.UserActivity{}).Where("comment_id = ? AND action_type = ?", itemID, actionType)
+	case "reply":
+		actionType = "clap_reply"
+		query = s.DB.Model(&entities.UserActivity{}).Where("reply_id = ? AND action_type = ?", itemID, actionType)
+	default:
+		return 0, fmt.Errorf("invalid item type: %s", itemType)
+	}
+
+	err := query.Count(&count).Error
+	return count, err
+}
+
+// GetPostIDFromComment gets post ID from comment ID
+func (s *InsightService) GetPostIDFromComment(commentID uuid.UUID) (*uuid.UUID, error) {
+	var comment entities.Comment
+	err := s.DB.Select("post_id").Where("id = ?", commentID).First(&comment).Error
+	if err != nil {
+		return nil, err
+	}
+	return &comment.PostID, nil
+}
+
 // SearchPosts searches posts by query

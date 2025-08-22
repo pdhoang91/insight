@@ -5,7 +5,7 @@ import axiosPublicInstance from '../utils/axiosPublicInstance';
 // Gửi clap cho bài viết
 export const clapPost = async (postID) => {
   try {
-    const response = await axiosPrivateInstance.post(`/api/post/${postID}/clap`);
+    const response = await axiosPrivateInstance.post(`/api/posts/${postID}/clap`);
     return response.data;
   } catch (error) {
     console.error('Error clapping post:', error);
@@ -18,7 +18,7 @@ export const clapPost = async (postID) => {
 // Gửi clap cho comment
 export const clapComment = async (commentID) => {
   try {
-    const response = await axiosPrivateInstance.post(`/api/comment/${commentID}/clap`);
+    const response = await axiosPrivateInstance.post(`/api/comments/${commentID}/clap`);
     return response.data;
   } catch (error) {
     console.error('Error clapping comment:', error);
@@ -29,7 +29,7 @@ export const clapComment = async (commentID) => {
 // Gửi clap cho reply
 export const clapReply = async (replyId) => {
   try {
-    const response = await axiosPrivateInstance.post(`/api/reply/${replyId}/clap`);
+    const response = await axiosPrivateInstance.post(`/api/replies/${replyId}/clap`);
     return response.data;
   } catch (error) {
     console.error('Error clapping reply:', error);

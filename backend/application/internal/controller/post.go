@@ -555,3 +555,51 @@ func (c *Controller) SearchAll(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, results)
 }
+
+// ClapPost handles clap/unclap action for a post
+func (c *Controller) ClapPost(ctx *gin.Context) {
+	// Get post ID from URL
+	postIDStr := ctx.Param("id")
+	postID, err := uuid.FromString(postIDStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid post ID"})
+		return
+	}
+
+	// Get user ID from context (authentication required)
+	userIDStr, exists := ctx.Get("userID")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	userID, err := uuid.FromString(userIDStr.(string))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	// Toggle clap
+	isClapped, err := c.service.ClapPost(userID, postID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to clap post"})
+		return
+	}
+
+	// Get updated post with clap count
+	postResponse, err := c.service.GetPost(postID)
+	if err != nil {
+		// If we can't get updated post, just return clap status
+		ctx.JSON(http.StatusOK, gin.H{
+			"clapped": isClapped,
+			"message": "Post clapped successfully",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"clapped":    isClapped,
+		"clap_count": postResponse.ClapCount,
+		"message":    "Post clapped successfully",
+	})
+}
