@@ -1,157 +1,126 @@
 #!/bin/bash
 
-# SSL Certificate Check Script
-# This script checks the status of SSL certificates
+# Kiểm tra trạng thái SSL
+# Chạy: ./nginx/scripts/check-ssl.sh
 
 DOMAIN="insight.io.vn"
 WWW_DOMAIN="www.insight.io.vn"
 
-echo "=== SSL Certificate Status Check ==="
+echo "🔍 === Kiểm tra SSL cho $DOMAIN ==="
 echo ""
 
-# Function to check certificate file
-check_cert_file() {
-    local cert_file="./nginx/certs/$DOMAIN.crt"
-    local key_file="./nginx/certs/$DOMAIN.key"
+# 1. Check certificate files
+echo "1. Kiểm tra certificate files..."
+if [ -f "./nginx/certs/$DOMAIN.crt" ] && [ -f "./nginx/certs/$DOMAIN.key" ]; then
+    echo "✅ Certificate files exist"
     
-    echo "1. Checking certificate files..."
-    
-    if [ -f "$cert_file" ]; then
-        echo "✓ Certificate file exists: $cert_file"
-        
-        # Check certificate details
-        echo "Certificate details:"
-        openssl x509 -in "$cert_file" -text -noout | grep -E "(Subject:|Issuer:|Not Before:|Not After :)" | sed 's/^/  /'
-        
-        # Check if certificate is self-signed
-        if openssl x509 -in "$cert_file" -text -noout | grep -q "Issuer.*CN=$DOMAIN"; then
-            echo "⚠ This is a self-signed certificate"
-        else
-            echo "✓ This is a CA-signed certificate"
-        fi
-    else
-        echo "✗ Certificate file not found: $cert_file"
-        return 1
-    fi
-    
-    if [ -f "$key_file" ]; then
-        echo "✓ Private key file exists: $key_file"
-    else
-        echo "✗ Private key file not found: $key_file"
-        return 1
-    fi
-}
-
-# Function to check certificate expiry
-check_cert_expiry() {
-    local cert_file="./nginx/certs/$DOMAIN.crt"
-    
+    # Show certificate details
     echo ""
-    echo "2. Checking certificate expiry..."
+    echo "📋 Certificate details:"
+    openssl x509 -in "./nginx/certs/$DOMAIN.crt" -text -noout | grep -E "(Subject:|Issuer:|Not After)" | sed 's/^/  /'
     
-    if [ -f "$cert_file" ]; then
-        local expiry_date=$(openssl x509 -in "$cert_file" -noout -enddate | cut -d= -f2)
-        local expiry_timestamp=$(date -d "$expiry_date" +%s 2>/dev/null || date -j -f "%b %d %T %Y %Z" "$expiry_date" +%s 2>/dev/null)
-        local current_timestamp=$(date +%s)
-        local days_until_expiry=$(( (expiry_timestamp - current_timestamp) / 86400 ))
-        
-        echo "Certificate expires: $expiry_date"
-        
-        if [ $days_until_expiry -gt 30 ]; then
-            echo "✓ Certificate is valid for $days_until_expiry more days"
-        elif [ $days_until_expiry -gt 7 ]; then
-            echo "⚠ Certificate expires in $days_until_expiry days (consider renewal)"
-        elif [ $days_until_expiry -gt 0 ]; then
-            echo "🚨 Certificate expires in $days_until_expiry days (renewal needed soon!)"
-        else
-            echo "🚨 Certificate has expired!"
-        fi
+    # Check if self-signed or real
+    if openssl x509 -in "./nginx/certs/$DOMAIN.crt" -text -noout | grep -q "Issuer.*CN=$DOMAIN"; then
+        echo "⚠️  Self-signed certificate (browser warnings)"
+    else
+        echo "✅ Real SSL certificate (no browser warnings)"
     fi
-}
+else
+    echo "❌ Certificate files missing"
+    echo "   Run: ./nginx/scripts/create-ssl.sh"
+fi
 
-# Function to test HTTPS connectivity
-test_https_connectivity() {
-    echo ""
-    echo "3. Testing HTTPS connectivity..."
+echo ""
+
+# 2. Check nginx status
+echo "2. Kiểm tra nginx..."
+if docker-compose ps nginx | grep -q "Up"; then
+    echo "✅ Nginx is running"
+else
+    echo "❌ Nginx is not running"
+    echo "   Run: docker-compose up -d nginx"
+fi
+
+echo ""
+
+# 3. Check HTTP access
+echo "3. Kiểm tra HTTP access..."
+if curl -f -s --max-time 10 "http://$DOMAIN/health" > /dev/null 2>&1; then
+    echo "✅ HTTP accessible: http://$DOMAIN"
+else
+    echo "❌ HTTP not accessible"
+fi
+
+echo ""
+
+# 4. Check HTTPS access
+echo "4. Kiểm tra HTTPS access..."
+if curl -f -s --max-time 10 "https://$DOMAIN/health" > /dev/null 2>&1; then
+    echo "✅ HTTPS accessible: https://$DOMAIN"
+else
+    echo "❌ HTTPS not accessible"
+fi
+
+if curl -f -s --max-time 10 "https://$WWW_DOMAIN/health" > /dev/null 2>&1; then
+    echo "✅ HTTPS accessible: https://$WWW_DOMAIN"
+else
+    echo "❌ HTTPS not accessible: https://$WWW_DOMAIN"
+fi
+
+echo ""
+
+# 5. Check ACME challenge path
+echo "5. Kiểm tra ACME challenge path..."
+mkdir -p ./certbot/www/.well-known/acme-challenge/
+echo "test123" > ./certbot/www/.well-known/acme-challenge/test
+
+if curl -f -s "http://$DOMAIN/.well-known/acme-challenge/test" | grep -q "test123" 2>/dev/null; then
+    echo "✅ ACME challenge path working"
+    rm -f ./certbot/www/.well-known/acme-challenge/test
+else
+    echo "❌ ACME challenge path not working"
+fi
+
+echo ""
+
+# 6. Check certificate expiry
+echo "6. Kiểm tra certificate expiry..."
+if [ -f "./nginx/certs/$DOMAIN.crt" ]; then
+    EXPIRY=$(openssl x509 -in "./nginx/certs/$DOMAIN.crt" -noout -enddate | cut -d= -f2)
+    EXPIRY_EPOCH=$(date -d "$EXPIRY" +%s 2>/dev/null || date -j -f "%b %d %H:%M:%S %Y %Z" "$EXPIRY" +%s 2>/dev/null || echo "0")
+    CURRENT_EPOCH=$(date +%s)
+    DAYS_LEFT=$(( (EXPIRY_EPOCH - CURRENT_EPOCH) / 86400 ))
     
-    # Test main domain
+    if [ $DAYS_LEFT -gt 30 ]; then
+        echo "✅ Certificate expires in $DAYS_LEFT days"
+    elif [ $DAYS_LEFT -gt 7 ]; then
+        echo "⚠️  Certificate expires in $DAYS_LEFT days (consider renewal)"
+    else
+        echo "🚨 Certificate expires in $DAYS_LEFT days (URGENT renewal needed)"
+    fi
+else
+    echo "❌ No certificate file to check"
+fi
+
+echo ""
+
+# 7. Summary
+echo "📊 === Summary ==="
+echo ""
+
+# Overall status
+if [ -f "./nginx/certs/$DOMAIN.crt" ] && docker-compose ps nginx | grep -q "Up"; then
     if curl -f -s --max-time 10 "https://$DOMAIN/health" > /dev/null 2>&1; then
-        echo "✓ $DOMAIN is accessible via HTTPS"
+        echo "🎉 SSL Status: WORKING"
+        echo "🌐 Website: https://$DOMAIN"
+        echo "🌐 Website: https://$WWW_DOMAIN"
     else
-        echo "✗ $DOMAIN is not accessible via HTTPS"
+        echo "⚠️  SSL Status: CONFIGURED but not accessible"
     fi
-    
-    # Test www domain
-    if curl -f -s --max-time 10 "https://$WWW_DOMAIN/health" > /dev/null 2>&1; then
-        echo "✓ $WWW_DOMAIN is accessible via HTTPS"
-    else
-        echo "✗ $WWW_DOMAIN is not accessible via HTTPS"
-    fi
-}
-
-# Function to check nginx status
-check_nginx_status() {
+else
+    echo "❌ SSL Status: NOT WORKING"
     echo ""
-    echo "4. Checking nginx status..."
-    
-    if docker-compose ps nginx | grep -q "Up"; then
-        echo "✓ Nginx container is running"
-        
-        # Check nginx configuration
-        if docker-compose exec nginx nginx -t > /dev/null 2>&1; then
-            echo "✓ Nginx configuration is valid"
-        else
-            echo "✗ Nginx configuration has errors"
-            docker-compose exec nginx nginx -t
-        fi
-    else
-        echo "✗ Nginx container is not running"
-        echo "Start with: docker-compose up -d nginx"
-    fi
-}
-
-# Function to check SSL certificate from external perspective
-check_external_ssl() {
-    echo ""
-    echo "5. Checking SSL certificate from external perspective..."
-    
-    # Check certificate chain and validity
-    if command -v openssl > /dev/null; then
-        echo "Checking certificate chain for $DOMAIN..."
-        timeout 10 openssl s_client -connect "$DOMAIN:443" -servername "$DOMAIN" < /dev/null 2>/dev/null | openssl x509 -noout -dates 2>/dev/null || echo "Could not retrieve external certificate"
-    fi
-}
-
-# Function to show renewal information
-show_renewal_info() {
-    echo ""
-    echo "6. SSL Certificate Renewal Information..."
-    
-    if [ -f "./nginx/scripts/renew-ssl.sh" ]; then
-        echo "✓ Auto-renewal script exists: ./nginx/scripts/renew-ssl.sh"
-        echo "To manually renew: ./nginx/scripts/renew-ssl.sh"
-    else
-        echo "⚠ Auto-renewal script not found"
-        echo "Run ./nginx/scripts/setup-ssl.sh to create it"
-    fi
-    
-    echo ""
-    echo "To set up automatic renewal, add this to your crontab:"
-    echo "0 2 1 * * $(pwd)/nginx/scripts/renew-ssl.sh"
-}
-
-# Main execution
-main() {
-    check_cert_file
-    check_cert_expiry
-    test_https_connectivity
-    check_nginx_status
-    check_external_ssl
-    show_renewal_info
-    
-    echo ""
-    echo "=== SSL Check Complete ==="
-}
-
-# Run main function
-main "$@"
+    echo "🔧 To fix:"
+    echo "   1. Run: ./nginx/scripts/create-ssl.sh"
+    echo "   2. Run: docker-compose up -d"
+fi
