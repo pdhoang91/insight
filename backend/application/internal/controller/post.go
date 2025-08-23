@@ -171,6 +171,32 @@ func (c *Controller) DeletePost(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "Post deleted successfully"})
 }
 
+// TestDeletePost tests soft delete functionality without auth checks (for development)
+func (c *Controller) TestDeletePost(ctx *gin.Context) {
+	idStr := ctx.Param("id")
+	id, err := uuid.FromString(idStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid post ID"})
+		return
+	}
+
+	// Get the post to find its owner
+	post, err := c.service.GetPostEntity(id)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "Post not found"})
+		return
+	}
+
+	// Use the post owner's ID for the delete operation
+	err = c.service.DeletePost(post.UserID, id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Post soft deleted successfully (test)"})
+}
+
 // GetLatestPosts retrieves latest posts
 func (c *Controller) GetLatestPosts(ctx *gin.Context) {
 	var req dto.PaginationRequest
