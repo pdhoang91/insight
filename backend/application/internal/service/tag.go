@@ -134,4 +134,22 @@ func (s *InsightService) DeleteTag(id uuid.UUID) error {
 	return nil
 }
 
-// GetPopularTags retrieves popular tags
+// SearchTags searches tags by query
+func (s *InsightService) SearchTags(query string, limit int) ([]*dto.TagResponse, error) {
+	if limit == 0 {
+		limit = 10
+	}
+
+	// Use read replica for better performance
+	tags, err := s.Tag.Search(s.DBR2, query, limit)
+	if err != nil {
+		return nil, errors.New("internal server error")
+	}
+
+	var responses []*dto.TagResponse
+	for _, tag := range tags {
+		responses = append(responses, dto.NewTagResponse(tag))
+	}
+
+	return responses, nil
+}

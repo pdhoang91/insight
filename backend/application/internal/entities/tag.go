@@ -91,3 +91,13 @@ func (*Tag) Count(db *gorm.DB) (int64, error) {
 	err := db.Model(&Tag{}).Count(&count).Error
 	return count, err
 }
+
+// Search searches tags by name
+func (*Tag) Search(db *gorm.DB, query string, limit int) ([]*Tag, error) {
+	var tags []*Tag
+	err := db.Where("name ILIKE ?", "%"+query+"%").
+		Order("name ASC").
+		Limit(limit).
+		Find(&tags).Error
+	return tags, err
+}

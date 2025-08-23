@@ -157,3 +157,40 @@ func (c *Controller) GetPopularTags(ctx *gin.Context) {
 		"offset":      req.Offset,
 	})
 }
+
+// SearchTags searches tags by query
+func (c *Controller) SearchTags(ctx *gin.Context) {
+	query := ctx.Query("q")
+	if query == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Query parameter 'q' is required"})
+		return
+	}
+
+	var req dto.PaginationRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
+		return
+	}
+
+	// Set defaults
+	if req.Limit == 0 {
+		req.Limit = 10
+	}
+
+	responses, err := c.service.SearchTags(query, req.Limit)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Ensure data is never null - use empty array if nil
+	if responses == nil {
+		responses = []*dto.TagResponse{}
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"data":        responses,
+		"total_count": int64(len(responses)),
+		"limit":       req.Limit,
+	})
+}

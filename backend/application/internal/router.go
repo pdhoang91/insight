@@ -39,6 +39,7 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		// Search routes
 		public.GET("/search/posts", controller.SearchPosts)
 		public.GET("/search", controller.SearchAll)
+		public.POST("/search/track", controller.TrackSearch) // Track search analytics
 
 		// Public category routes
 		public.GET("/categories", controller.ListCategories)
@@ -55,6 +56,7 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		// Public tag routes
 		public.GET("/tags", controller.ListTags)
 		public.GET("/tags/popular", controller.GetPopularTags)
+		public.GET("/tags/search", controller.SearchTags) // Search tags by query
 		public.GET("/tags/:id", controller.GetTag)
 
 		// Public user routes

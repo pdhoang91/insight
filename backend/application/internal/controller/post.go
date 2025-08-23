@@ -645,6 +645,30 @@ func (c *Controller) SearchAll(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, results)
 }
 
+// TrackSearch tracks search analytics - proxies to search service
+func (c *Controller) TrackSearch(ctx *gin.Context) {
+	var request struct {
+		Query        string `json:"query" binding:"required"`
+		UserID       string `json:"user_id"`
+		ResultsCount int    `json:"results_count"`
+	}
+
+	if err := ctx.ShouldBindJSON(&request); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload", "details": err.Error()})
+		return
+	}
+
+	// Call search service via HTTP client
+	searchClient := c.service.GetSearchClient()
+	err := searchClient.TrackSearch(request.Query, request.UserID, request.ResultsCount)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to track search", "details": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Search tracked successfully"})
+}
+
 // ClapPost handles clap/unclap action for a post
 func (c *Controller) ClapPost(ctx *gin.Context) {
 	// Get post ID from URL
