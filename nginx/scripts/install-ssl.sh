@@ -113,7 +113,7 @@ get_real_ssl() {
     
     # Get SSL certificates
     echo "📜 Requesting SSL certificates..."
-    if docker-compose run --rm certbot certonly \
+    if docker-compose run --rm --entrypoint="" certbot certbot certonly \
         --webroot \
         --webroot-path=/var/www/certbot \
         --email "$EMAIL" \
@@ -172,7 +172,7 @@ log() {
 log "Starting SSL certificate renewal..."
 
 # Renew certificates
-if docker-compose run --rm certbot renew --quiet; then
+if docker-compose run --rm --entrypoint="" certbot certbot renew --quiet; then
     log "Certificates renewed successfully"
     
     # Copy renewed certificates

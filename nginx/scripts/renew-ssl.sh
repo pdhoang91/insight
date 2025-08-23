@@ -45,7 +45,7 @@ renew_certificates() {
     log "Starting certificate renewal process..."
     
     # Run certbot renewal
-    if docker-compose run --rm certbot renew --quiet; then
+    if docker-compose run --rm --entrypoint="" certbot certbot renew --quiet; then
         log "Certbot renewal completed successfully"
         return 0
     else
@@ -199,7 +199,7 @@ case "${1:-}" in
                 sleep 5
             fi
             
-            if renew_certificates; then
+            if docker-compose run --rm --entrypoint="" certbot certbot renew --quiet; then
                 if copy_certificates; then
                     if reload_nginx; then
                         if verify_renewal; then
