@@ -45,7 +45,12 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		public.GET("/categories/top", controller.GetTopCategories)
 		public.GET("/categories_top", controller.GetTopCategories) // Alias for frontend typo
 		public.GET("/categories/popular", controller.GetPopularCategories)
-		public.GET("/categories/:id", controller.GetCategory)
+
+		// Category by ID route (UUID pattern)
+		public.GET("/categories/id/:id", controller.GetCategory) // Category by UUID - moved to /categories/id/:id
+
+		// Category posts route - now safe from conflicts
+		public.GET("/categories/:name/posts", controller.GetPostsByCategory) // Posts by category name
 
 		// Public tag routes
 		public.GET("/tags", controller.ListTags)
@@ -93,8 +98,8 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 
 		// Category routes (admin only for create/update/delete)
 		protected.POST("/categories", controller.CreateCategory)
-		protected.PUT("/categories/:id", controller.UpdateCategory)
-		protected.DELETE("/categories/:id", controller.DeleteCategory)
+		protected.PUT("/categories/id/:id", controller.UpdateCategory)
+		protected.DELETE("/categories/id/:id", controller.DeleteCategory)
 
 		// Comment routes
 		protected.POST("/comments", controller.CreateComment)

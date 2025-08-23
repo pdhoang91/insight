@@ -484,7 +484,7 @@ func (c *Controller) GetTopPosts(ctx *gin.Context) {
 	c.GetPopularPosts(ctx)
 }
 
-// SearchPosts searches posts by query
+// SearchPosts searches posts by query - proxies to search service
 func (c *Controller) SearchPosts(ctx *gin.Context) {
 	query := ctx.Query("q")
 	if query == "" {
@@ -498,18 +498,78 @@ func (c *Controller) SearchPosts(ctx *gin.Context) {
 		return
 	}
 
-	// Convert page-based pagination to offset-based
-	if req.Page > 0 && req.Limit > 0 {
-		req.Offset = (req.Page - 1) * req.Limit
+	// Set defaults
+	if req.Page == 0 {
+		req.Page = 1
 	}
 	if req.Limit == 0 {
-		req.Limit = 10 // Default limit
+		req.Limit = 10
 	}
 
-	responses, total, err := c.service.SearchPosts(query, &req)
+	// Call search service via HTTP client
+	searchClient := c.service.GetSearchClient()
+	searchResp, err := searchClient.SearchPosts(query, req.Page, req.Limit)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Search service unavailable", "details": err.Error()})
 		return
+	}
+
+	// Convert search service response to our DTO format
+	var responses []*dto.PostResponse
+	for _, searchPost := range searchResp.Data {
+		// Parse UUID from string
+		postID, err := uuid.FromString(searchPost.ID)
+		if err != nil {
+			continue // Skip invalid posts
+		}
+
+		postResp := &dto.PostResponse{
+			ID:             postID,
+			Title:          searchPost.Title,
+			TitleName:      searchPost.TitleName,
+			PreviewContent: searchPost.PreviewContent,
+			Content:        searchPost.Content,
+			CreatedAt:      searchPost.CreatedAt,
+			UpdatedAt:      searchPost.CreatedAt, // Use CreatedAt as fallback for UpdatedAt
+			Views:          searchPost.Views,
+			ClapCount:      searchPost.ClapCount,
+			CommentsCount:  searchPost.CommentsCount,
+			AverageRating:  searchPost.AverageRating,
+		}
+
+		// Convert tags from []string to []*dto.TagResponse
+		for _, tagName := range searchPost.Tags {
+			postResp.Tags = append(postResp.Tags, &dto.TagResponse{
+				Name: tagName,
+			})
+		}
+
+		// Convert categories from []string to []*dto.CategoryResponse
+		for _, categoryName := range searchPost.Categories {
+			postResp.Categories = append(postResp.Categories, &dto.CategoryResponse{
+				Name: categoryName,
+			})
+		}
+
+		// Map user info
+		if searchPost.User.ID != "" {
+			userID, err := uuid.FromString(searchPost.User.ID)
+			if err == nil {
+				postResp.User = &dto.UserResponse{
+					ID:        userID,
+					Email:     searchPost.User.Email,
+					Name:      searchPost.User.Name,
+					Username:  searchPost.User.Username,
+					AvatarURL: searchPost.User.AvatarURL,
+					Bio:       searchPost.User.Bio,
+					Phone:     searchPost.User.Phone,
+					Dob:       searchPost.User.Dob,
+					Role:      searchPost.User.Role,
+				}
+			}
+		}
+
+		responses = append(responses, postResp)
 	}
 
 	// Ensure data is never null - use empty array if nil
@@ -517,11 +577,14 @@ func (c *Controller) SearchPosts(ctx *gin.Context) {
 		responses = []*dto.PostResponse{}
 	}
 
+	// Calculate offset for compatibility
+	offset := (req.Page - 1) * req.Limit
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"data":        responses,
-		"total_count": total,
+		"total_count": searchResp.TotalCount,
 		"limit":       req.Limit,
-		"offset":      req.Offset,
+		"offset":      offset,
 	})
 }
 

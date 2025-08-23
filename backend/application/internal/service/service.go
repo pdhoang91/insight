@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/pdhoang91/blog/internal/dto"
 	"github.com/pdhoang91/blog/internal/entities"
+	"github.com/pdhoang91/blog/pkg/httpclient"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -21,7 +22,10 @@ type InsightService struct {
 	PostContent *entities.PostContent
 	Image       *entities.Image
 
-	// External clients (to be implemented later)
+	// External clients
+	SearchClient *httpclient.SearchClient
+
+	// Other external clients (to be implemented later)
 	// Logger         *clog.Clog
 	// HttpCnt        httpCnt.IHttpClient
 	// AhCnt          ahclient.IAutoHelperClient
@@ -40,17 +44,23 @@ func NewInsightService(
 	baseService *BaseService,
 ) *InsightService {
 	return &InsightService{
-		BaseService: baseService,
-		User:        &entities.User{},
-		Post:        &entities.Post{},
-		Category:    &entities.Category{},
-		Comment:     &entities.Comment{},
-		Reply:       &entities.Reply{},
-		Bookmark:    &entities.Bookmark{},
-		Tag:         &entities.Tag{},
-		PostContent: &entities.PostContent{},
-		Image:       &entities.Image{},
+		BaseService:  baseService,
+		User:         &entities.User{},
+		Post:         &entities.Post{},
+		Category:     &entities.Category{},
+		Comment:      &entities.Comment{},
+		Reply:        &entities.Reply{},
+		Bookmark:     &entities.Bookmark{},
+		Tag:          &entities.Tag{},
+		PostContent:  &entities.PostContent{},
+		Image:        &entities.Image{},
+		SearchClient: httpclient.NewSearchClient(),
 	}
+}
+
+// GetSearchClient returns the search client instance
+func (s *InsightService) GetSearchClient() *httpclient.SearchClient {
+	return s.SearchClient
 }
 
 // GetUserBookmarksWithUsername is a wrapper method for GetUserBookmarks that returns username
