@@ -263,6 +263,19 @@ func (s *InsightService) GetUser(id uuid.UUID) (*dto.UserResponse, error) {
 	return dto.NewUserResponse(user), nil
 }
 
+// GetUserByID retrieves a user entity by ID (for internal use)
+func (s *InsightService) GetUserByID(id uuid.UUID) (*entities.User, error) {
+	user, err := s.User.FindByID(s.DB, id)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.New("not found")
+		}
+		return nil, errors.New("internal server error")
+	}
+
+	return user, nil
+}
+
 // GetProfile retrieves the current user's profile
 func (s *InsightService) GetProfile(userID uuid.UUID) (*dto.UserResponse, error) {
 	user, err := s.User.FindByID(s.DB, userID)
