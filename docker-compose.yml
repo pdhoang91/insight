@@ -1,33 +1,33 @@
 
 services:
-#  nginx:
-#    image: nginx:latest
-#    container_name: nginx_proxy
-#    ports:
-#      - "80:80"        # HTTP for development and production
-#      - "443:443"      # HTTPS for production
-#    volumes:
-#      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-#      - ./nginx/certs:/etc/nginx/certs:ro                  # SSL certificates (optional)
-#      - ./certbot/www:/var/www/certbot:ro                  # Let's Encrypt ACME challenge
-#    depends_on:
-#      - frontend
-#      - application
-#      - search-service
-#    networks:
-#      - app-network
+  nginx:
+    image: nginx:latest
+    container_name: nginx_proxy
+    ports:
+      - "80:80"        # HTTP for development and production
+      - "443:443"      # HTTPS for production
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/certs:/etc/nginx/certs:ro                  # SSL certificates (optional)
+      - ./certbot/www:/var/www/certbot:ro                  # Let's Encrypt ACME challenge
+    depends_on:
+      - frontend
+      - application
+      - search-service
+    networks:
+      - app-network
 
   # Certbot service for SSL certificate management
-#  certbot:
-#    image: certbot/certbot:latest
-#    container_name: certbot
-#    volumes:
-#      - ./certbot/conf:/etc/letsencrypt
-#      - ./certbot/www:/var/www/certbot
-#    # This service runs on-demand, not continuously
-#    command: echo "Certbot service ready for SSL certificate operations"
-#    networks:
-#      - app-network
+  certbot:
+    image: certbot/certbot:latest
+    container_name: certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    # This service runs on-demand, not continuously
+    command: echo "Certbot service ready for SSL certificate operations"
+    networks:
+      - app-network
 
   db:
     image: postgres:13
