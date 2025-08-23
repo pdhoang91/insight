@@ -9,14 +9,15 @@ RUN apk add --no-cache git ca-certificates tzdata
 # Set working directory
 WORKDIR /app
 
-# Copy go.mod and go.sum first for better caching
+# Copy migrate service files
 COPY go.mod go.sum ./
+COPY main.go ./
 
 # Download modules (this layer will be cached if go.mod/go.sum don't change)
 RUN go mod download
 
-# Copy source code
-COPY . .
+# Copy migration scripts
+COPY scripts ./scripts
 
 # Build application with optimization flags
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \

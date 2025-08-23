@@ -11,9 +11,7 @@ import (
 	"github.com/pdhoang91/blog/config"
 	"github.com/pdhoang91/blog/internal"
 	"github.com/pdhoang91/blog/internal/controller"
-	"github.com/pdhoang91/blog/internal/entities"
 	"github.com/pdhoang91/blog/internal/service"
-	"gorm.io/gorm"
 )
 
 func main() {
@@ -27,16 +25,6 @@ func main() {
 		return
 	}
 	defer config.CloseDBConnection(db)
-
-	// Ensure UUID extension is enabled
-	if err := ensureUUIDExtension(db); err != nil {
-		log.Printf("Warning: Failed to enable UUID extension: %v", err)
-	}
-
-	// Run database migrate
-	if err := runAutoMigration(db); err != nil {
-		panic("Failed to run database migrate: " + err.Error())
-	}
 
 	// Create a new Gin router
 	r := gin.New()
@@ -79,34 +67,6 @@ func main() {
 	if err := r.Run(":" + port); err != nil {
 		log.Fatal("Failed to start server:", err)
 	}
-}
-
-// ensureUUIDExtension ensures the uuid-ossp extension is enabled
-func ensureUUIDExtension(db *gorm.DB) error {
-	return db.Exec(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp"`).Error
-}
-
-// runAutoMigration runs database auto-migration for all entities
-func runAutoMigration(db *gorm.DB) error {
-	return db.AutoMigrate(
-		&entities.User{},
-		&entities.Post{},
-		&entities.PostContent{},
-		&entities.Category{},
-		&entities.Comment{},
-		&entities.Reply{},
-		&entities.Tag{},
-		&entities.PostCategory{},
-		&entities.PostTag{},
-		&entities.Bookmark{},
-		&entities.Follow{},
-		&entities.Rating{},
-		&entities.Notification{},
-		&entities.UserActivity{},
-		&entities.Tab{},
-		&entities.Image{},
-		&entities.ImageReference{},
-	)
 }
 
 // ConfigureCORS sets up CORS middleware for the application

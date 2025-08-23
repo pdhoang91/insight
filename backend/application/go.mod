@@ -11,6 +11,7 @@ require (
 	github.com/gin-contrib/cors v1.7.2
 	github.com/gin-gonic/gin v1.10.0
 	github.com/golang-jwt/jwt/v4 v4.5.2
+	github.com/lib/pq v1.10.9
 	github.com/satori/go.uuid v1.2.0
 	golang.org/x/crypto v0.28.0
 	golang.org/x/oauth2 v0.23.0
