@@ -25,7 +25,8 @@ services:
       - ./certbot/conf:/etc/letsencrypt
       - ./certbot/www:/var/www/certbot
     # This service runs on-demand, not continuously
-    command: ["sh", "-c", "echo 'Certbot service ready for SSL certificate operations' && sleep infinity"]
+    entrypoint: /bin/sh
+    command: ["-c", "echo 'Certbot service ready for SSL certificate operations' && sleep infinity"]
     networks:
       - app-network
 
