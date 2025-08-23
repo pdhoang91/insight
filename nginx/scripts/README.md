@@ -2,109 +2,71 @@
 
 This directory contains scripts for managing SSL certificates for the Insight application.
 
-## Scripts Overview
+## 🚀 Quick Start - One Script Does Everything!
 
-### 1. `create-temp-ssl.sh`
-Creates temporary self-signed SSL certificates so nginx can start without errors.
+### `install-ssl.sh` - Complete SSL Installation
+**The only script you need!** Handles everything automatically:
 
-**Usage:**
 ```bash
-./nginx/scripts/create-temp-ssl.sh
+# Complete SSL installation (recommended)
+./nginx/scripts/install-ssl.sh
 ```
-
-**When to use:**
-- First time setup
-- When you need nginx to start immediately
-- For development/testing
-
-**Note:** Browsers will show security warnings for self-signed certificates.
-
-### 2. `setup-ssl.sh`
-Complete SSL setup script that obtains real SSL certificates from Let's Encrypt.
-
-**Usage:**
-```bash
-./nginx/scripts/setup-ssl.sh
-```
-
-**Prerequisites:**
-- Domain must point to your server
-- Port 80 must be accessible
-- Docker containers must be running
 
 **What it does:**
-- Checks domain accessibility
-- Creates temporary certificates
-- Starts nginx
-- Obtains real SSL certificates from Let's Encrypt
-- Sets up auto-renewal
+- ✅ Creates temporary SSL certificates
+- ✅ Fixes docker-compose.yml issues  
+- ✅ Starts all containers
+- ✅ Gets real SSL certificates from Let's Encrypt
+- ✅ Sets up auto-renewal
+- ✅ Tests everything
 
-### 3. `renew-ssl.sh`
-Renews SSL certificates and reloads nginx configuration.
-
-**Usage:**
+**Options:**
 ```bash
-# Normal renewal (only if needed)
-./nginx/scripts/renew-ssl.sh
+# Install temporary SSL only
+./nginx/scripts/install-ssl.sh --temp-only
 
-# Force renewal
-./nginx/scripts/renew-ssl.sh --force
+# Get real SSL certificates only (if temp SSL already installed)
+./nginx/scripts/install-ssl.sh --real-only
 
-# Check if renewal is needed
-./nginx/scripts/renew-ssl.sh --check
+# Show help
+./nginx/scripts/install-ssl.sh --help
 ```
 
-**Automatic renewal:**
-Add to crontab to run monthly:
-```bash
-0 2 1 * * /path/to/your/project/nginx/scripts/renew-ssl.sh
-```
+## Other Scripts
 
-### 4. `check-ssl.sh`
-Comprehensive SSL certificate status checker.
+### `check-ssl.sh` - SSL Status Checker
+Check your SSL certificate status and website accessibility.
 
-**Usage:**
 ```bash
 ./nginx/scripts/check-ssl.sh
 ```
 
-**What it checks:**
-- Certificate file existence
-- Certificate expiry date
-- HTTPS connectivity
-- Nginx status
-- External SSL validation
+### `renew-ssl.sh` - Certificate Renewal
+Automatically created by `install-ssl.sh`. Renews SSL certificates.
 
-## Quick Start Guide
+```bash
+./nginx/scripts/renew-ssl.sh
+```
 
-### For First Time Setup:
+## 🎯 Complete Setup Guide
 
-1. **Create temporary certificates:**
-   ```bash
-   ./nginx/scripts/create-temp-ssl.sh
-   ```
+### Step 1: Run the installer
+```bash
+cd /root/workspace/insight
+./nginx/scripts/install-ssl.sh
+```
 
-2. **Start your application:**
-   ```bash
-   docker-compose up -d
-   ```
+### Step 2: That's it! 
+The script handles everything automatically:
+- Creates temporary certificates so nginx can start
+- Fixes any docker-compose issues
+- Tries to get real SSL certificates
+- Sets up auto-renewal
 
-3. **Setup real SSL certificates:**
-   ```bash
-   ./nginx/scripts/setup-ssl.sh
-   ```
-
-### For Existing Setup:
-
-1. **Check SSL status:**
-   ```bash
-   ./nginx/scripts/check-ssl.sh
-   ```
-
-2. **Renew certificates if needed:**
-   ```bash
-   ./nginx/scripts/renew-ssl.sh
-   ```
+### Step 3: Check status
+```bash
+./nginx/scripts/check-ssl.sh
+```
 
 ## File Structure
 
