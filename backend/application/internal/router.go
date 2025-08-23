@@ -63,6 +63,9 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		public.GET("/public/:username/posts", controller.GetUserPostsByUsername)     // Frontend compatibility
 		public.GET("/public/:username/profile", controller.GetUserProfileByUsername) // Frontend compatibility
 
+		// Test routes (for development)
+		public.DELETE("/test/posts/:id", controller.TestDeletePost) // Test soft delete without auth
+
 		// Public image routes (no auth required for viewing)
 		public.GET("/images/proxy/:userID/:date/:type/:filename", controller.ProxyImage)
 		public.GET("/images/info/:userID/:date/:type/:filename", controller.GetImageInfo)
@@ -143,8 +146,6 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		admin.DELETE("/users/:id", controller.DeleteUser)
 		admin.GET("/posts", controller.GetAllPosts)
 		admin.DELETE("/posts/:id", controller.DeletePost)
-		
-		// Test routes (for development)
-		admin.DELETE("/test/posts/:id", controller.TestDeletePost) // Test soft delete without auth
+
 	}
 }

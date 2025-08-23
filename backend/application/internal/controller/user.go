@@ -271,10 +271,10 @@ func (c *Controller) DeleteUser(ctx *gin.Context) {
 // DebugJWT tests JWT generation
 func (c *Controller) DebugJWT(ctx *gin.Context) {
 	userIDStr := ctx.Query("user_id")
-	
+
 	var user *entities.User
 	var err error
-	
+
 	if userIDStr != "" {
 		// Generate token for specific user
 		userID, err := uuid.FromString(userIDStr)
@@ -282,7 +282,7 @@ func (c *Controller) DebugJWT(ctx *gin.Context) {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 			return
 		}
-		
+
 		user, err = c.service.GetUserByID(userID)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
