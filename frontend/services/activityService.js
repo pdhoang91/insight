@@ -5,7 +5,7 @@ import axiosPublicInstance from '../utils/axiosPublicInstance';
 // Gửi clap cho bài viết
 export const clapPost = async (postID) => {
   try {
-    const response = await axiosPrivateInstance.post(`/api/post/${postID}/clap`);
+    const response = await axiosPrivateInstance.post(`/api/posts/${postID}/clap`);
     return response.data;
   } catch (error) {
     console.error('Error clapping post:', error);
@@ -18,7 +18,7 @@ export const clapPost = async (postID) => {
 // Gửi clap cho comment
 export const clapComment = async (commentID) => {
   try {
-    const response = await axiosPrivateInstance.post(`/api/comment/${commentID}/clap`);
+    const response = await axiosPrivateInstance.post(`/api/comments/${commentID}/clap`);
     return response.data;
   } catch (error) {
     console.error('Error clapping comment:', error);
@@ -29,7 +29,7 @@ export const clapComment = async (commentID) => {
 // Gửi clap cho reply
 export const clapReply = async (replyId) => {
   try {
-    const response = await axiosPrivateInstance.post(`/api/reply/${replyId}/clap`);
+    const response = await axiosPrivateInstance.post(`/api/replies/${replyId}/clap`);
     return response.data;
   } catch (error) {
     console.error('Error clapping reply:', error);
@@ -47,6 +47,34 @@ export const getClapsCount = async (type, id) => {
   } catch (error) {
     console.error(`Error fetching claps count for ${type} ${id}:`, error);
     return 0;
+  }
+};
+
+// Check if user has clapped an item
+export const checkUserClapStatus = async (type, id) => {
+  try {
+    const response = await axiosPublicInstance.get(`/claps/status?type=${type}&id=${id}`);
+    return response.data.has_clapped || false;
+  } catch (error) {
+    console.error(`Error checking clap status for ${type} ${id}:`, error);
+    return false;
+  }
+};
+
+// Get both clap count and user clap status in one call (optimized)
+export const getClapInfo = async (type, id) => {
+  try {
+    const response = await axiosPublicInstance.get(`/claps/info?type=${type}&id=${id}`);
+    return {
+      clapCount: response.data.clap_count || 0,
+      hasClapped: response.data.has_clapped || false,
+    };
+  } catch (error) {
+    console.error(`Error fetching clap info for ${type} ${id}:`, error);
+    return {
+      clapCount: 0,
+      hasClapped: false,
+    };
   }
 };
 

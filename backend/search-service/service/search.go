@@ -35,9 +35,17 @@ func createFullTextSearchIndexes() error {
 		// Enable unaccent extension for accent-insensitive search
 		`CREATE EXTENSION IF NOT EXISTS unaccent;`,
 
-		// Create GIN index for full-text search on posts (using simple config for better Vietnamese support)
+		// Create immutable wrapper function for unaccent
+		`CREATE OR REPLACE FUNCTION immutable_unaccent(text) 
+		 RETURNS text AS $$
+		 BEGIN
+		   RETURN unaccent($1);
+		 END;
+		 $$ LANGUAGE plpgsql IMMUTABLE;`,
+
+		// Create GIN index for full-text search on posts (using immutable wrapper)
 		`CREATE INDEX IF NOT EXISTS idx_posts_fulltext_search 
-		 ON posts USING gin(to_tsvector('simple', lower(unaccent(
+		 ON posts USING gin(to_tsvector('simple', lower(immutable_unaccent(
 		 	coalesce(title, '') || ' ' || 
 		 	coalesce(preview_content, '')))));`,
 
@@ -46,12 +54,12 @@ func createFullTextSearchIndexes() error {
 		`CREATE INDEX IF NOT EXISTS idx_posts_views ON posts(views);`,
 		`CREATE INDEX IF NOT EXISTS idx_posts_user_id ON posts(user_id);`,
 
-		// Additional indexes for accent-insensitive search
+		// Additional indexes for accent-insensitive search (using immutable wrapper)
 		`CREATE INDEX IF NOT EXISTS idx_posts_title_unaccent 
-		 ON posts USING gin(to_tsvector('simple', lower(unaccent(coalesce(title, '')))));`,
+		 ON posts USING gin(to_tsvector('simple', lower(immutable_unaccent(coalesce(title, '')))));`,
 
 		`CREATE INDEX IF NOT EXISTS idx_posts_preview_content_unaccent 
-		 ON posts USING gin(to_tsvector('simple', lower(unaccent(coalesce(preview_content, '')))));`,
+		 ON posts USING gin(to_tsvector('simple', lower(immutable_unaccent(coalesce(preview_content, '')))));`,
 	}
 
 	for _, query := range queries {
@@ -97,8 +105,8 @@ func SearchPosts(query string, page int, limit int) ([]models.SearchPost, int, e
 			baseQuery = baseQuery.Where(`
 				(to_tsvector('simple', lower(coalesce(posts.title, '') || ' ' || 
 				 coalesce(posts.preview_content, ''))) @@ plainto_tsquery('simple', ?) OR
-				 lower(unaccent(posts.title)) LIKE ? OR 
-				 lower(unaccent(posts.preview_content)) LIKE ? OR
+				 lower(immutable_unaccent(posts.title)) LIKE ? OR 
+				 lower(immutable_unaccent(posts.preview_content)) LIKE ? OR
 				 posts.title ILIKE ? OR 
 				 posts.preview_content ILIKE ?)`,
 				normalizedQuery, "%"+normalizedQuery+"%", "%"+normalizedQuery+"%",
@@ -182,7 +190,7 @@ func GetSearchSuggestions(query string, limit int) ([]models.SearchSuggestion, e
 		SELECT DISTINCT title, 
 		       ts_rank(to_tsvector('simple', lower(title)), plainto_tsquery('simple', ?)) as score
 		FROM posts 
-		WHERE lower(unaccent(title)) LIKE ? 
+		WHERE lower(immutable_unaccent(title)) LIKE ? 
 		   OR title ILIKE ?
 		   OR to_tsvector('simple', lower(title)) @@ plainto_tsquery('simple', ?)
 		ORDER BY score DESC, title

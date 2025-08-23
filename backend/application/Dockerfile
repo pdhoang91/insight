@@ -26,14 +26,9 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build \
 # Runtime stage
 FROM alpine:3.19 AS runner
 
-# Cài đặt bash và ca-certificates
-RUN apk --no-cache add bash ca-certificates tzdata && \
+# Cài đặt ca-certificates và tạo user
+RUN apk --no-cache add ca-certificates tzdata && \
     adduser -D -s /bin/sh appuser
-
-# Sao chép wait-for-it.sh và entrypoint.sh, cấp quyền thực thi
-COPY wait-for-it.sh /wait-for-it.sh
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /wait-for-it.sh /entrypoint.sh
 
 # Thiết lập môi trường làm việc
 WORKDIR /app
@@ -44,9 +39,12 @@ COPY --from=builder /app/management .
 # Tạo thư mục uploads với quyền phù hợp
 RUN mkdir -p uploads && chown -R appuser:appuser /app
 
+# Chuyển sang user không phải root
+USER appuser
+
 # Expose cổng
 EXPOSE 81
 
-# Chạy ứng dụng sau khi PostgreSQL và Elasticsearch đã sẵn sàng
-ENTRYPOINT ["/entrypoint.sh"]
+# Chạy ứng dụng trực tiếp (healthcheck sẽ đảm bảo DB ready)
+CMD ["./management"]
 

@@ -1,33 +1,34 @@
 
 services:
-#  nginx:
-#    image: nginx:latest
-#    container_name: nginx_proxy
-#    ports:
-#      - "80:80"        # HTTP for development and production
-#      - "443:443"      # HTTPS for production
-#    volumes:
-#      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-#      - ./nginx/certs:/etc/nginx/certs:ro                  # SSL certificates (optional)
-#      - ./certbot/www:/var/www/certbot:ro                  # Let's Encrypt ACME challenge
-#    depends_on:
-#      - frontend
-#      - application
-#      - search-service
-#    networks:
-#      - app-network
+  nginx:
+    image: nginx:latest
+    container_name: nginx_proxy
+    ports:
+      - "80:80"        # HTTP for development and production
+      - "443:443"      # HTTPS for production
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/certs:/etc/nginx/certs:ro                  # SSL certificates (optional)
+      - ./certbot/www:/var/www/certbot:ro                  # Let's Encrypt ACME challenge
+    depends_on:
+      - frontend
+      - application
+      - search-service
+    networks:
+      - app-network
 
   # Certbot service for SSL certificate management
-#  certbot:
-#    image: certbot/certbot:latest
-#    container_name: certbot
-#    volumes:
-#      - ./certbot/conf:/etc/letsencrypt
-#      - ./certbot/www:/var/www/certbot
-#    # This service runs on-demand, not continuously
-#    command: echo "Certbot service ready for SSL certificate operations"
-#    networks:
-#      - app-network
+  certbot:
+    image: certbot/certbot:latest
+    container_name: certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    # This service runs on-demand, not continuously
+    entrypoint: /bin/sh
+    command: ["-c", "echo 'Certbot service ready for SSL certificate operations' && sleep infinity"]
+    networks:
+      - app-network
 
   db:
     image: postgres:13
@@ -45,6 +46,39 @@ services:
       - db-data:/var/lib/postgresql/data
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-q", "-d", "postgres", "-U", "postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 30s
+
+  # Database Migration Service
+  db-migrate:
+    container_name: db_migrate
+    build:
+      context: ./backend/migrate
+      cache_from:
+        - golang:1.23-alpine
+        - alpine:3.19
+      target: runner
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Database connection using same variables as other services
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=postgres
+      - DB_SSLMODE=disable
+      - MIGRATIONS_DIR=/migrations/scripts
+    volumes:
+      - ./backend/migrate:/migrations:ro  # Read-only mount
+    networks:
+      - app-network
+    restart: "no"  # Run once and exit
 
   application:
     container_name: application
@@ -61,7 +95,8 @@ services:
     volumes:
       - ./backend/application/uploads:/app/uploads  # Mount thư mục uploads của backend
     depends_on:
-      - db
+      db:
+        condition: service_healthy
       #- fluentd
     environment:
       - DB_HOST=db
@@ -110,7 +145,10 @@ services:
     # volumes:
     #   - ./search-service/images:/app/images/uploads  # Mount thư mục uploads của image-service
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      db-migrate:
+        condition: service_completed_successfully
       #- fluentd
     environment:
       - DB_HOST=db

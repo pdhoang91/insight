@@ -1,33 +1,23 @@
 // hooks/useClapsCount.js
 import useSWR from 'swr';
-import { getClapsCount } from '../services/activityService';
+import { getClapInfo } from '../services/activityService';
 
 export const useClapsCount = (type, id) => {
-  const key = `/claps?type=${type}&id=${id}`;
-  const { data, error, mutate } = useSWR(
-    key,
-    () => getClapsCount(type, id)
+  const clapInfoKey = `/claps/info?type=${type}&id=${id}`;
+  
+  const { data: clapInfo, error, mutate } = useSWR(
+    clapInfoKey,
+    () => getClapInfo(type, id)
   );
 
-  // Log chỉ khi dữ liệu không phải là một số hoặc object chứa clap_count
-  if (data && !(typeof data === 'number' || (typeof data === 'object' && typeof data.clap_count === 'number'))) {
-
-  }
-
-
-
-  let clapsCount = 0;
-  if (typeof data === 'number') {
-    clapsCount = data;
-  } else if (typeof data === 'object' && typeof data.clap_count === 'number') {
-    clapsCount = data.clap_count;
-  }
+  const clapsCount = clapInfo?.clapCount || 0;
+  const hasClapped = clapInfo?.hasClapped || false;
 
   return {
     clapsCount,
-    loading: !error && !data,
+    loading: !error && !clapInfo,
     isError: error,
-    hasClapped: clapsCount > 0,
+    hasClapped,
     mutate,
   };
 };
