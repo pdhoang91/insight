@@ -3,18 +3,32 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaTimes } from 'react-icons/fa';
-import { uploadImage } from '../../services/imageService';
+import { updateProfileWithAvatar } from '../../services/imageService';
 
 const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
   const [name, setName] = useState(userProfile.name || '');
   const [bio, setBio] = useState(userProfile.bio || '');
   const [avatarUrl, setAvatarUrl] = useState(userProfile.avatar_url || '');
   const [isUploading, setIsUploading] = useState(false);
+  const [avatarFile, setAvatarFile] = useState(null);
   const fileInputRef = useRef(null);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onUpdate({ name, bio, avatar_url: avatarUrl });
+    setIsUploading(true);
+    
+    try {
+      const profileData = { name, bio, avatar_url: avatarUrl };
+      const response = await updateProfileWithAvatar(profileData, avatarFile);
+      
+      // Call the parent update callback with the response data
+      onUpdate(response.data);
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+      alert("Không thể cập nhật profile. Vui lòng thử lại.");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleAvatarUploadClick = () => {
@@ -23,20 +37,16 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
     }
   };
 
-  const handleFileChange = async (e) => {
+  const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    setIsUploading(true);
-    try {
-      const imageUrl = await uploadImage(file, "avatar");
-      setAvatarUrl(imageUrl);
-    } catch (error) {
-      console.error("Failed to upload avatar:", error);
-      alert("Không thể tải lên hình ảnh. Vui lòng thử lại.");
-    } finally {
-      setIsUploading(false);
-    }
+    // Store the file for upload when form is submitted
+    setAvatarFile(file);
+    
+    // Create preview URL
+    const previewUrl = URL.createObjectURL(file);
+    setAvatarUrl(previewUrl);
   };
 
   return (

@@ -181,3 +181,86 @@ func (*Post) CountByCategory(db *gorm.DB, categoryID uuid.UUID) (int64, error) {
 		Count(&count).Error
 	return count, err
 }
+
+// CalculateCounts calculates and sets clap_count and comments_count for the post
+func (p *Post) CalculateCounts(db *gorm.DB) error {
+	// Calculate clap count using SUM(count)
+	var clapCount int64
+	if err := db.Model(&UserActivity{}).
+		Where("post_id = ? AND action_type = ?", p.ID, "clap_post").
+		Select("COALESCE(SUM(count), 0)").Row().Scan(&clapCount); err != nil {
+		return err
+	}
+	p.ClapCount = uint64(clapCount)
+
+	// Calculate comments count
+	var commentCount int64
+	if err := db.Model(&Comment{}).
+		Where("post_id = ?", p.ID).
+		Count(&commentCount).Error; err != nil {
+		return err
+	}
+	p.CommentsCount = uint64(commentCount)
+
+	return nil
+}
+
+// CalculateCountsForPosts calculates counts for multiple posts efficiently
+func CalculateCountsForPosts(db *gorm.DB, posts []*Post) error {
+	if len(posts) == 0 {
+		return nil
+	}
+
+	// Extract post IDs
+	postIDs := make([]uuid.UUID, len(posts))
+	for i, post := range posts {
+		postIDs[i] = post.ID
+	}
+
+	// Bulk query for clap counts using SUM(count)
+	type ClapCountResult struct {
+		PostID    uuid.UUID `json:"post_id"`
+		ClapCount int64     `json:"clap_count"`
+	}
+	var clapCounts []ClapCountResult
+	if err := db.Model(&UserActivity{}).
+		Select("post_id, COALESCE(SUM(count), 0) as clap_count").
+		Where("post_id IN ? AND action_type = ?", postIDs, "clap_post").
+		Group("post_id").
+		Scan(&clapCounts).Error; err != nil {
+		return err
+	}
+
+	// Bulk query for comment counts
+	type CommentCountResult struct {
+		PostID       uuid.UUID `json:"post_id"`
+		CommentCount int64     `json:"comment_count"`
+	}
+	var commentCounts []CommentCountResult
+	if err := db.Model(&Comment{}).
+		Select("post_id, COUNT(*) as comment_count").
+		Where("post_id IN ?", postIDs).
+		Group("post_id").
+		Scan(&commentCounts).Error; err != nil {
+		return err
+	}
+
+	// Create maps for quick lookup
+	clapCountMap := make(map[uuid.UUID]int64)
+	for _, result := range clapCounts {
+		clapCountMap[result.PostID] = result.ClapCount
+	}
+
+	commentCountMap := make(map[uuid.UUID]int64)
+	for _, result := range commentCounts {
+		commentCountMap[result.PostID] = result.CommentCount
+	}
+
+	// Assign counts to posts
+	for _, post := range posts {
+		post.ClapCount = uint64(clapCountMap[post.ID])
+		post.CommentsCount = uint64(commentCountMap[post.ID])
+	}
+
+	return nil
+}

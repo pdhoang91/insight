@@ -39,6 +39,46 @@ func (c *Controller) CreateComment(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"data": response})
 }
 
+// CreateCommentForPost creates a comment for a specific post (alternative endpoint)
+func (c *Controller) CreateCommentForPost(ctx *gin.Context) {
+	// Get post ID from URL parameter
+	postIDStr := ctx.Param("id")
+	postID, err := uuid.FromString(postIDStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid post ID"})
+		return
+	}
+
+	userIDStr, exists := ctx.Get("userID")
+	if !exists {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+		return
+	}
+
+	userID, err := uuid.FromString(userIDStr.(string))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	var req dto.CreateCommentRequest
+	if err := ctx.ShouldBindJSON(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	// Override post ID from URL
+	req.PostID = postID.String()
+
+	response, err := c.service.CreateComment(userID, &req)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{"data": response})
+}
+
 // GetComment retrieves a comment by ID
 func (c *Controller) GetComment(ctx *gin.Context) {
 	idStr := ctx.Param("id")
@@ -59,7 +99,7 @@ func (c *Controller) GetComment(ctx *gin.Context) {
 
 // GetPostComments retrieves comments for a post
 func (c *Controller) GetPostComments(ctx *gin.Context) {
-	postIDStr := ctx.Param("post_id")
+	postIDStr := ctx.Param("id")
 	postID, err := uuid.FromString(postIDStr)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid post ID"})
@@ -80,7 +120,7 @@ func (c *Controller) GetPostComments(ctx *gin.Context) {
 		req.Limit = 10 // Default limit
 	}
 
-	responses, total, _, err := c.service.GetPostComments(postID, &req)
+	responses, total, totalCommentReply, err := c.service.GetPostComments(postID, &req)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -92,10 +132,11 @@ func (c *Controller) GetPostComments(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"data":        responses,
-		"total_count": total,
-		"limit":       req.Limit,
-		"offset":      req.Offset,
+		"data":                responses,
+		"total_count":         total,
+		"total_comment_reply": totalCommentReply,
+		"limit":               req.Limit,
+		"offset":              req.Offset,
 	})
 }
 

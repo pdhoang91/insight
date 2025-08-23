@@ -3,8 +3,10 @@ package controller
 import (
 	"fmt"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pdhoang91/blog/constants"
@@ -116,10 +118,32 @@ func (c *Controller) GetProfile(ctx *gin.Context) {
 		return
 	}
 
+	// Debug log for /api/me endpoint
+	log.Printf("DEBUG /api/me response: ID=%s, Username='%s', Email='%s'",
+		response.ID, response.Username, response.Email)
+
 	ctx.JSON(http.StatusOK, gin.H{"data": response})
 }
 
-// UpdateProfile updates current user's profile
+// GetUserProfileByUsername retrieves user profile by username (public endpoint)
+func (c *Controller) GetUserProfileByUsername(ctx *gin.Context) {
+	username := ctx.Param("username")
+	if username == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Username is required"})
+		return
+	}
+
+	// Get user by username
+	user, err := c.service.GetUserByUsername(username)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"data": user})
+}
+
+// UpdateProfile updates current user's profile (supports both JSON and multipart form for avatar)
 func (c *Controller) UpdateProfile(ctx *gin.Context) {
 	userIDStr, exists := ctx.Get("userID")
 	if !exists {
@@ -133,13 +157,38 @@ func (c *Controller) UpdateProfile(ctx *gin.Context) {
 		return
 	}
 
+	// Check content type to determine how to parse request
+	contentType := ctx.GetHeader("Content-Type")
+
 	var req dto.UpdateUserRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		return
+	var avatarFile *multipart.FileHeader
+
+	if strings.Contains(contentType, "multipart/form-data") {
+		// Handle multipart form (with potential avatar upload)
+		ctx.Request.Body = http.MaxBytesReader(ctx.Writer, ctx.Request.Body, 10<<20) // 10MB limit
+		if err := ctx.Request.ParseMultipartForm(10 << 20); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid form data"})
+			return
+		}
+
+		// Parse form fields
+		req.Name = ctx.PostForm("name")
+		req.Bio = ctx.PostForm("bio")
+		req.AvatarURL = ctx.PostForm("avatar_url") // Keep existing if no new avatar
+
+		// Check for avatar file
+		if file, err := ctx.FormFile("avatar"); err == nil && file.Size > 0 {
+			avatarFile = file
+		}
+	} else {
+		// Handle JSON request (traditional update)
+		if err := ctx.ShouldBindJSON(&req); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+			return
+		}
 	}
 
-	response, err := c.service.UpdateProfile(userID, &req)
+	response, err := c.service.UpdateProfileWithAvatar(ctx.Request.Context(), userID, &req, avatarFile)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

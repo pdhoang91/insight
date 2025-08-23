@@ -22,13 +22,13 @@ func (s *InsightService) GetPostComments(postID uuid.UUID, req *dto.PaginationRe
 
 	// Count total comments
 	var totalComments int64
-	if err := s.DBR2.Model(&entities.Comment{}).Where("post_id = ?", postID).Count(&totalComments).Error; err != nil {
+	if err := s.DB.Model(&entities.Comment{}).Where("post_id = ?", postID).Count(&totalComments).Error; err != nil {
 		return nil, 0, 0, errors.New("internal server error")
 	}
 
-	// Get comments with pagination
+	// Get comments with pagination and preload replies with their users
 	var comments []*entities.Comment
-	if err := s.DBR2.Preload("User").
+	if err := s.DB.Preload("User").Preload("Replies.User").
 		Where("post_id = ?", postID).
 		Order("created_at DESC").
 		Limit(req.Limit).
@@ -39,19 +39,19 @@ func (s *InsightService) GetPostComments(postID uuid.UUID, req *dto.PaginationRe
 
 	// Count total replies for all comments
 	var totalReplies int64
-	if err := s.DBR2.Model(&entities.Reply{}).Where("post_id = ?", postID).Count(&totalReplies).Error; err != nil {
+	if err := s.DB.Model(&entities.Reply{}).Where("post_id = ?", postID).Count(&totalReplies).Error; err != nil {
 		return nil, 0, 0, errors.New("internal server error")
+	}
+
+	// Optimize counts calculation with bulk queries to avoid N+1 problem
+	if err := s.calculateCommentsAndRepliesCounts(comments); err != nil {
+		// Log error but don't fail the request
+		// TODO: Use proper logger
 	}
 
 	// Convert to response format
 	var responses []*dto.CommentResponse
 	for _, comment := range comments {
-		// Count replies for this comment
-		var repliesCount int64
-		if err := s.DBR2.Model(&entities.Reply{}).Where("comment_id = ?", comment.ID).Count(&repliesCount).Error; err == nil {
-			comment.RepliesCount = uint64(repliesCount)
-		}
-
 		responses = append(responses, dto.NewCommentResponse(comment))
 	}
 
@@ -309,13 +309,13 @@ func (s *InsightService) GetCommentReplies(commentID uuid.UUID, req *dto.Paginat
 
 	// Count total replies
 	var total int64
-	if err := s.DBR2.Model(&entities.Reply{}).Where("comment_id = ?", commentID).Count(&total).Error; err != nil {
+	if err := s.DB.Model(&entities.Reply{}).Where("comment_id = ?", commentID).Count(&total).Error; err != nil {
 		return nil, 0, errors.New("internal server error")
 	}
 
 	// Get replies with pagination
 	var replies []*entities.Reply
-	if err := s.DBR2.Preload("User").
+	if err := s.DB.Preload("User").
 		Where("comment_id = ?", commentID).
 		Order("created_at ASC").
 		Limit(req.Limit).
@@ -335,6 +335,96 @@ func (s *InsightService) GetCommentReplies(commentID uuid.UUID, req *dto.Paginat
 
 // ==================== HELPER METHODS ====================
 
+// calculateCommentsAndRepliesCounts calculates clap counts and reply counts efficiently
+func (s *InsightService) calculateCommentsAndRepliesCounts(comments []*entities.Comment) error {
+	if len(comments) == 0 {
+		return nil
+	}
+
+	// Extract comment IDs and reply IDs
+	commentIDs := make([]uuid.UUID, len(comments))
+	var replyIDs []uuid.UUID
+
+	for i, comment := range comments {
+		commentIDs[i] = comment.ID
+		for _, reply := range comment.Replies {
+			replyIDs = append(replyIDs, reply.ID)
+		}
+	}
+
+	// Bulk query for comment reply counts
+	type ReplyCountResult struct {
+		CommentID  uuid.UUID `json:"comment_id"`
+		ReplyCount int64     `json:"reply_count"`
+	}
+	var replyCounts []ReplyCountResult
+	if err := s.DB.Model(&entities.Reply{}).
+		Select("comment_id, COUNT(*) as reply_count").
+		Where("comment_id IN ?", commentIDs).
+		Group("comment_id").
+		Scan(&replyCounts).Error; err != nil {
+		return err
+	}
+
+	// Bulk query for comment clap counts
+	type ClapCountResult struct {
+		CommentID uuid.UUID `json:"comment_id"`
+		ClapCount int64     `json:"clap_count"`
+	}
+	var commentClaps []ClapCountResult
+	if err := s.DB.Model(&entities.UserActivity{}).
+		Select("comment_id, COALESCE(SUM(count), 0) as clap_count").
+		Where("comment_id IN ? AND action_type = ?", commentIDs, "clap_comment").
+		Group("comment_id").
+		Scan(&commentClaps).Error; err != nil {
+		return err
+	}
+
+	// Bulk query for reply clap counts (if there are replies)
+	var replyClaps []struct {
+		ReplyID   uuid.UUID `json:"reply_id"`
+		ClapCount int64     `json:"clap_count"`
+	}
+	if len(replyIDs) > 0 {
+		if err := s.DB.Model(&entities.UserActivity{}).
+			Select("reply_id, COALESCE(SUM(count), 0) as clap_count").
+			Where("reply_id IN ? AND action_type = ?", replyIDs, "clap_reply").
+			Group("reply_id").
+			Scan(&replyClaps).Error; err != nil {
+			return err
+		}
+	}
+
+	// Create maps for quick lookup
+	replyCountMap := make(map[uuid.UUID]int64)
+	for _, result := range replyCounts {
+		replyCountMap[result.CommentID] = result.ReplyCount
+	}
+
+	commentClapMap := make(map[uuid.UUID]int64)
+	for _, result := range commentClaps {
+		commentClapMap[result.CommentID] = result.ClapCount
+	}
+
+	replyClapMap := make(map[uuid.UUID]int64)
+	for _, result := range replyClaps {
+		replyClapMap[result.ReplyID] = result.ClapCount
+	}
+
+	// Assign counts to comments and replies
+	for _, comment := range comments {
+		comment.RepliesCount = uint64(replyCountMap[comment.ID])
+		comment.ClapCount = uint64(commentClapMap[comment.ID])
+
+		// Assign clap counts to replies
+		for i := range comment.Replies {
+			comment.Replies[i].ClapCount = uint64(replyClapMap[comment.Replies[i].ID])
+		}
+	}
+
+	return nil
+}
+
 // createUserActivity creates a user activity record
 func (s *InsightService) createUserActivity(userID uuid.UUID, actionType string, postID uuid.UUID) {
 	activity := &entities.UserActivity{
@@ -342,6 +432,7 @@ func (s *InsightService) createUserActivity(userID uuid.UUID, actionType string,
 		UserID:     userID,
 		PostID:     &postID,
 		ActionType: actionType,
+		Count:      1,
 		CreatedAt:  time.Now(),
 	}
 
@@ -354,7 +445,7 @@ func (s *InsightService) createUserActivity(userID uuid.UUID, actionType string,
 
 // GetComment retrieves a comment by ID
 func (s *InsightService) GetComment(id uuid.UUID) (*dto.CommentResponse, error) {
-	comment, err := s.Comment.FindByID(s.DBR2, id)
+	comment, err := s.Comment.FindByID(s.DB, id)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, errors.New("not found")
