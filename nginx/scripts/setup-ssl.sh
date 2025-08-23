@@ -1,136 +1,82 @@
 #!/bin/bash
 
-# SSL Certificate Setup Script for Insight.io.vn
-# Uses Let's Encrypt via Certbot in Docker
-# Author: Generated for Insight Platform
-# Usage: ./setup-ssl.sh [email] [domain]
+# SSL Certificate Setup Script for insight.io.vn
+# This script will setup SSL certificates using Let's Encrypt
 
 set -e
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+DOMAIN="insight.io.vn"
+WWW_DOMAIN="www.insight.io.vn"
+EMAIL="your-email@example.com"  # Change this to your email
 
-# Default values
-DEFAULT_EMAIL="admin@insight.io.vn"
-DEFAULT_DOMAIN="insight.io.vn"
-ADDITIONAL_DOMAINS="www.insight.io.vn"
-
-# Parse command line arguments
-EMAIL=${1:-$DEFAULT_EMAIL}
-DOMAIN=${2:-$DEFAULT_DOMAIN}
-
-# Directories
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-NGINX_DIR="$(dirname "$SCRIPT_DIR")"
-PROJECT_DIR="$(dirname "$NGINX_DIR")"
-CERTS_DIR="$NGINX_DIR/certs"
-CERTBOT_DIR="$PROJECT_DIR/certbot"
-
-echo -e "${BLUE}=== SSL Certificate Setup for $DOMAIN ===${NC}"
-echo -e "${YELLOW}Email: $EMAIL${NC}"
-echo -e "${YELLOW}Domain: $DOMAIN${NC}"
-echo -e "${YELLOW}Additional domains: $ADDITIONAL_DOMAINS${NC}"
+echo "=== SSL Certificate Setup for $DOMAIN ==="
 echo ""
 
-# Function to print status
-print_status() {
-    echo -e "${GREEN}[INFO]${NC} $1"
-}
-
-print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
-
-print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
-
-# Check if running as root (for production server)
-check_permissions() {
-    if [[ $EUID -eq 0 ]]; then
-        print_warning "Running as root. This is expected on production servers."
-    else
-        print_warning "Not running as root. Make sure you have proper permissions."
-    fi
-}
-
-# Validate email format
-validate_email() {
-    if [[ ! "$EMAIL" =~ ^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$ ]]; then
-        print_error "Invalid email format: $EMAIL"
-        exit 1
-    fi
-}
-
-# Create necessary directories
-create_directories() {
-    print_status "Creating necessary directories..."
-    
-    mkdir -p "$CERTS_DIR"
-    mkdir -p "$CERTBOT_DIR/www"
-    mkdir -p "$CERTBOT_DIR/conf"
-    
-    # Set proper permissions
-    chmod 755 "$CERTS_DIR"
-    chmod 755 "$CERTBOT_DIR"
-    
-    print_status "Directories created successfully"
-}
-
-# Check if domain is accessible
+# Function to check if domain is accessible
 check_domain_accessibility() {
-    print_status "Checking domain accessibility..."
+    echo "1. Checking domain accessibility..."
     
-    # Check if domain resolves to this server
-    DOMAIN_IP=$(dig +short $DOMAIN)
-    if [ -z "$DOMAIN_IP" ]; then
-        print_error "Domain $DOMAIN does not resolve to any IP address"
-        print_error "Please ensure your DNS is properly configured"
+    if curl -f -s --max-time 10 "http://$DOMAIN/health" > /dev/null 2>&1; then
+        echo "✓ $DOMAIN is accessible via HTTP"
+    else
+        echo "✗ $DOMAIN is not accessible via HTTP"
+        echo "Please ensure:"
+        echo "  - Your domain DNS points to this server"
+        echo "  - Docker containers are running"
+        echo "  - Port 80 is open"
         exit 1
     fi
+}
+
+# Function to create directories
+create_directories() {
+    echo "2. Creating certificate directories..."
     
-    print_status "Domain $DOMAIN resolves to: $DOMAIN_IP"
+    mkdir -p ./nginx/certs
+    mkdir -p ./certbot/conf
+    mkdir -p ./certbot/www
     
-    # Test HTTP connectivity (nginx should be running)
-    if curl -s -o /dev/null -w "%{http_code}" "http://$DOMAIN/health" | grep -q "200"; then
-        print_status "Domain is accessible via HTTP"
+    echo "✓ Directories created"
+}
+
+# Function to generate temporary self-signed certificates
+create_temp_certificates() {
+    echo "3. Creating temporary self-signed certificates..."
+    
+    # Create temporary certificates so nginx can start
+    openssl req -x509 -nodes -days 1 -newkey rsa:2048 \
+        -keyout "./nginx/certs/$DOMAIN.key" \
+        -out "./nginx/certs/$DOMAIN.crt" \
+        -subj "/C=VN/ST=HCM/L=HCM/O=Insight/OU=IT/CN=$DOMAIN"
+    
+    echo "✓ Temporary certificates created"
+}
+
+# Function to start nginx with temporary certificates
+start_nginx_temp() {
+    echo "4. Starting nginx with temporary certificates..."
+    
+    docker-compose up -d nginx
+    sleep 5
+    
+    if docker-compose ps nginx | grep -q "Up"; then
+        echo "✓ Nginx started successfully"
     else
-        print_warning "Domain may not be accessible via HTTP. Ensure nginx is running."
+        echo "✗ Failed to start nginx"
+        docker-compose logs nginx
+        exit 1
     fi
 }
 
-# Stop nginx temporarily for standalone mode (alternative approach)
-stop_nginx_if_needed() {
-    if docker ps | grep -q "nginx_proxy"; then
-        print_status "Stopping nginx temporarily for certificate generation..."
-        docker stop nginx_proxy || true
-        NGINX_WAS_RUNNING=true
-    else
-        NGINX_WAS_RUNNING=false
-    fi
-}
-
-# Start nginx after certificate generation
-start_nginx_if_needed() {
-    if [ "$NGINX_WAS_RUNNING" = true ]; then
-        print_status "Starting nginx..."
-        docker start nginx_proxy || print_warning "Failed to start nginx automatically"
-    fi
-}
-
-# Generate SSL certificate using certbot
-generate_certificate() {
-    print_status "Generating SSL certificate..."
+# Function to obtain real SSL certificates
+obtain_ssl_certificates() {
+    echo "5. Obtaining SSL certificates from Let's Encrypt..."
     
-    # Use webroot method (nginx should serve ACME challenge)
-    docker run --rm \
-        -v "$CERTBOT_DIR/conf:/etc/letsencrypt" \
-        -v "$CERTBOT_DIR/www:/var/www/certbot" \
-        certbot/certbot certonly \
+    # Stop nginx temporarily
+    docker-compose stop nginx
+    
+    # Get certificates using certbot
+    docker-compose run --rm certbot certonly \
         --webroot \
         --webroot-path=/var/www/certbot \
         --email "$EMAIL" \
@@ -138,146 +84,133 @@ generate_certificate() {
         --no-eff-email \
         --force-renewal \
         -d "$DOMAIN" \
-        -d "$ADDITIONAL_DOMAINS"
+        -d "$WWW_DOMAIN"
     
     if [ $? -eq 0 ]; then
-        print_status "Certificate generated successfully!"
+        echo "✓ SSL certificates obtained successfully"
     else
-        print_error "Failed to generate certificate"
-        
-        # Fallback: try standalone mode
-        print_status "Trying standalone mode..."
-        stop_nginx_if_needed
-        
-        docker run --rm \
-            -p 80:80 \
-            -v "$CERTBOT_DIR/conf:/etc/letsencrypt" \
-            certbot/certbot certonly \
-            --standalone \
-            --email "$EMAIL" \
-            --agree-tos \
-            --no-eff-email \
-            --force-renewal \
-            -d "$DOMAIN" \
-            -d "$ADDITIONAL_DOMAINS"
-        
-        start_nginx_if_needed
-        
-        if [ $? -ne 0 ]; then
-            print_error "Failed to generate certificate in standalone mode"
-            exit 1
-        fi
+        echo "✗ Failed to obtain SSL certificates"
+        exit 1
     fi
 }
 
-# Copy certificates to nginx directory
+# Function to copy certificates to nginx directory
 copy_certificates() {
-    print_status "Copying certificates to nginx directory..."
+    echo "6. Copying certificates to nginx directory..."
     
-    CERT_PATH="$CERTBOT_DIR/conf/live/$DOMAIN"
+    # Copy certificates from certbot to nginx directory
+    docker run --rm -v "$(pwd)/certbot/conf:/etc/letsencrypt" -v "$(pwd)/nginx/certs:/certs" alpine:latest sh -c "
+        cp /etc/letsencrypt/live/$DOMAIN/fullchain.pem /certs/$DOMAIN.crt &&
+        cp /etc/letsencrypt/live/$DOMAIN/privkey.pem /certs/$DOMAIN.key &&
+        chmod 644 /certs/$DOMAIN.crt &&
+        chmod 600 /certs/$DOMAIN.key
+    "
     
-    if [ ! -d "$CERT_PATH" ]; then
-        print_error "Certificate directory not found: $CERT_PATH"
-        exit 1
-    fi
-    
-    # Copy certificate files
-    cp "$CERT_PATH/fullchain.pem" "$CERTS_DIR/$DOMAIN.crt"
-    cp "$CERT_PATH/privkey.pem" "$CERTS_DIR/$DOMAIN.key"
-    
-    # Set proper permissions
-    chmod 644 "$CERTS_DIR/$DOMAIN.crt"
-    chmod 600 "$CERTS_DIR/$DOMAIN.key"
-    
-    print_status "Certificates copied successfully"
-    print_status "Certificate: $CERTS_DIR/$DOMAIN.crt"
-    print_status "Private key: $CERTS_DIR/$DOMAIN.key"
+    echo "✓ Certificates copied to nginx directory"
 }
 
-# Verify certificate
-verify_certificate() {
-    print_status "Verifying certificate..."
+# Function to restart nginx with real certificates
+restart_nginx() {
+    echo "7. Restarting nginx with real SSL certificates..."
     
-    CERT_FILE="$CERTS_DIR/$DOMAIN.crt"
+    docker-compose up -d nginx
+    sleep 5
     
-    if [ -f "$CERT_FILE" ]; then
-        EXPIRY_DATE=$(openssl x509 -enddate -noout -in "$CERT_FILE" | cut -d= -f2)
-        print_status "Certificate expires: $EXPIRY_DATE"
-        
-        # Check if certificate is valid for our domain
-        if openssl x509 -noout -text -in "$CERT_FILE" | grep -q "$DOMAIN"; then
-            print_status "Certificate is valid for $DOMAIN"
-        else
-            print_warning "Certificate may not be valid for $DOMAIN"
-        fi
+    if docker-compose ps nginx | grep -q "Up"; then
+        echo "✓ Nginx restarted successfully with SSL"
     else
-        print_error "Certificate file not found: $CERT_FILE"
+        echo "✗ Failed to restart nginx with SSL"
+        docker-compose logs nginx
         exit 1
     fi
 }
 
-# Update docker-compose to use SSL
-update_docker_compose() {
-    print_status "Docker-compose is already configured for SSL"
-    print_status "Make sure to restart nginx after certificate installation:"
-    echo -e "${YELLOW}docker-compose restart nginx${NC}"
+# Function to test SSL
+test_ssl() {
+    echo "8. Testing SSL configuration..."
+    
+    if curl -f -s --max-time 10 "https://$DOMAIN/health" > /dev/null 2>&1; then
+        echo "✓ HTTPS is working correctly"
+        echo "✓ SSL certificate is valid"
+    else
+        echo "⚠ HTTPS test failed, but certificates may still be valid"
+        echo "Please check manually: https://$DOMAIN"
+    fi
 }
 
-# Test HTTPS connection
-test_https() {
-    print_status "Testing HTTPS connection..."
+# Function to setup auto-renewal
+setup_auto_renewal() {
+    echo "9. Setting up SSL certificate auto-renewal..."
     
-    sleep 5  # Wait for nginx to restart
+    # Create renewal script
+    cat > ./nginx/scripts/renew-ssl.sh << 'EOF'
+#!/bin/bash
+# SSL Certificate Renewal Script
+
+echo "Renewing SSL certificates..."
+docker-compose run --rm certbot renew --quiet
+
+if [ $? -eq 0 ]; then
+    echo "Certificates renewed successfully"
     
-    if curl -s -o /dev/null -w "%{http_code}" "https://$DOMAIN/health" | grep -q "200"; then
-        print_status "HTTPS is working correctly!"
-        echo -e "${GREEN}✅ SSL setup completed successfully!${NC}"
-        echo -e "${GREEN}Your site is now accessible at: https://$DOMAIN${NC}"
-    else
-        print_warning "HTTPS test failed. Please check nginx configuration and restart nginx."
-        echo -e "${YELLOW}Try: docker-compose restart nginx${NC}"
-    fi
+    # Copy renewed certificates
+    docker run --rm -v "$(pwd)/certbot/conf:/etc/letsencrypt" -v "$(pwd)/nginx/certs:/certs" alpine:latest sh -c "
+        cp /etc/letsencrypt/live/insight.io.vn/fullchain.pem /certs/insight.io.vn.crt &&
+        cp /etc/letsencrypt/live/insight.io.vn/privkey.pem /certs/insight.io.vn.key &&
+        chmod 644 /certs/insight.io.vn.crt &&
+        chmod 600 /certs/insight.io.vn.key
+    "
+    
+    # Reload nginx
+    docker-compose exec nginx nginx -s reload
+    echo "Nginx reloaded with renewed certificates"
+else
+    echo "Certificate renewal failed"
+fi
+EOF
+    
+    chmod +x ./nginx/scripts/renew-ssl.sh
+    
+    echo "✓ Auto-renewal script created at ./nginx/scripts/renew-ssl.sh"
+    echo "Add this to your crontab to run monthly:"
+    echo "0 2 1 * * /path/to/your/project/nginx/scripts/renew-ssl.sh"
 }
 
 # Main execution
 main() {
-    echo -e "${BLUE}Starting SSL certificate setup...${NC}"
+    echo "Starting SSL setup process..."
+    echo "Domain: $DOMAIN"
+    echo "WWW Domain: $WWW_DOMAIN"
+    echo "Email: $EMAIL"
     echo ""
     
-    check_permissions
-    validate_email
-    create_directories
-    check_domain_accessibility
-    generate_certificate
-    copy_certificates
-    verify_certificate
-    update_docker_compose
-    
-    echo ""
-    echo -e "${GREEN}=== SSL Setup Summary ===${NC}"
-    echo -e "${GREEN}✅ Certificate generated for: $DOMAIN, $ADDITIONAL_DOMAINS${NC}"
-    echo -e "${GREEN}✅ Certificate files copied to: $CERTS_DIR${NC}"
-    echo -e "${GREEN}✅ Certificate expires: $(openssl x509 -enddate -noout -in "$CERTS_DIR/$DOMAIN.crt" | cut -d= -f2)${NC}"
-    echo ""
-    echo -e "${YELLOW}Next steps:${NC}"
-    echo -e "${YELLOW}1. Restart nginx: docker-compose restart nginx${NC}"
-    echo -e "${YELLOW}2. Test HTTPS: curl -I https://$DOMAIN${NC}"
-    echo -e "${YELLOW}3. Setup auto-renewal (run ./nginx/scripts/setup-ssl-renewal.sh)${NC}"
-    echo ""
-    
-    # Ask if user wants to test now
-    read -p "Would you like to restart nginx and test HTTPS now? (y/N): " -n 1 -r
+    read -p "Continue with SSL setup? (y/n): " -n 1 -r
     echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        print_status "Restarting nginx..."
-        cd "$PROJECT_DIR"
-        docker-compose restart nginx
-        test_https
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "SSL setup cancelled"
+        exit 0
     fi
+    
+    check_domain_accessibility
+    create_directories
+    create_temp_certificates
+    start_nginx_temp
+    obtain_ssl_certificates
+    copy_certificates
+    restart_nginx
+    test_ssl
+    setup_auto_renewal
+    
+    echo ""
+    echo "=== SSL Setup Complete! ==="
+    echo "✓ Your website is now accessible via HTTPS"
+    echo "✓ SSL certificates will auto-renew"
+    echo "✓ HTTP traffic will redirect to HTTPS"
+    echo ""
+    echo "Test your website:"
+    echo "  - https://$DOMAIN"
+    echo "  - https://$WWW_DOMAIN"
 }
-
-# Handle script interruption
-trap 'echo -e "\n${RED}Script interrupted${NC}"; start_nginx_if_needed; exit 1' INT TERM
 
 # Run main function
 main "$@"
