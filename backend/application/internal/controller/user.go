@@ -270,12 +270,32 @@ func (c *Controller) DeleteUser(ctx *gin.Context) {
 
 // DebugJWT tests JWT generation
 func (c *Controller) DebugJWT(ctx *gin.Context) {
-	// Create a test user
-	user := &entities.User{
-		ID:    uuid.NewV4(),
-		Email: "debug@example.com",
-		Name:  "Debug User",
-		Role:  constants.RoleUser,
+	userIDStr := ctx.Query("user_id")
+	
+	var user *entities.User
+	var err error
+	
+	if userIDStr != "" {
+		// Generate token for specific user
+		userID, err := uuid.FromString(userIDStr)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+			return
+		}
+		
+		user, err = c.service.GetUserByID(userID)
+		if err != nil {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+			return
+		}
+	} else {
+		// Create a test user
+		user = &entities.User{
+			ID:    uuid.NewV4(),
+			Email: "debug@example.com",
+			Name:  "Debug User",
+			Role:  constants.RoleUser,
+		}
 	}
 
 	log.Printf("DebugJWT: Testing JWT generation for user: %+v", user)

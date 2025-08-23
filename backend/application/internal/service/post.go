@@ -312,6 +312,18 @@ func (s *InsightService) GetPostByTitleName(titleName string) (*dto.PostResponse
 	return dto.NewPostResponse(post), nil
 }
 
+// GetPostEntity returns the raw post entity (for internal use)
+func (s *InsightService) GetPostEntity(id uuid.UUID) (*entities.Post, error) {
+	post, err := s.Post.FindByID(s.DB, id)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, errors.New("not found")
+		}
+		return nil, errors.New("internal server error")
+	}
+	return post, nil
+}
+
 // UpdatePost updates a post by ID
 func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.UpdatePostRequest) (*dto.PostResponse, error) {
 	// Start transaction for data consistency
@@ -505,7 +517,7 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 	return dto.NewPostResponse(post), nil
 }
 
-// DeletePost deletes a post by ID
+// DeletePost soft deletes a post by ID
 func (s *InsightService) DeletePost(userID uuid.UUID, id uuid.UUID) error {
 	// Start transaction for data consistency
 	tx := s.DB.Begin()
@@ -533,39 +545,32 @@ func (s *InsightService) DeletePost(userID uuid.UUID, id uuid.UUID) error {
 		return errors.New("forbidden")
 	}
 
-	// Delete associated post content
-	if err := s.PostContent.DeleteByPostID(tx, id); err != nil {
-		tx.Rollback()
-		return errors.New("internal server error")
-	}
-
-	// Clear category and tag associations
-	if err := tx.Model(post).Association("Categories").Clear(); err != nil {
-		tx.Rollback()
-		return errors.New("internal server error")
-	}
-
-	if err := tx.Model(post).Association("Tags").Clear(); err != nil {
-		tx.Rollback()
-		return errors.New("internal server error")
-	}
-
-	// Delete the post
+	// Soft delete the post (GORM will automatically set deleted_at)
 	if err := tx.Delete(post).Error; err != nil {
 		tx.Rollback()
 		return errors.New("internal server error")
 	}
 
-	// Delete associated images using V2 system
-	// Get post content before deletion to extract image references
-	postContent, err := s.PostContent.FindByPostID(s.DB, id)
-	if err == nil && postContent != nil && postContent.Content != "" {
-		// Delete images referenced in the post content
-		if err := s.DeletePostImages(context.Background(), id, userID); err != nil {
-			// Log error but don't fail the operation
-			// TODO: Use proper logger
-		}
+	// Soft delete associated comments
+	if err := tx.Where("post_id = ?", id).Delete(&entities.Comment{}).Error; err != nil {
+		tx.Rollback()
+		return errors.New("internal server error")
 	}
+
+	// Soft delete associated replies
+	if err := tx.Where("post_id = ?", id).Delete(&entities.Reply{}).Error; err != nil {
+		tx.Rollback()
+		return errors.New("internal server error")
+	}
+
+	// Soft delete associated post content
+	if err := tx.Where("post_id = ?", id).Delete(&entities.PostContent{}).Error; err != nil {
+		tx.Rollback()
+		return errors.New("internal server error")
+	}
+
+	// Note: We keep category and tag associations as they are many-to-many relationships
+	// and don't need to be deleted. They will be filtered out when querying posts.
 
 	// Send delete notifications using EventProcessor
 	eventProcessor := notification.GetDefaultProcessor(s.DB)

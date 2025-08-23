@@ -9,19 +9,20 @@ import (
 
 // Post represents a blog post entity in the domain
 type Post struct {
-	ID             uuid.UUID `gorm:"type:uuid;primaryKey" json:"id"`
-	Title          string    `json:"title"`
-	ImageTitle     string    `json:"image_title"`
-	TitleName      string    `json:"title_name"`
-	PreviewContent string    `json:"preview_content"`
-	UserID         uuid.UUID `json:"user_id"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
-	Views          uint64    `json:"views"`
-	Content        string    `gorm:"-" json:"content"`
-	ClapCount      uint64    `gorm:"-" json:"clap_count"`
-	CommentsCount  uint64    `gorm:"-" json:"comments_count"`
-	AverageRating  float64   `gorm:"-" json:"average_rating"`
+	ID             uuid.UUID      `gorm:"type:uuid;primaryKey" json:"id"`
+	Title          string         `json:"title"`
+	ImageTitle     string         `json:"image_title"`
+	TitleName      string         `json:"title_name"`
+	PreviewContent string         `json:"preview_content"`
+	UserID         uuid.UUID      `json:"user_id"`
+	CreatedAt      time.Time      `json:"created_at"`
+	UpdatedAt      time.Time      `json:"updated_at"`
+	DeletedAt      gorm.DeletedAt `gorm:"index" json:"deleted_at,omitempty"` // Soft delete field
+	Views          uint64         `json:"views"`
+	Content        string         `gorm:"-" json:"content"`
+	ClapCount      uint64         `gorm:"-" json:"clap_count"`
+	CommentsCount  uint64         `gorm:"-" json:"comments_count"`
+	AverageRating  float64        `gorm:"-" json:"average_rating"`
 
 	// Relationships
 	User        User        `gorm:"foreignKey:UserID" json:"user"`

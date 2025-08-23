@@ -93,8 +93,10 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		protected.POST("/posts", controller.CreatePost)
 		protected.POST("/api/posts", controller.CreatePost) // Frontend compatibility
 		protected.PUT("/posts/:id", controller.UpdatePost)
+		protected.PUT("/api/posts/:id", controller.UpdatePost) // Frontend compatibility
 		protected.DELETE("/posts/:id", controller.DeletePost)
-		protected.POST("/posts/:id/clap", controller.ClapPost) // Clap/unclap post
+		protected.DELETE("/api/posts/:id", controller.DeletePost) // Frontend compatibility
+		protected.POST("/posts/:id/clap", controller.ClapPost)    // Clap/unclap post
 
 		// Category routes (admin only for create/update/delete)
 		protected.POST("/categories", controller.CreateCategory)
@@ -141,5 +143,8 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		admin.DELETE("/users/:id", controller.DeleteUser)
 		admin.GET("/posts", controller.GetAllPosts)
 		admin.DELETE("/posts/:id", controller.DeletePost)
+		
+		// Test routes (for development)
+		admin.DELETE("/test/posts/:id", controller.TestDeletePost) // Test soft delete without auth
 	}
 }
