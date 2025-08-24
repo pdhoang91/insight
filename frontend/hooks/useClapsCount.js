@@ -3,11 +3,18 @@ import useSWR from 'swr';
 import { getClapInfo } from '../services/activityService';
 
 export const useClapsCount = (type, id) => {
-  const clapInfoKey = `/claps/info?type=${type}&id=${id}`;
+  const clapInfoKey = id ? `/claps/info?type=${type}&id=${id}` : null;
   
   const { data: clapInfo, error, mutate } = useSWR(
     clapInfoKey,
-    () => getClapInfo(type, id)
+    () => getClapInfo(type, id),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 30000, // Cache clap info for 30 seconds
+      errorRetryCount: 1,
+      errorRetryInterval: 2000,
+    }
   );
 
   const clapsCount = clapInfo?.clapCount || 0;

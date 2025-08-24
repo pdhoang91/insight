@@ -5,31 +5,21 @@ import { FaHandsClapping, FaComment, FaUser } from "react-icons/fa6";
 import AddCommentForm from './AddCommentForm';
 import CommentContent from './CommentContent';
 import ReplyList from './ReplyList';
-import { useClapsCount } from '../../hooks/useClapsCount';
+import { useCommentClap } from '../../hooks/useCommentClap';
 import { useUser } from '../../context/UserContext';
 import { addReply } from '../../services/commentService';
-import { clapComment } from '../../services/activityService';
 import TimeAgo from '../Utils/TimeAgo';
 
 const CommentItem = ({ comment, postId, mutate }) => {
   const [showReplyForm, setShowReplyForm] = useState(false);
-  const { clapsCount, loading: clapsLoading, hasClapped, mutate: mutateClaps } = useClapsCount('comment', comment.id);
   const { user } = useUser();
   const repliesCount = comment.replies ? comment.replies.length : 0;
 
-  const handleClap = async () => {
-    if (!user) {
-      alert('Vui lòng đăng nhập để vỗ tay.');
-      return;
-    }
-    try {
-      await clapComment(comment.id);
-      mutateClaps();
-    } catch (error) {
-      console.error('Failed to clap:', error);
-      alert('Không thể vỗ tay. Vui lòng thử lại.');
-    }
-  };
+  // Use reusable clap hook
+  const { clapsCount, clapsLoading, hasClapped, handleClap } = useCommentClap(
+    comment.id, 
+    comment.clap_count || 0
+  );
 
   const handleToggleReply = () => {
     setShowReplyForm((prev) => !prev);

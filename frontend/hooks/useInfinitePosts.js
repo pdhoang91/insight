@@ -27,7 +27,14 @@ export const useInfinitePosts = () => {
   // Sử dụng useSWRInfinite để lấy dữ liệu
   const { data, error, size, setSize } = useSWRInfinite(
     getKey,
-    ([, page, limit]) => fetcher(page, limit)
+    ([, page, limit]) => fetcher(page, limit),
+    {
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      dedupingInterval: 10000, // Prevent duplicate requests within 10 seconds
+      errorRetryCount: 2,
+      errorRetryInterval: 1000,
+    }
   );
 
   // Các trạng thái loading và error

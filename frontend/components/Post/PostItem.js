@@ -3,8 +3,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { FaEye, FaComment, FaUser, FaClock } from 'react-icons/fa';
 import { FaHandsClapping } from 'react-icons/fa6';
-import { useUser } from '../../context/UserContext';
-import { clapPost } from '../../services/activityService';
+import { usePostClap } from '../../hooks/usePostClap';
 import CommentSection from '../Comment/CommentSection';
 import TimeAgo from '../Utils/TimeAgo';
 import TextUtils from '../Utils/TextUtils';
@@ -24,28 +23,10 @@ const PostItem = ({ post, variant = 'default' }) => {
     );
   }
 
-  const { user } = useUser();
-  const [clapLoading, setClapLoading] = useState(false);
-  const [currentClapCount, setCurrentClapCount] = useState(post.clap_count || 0);
   const [showComments, setShowComments] = useState(false);
-
-  const handleClap = async () => {
-    if (!user) {
-      alert('Authentication required: Please login to clap.');
-      return;
-    }
-
-    setClapLoading(true);
-    try {
-      await clapPost(post.id);
-      setCurrentClapCount(prev => prev + 1);
-    } catch (error) {
-      console.error('Clap error:', error);
-      alert('Error: Unable to process clap request.');
-    } finally {
-      setClapLoading(false);
-    }
-  };
+  
+  // Use reusable clap hook
+  const { currentClapCount, clapLoading, handleClap } = usePostClap(post.clap_count || 0);
 
   const toggleComments = () => {
     setShowComments(prev => !prev);
@@ -123,7 +104,7 @@ const PostItem = ({ post, variant = 'default' }) => {
                   <div className="flex items-center gap-3 sm:gap-4">
                     {/* Claps */}
                     <button
-                      onClick={handleClap}
+                      onClick={() => handleClap(post.id)}
                       disabled={clapLoading}
                       className="flex items-center gap-1 text-text-muted hover:text-hacker-yellow transition-colors font-mono"
                     >
@@ -267,7 +248,7 @@ const PostItem = ({ post, variant = 'default' }) => {
 
                   {/* Clap */}
                   <button
-                    onClick={handleClap}
+                    onClick={() => handleClap(post.id)}
                     disabled={clapLoading}
                     className="flex items-center gap-1 text-text-muted hover:text-hacker-yellow transition-colors hover:scale-110"
                   >

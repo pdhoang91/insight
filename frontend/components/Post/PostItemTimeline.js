@@ -4,11 +4,10 @@ import Link from 'next/link';
 import { FaComment, FaEye, FaClock } from 'react-icons/fa';
 import { FaHandsClapping } from 'react-icons/fa6';
 import { useUser } from '../../context/UserContext';
-import { clapPost } from '../../services/activityService';
-import { useInfiniteComments } from '../../hooks/useInfiniteComments';
+import { usePostClap } from '../../hooks/usePostClap';
+import { usePostComments } from '../../hooks/usePostComments';
 import AddCommentForm from '../Comment/AddCommentForm';
 import CommentItem from '../Comment/CommentItem';
-import { addComment } from '../../services/commentService';
 import TextUtils from '../Utils/TextUtils';
 import TimeAgo from '../Utils/TimeAgo';
 import SafeImage from '../Utils/SafeImage';
@@ -22,62 +21,21 @@ const PostItemTimeline = ({ post }) => {
     );
   }
 
+  // Use reusable hooks
   const { user } = useUser();
-  const [isCommentsOpen, setCommentsOpen] = useState(false);
-  const [clapLoading, setClapLoading] = useState(false);
-  const [currentClapCount, setCurrentClapCount] = useState(post.clap_count || 0);
-  
-  // Get comments data with infinite loading
-  const { 
-    comments, 
-    totalCount, 
-    isLoading, 
-    isError, 
+  const { currentClapCount, clapLoading, handleClap } = usePostClap(post.clap_count || 0);
+  const {
+    isCommentsOpen,
+    comments,
+    totalCount,
+    isLoading,
+    isError,
     canLoadMore,
+    handleAddComment,
+    toggleComments,
     loadMore,
-    mutate 
-  } = useInfiniteComments(post.id, isCommentsOpen, 2);
-
-  // Removed TechIcon to improve performance
-
-  const handleClap = async () => {
-    if (!user) {
-      alert('Vui lòng đăng nhập để vỗ tay.');
-      return;
-    }
-    if (clapLoading) return;
-    
-    setClapLoading(true);
-    try {
-      await clapPost(post.id);
-      setCurrentClapCount(prev => prev + 1);
-    } catch (error) {
-      console.error('Failed to clap:', error);
-      alert('Không thể vỗ tay. Vui lòng thử lại.');
-    } finally {
-      setClapLoading(false);
-    }
-  };
-
-  const toggleCommentPopup = () => setCommentsOpen((prev) => !prev);
-
-  const handleAddComment = async (content) => {
-    if (!user) {
-      alert('Vui lòng đăng nhập để bình luận.');
-      return;
-    }
-    if (!content.trim()) {
-      alert('Comment cannot be empty.');
-      return;
-    }
-    try {
-      await addComment(post.id, content);
-      mutate(); // Refresh comments
-    } catch (err) {
-      console.error('Failed to add comment:', err);
-      alert('Không thể thêm bình luận. Vui lòng thử lại.');
-    }
-  };
+    mutate,
+  } = usePostComments(post.id, true, 2); // Use infinite comments
 
   return (
     <div className="w-full">
@@ -118,7 +76,7 @@ const PostItemTimeline = ({ post }) => {
                 <div className="flex items-center gap-4 sm:gap-6">
                   {/* Claps */}
                   <button
-                    onClick={handleClap}
+                    onClick={() => handleClap(post.id)}
                     disabled={clapLoading}
                     className="flex items-center gap-1.5 sm:gap-2 text-text-muted hover:text-hacker-yellow transition-colors"
                   >
@@ -128,7 +86,7 @@ const PostItemTimeline = ({ post }) => {
 
                   {/* Comments */}
                   <button
-                    onClick={toggleCommentPopup}
+                    onClick={toggleComments}
                     className="flex items-center gap-1.5 sm:gap-2 text-text-muted hover:text-matrix-green transition-colors"
                   >
                     <FaComment className="w-3.5 h-3.5 sm:w-4 sm:h-4" />

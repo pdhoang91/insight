@@ -67,6 +67,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       }),
     ],
     content: content || '',
+    immediatelyRender: false, // Fix SSR hydration mismatch
     onUpdate: ({ editor }) => {
       // Nếu đang trong quá trình generate TOC, không thực hiện lại
       if (isGeneratingTOC.current) return;

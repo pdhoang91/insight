@@ -2,15 +2,14 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { FaEye, FaComment, FaHandsClapping, FaTag } from 'react-icons/fa';
 import { FaHandsClapping as FaHandsClappingRegular } from 'react-icons/fa6';
-import { useUser } from '../../context/UserContext';
 import SafeImage from '../Utils/SafeImage';
 import TimeAgo from '../Utils/TimeAgo';
 import TextUtils from '../Utils/TextUtils';
 import AddCommentForm from '../Comment/AddCommentForm';
 import CommentItem from '../Comment/CommentItem';
-import { useComments } from '../../hooks/useComments';
-import { clapPost } from '../../services/activityService';
-import { addComment } from '../../services/commentService';
+import { useUser } from '../../context/UserContext';
+import { usePostClap } from '../../hooks/usePostClap';
+import { usePostComments } from '../../hooks/usePostComments';
 
 const PostItemCategories = ({ post }) => {
   if (!post) {
@@ -21,66 +20,20 @@ const PostItemCategories = ({ post }) => {
     );
   }
 
+  // Use reusable hooks
   const { user } = useUser();
-  const [currentClapCount, setCurrentClapCount] = useState(post.clap_count || 0);
-  const [clapLoading, setClapLoading] = useState(false);
-  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
-
-  // Comments hook
-  const { comments, totalCount, isLoading, isError, mutate } = useComments(
-    post.id,
+  const { currentClapCount, clapLoading, handleClap } = usePostClap(post.clap_count || 0);
+  const {
     isCommentsOpen,
-    1,
-    10
-  );
-
-  const handleClap = async () => {
-    if (!user) {
-      alert('Authentication required: Please login to clap.');
-      return;
-    }
-
-    if (clapLoading) return;
-
-    setClapLoading(true);
-    try {
-      await clapPost(post.id);
-      setCurrentClapCount(prev => prev + 1);
-    } catch (err) {
-      console.error('Clap error:', err);
-      alert('Error: Unable to process clap request.');
-    } finally {
-      setClapLoading(false);
-    }
-  };
-
-  const handleAddComment = async (commentText) => {
-    if (!user) {
-      alert('Authentication required: Please login to comment.');
-      return;
-    }
-
-    if (!commentText.trim()) {
-      alert('Comment cannot be empty.');
-      return;
-    }
-
-    try {
-      await addComment(post.id, commentText);
-      mutate(); // Refresh comments
-    } catch (err) {
-      console.error('Failed to add comment:', err);
-      alert('Failed to add comment. Please try again.');
-    }
-  };
-
-  const toggleCommentPopup = () => {
-    setIsCommentsOpen(!isCommentsOpen);
-  };
-
-  const closeCommentPopup = () => {
-    setIsCommentsOpen(false);
-  };
+    comments,
+    totalCount,
+    isLoading,
+    isError,
+    handleAddComment,
+    toggleComments,
+    closeComments,
+    mutate,
+  } = usePostComments(post.id, false, 10); // Use regular comments
 
   return (
     <>
@@ -148,7 +101,7 @@ const PostItemCategories = ({ post }) => {
             <div className="flex items-center gap-4 sm:gap-6">
               {/* Claps */}
               <button
-                onClick={handleClap}
+                onClick={() => handleClap(post.id)}
                 disabled={clapLoading}
                 className="flex items-center gap-1.5 sm:gap-2 text-text-muted hover:text-hacker-yellow transition-colors font-mono"
               >
@@ -158,7 +111,7 @@ const PostItemCategories = ({ post }) => {
 
               {/* Comments */}
               <button
-                onClick={toggleCommentPopup}
+                onClick={toggleComments}
                 className="flex items-center gap-1.5 sm:gap-2 text-text-muted hover:text-matrix-green transition-colors font-mono"
               >
                 <FaComment className="w-4 h-4 sm:w-5 sm:h-5" />

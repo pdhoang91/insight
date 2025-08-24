@@ -8,9 +8,8 @@ import CommentItem from '../Comment/CommentItem';
 import TextUtils from '../Utils/TextUtils';
 import SafeImage from '../Utils/SafeImage';
 import { useUser } from '../../context/UserContext';
-import { clapPost } from '../../services/activityService';
-import { useComments } from '../../hooks/useComments';
-import { addComment } from '../../services/commentService';
+import { usePostClap } from '../../hooks/usePostClap';
+import { usePostComments } from '../../hooks/usePostComments';
 import TimeAgo from '../Utils/TimeAgo';
 import { useRouter } from 'next/router';
 import { deletePost } from '../../services/postService';
@@ -26,51 +25,20 @@ const PostItemProfile = ({ post, isOwner }) => {
 
   const { user } = useUser();
   const router = useRouter();
-  const [isCommentsOpen, setCommentsOpen] = useState(false);
-  const [clapLoading, setClapLoading] = useState(false);
-  const [currentClapCount, setCurrentClapCount] = useState(post.clap_count || 0);
-
-  // Only load comments when the popup is actually open
-  const { comments, totalCommentReply, totalCount, isLoading, isError, mutate } = useComments(post.id, isCommentsOpen, 1, 10);
-
-  const handleClap = async () => {
-    if (!user) {
-      alert('Bạn cần đăng nhập để vỗ tay.');
-      return;
-    }
-    if (clapLoading) return;
-    
-    setClapLoading(true);
-    try {
-      await clapPost(post.id);
-      setCurrentClapCount(prev => prev + 1);
-    } catch (error) {
-      console.error('Failed to clap:', error);
-      alert('Có lỗi xảy ra khi vỗ tay. Vui lòng thử lại.');
-    } finally {
-      setClapLoading(false);
-    }
-  };
-
-  const toggleCommentPopup = () => setCommentsOpen((prev) => !prev);
-
-  const handleAddComment = async (content) => {
-    if (!user) {
-      alert('Please login to comment.');
-      return;
-    }
-    if (!content.trim()) {
-      alert('Comment cannot be empty.');
-      return;
-    }
-    try {
-      await addComment(post.id, content);
-      mutate(); // Refresh comments
-    } catch (err) {
-      console.error('Failed to add comment:', err);
-      alert('Failed to add comment. Please try again.');
-    }
-  };
+  
+  // Use reusable hooks
+  const { currentClapCount, clapLoading, handleClap } = usePostClap(post.clap_count || 0);
+  const {
+    isCommentsOpen,
+    comments,
+    totalCount,
+    totalCommentReply,
+    isLoading,
+    isError,
+    handleAddComment,
+    toggleComments,
+    mutate,
+  } = usePostComments(post.id, false, 10); // Use regular comments
 
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this post?')) {
@@ -125,7 +93,7 @@ const PostItemProfile = ({ post, isOwner }) => {
               <div className="flex items-center gap-4">
                 {/* Claps */}
                 <button
-                  onClick={handleClap}
+                  onClick={() => handleClap(post.id)}
                   disabled={clapLoading}
                   className="flex items-center gap-1 text-muted hover:text-primary transition-colors"
                 >
@@ -135,7 +103,7 @@ const PostItemProfile = ({ post, isOwner }) => {
 
                 {/* Comments */}
                 <button
-                  onClick={toggleCommentPopup}
+                  onClick={toggleComments}
                   className="flex items-center gap-1 text-muted hover:text-primary transition-colors"
                 >
                   <FaComment className="w-4 h-4" />

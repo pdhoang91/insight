@@ -28,7 +28,10 @@ export const useInfiniteComments = (postId, isEnabled = true, pageSize = 2) => {
     },
     {
       revalidateOnFocus: false,
-      revalidateOnReconnect: false
+      revalidateOnReconnect: false,
+      dedupingInterval: 15000, // Cache comments for 15 seconds
+      errorRetryCount: 2,
+      errorRetryInterval: 1000,
     }
   );
 
