@@ -32,8 +32,8 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 		}
 	}()
 
-	// Generate image_title if not provided
-	imageTitle := ""
+	// Use provided image_title or generate default
+	imageTitle := req.ImageTitle
 	if imageTitle == "" {
 		feURL := os.Getenv("BASE_FE_URL")
 		if feURL == "" {
@@ -356,6 +356,9 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 	if req.Title != "" {
 		post.Title = req.Title
 	}
+	if req.ImageTitle != "" {
+		post.ImageTitle = req.ImageTitle
+	}
 	if req.PreviewContent != "" {
 		post.PreviewContent = req.PreviewContent
 	}
@@ -601,11 +604,6 @@ func (s *InsightService) DeletePost(userID uuid.UUID, id uuid.UUID) error {
 
 // DeletePostImages deletes all images referenced in a post
 func (s *InsightService) DeletePostImages(ctx context.Context, postID uuid.UUID, userID uuid.UUID) error {
-	// Get storage manager
-	manager := GetStorageManager()
-	if manager == nil {
-		return fmt.Errorf("storage manager not initialized")
-	}
 
 	// Find all image references for this post
 	var imageRefs []entities.ImageReference

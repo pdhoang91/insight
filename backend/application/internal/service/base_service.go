@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/pdhoang91/blog/pkg/storage"
 	"golang.org/x/oauth2"
 	"gorm.io/gorm"
 )
@@ -16,6 +17,7 @@ type BaseService struct {
 	// OAuth and External Services
 	GoogleOauthConfig *oauth2.Config
 	S3Client          *s3.Client
+	StorageManager    *storage.Manager
 
 	// External clients (to be added later)
 	// HttpClient      http.IHttpClient
@@ -29,6 +31,7 @@ func NewBaseService(
 	db *gorm.DB,
 	googleOauthConfig *oauth2.Config,
 	s3Client *s3.Client,
+	storageManager *storage.Manager,
 ) *BaseService {
 	return &BaseService{
 		DB:                db,
@@ -36,5 +39,6 @@ func NewBaseService(
 		DBR2:              db, // For now, use same connection
 		GoogleOauthConfig: googleOauthConfig,
 		S3Client:          s3Client,
+		StorageManager:    storageManager,
 	}
 }

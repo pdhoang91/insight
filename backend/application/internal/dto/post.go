@@ -10,6 +10,7 @@ import (
 // Post requests
 type CreatePostRequest struct {
 	Title          string   `json:"title" validate:"required,min=5,max=200"`
+	ImageTitle     string   `json:"image_title,omitempty"`
 	PreviewContent string   `json:"preview_content" validate:"required,min=10,max=500"`
 	Content        string   `json:"content" validate:"required,min=50"`
 	CategoryNames  []string `json:"categories,omitempty"`
@@ -18,6 +19,7 @@ type CreatePostRequest struct {
 
 type UpdatePostRequest struct {
 	Title          string   `json:"title,omitempty" validate:"omitempty,min=5,max=200"`
+	ImageTitle     string   `json:"image_title,omitempty"`
 	PreviewContent string   `json:"preview_content,omitempty" validate:"omitempty,min=10,max=500"`
 	Content        string   `json:"content,omitempty" validate:"omitempty,min=50"`
 	CategoryNames  []string `json:"categories,omitempty"`

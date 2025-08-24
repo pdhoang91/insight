@@ -12,6 +12,7 @@ import (
 	"github.com/pdhoang91/blog/internal"
 	"github.com/pdhoang91/blog/internal/controller"
 	"github.com/pdhoang91/blog/internal/service"
+	"github.com/pdhoang91/blog/pkg/storage"
 )
 
 func main() {
@@ -36,15 +37,24 @@ func main() {
 	// Enable CORS with custom settings
 	ConfigureCORS(r)
 
+	// Initialize storage manager
+	storageManager := storage.NewManager("s3", db)
+
+	// Get S3 configuration from config
+	bucket, region, cdnDomain := config.GetS3Config()
+	basePath := "uploads"
+
+	// Create and register S3 provider using existing S3 client
+	s3Provider := storage.NewS3Provider(bucket, region, basePath, cdnDomain)
+	storageManager.RegisterProvider("s3", s3Provider)
+
 	// Create base service with common dependencies
 	baseService := service.NewBaseService(
 		db,
 		config.GoogleOauthConfig,
 		config.S3Client,
+		storageManager,
 	)
-
-	// Initialize storage manager
-	service.InitStorageManager(db)
 
 	// Create insight service with all dependencies
 	insightService := service.NewInsightService(

@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/pdhoang91/blog/internal/service"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -109,15 +108,8 @@ func (c *Controller) ServeImageV2(ctx *gin.Context) {
 		return
 	}
 
-	// Get storage manager
-	manager := service.GetStorageManager()
-	if manager == nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Storage manager not available"})
-		return
-	}
-
 	// Get the storage provider
-	provider, err := manager.GetProvider(image.StorageProvider)
+	provider, err := c.service.StorageManager.GetProvider(image.StorageProvider)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Storage provider not available"})
 		return
@@ -158,7 +150,6 @@ func (c *Controller) GetImageInfoV2(ctx *gin.Context) {
 		return
 	}
 
-	manager := service.GetStorageManager()
 	ctx.JSON(http.StatusOK, gin.H{
 		"id":                image.ID,
 		"storage_key":       image.StorageKey,
@@ -170,7 +161,7 @@ func (c *Controller) GetImageInfoV2(ctx *gin.Context) {
 		"width":             image.Width,
 		"height":            image.Height,
 		"created_at":        image.CreatedAt,
-		"url":               manager.GetImageURL(image.ID.String()),
+		"url":               c.service.StorageManager.GetImageURL(image.ID.String()),
 	})
 }
 
@@ -236,7 +227,6 @@ func (c *Controller) ListUserImages(ctx *gin.Context) {
 	}
 
 	// Add URLs to response
-	manager := service.GetStorageManager()
 	imageResponses := make([]map[string]interface{}, len(images))
 	for i, img := range images {
 		imageResponses[i] = map[string]interface{}{
@@ -246,7 +236,7 @@ func (c *Controller) ListUserImages(ctx *gin.Context) {
 			"file_size":         img.FileSize,
 			"image_type":        img.ImageType,
 			"created_at":        img.CreatedAt,
-			"url":               manager.GetImageURL(img.ID.String()),
+			"url":               c.service.StorageManager.GetImageURL(img.ID.String()),
 		}
 	}
 
@@ -273,16 +263,13 @@ func (c *Controller) ProxyImage(ctx *gin.Context) {
 	}
 
 	// Try new system first - check if this is a migrated image
-	manager := service.GetStorageManager()
-	if manager != nil {
-		legacyURL := fmt.Sprintf("/images/proxy/%s/%s/%s/%s", userID, date, imageType, filename)
+	legacyURL := fmt.Sprintf("/images/proxy/%s/%s/%s/%s", userID, date, imageType, filename)
 
-		if imageID, err := manager.LegacyURLToImageID(legacyURL); err == nil {
-			// Found in new system, redirect to new endpoint
-			newURL := manager.GetImageURL(imageID)
-			ctx.Redirect(http.StatusMovedPermanently, newURL)
-			return
-		}
+	if imageID, err := c.service.StorageManager.LegacyURLToImageID(legacyURL); err == nil {
+		// Found in new system, redirect to new endpoint
+		newURL := c.service.StorageManager.GetImageURL(imageID)
+		ctx.Redirect(http.StatusMovedPermanently, newURL)
+		return
 	}
 
 	// Fallback to legacy S3 proxy - construct S3 URL and redirect
