@@ -434,41 +434,6 @@ func (c *Controller) GetPostsByCategory(ctx *gin.Context) {
 	})
 }
 
-// GetAllPosts retrieves all posts (admin only)
-func (c *Controller) GetAllPosts(ctx *gin.Context) {
-	var req dto.PaginationRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
-		return
-	}
-
-	// Convert page-based pagination to offset-based
-	if req.Page > 0 && req.Limit > 0 {
-		req.Offset = (req.Page - 1) * req.Limit
-	}
-	if req.Limit == 0 {
-		req.Limit = 10 // Default limit
-	}
-
-	responses, total, err := c.service.GetAllPosts(&req)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Ensure data is never null - use empty array if nil
-	if responses == nil {
-		responses = []*dto.PostResponse{}
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"data":        responses,
-		"total_count": total,
-		"limit":       req.Limit,
-		"offset":      req.Offset,
-	})
-}
-
 // GetPopularPosts retrieves popular posts
 func (c *Controller) GetPopularPosts(ctx *gin.Context) {
 	var req dto.PaginationRequest
@@ -612,61 +577,6 @@ func (c *Controller) SearchPosts(ctx *gin.Context) {
 		"limit":       req.Limit,
 		"offset":      offset,
 	})
-}
-
-// SearchAll searches across all content types
-func (c *Controller) SearchAll(ctx *gin.Context) {
-	query := ctx.Query("q")
-	if query == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Query parameter 'q' is required"})
-		return
-	}
-
-	var req dto.PaginationRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
-		return
-	}
-
-	// Convert page-based pagination to offset-based
-	if req.Page > 0 && req.Limit > 0 {
-		req.Offset = (req.Page - 1) * req.Limit
-	}
-	if req.Limit == 0 {
-		req.Limit = 10 // Default limit
-	}
-
-	results, err := c.service.SearchAll(query)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, results)
-}
-
-// TrackSearch tracks search analytics - proxies to search service
-func (c *Controller) TrackSearch(ctx *gin.Context) {
-	var request struct {
-		Query        string `json:"query" binding:"required"`
-		UserID       string `json:"user_id"`
-		ResultsCount int    `json:"results_count"`
-	}
-
-	if err := ctx.ShouldBindJSON(&request); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload", "details": err.Error()})
-		return
-	}
-
-	// Call search service via HTTP client
-	searchClient := c.service.GetSearchClient()
-	err := searchClient.TrackSearch(request.Query, request.UserID, request.ResultsCount)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to track search", "details": err.Error()})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{"message": "Search tracked successfully"})
 }
 
 // ClapPost handles clap/unclap action for a post

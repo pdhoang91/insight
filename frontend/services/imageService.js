@@ -40,19 +40,3 @@ export const updateProfileWithAvatar = async (profileData, avatarFile = null) =>
     return response.data;
 };
 
-// Delete image by ID
-export const deleteImage = async (imageId) => {
-    const response = await axiosPrivateInstance.delete(`/api/images/v2/${imageId}`);
-    return response.data;
-};
-
-// Get user's images
-export const getUserImages = async (type = '', page = 1, limit = 20) => {
-    const params = new URLSearchParams();
-    if (type) params.append('type', type);
-    params.append('page', page.toString());
-    params.append('limit', limit.toString());
-    
-    const response = await axiosPrivateInstance.get(`/api/images/my?${params}`);
-    return response.data;
-};

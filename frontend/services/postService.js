@@ -90,46 +90,7 @@ export const getRecentPosts = async (limit = 10) => {
   }
 };
 
-export const getTopPosts = async (limit = 10) => {
-  try {
-    const response = await axiosPublicInstance.get('/posts/top', {
-      params: { limit },
-    });
 
-    const data = response.data;
-    
-    if (!data || !Array.isArray(data.data)) {
-      return [];
-    }
-
-    return data.data;
-  } catch (error) {
-    console.error('Error in getTopPosts:', error);
-    return [];
-  }
-};
-
-export const getFollowingPosts = async (page = 1, limit = 10) => {
-  try {
-    const response = await axiosPrivateInstance.get('/api/posts/following', {
-      params: { page, limit },
-    });
-
-    const data = response.data;
-    
-    if (!data || !Array.isArray(data.data) || typeof data.total_count !== 'number') {
-      throw new Error('Invalid response format for getFollowingPosts');
-    }
-
-    return {
-      posts: data.data,
-      totalCount: data.total_count,
-    };
-  } catch (error) {
-    console.error('Error in getFollowingPosts:', error);
-    throw error;
-  }
-};
 
 export const getLatestPosts = async (limit = 5) => {
   try {

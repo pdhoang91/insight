@@ -79,24 +79,6 @@ func (c *Controller) CreateCommentForPost(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"data": response})
 }
 
-// GetComment retrieves a comment by ID
-func (c *Controller) GetComment(ctx *gin.Context) {
-	idStr := ctx.Param("id")
-	id, err := uuid.FromString(idStr)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid comment ID"})
-		return
-	}
-
-	response, err := c.service.GetComment(id)
-	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{"data": response})
-}
-
 // GetPostComments retrieves comments for a post
 func (c *Controller) GetPostComments(ctx *gin.Context) {
 	postIDStr := ctx.Param("id")
@@ -233,42 +215,6 @@ func (c *Controller) CreateReply(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{"data": response})
-}
-
-// UpdateReply updates a reply
-func (c *Controller) UpdateReply(ctx *gin.Context) {
-	userIDStr, exists := ctx.Get("userID")
-	if !exists {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
-		return
-	}
-
-	userID, err := uuid.FromString(userIDStr.(string))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return
-	}
-
-	idStr := ctx.Param("id")
-	id, err := uuid.FromString(idStr)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid reply ID"})
-		return
-	}
-
-	var req dto.UpdateReplyRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		return
-	}
-
-	response, err := c.service.UpdateReply(userID, id, &req)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{"data": response})
 }
 
 // DeleteReply deletes a reply

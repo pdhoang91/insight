@@ -635,6 +635,12 @@ func (s *InsightService) GetUserPosts(userID uuid.UUID, req *dto.PaginationReque
 		return nil, 0, errors.New("internal server error")
 	}
 
+	// Calculate counts for all posts efficiently
+	if err := entities.CalculateCountsForPosts(s.DBR2, posts); err != nil {
+		// Log error but don't fail the request
+		// TODO: Use proper logger
+	}
+
 	var responses []*dto.PostResponse
 	for _, post := range posts {
 		responses = append(responses, dto.NewPostResponse(post))
@@ -653,6 +659,12 @@ func (s *InsightService) SearchPosts(query string, req *dto.PaginationRequest) (
 	posts, err := s.Post.Search(s.DBR2, query, req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, errors.New("internal server error")
+	}
+
+	// Calculate counts for all posts efficiently
+	if err := entities.CalculateCountsForPosts(s.DBR2, posts); err != nil {
+		// Log error but don't fail the request
+		// TODO: Use proper logger
 	}
 
 	var responses []*dto.PostResponse
@@ -675,6 +687,12 @@ func (s *InsightService) GetAllPosts(req *dto.PaginationRequest) ([]*dto.PostRes
 	posts, err := s.Post.List(s.DB, req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, errors.New("internal server error")
+	}
+
+	// Calculate counts for all posts efficiently
+	if err := entities.CalculateCountsForPosts(s.DB, posts); err != nil {
+		// Log error but don't fail the request
+		// TODO: Use proper logger
 	}
 
 	var responses []*dto.PostResponse
@@ -709,6 +727,12 @@ func (s *InsightService) GetLatestPosts(limit int) ([]*dto.PostResponse, error) 
 		return nil, errors.New("internal server error")
 	}
 
+	// Calculate counts for all posts efficiently
+	if err := entities.CalculateCountsForPosts(s.DBR2, posts); err != nil {
+		// Log error but don't fail the request
+		// TODO: Use proper logger
+	}
+
 	var responses []*dto.PostResponse
 	for _, post := range posts {
 		responses = append(responses, dto.NewPostResponse(post))
@@ -727,6 +751,12 @@ func (s *InsightService) GetPopularPosts(limit int) ([]*dto.PostResponse, error)
 	posts, err := s.Post.GetPopular(s.DBR2, limit)
 	if err != nil {
 		return nil, errors.New("internal server error")
+	}
+
+	// Calculate counts for all posts efficiently
+	if err := entities.CalculateCountsForPosts(s.DBR2, posts); err != nil {
+		// Log error but don't fail the request
+		// TODO: Use proper logger
 	}
 
 	var responses []*dto.PostResponse
@@ -772,6 +802,12 @@ func (s *InsightService) GetPostsByCategory(categoryName string, req *dto.Pagina
 	total, err := s.Post.CountByCategory(s.DBR2, category.ID)
 	if err != nil {
 		return nil, 0, errors.New("internal server error")
+	}
+
+	// Calculate counts for all posts efficiently
+	if err := entities.CalculateCountsForPosts(s.DBR2, posts); err != nil {
+		// Log error but don't fail the request
+		// TODO: Use proper logger
 	}
 
 	var responses []*dto.PostResponse

@@ -215,59 +215,6 @@ func (c *Controller) GetUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"data": response})
 }
 
-// GetAllUsers retrieves all users (admin only)
-func (c *Controller) GetAllUsers(ctx *gin.Context) {
-	var req dto.PaginationRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
-		return
-	}
-
-	// Convert page-based pagination to offset-based
-	if req.Page > 0 && req.Limit > 0 {
-		req.Offset = (req.Page - 1) * req.Limit
-	}
-	if req.Limit == 0 {
-		req.Limit = 10 // Default limit
-	}
-
-	responses, total, err := c.service.GetAllUsers(&req)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Ensure data is never null - use empty array if nil
-	if responses == nil {
-		responses = []*dto.UserResponse{}
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"data":        responses,
-		"total_count": total,
-		"limit":       req.Limit,
-		"offset":      req.Offset,
-	})
-}
-
-// DeleteUser deletes a user (admin only)
-func (c *Controller) DeleteUser(ctx *gin.Context) {
-	idStr := ctx.Param("id")
-	id, err := uuid.FromString(idStr)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return
-	}
-
-	err = c.service.DeleteUser(id)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
-}
-
 // DebugJWT tests JWT generation
 func (c *Controller) DebugJWT(ctx *gin.Context) {
 	userIDStr := ctx.Query("user_id")
