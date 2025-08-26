@@ -1,6 +1,6 @@
 
 services:
- nginx:
+  nginx:
    image: nginx:latest
    container_name: nginx_proxy
    ports:
@@ -18,7 +18,7 @@ services:
      - app-network
 
   # Certbot service for SSL certificate management
- certbot:
+  certbot:
    image: certbot/certbot:latest
    container_name: certbot
    volumes:
@@ -29,7 +29,6 @@ services:
    command: ["-c", "echo 'Certbot service ready for SSL certificate operations' && sleep infinity"]
    networks:
      - app-network
-
   db:
     image: postgres:13
     container_name: database
