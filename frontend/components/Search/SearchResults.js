@@ -1,6 +1,6 @@
 // components/Search/SearchResults.js
 import React, { useEffect } from 'react';
-import PostItemTimeline from '../Post/PostItemTimeline';
+import PostItem from '../Post/PostItem';
 import { useSearch } from '../../hooks/useSearch';
 import { trackSearch } from '../../services/searchService';
 import ErrorState from '../Shared/ErrorState';
@@ -81,7 +81,7 @@ const SearchResults = ({ query }) => {
       >
         <div className="space-y-4">
           {stories.map((story, index) => (
-            <PostItemTimeline key={`${story?.id || index}-${index}`} post={story} />
+            <PostItem key={`${story?.id || index}-${index}`} post={story} />
           ))}
         </div>
       </InfiniteScroll>

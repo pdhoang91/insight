@@ -5,7 +5,7 @@ import { useUser } from '../../context/UserContext';
 import CategoryTagsPopup from '../../components/Category/CategoryTagsPopup';
 import PostForm from '../../components/Editor/PostForm';
 import LoadingSpinner from '../../components/Shared/LoadingSpinner';
-import Navbar from '../../components/Navbar/Navbar';
+import MediumNavbar from '../../components/Navbar/MediumNavbar';
 import { updatePost } from '../../services/postService';
 import { usePostName } from '../../hooks/usePost';
 import { usePostContext } from '../../context/PostContext';
@@ -197,7 +197,7 @@ const EditPost = () => {
   return (
     <>
       {/* Custom Navbar with Update functionality */}
-      {!isFullscreen && <Navbar onPublish={handleUpdate} />}
+      {!isFullscreen && <MediumNavbar onPublish={handleUpdate} />}
       
       <div className={`min-h-screen bg-terminal-black transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50 pt-0' : ''}`}>
 

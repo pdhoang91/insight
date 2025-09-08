@@ -1,315 +1,189 @@
 // components/Post/PostItem.js
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { FaEye, FaComment, FaUser, FaClock } from 'react-icons/fa';
-import { FaHandsClapping } from 'react-icons/fa6';
-import { usePostClap } from '../../hooks/usePostClap';
-import CommentSection from '../Comment/CommentSection';
-import TimeAgo from '../Utils/TimeAgo';
+import { FaEye, FaShareAlt, FaComment } from 'react-icons/fa';
+import { FaHandsClapping } from "react-icons/fa6";
+import { AddCommentForm, LimitedCommentList } from '../Comment';
+import Rating from './Rating';
 import TextUtils from '../Utils/TextUtils';
-import SafeImage from '../Utils/SafeImage';
+import { useUser } from '../../context/UserContext';
+import { useTheme } from '../../context/ThemeContext';
+import { useClapsCount } from '../../hooks/useClapsCount';
+import { clapPost } from '../../services/activityService';
+import { useInfiniteComments } from '../../hooks/useInfiniteComments';
+import ShareMenu from '../Utils/ShareMenu';
+import TimeAgo from '../Utils/TimeAgo';
+import { BASE_FE_URL } from '../../config/api';
 
-const PostItem = ({ post, variant = 'default' }) => {
+const PostItem = ({ post }) => {
   if (!post) {
-    return (
-      <div className="terminal-window animate-pulse">
-        <div className="terminal-header">
-          <span>loading@post</span>
-        </div>
-        <div className="p-4 bg-terminal-dark">
-          <div className="text-text-muted font-mono">Loading post...</div>
-        </div>
-      </div>
-    );
+    return <div>Đang tải bài viết...</div>;
   }
 
-  const [showComments, setShowComments] = useState(false);
-  
-  // Use reusable clap hook
-  const { currentClapCount, clapLoading, handleClap } = usePostClap(post.clap_count || 0);
+  const { clapsCount, loading: clapsLoading, mutate: mutateClaps } = useClapsCount('post', post.id);
+  const { user } = useUser();
+  const { theme } = useTheme();
+  const [isCommentsOpen, setCommentsOpen] = useState(false);
+  const [isShareMenuOpen, setShareMenuOpen] = useState(false);
+  const shareMenuRef = useRef();
 
-  const toggleComments = () => {
-    setShowComments(prev => !prev);
+  const { comments, totalCount, isLoading, isError, mutate, canLoadMore, loadMore } = useInfiniteComments(post.id, isCommentsOpen, 3);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (shareMenuRef.current && !shareMenuRef.current.contains(event.target)) {
+        setShareMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleClap = async () => {
+    if (!user) {
+      alert('Bạn cần đăng nhập để clap.');
+      return;
+    }
+    try {
+      //mutateClaps((current) => current + 1, false);
+      await clapPost(post.id);
+      mutateClaps();
+    } catch (error) {
+      console.error('Failed to clap:', error);
+      mutateClaps();
+      alert('Đã xảy ra lỗi khi clap. Vui lòng thử lại sau.');
+    }
   };
 
-  // Removed TechIcon to improve performance
+  const toggleCommentPopup = () => {
+    setCommentsOpen((prev) => !prev);
+  };
 
-  // Compact variant for smaller spaces
-  if (variant === 'compact') {
-    return (
-      <>
-        <article className="bg-terminal-gray rounded-lg border border-matrix-green/30 hover:border-matrix-green transition-colors duration-300">
-          {/* Terminal Header */}
-          <div className="bg-terminal-light px-3 py-2 border-b border-matrix-green/30 rounded-t-lg">
-            <div className="flex items-center justify-between text-xs font-mono">
-              <div className="flex items-center space-x-2">
-                <span className="flex space-x-1">
-                  <span className="w-1.5 h-1.5 bg-hacker-red rounded-full"></span>
-                  <span className="w-1.5 h-1.5 bg-hacker-yellow rounded-full"></span>
-                  <span className="w-1.5 h-1.5 bg-matrix-green rounded-full"></span>
-                </span>
-                <span className="text-matrix-green">post@{post.id}</span>
-              </div>
-              <TimeAgo timestamp={post.created_at} />
-            </div>
-          </div>
+  const closeCommentPopup = () => {
+    setCommentsOpen(false);
+  };
 
-          <div className="py-3 sm:py-4 px-3 sm:px-4">
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
-              {/* Left Side - Content */}
-              <div className="flex-1 min-w-0 order-2 sm:order-1 flex flex-col">
-                <div className="flex-1">
-                  {/* Author Info */}
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="w-4 h-4 sm:w-5 sm:h-5 bg-matrix-green/20 rounded border border-matrix-green/50 flex items-center justify-center flex-shrink-0">
-                      <FaUser className="w-2 h-2 sm:w-2.5 sm:h-2.5 text-matrix-green" />
-                    </div>
-                    <div className="flex items-center gap-1 text-xs text-text-secondary min-w-0 font-mono">
-                      <span className="text-matrix-green">$</span>
-                      <span className="font-medium text-text-primary truncate">
-                        {post.user?.name || 'anonymous'}
-                      </span>
-                      <span className="text-text-muted">@terminal</span>
-                    </div>
-                  </div>
+  //const shareUrl = `http://localhost:3000/p/${post.title_name}`;
+  const shareUrl = `${BASE_FE_URL}/p/${post.title_name}`;
 
-                  {/* Title */}
-                  <Link href={`/p/${post.title_name}`}>
-                    <h3 className="text-sm sm:text-base font-bold text-text-primary hover:text-matrix-green transition-colors line-clamp-2 mb-2 cursor-pointer">
-                      {post.title}
-                    </h3>
-                  </Link>
+  const handleShare = () => {
+    setShareMenuOpen((prev) => !prev);
+  };
 
-                  {/* Content Preview */}
-                  <div className="text-text-secondary text-xs sm:text-sm line-clamp-2 sm:line-clamp-3 mb-3 leading-relaxed">
-                    <TextUtils html={post.preview_content} maxLength={200} />
-                  </div>
-
-                  {/* Categories */}
-                  <div className="flex flex-wrap gap-1 sm:gap-1.5 mb-3">
-                    {post.categories && post.categories.slice(0, 2).map((category, index) => (
-                      <Link
-                        key={index}
-                        href={`/category/${(category.name || category).toLowerCase()}`}
-                        className="px-2 py-0.5 bg-matrix-green/10 text-matrix-green rounded text-xs font-medium hover:bg-matrix-green/20 transition-colors border border-matrix-green/20"
-                      >
-                        {category.name || category}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Action Bar */}
-                <div className="flex items-center justify-between mt-auto">
-                  <div className="flex items-center gap-3 sm:gap-4">
-                    {/* Claps */}
-                    <button
-                      onClick={() => handleClap(post.id)}
-                      disabled={clapLoading}
-                      className="flex items-center gap-1 text-text-muted hover:text-hacker-yellow transition-colors font-mono"
-                    >
-                      <FaHandsClapping className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${clapLoading ? 'animate-pulse' : ''}`} />
-                      <span className="text-xs sm:text-sm">{currentClapCount}</span>
-                    </button>
-
-                    {/* Comments */}
-                    <button
-                      onClick={toggleComments}
-                      className="flex items-center gap-1 text-text-muted hover:text-matrix-green transition-colors font-mono"
-                    >
-                      <FaComment className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                      <span className="text-xs sm:text-sm">{post.comments_count || 0}</span>
-                    </button>
-
-                    {/* Views */}
-                    <div className="flex items-center gap-1 text-text-muted font-mono">
-                      <FaEye className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-                      <span className="text-xs sm:text-sm">{post.views || 0}</span>
-                    </div>
-                  </div>
-
-                  {/* Reading Time */}
-                  <div className="flex items-center gap-1 text-xs text-text-muted font-mono">
-                    <FaClock className="w-3 h-3" />
-                    <span>{Math.ceil(post.content?.replace(/<[^>]*>/g, '').length / 200) || 1}m</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Right Side - Image */}
-              {post.image_title && (
-                <div className="w-full sm:w-1/3 order-1 sm:order-2 flex-shrink-0">
-                  <Link href={`/p/${post.title_name}`}>
-                    <div className="relative w-full h-32 sm:h-24 md:h-28 overflow-hidden rounded border border-matrix-green/30">
-                      <SafeImage
-                        src={post.image_title}
-                        alt={post.title}
-                        fill
-                        className="object-cover hover:scale-105 transition-transform duration-300"
-                        sizes="(max-width: 640px) 100vw, 33vw"
-                      />
-                    </div>
-                  </Link>
-                </div>
-              )}
-            </div>
-          </div>
-        </article>
-
-        {/* Comments Section */}
-        {showComments && (
-          <div className="mt-6 border-t border-matrix-green/30 pt-6">
-            <CommentSection postId={post.id} user={user} />
-          </div>
-        )}
-      </>
-    );
-  }
-
-  // Default variant - Terminal window style
   return (
-    <>
-      <article className="bg-terminal-gray border border-matrix-green/30 hover:border-matrix-green transition-colors duration-300 mb-4 rounded-lg overflow-hidden">
-        {/* Terminal Window Header */}
-        <div className="bg-terminal-light px-4 py-2 border-b border-matrix-green/30">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2 text-xs font-mono">
-              <span className="flex space-x-1">
-                <span className="w-2 h-2 bg-hacker-red rounded-full"></span>
-                <span className="w-2 h-2 bg-hacker-yellow rounded-full"></span>
-                <span className="w-2 h-2 bg-matrix-green rounded-full"></span>
+    <div
+      className="rounded-card p-6 mb-6 bg-medium-bg-card transition-all duration-200 hover:shadow-card-hover"
+    >
+      <div className="flex flex-col md:flex-row">
+        {/* Post Section */}
+        <div className="w-full md:w-2/3 pr-0 md:pr-4">
+
+          {/* Post Title */}
+          <Link href={`/p/${post.title_name}`}>
+          <h5 className="text-heading-3 font-serif text-medium-text-primary hover:text-medium-accent-green transition-colors duration-200 line-clamp-2">
+          {post.title}
+          </h5>
+           
+          </Link>
+
+          {/* Post Preview Content */}
+          <p className="text-body-small text-medium-text-secondary line-clamp-2">
+            <TextUtils html={post.preview_content} maxLength={200} />
+          </p>
+
+          {/* Rating Component */}
+          {/* <Rating postId={post.id} /> */}
+
+          {/* Interaction Buttons */}
+          <div className="flex flex-wrap items-center justify-between mt-4 space-y-2 md:space-y-0">
+            <div className="flex items-center space-x-4">
+              <TimeAgo timestamp={post.created_at} />
+              {/* Nút Clap */}
+              <button
+                onClick={handleClap}
+                className="flex items-center text-medium-text-secondary hover:text-medium-accent-green transition-colors"
+                aria-label="Clap for this post"
+              >
+                <FaHandsClapping className="mr-1" /> {clapsCount}
+              </button>
+
+              {/* Nút Comment */}
+                         <button
+                           onClick={toggleCommentPopup}
+                           className="flex items-center text-medium-text-secondary hover:text-medium-accent-green transition-colors"
+                           aria-label="View comments"
+                         >
+                           <FaComment className="mr-1" /> {totalCount || 0}
+                         </button>
+
+              {/* Số lượng View */}
+              <span className="flex items-center text-medium-text-secondary">
+                <FaEye className="mr-1" /> {post.views}
               </span>
-              <span className="text-matrix-green">post@{post.id}</span>
-            </div>
-            <div className="flex items-center space-x-3 text-xs font-mono text-text-muted">
-              <span>Modified: <TimeAgo timestamp={post.created_at} /></span>
-            </div>
-          </div>
-        </div>
-
-        <div className="p-4 md:p-6 bg-terminal-dark">
-                      <div className="flex gap-4 md:gap-6">
-            {/* Left Side - Content */}
-            <div className="flex-1 min-w-0 flex flex-col">
-              <div className="flex-1">
-                {/* Author Info - Terminal Style */}
-                <div className="flex items-center gap-2 md:gap-3 mb-3 md:mb-4">
-                  <div className="w-6 h-6 md:w-8 md:h-8 bg-terminal-gray rounded border border-matrix-green/50 flex items-center justify-center flex-shrink-0">
-                    <FaUser className="w-3 h-3 md:w-4 md:h-4 text-matrix-green" />
-                  </div>
-                  <div className="flex items-center gap-2 text-sm md:text-base text-text-secondary min-w-0 font-mono">
-                    <span className="text-matrix-green">$</span>
-                    <span className="font-medium text-text-primary truncate">
-                      {post.user?.name || 'anonymous'}
-                    </span>
-                    <span className="text-text-muted hidden sm:inline">in</span>
-                    {post.categories && post.categories.length > 0 && (
-                      <Link
-                        href={`/category/${(post.categories[0].name || post.categories[0]).toLowerCase()}`}
-                        className="text-matrix-cyan hover:text-matrix-green font-medium truncate hidden sm:inline hover:underline"
-                      >
-                        ./{post.categories[0].name || post.categories[0]}
-                      </Link>
-                    )}
-                  </div>
-                </div>
-
-                {/* Title - Command Style */}
-                <Link href={`/p/${post.title_name}`}>
-                  <h2 className="text-lg md:text-xl font-bold text-text-primary mb-3 hover:text-matrix-green transition-colors leading-tight line-clamp-2 font-mono">
-                    <span className="text-hacker-yellow">$</span> cat "{post.title}"
-                  </h2>
-                </Link>
-
-                {/* Content Preview - Code Comment Style */}
-                <div className="text-text-secondary text-sm md:text-base mb-4 md:mb-5 leading-relaxed font-mono">
-                  <span className="text-text-muted">//</span> <TextUtils html={post.preview_content} maxLength={120} />
-                </div>
-              </div>
-
-              {/* Meta Info & Actions - Terminal Status */}
-              <div className="flex items-center justify-between mt-auto">
-                <div className="flex items-center gap-2 md:gap-4 text-xs md:text-sm text-text-muted font-mono">
-                  <div className="flex items-center gap-1">
-                    <FaClock className="w-3 h-3" />
-                    <TimeAgo timestamp={post.created_at} />
-                  </div>
-                  <span>•</span>
-                  <span className="hidden sm:inline">~5 min read</span>
-                </div>
-
-                {/* Action Icons - Terminal Style */}
-                <div className="flex items-center gap-3 md:gap-4">
-                  {/* Views */}
-                  <div className="flex items-center gap-1 text-text-muted hover:text-matrix-cyan transition-colors">
-                    <FaEye className="w-4 h-4" />
-                    <span className="text-sm font-mono">{post.views || 0}</span>
-                  </div>
-
-                  {/* Clap */}
-                  <button
-                    onClick={() => handleClap(post.id)}
-                    disabled={clapLoading}
-                    className="flex items-center gap-1 text-text-muted hover:text-hacker-yellow transition-colors hover:scale-110"
-                  >
-                    <FaHandsClapping className={`w-4 h-4 ${clapLoading ? 'animate-pulse' : ''}`} />
-                    <span className="text-sm font-mono">{currentClapCount}</span>
-                  </button>
-
-                  {/* Comment */}
-                  <button
-                    onClick={toggleComments}
-                    className="flex items-center gap-1 text-text-muted hover:text-matrix-green transition-colors"
-                  >
-                    <FaComment className="w-4 h-4" />
-                    <span className="text-sm font-mono">{post.comments_count || 0}</span>
-                  </button>
-                </div>
-              </div>
             </div>
 
-            {/* Right Side - Image with Terminal Frame */}
-            {post.image_title && (
-              <div className="w-24 h-24 md:w-32 md:h-32 flex-shrink-0">
-                <Link href={`/p/${post.title_name}`}>
-                  <div className="relative w-full h-full">
-                    <SafeImage
-                      src={post.image_title}
-                      alt={post.title}
-                      width={128}
-                      height={128}
-                      className="w-full h-full object-cover rounded border border-matrix-green/50 hover:border-matrix-green transition-colors"
-                      sizes="(max-width: 768px) 96px, 128px"
-                    />
-                    {/* Terminal Image Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-terminal-black/20 pointer-events-none rounded"></div>
-                  </div>
-                </Link>
+            <div className="flex items-center space-x-4">
+
+              {/* Nút Share */}
+              <div ref={shareMenuRef} className="relative">
+                <button
+                  onClick={handleShare}
+                  className="flex items-center text-medium-text-secondary hover:text-medium-accent-green transition-colors"
+                  aria-label="Share this post"
+                >
+                  <FaShareAlt className="mr-1" />
+                </button>
+
+                {isShareMenuOpen && (
+                  <ShareMenu
+                    shareUrl={shareUrl}
+                    title={post.title}
+                    onClose={() => setShareMenuOpen(false)}
+                  />
+                )}
               </div>
-            )}
+            </div>
           </div>
+
+          {/* Inline Comments Section */}
+          {isCommentsOpen && (
+            <div className="mt-8 pt-2">
+              <AddCommentForm 
+                postId={post.id} 
+                user={user} 
+                onCommentAdded={mutate}
+              />
+                         <LimitedCommentList
+                           comments={comments ? comments.flat() : []}
+                           postId={post.id}
+                           mutate={mutate}
+                           canLoadMore={canLoadMore}
+                           loadMore={loadMore}
+                           isLoadingMore={isLoading}
+                           totalCount={totalCount || 0}
+                         />
+            </div>
+          )}
         </div>
 
-        {/* Terminal Status Bar */}
-        <div className="bg-terminal-light px-4 py-1 border-t border-matrix-green/30">
-          <div className="flex items-center justify-between text-xs font-mono">
-            <span className="text-text-muted">
-              Size: {post.preview_content?.length || 0} chars
-            </span>
-            <span className="text-matrix-green">
-              Press ENTER to read more
-            </span>
-          </div>
+        {/* Image Section */}
+        <div className="w-full md:w-1/3 mt-4 md:mt-0">
+          {post.image_title && (
+            <div className="p-4">
+              <Link href={`/p/${post.title_name}`}>
+                <img
+                  src={post.image_title}
+                  alt={post.title}
+                  className="h-48 w-full object-cover rounded transform hover:scale-105 transition-transform duration-300"
+                />
+              </Link>
+            </div>
+          )}
         </div>
-      </article>
-
-      {/* Comments Section */}
-      {showComments && (
-        <div className="mt-6 border-t border-matrix-green/30 pt-6">
-          <CommentSection postId={post.id} user={user} />
-        </div>
-      )}
-    </>
+      </div>
+    </div>
   );
 };
 

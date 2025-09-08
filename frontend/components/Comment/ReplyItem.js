@@ -1,6 +1,6 @@
 // src/components/Comment/ReplyItem.js
 import React from 'react';
-import { FaHandsClapping, FaUser } from "react-icons/fa6";
+import { FaHeart, FaUser } from "react-icons/fa";
 import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapReply } from '../../services/activityService';
 import { useUser } from '../../context/UserContext';
@@ -33,10 +33,10 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
   };
 
   return (
-    <div className="bg-terminal-light border border-matrix-green/20 rounded-lg p-3 hover:border-matrix-green/40 transition-colors duration-300">
+    <div className="bg-medium-bg-secondary rounded-lg p-3 hover:bg-medium-hover transition-colors duration-300 shadow-sm">
       {/* Author Info */}
       <div className="flex items-center gap-2 mb-2">
-        <div className="w-6 h-6 bg-terminal-gray rounded-full border border-matrix-green/50 flex items-center justify-center flex-shrink-0">
+        <div className="w-6 h-6 bg-medium-bg-primary rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
           {reply.user?.avatar_url ? (
             <img
               src={reply.user.avatar_url}
@@ -44,14 +44,14 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
               className="w-full h-full rounded-full object-cover"
             />
           ) : (
-            <FaUser className="w-3 h-3 text-matrix-green" />
+            <FaUser className="w-3 h-3 text-medium-accent-green" />
           )}
         </div>
         <div className="flex items-center gap-2">
-          <span className="font-medium text-text-primary text-sm">
+          <span className="font-medium text-medium-text-primary text-sm">
             {reply.user?.name || 'Anonymous'}
           </span>
-          <span className="text-text-muted text-xs">
+          <span className="text-medium-text-muted text-xs">
             <TimeAgo timestamp={reply.created_at} />
           </span>
         </div>
@@ -59,7 +59,7 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
 
       {/* Reply Content */}
       <div className="pl-8 mb-2">
-        <div className="text-text-secondary text-sm leading-relaxed">
+        <div className="text-medium-text-secondary text-sm leading-relaxed">
           {reply.content}
         </div>
       </div>
@@ -69,12 +69,12 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
         <button
           onClick={handleClap}
           className={`flex items-center gap-1 text-sm transition-colors ${
-            hasClapped ? 'text-hacker-yellow' : 'text-text-muted hover:text-hacker-yellow'
+            hasClapped ? 'text-medium-accent-green' : 'text-medium-text-muted hover:text-medium-accent-green'
           }`}
           disabled={clapsLoading}
           aria-label="Clap for this reply"
         >
-          <FaHandsClapping className={`w-3 h-3 ${clapsLoading ? 'animate-pulse' : ''}`} />
+          <FaHeart className={`w-3 h-3 ${clapsLoading ? 'animate-pulse' : ''}`} />
           <span>{clapsCountDisplay(clapsCount, clapsLoading)}</span>
         </button>
       </div>

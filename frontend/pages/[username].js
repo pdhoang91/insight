@@ -65,10 +65,10 @@ const UserProfilePage = () => {
   // Show loading while checking authentication
   if (loadingUser || loadingOwner) {
     return (
-      <div className="min-h-screen bg-terminal-black flex items-center justify-center">
+      <div className="min-h-screen bg-medium-bg-primary flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-text-secondary">Đang tải hồ sơ...</p>
+          <p className="mt-4 text-medium-text-secondary">Đang tải hồ sơ...</p>
         </div>
       </div>
     );
@@ -80,10 +80,10 @@ const UserProfilePage = () => {
   
   if (!loggedUser || (!isOwner && !isAdmin)) {
     return (
-      <div className="min-h-screen bg-terminal-black flex items-center justify-center">
+      <div className="min-h-screen bg-medium-bg-primary flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-text-secondary">Đang chuyển hướng...</p>
+          <p className="mt-4 text-medium-text-secondary">Đang chuyển hướng...</p>
         </div>
       </div>
     );
@@ -91,17 +91,17 @@ const UserProfilePage = () => {
 
   if (ownerError) {
     return (
-      <div className="min-h-screen bg-terminal-black flex items-center justify-center">
+      <div className="min-h-screen bg-medium-bg-primary flex items-center justify-center">
         <div className="text-center">
-          <div className="text-hacker-red mb-2">Lỗi khi tải hồ sơ</div>
-          <p className="text-text-muted">{ownerError}</p>
+          <div className="text-red-500 font-serif text-lg mb-2">Lỗi khi tải hồ sơ</div>
+          <p className="text-medium-text-muted">{ownerError}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-terminal-black">
+    <div className="min-h-screen bg-medium-bg-primary">
       {/* Main Content Container - Match other pages */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         

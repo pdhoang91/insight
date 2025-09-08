@@ -7,7 +7,7 @@ const SafeImage = ({
   width, 
   height, 
   className = '', 
-  fallbackSrc = '/favicon.png',
+  fallbackSrc = '/author-avatar.svg',
   priority = false,
   fill = false,
   sizes,
@@ -42,9 +42,7 @@ const SafeImage = ({
     // First try to transform the URL
     const transformedSrc = transformS3Url(originalSrc);
     
-    if (process.env.NODE_ENV === 'development' && transformedSrc?.includes('s3.amazonaws.com')) {
-      return `/api/image-proxy?url=${encodeURIComponent(transformedSrc)}`;
-    }
+    // Don't automatically proxy, let the error handler decide
     return transformedSrc;
   };
 
@@ -59,27 +57,30 @@ const SafeImage = ({
   const [retryCount, setRetryCount] = useState(0);
 
   const handleError = () => {
-
-    
-    // Try to retry with different approach for S3 images
-    if (retryCount < 2 && src && src.includes('s3.amazonaws.com')) {
+    // Try to retry with different approaches
+    if (retryCount < 3 && src) {
       setRetryCount(prev => prev + 1);
       
       if (retryCount === 0) {
-        // First retry: try direct S3 URL without proxy
-        const directUrl = transformS3Url(src);
-
-        setImageSrc(directUrl);
-        return;
+        // First retry: try with proxy for any external URL
+        if (src.includes('s3.amazonaws.com') || src.includes('localhost:81')) {
+          const proxiedUrl = `/api/image-proxy?url=${encodeURIComponent(src)}`;
+          setImageSrc(proxiedUrl);
+          return;
+        }
       } else if (retryCount === 1) {
-        // Second retry: try with timestamp
-        const timestampedUrl = getProxiedSrc(`${src}${src.includes('?') ? '&' : '?'}t=${Date.now()}`);
-
+        // Second retry: try direct URL without proxy
+        setImageSrc(src);
+        return;
+      } else if (retryCount === 2) {
+        // Third retry: try with timestamp
+        const timestampedUrl = `${src}${src.includes('?') ? '&' : '?'}t=${Date.now()}`;
         setImageSrc(timestampedUrl);
         return;
       }
     }
 
+    // All retries failed, use fallback
     if (imageSrc !== fallbackSrc) {
       setImageSrc(fallbackSrc);
       setHasError(false);
@@ -131,8 +132,8 @@ const SafeImage = ({
     onLoad: handleLoad,
     priority,
     className: `${className} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`,
-    // Add unoptimized for SVG images and S3 images with SSL issues in development
-    ...((isSvg(imageSrc) || (process.env.NODE_ENV === 'development' && imageSrc?.includes('s3.amazonaws.com'))) && {
+    // Add unoptimized for SVG images, localhost images, and S3 images with SSL issues
+    ...((isSvg(imageSrc) || imageSrc?.includes('localhost') || imageSrc?.includes('s3.amazonaws.com') || imageSrc?.includes('/api/image-proxy')) && {
       unoptimized: true
     }),
     ...props
@@ -148,11 +149,15 @@ const SafeImage = ({
     );
   }
 
+  // Provide default dimensions if not specified
+  const finalWidth = width || 400;
+  const finalHeight = height || 300;
+
   return (
     <Image
       {...imageProps}
-      width={width}
-      height={height}
+      width={finalWidth}
+      height={finalHeight}
       sizes={sizes}
     />
   );

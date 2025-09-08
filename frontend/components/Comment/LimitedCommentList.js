@@ -16,17 +16,17 @@ const LimitedCommentList = ({
 }) => {
   if (!Array.isArray(comments)) {
 
-    return <div className="text-red-500">Dữ liệu bình luận không hợp lệ.</div>;
+    return <div className="text-medium-error">Dữ liệu bình luận không hợp lệ.</div>;
   }
 
   if (comments.length === 0) {
-    return <p className="text-muted font-mono text-center py-8">// No comments yet</p>;
+    return <p className="text-medium-text-muted text-center py-8 text-body">Chưa có bình luận nào</p>;
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* Comments List */}
-      <ul className="space-y-4">
+      <ul className="space-y-6">
         <AnimatePresence>
           {comments.map((comment) => (
             <CommentItem key={comment.id} comment={comment} postId={postId} mutate={mutate} />
@@ -40,17 +40,17 @@ const LimitedCommentList = ({
           <button
             onClick={loadMore}
             disabled={isLoadingMore}
-            className="flex items-center gap-2 px-6 py-3 bg-elevated border border-border-primary rounded-lg text-secondary hover:text-primary hover:bg-surface transition-all duration-200 font-mono disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-6 py-3 bg-medium-bg-secondary rounded-button text-medium-text-secondary hover:text-medium-text-primary hover:bg-medium-hover transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
           >
             {isLoadingMore ? (
               <>
                 <FaSpinner className="w-4 h-4 animate-spin" />
-                <span>Loading...</span>
+                <span>Đang tải...</span>
               </>
             ) : (
               <>
                 <FaChevronDown className="w-4 h-4" />
-                <span>Load more comments ({totalCount - comments.length} remaining)</span>
+                <span>Xem thêm bình luận ({Math.max(0, totalCount - comments.length)} còn lại)</span>
               </>
             )}
           </button>
@@ -59,8 +59,8 @@ const LimitedCommentList = ({
 
       {/* Comments Count Info */}
       {totalCount > 0 && (
-        <div className="text-center text-muted text-sm font-mono pt-2">
-          Showing {comments.length} of {totalCount} comments
+        <div className="text-center text-medium-text-muted text-body-small pt-2">
+          Hiển thị {comments.length} trong số {totalCount} bình luận
         </div>
       )}
     </div>

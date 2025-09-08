@@ -1,18 +1,20 @@
 // src/components/Comment/CommentItem.js
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaHandsClapping, FaComment, FaUser } from "react-icons/fa6";
+import { FaHeart, FaComment, FaUser } from "react-icons/fa";
+import { useCommentClap } from '../../hooks/useCommentClap';
+import { useUser } from '../../context/UserContext';
+import { useThemeClasses } from '../../hooks/useThemeClasses';
+import { addReply } from '../../services/commentService';
 import AddCommentForm from './AddCommentForm';
 import CommentContent from './CommentContent';
 import ReplyList from './ReplyList';
-import { useCommentClap } from '../../hooks/useCommentClap';
-import { useUser } from '../../context/UserContext';
-import { addReply } from '../../services/commentService';
 import TimeAgo from '../Utils/TimeAgo';
 
 const CommentItem = ({ comment, postId, mutate }) => {
   const [showReplyForm, setShowReplyForm] = useState(false);
   const { user } = useUser();
+  const { classes } = useThemeClasses();
   const repliesCount = comment.replies ? comment.replies.length : 0;
 
   // Use reusable clap hook
@@ -46,14 +48,14 @@ const CommentItem = ({ comment, postId, mutate }) => {
 
   return (
     <motion.div
-      className="bg-terminal-dark border border-matrix-green/20 rounded-lg hover:border-matrix-green/40 transition-colors duration-300 p-4"
+      className="bg-medium-bg-card rounded-card p-6 shadow-card"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
     >
       {/* Author Info */}
       <div className="flex items-center gap-3 mb-3">
-        <div className="w-8 h-8 bg-terminal-gray rounded-full border border-matrix-green/50 flex items-center justify-center flex-shrink-0">
+        <div className="w-8 h-8 bg-medium-bg-secondary rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
           {comment.user?.avatar_url ? (
             <img
               src={comment.user.avatar_url}
@@ -61,14 +63,14 @@ const CommentItem = ({ comment, postId, mutate }) => {
               className="w-full h-full rounded-full object-cover"
             />
           ) : (
-            <FaUser className="w-4 h-4 text-matrix-green" />
+            <FaUser className="w-4 h-4 text-medium-accent-green" />
           )}
         </div>
         <div className="flex items-center gap-2">
-          <span className="font-medium text-text-primary">
+          <span className="font-medium text-medium-text-primary">
             {comment.user?.name || 'Anonymous'}
           </span>
-          <span className="text-text-muted text-sm">
+          <span className="text-medium-text-muted text-sm">
             <TimeAgo timestamp={comment.created_at} />
           </span>
         </div>
@@ -76,7 +78,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
 
       {/* Comment Content */}
       <div className="mb-4 pl-11">
-        <div className="text-text-secondary leading-relaxed">
+        <div className="text-medium-text-secondary leading-relaxed">
           <CommentContent content={comment.content} />
         </div>
       </div>
@@ -86,17 +88,17 @@ const CommentItem = ({ comment, postId, mutate }) => {
         <button
           onClick={handleClap}
           className={`flex items-center gap-1 text-sm transition-colors ${
-            hasClapped ? 'text-hacker-yellow' : 'text-text-muted hover:text-hacker-yellow'
+            hasClapped ? 'text-medium-accent-green' : 'text-medium-text-muted hover:text-medium-accent-green'
           }`}
           aria-label="Clap for this comment"
         >
-          <FaHandsClapping className={`w-3 h-3 ${clapsLoading ? 'animate-pulse' : ''}`} />
+          <FaHeart className={`w-3 h-3 ${clapsLoading ? 'animate-pulse' : ''}`} />
           <span>{clapsCount}</span>
         </button>
 
         <button
           onClick={handleToggleReply}
-          className="flex items-center gap-1 text-sm text-text-muted hover:text-matrix-green transition-colors"
+          className="flex items-center gap-1 text-sm text-medium-text-muted hover:text-medium-accent-green transition-colors"
           aria-label="Reply to this comment"
         >
           <FaComment className="w-3 h-3" />

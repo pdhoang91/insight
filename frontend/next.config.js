@@ -24,6 +24,12 @@ module.exports = {
       },
       {
         protocol: 'https',
+        hostname: 'localhost',
+        port: '81',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'www.w3schools.com',
         port: '',
         pathname: '/**',

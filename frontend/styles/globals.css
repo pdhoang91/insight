@@ -1,10 +1,9 @@
 /* styles/globals.css */
 
-/* Import Google Fonts + Hacker Fonts */
+/* Import Medium-inspired Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Charter:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&display=swap');
 
 
 
@@ -23,76 +22,44 @@ body {
   scroll-padding-top: 4rem; /* 64px for navbar height */
 }
 
-/* Hacker/Terminal Theme CSS Custom Properties */
+/* Medium 2024 Design System - CSS Custom Properties */
 :root {
-  /* Terminal Colors */
-  --terminal-black: #0d1117;
-  --terminal-dark: #161b22;
-  --terminal-gray: #21262d;
-  --terminal-light: #30363d;
-  --terminal-border: #363b42;
+  /* Light Mode - Medium 2024 */
+  --medium-bg-primary: #FFFFFF;
+  --medium-bg-secondary: #F7F4ED;
+  --medium-bg-card: #FFFFFF;
+  --medium-bg-elevated: #FAFAFA;
   
-  /* Matrix/Neon Colors (Softer) */
-  --matrix-green: #4ade80;
-  --matrix-dark-green: #22c55e;
-  --matrix-light-green: #86efac;
-  --matrix-cyan: #22d3ee;
-  --matrix-blue: #3b82f6;
+  --medium-text-primary: #242424;
+  --medium-text-secondary: #757575;
+  --medium-text-muted: #B3B3B1;
+  --medium-text-accent: #1A8917;
   
-  /* Hacker Theme Colors (Softer) */
-  --hacker-red: #ef4444;
-  --hacker-orange: #f97316;
-  --hacker-yellow: #eab308;
-  --hacker-purple: #a855f7;
-  --hacker-pink: #ec4899;
+  --medium-accent-green: #1A8917;
+  --medium-accent-gray: #6B6B6B;
+  --medium-accent-blue: #1976D2;
   
-  /* Tech Theme Colors (Enhanced) */
-  --color-tech-green: #00ff00;
-  --color-tech-green-400: #39ff14;
-  --color-tech-blue: #0080ff;
-  --color-tech-blue-400: #00ffff;
-  --color-tech-yellow: #ffff00;
-  --color-tech-yellow-400: #fff200;
-  --color-tech-red: #ff0040;
-  --color-tech-red-400: #ff4070;
+  --medium-border: #E6E6E6;
+  --medium-border-light: #F2F2F2;
+  --medium-divider: #F2F2F2;
   
-  /* Original Colors (updated for hacker theme) */
-  --color-primary-50: #001100;
-  --color-primary-100: #002200;
-  --color-primary-500: #00ff00;
-  --color-primary-600: #00cc00;
-  --color-primary-700: #009900;
-  --color-primary-900: #004400;
+  --medium-hover: #F8F9FA;
+  --medium-active: #E9ECEF;
+  --medium-focus: rgba(26, 137, 23, 0.2);
   
-  --color-purple-500: #bf00ff;
-  --color-purple-600: #9900cc;
+  /* Reading Experience */
+  --reading-width: 680px;
+  --reading-line-height: 1.58;
+  --reading-spacing: 24px;
   
-  /* Dark Terminal Grays */
-  --color-gray-50: #f0f6fc;
-  --color-gray-100: #c9d1d9;
-  --color-gray-200: #b1bac4;
-  --color-gray-300: #8b949e;
-  --color-gray-400: #7d8590;
-  --color-gray-500: #656d76;
-  --color-gray-600: #484f58;
-  --color-gray-700: #30363d;
-  --color-gray-800: #21262d;
-  --color-gray-900: #161b22;
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
   
-  /* Terminal Background Colors */
-  --bg-primary: #0d1117;
-  --bg-secondary: #161b22;
-  --bg-card: #21262d;
-  --bg-hover: #30363d;
-  
-  /* Enhanced shadows with neon glow */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-  --shadow-neon: 0 0 5px var(--matrix-green), 0 0 10px var(--matrix-green), 0 0 15px var(--matrix-green);
-  
+  /* Border Radius */
   --border-radius-sm: 0.125rem;
   --border-radius: 0.25rem;
   --border-radius-md: 0.375rem;
@@ -101,6 +68,7 @@ body {
   --border-radius-2xl: 1rem;
   --border-radius-3xl: 1.5rem;
   
+  /* Spacing */
   --spacing-1: 0.25rem;
   --spacing-2: 0.5rem;
   --spacing-3: 0.75rem;
@@ -111,59 +79,67 @@ body {
   --spacing-16: 4rem;
 }
 
+/* Dark Mode - Medium 2024 */
+[data-theme="dark"] {
+  --medium-bg-primary: #0F0F0F;
+  --medium-bg-secondary: #1A1A1A;
+  --medium-bg-card: #1A1A1A;
+  --medium-bg-elevated: #242424;
+  
+  --medium-text-primary: #E6E6E6;
+  --medium-text-secondary: #B3B3B3;
+  --medium-text-muted: #6B6B6B;
+  --medium-text-accent: #1DB954;
+  
+  --medium-accent-green: #1DB954;
+  --medium-accent-gray: #8B8B8B;
+  --medium-accent-blue: #42A5F5;
+  
+  --medium-border: #2F2F2F;
+  --medium-border-light: #262626;
+  --medium-divider: #262626;
+  
+  --medium-hover: #242424;
+  --medium-active: #2F2F2F;
+  --medium-focus: rgba(29, 185, 84, 0.2);
+  
+  /* Dark Mode Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+}
+
 /* To ensure all elements use border-box sizing */
 *, *::before, *::after {
   box-sizing: border-box;
 }
 
-/* Global Styles for HTML and Body - Terminal/Hacker Theme */
+/* Global Styles - Medium-inspired */
 html,
 body {
   padding: 0;
   margin: 0;
-  font-family: 'JetBrains Mono', 'Share Tech Mono', 'Courier New', monospace;
-  line-height: 1.6;
-  color: #f0f6fc;
-  background-color: #0d1117;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: var(--reading-line-height);
+  color: var(--medium-text-primary);
+  background-color: var(--medium-bg-primary);
   overflow-x: hidden;
-  font-feature-settings: 'rlig' 1, 'calt' 1;
-  /* Terminal scan line effect */
-  background-image: 
-    linear-gradient(
-      90deg,
-      transparent 98%,
-      rgba(0, 255, 0, 0.03) 100%
-    );
-  background-size: 3px 100%;
+  font-feature-settings: 'kern' 1, 'liga' 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Matrix Rain Background Effect */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: 
-    radial-gradient(ellipse at center, transparent 65%, rgba(0, 0, 0, 0.3)),
-    linear-gradient(90deg, transparent 98%, rgba(0, 255, 0, 0.01) 100%);
-  background-size: 100% 100%, 2px 100%;
-  pointer-events: none;
-  z-index: -1;
-}
 
-/* Terminal Typography - Hacker Theme */
+/* Medium 2024 Typography System */
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Orbitron', 'JetBrains Mono', monospace;
-  font-weight: 700;
-  line-height: 1.2;
-  letter-spacing: -0.025em;
-  color: #f0f6fc;
+  font-family: Charter, Georgia, Cambria, 'Times New Roman', serif;
+  color: var(--medium-text-primary);
   margin-top: 0;
-  margin-bottom: 0.5em;
+  margin-bottom: 0.75em;
   word-break: break-word;
-  text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+  font-feature-settings: 'kern' 1, 'liga' 1;
 }
 
 /* Enhanced Mono Font Classes */
@@ -173,56 +149,153 @@ h1, h2, h3, h4, h5, h6 {
 
 
 
+/* Display heading for hero sections */
+.display-heading {
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+/* Article titles */
+.article-title {
+  font-size: 2.625rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.003em;
+}
+
 h1 {
   font-size: 2.25rem;
-  font-weight: 800;
-  letter-spacing: -0.05em;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.002em;
 }
 
 h2 {
-  font-size: 1.875rem;
-  font-weight: 700;
+  font-size: 1.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.002em;
 }
 
 h3 {
   font-size: 1.5rem;
   font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.001em;
 }
 
 h4 {
   font-size: 1.25rem;
   font-weight: 600;
+  line-height: 1.4;
 }
 
 h5 {
   font-size: 1.125rem;
   font-weight: 600;
+  line-height: 1.4;
 }
 
 h6 {
   font-size: 1rem;
   font-weight: 600;
+  line-height: 1.4;
 }
 
-/* Paragraphs */
+/* Mobile typography adjustments */
+@media (max-width: 768px) {
+  .display-heading {
+    font-size: 2.25rem;
+  }
+  
+  .article-title {
+    font-size: 2rem;
+  }
+  
+  h1 {
+    font-size: 1.875rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
+  
+  h3 {
+    font-size: 1.25rem;
+  }
+}
+
+/* Body text - Medium 2024 */
 p {
-  margin: 0 0 1em 0;
-  color: var(--color-gray-300);
-  line-height: 1.7;
+  margin: 0 0 1.5em 0;
+  color: var(--medium-text-primary);
+  line-height: 1.58;
+  font-size: 1.125rem;
   word-break: break-word;
+  font-feature-settings: 'kern' 1, 'liga' 1;
 }
 
-/* Links - Hacker Style */
+/* Reading-optimized paragraph */
+.reading-content p {
+  font-size: 1.25rem;
+  line-height: 1.58;
+  margin-bottom: 1.5em;
+  color: var(--medium-text-primary);
+}
+
+/* Subtitle text */
+.subtitle {
+  font-size: 1.375rem;
+  line-height: 1.4;
+  color: var(--medium-text-secondary);
+  font-weight: 400;
+  margin-bottom: 1.5em;
+}
+
+/* Caption text */
+.caption {
+  font-size: 0.875rem;
+  line-height: 1.4;
+  color: var(--medium-text-muted);
+  font-style: italic;
+}
+
+/* Small text */
+.small-text {
+  font-size: 0.75rem;
+  line-height: 1.3;
+  color: var(--medium-text-muted);
+}
+
+/* Links - Medium 2024 Style */
 a {
-  color: var(--matrix-green);
+  color: var(--medium-text-accent);
   text-decoration: none;
   transition: all 0.2s ease;
   position: relative;
 }
 
 a:hover {
-  color: var(--matrix-light-green);
-  text-shadow: 0 0 5px var(--matrix-green);
+  color: var(--medium-accent-green);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+/* Reading content links */
+.reading-content a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--medium-accent-green);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.reading-content a:hover {
+  color: var(--medium-accent-green);
+  text-decoration-thickness: 2px;
 }
 
 /* Removed a:hover::before rule that was causing > icon to appear on hover */

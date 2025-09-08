@@ -1,206 +1,207 @@
 // components/Post/PostItemProfile.js
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { FaEye, FaEdit, FaTrash, FaComment } from 'react-icons/fa';
-import { FaHandsClapping } from "react-icons/fa6";
-import AddCommentForm from '../Comment/AddCommentForm';
-import CommentItem from '../Comment/CommentItem';
+import { FaEye, FaShareAlt, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaHandsClapping, FaRegComments } from "react-icons/fa6";
+// import CommentsPopup from '../Comment/CommentsPopup'; // Removed - using inline comments
+import Rating from './Rating';
 import TextUtils from '../Utils/TextUtils';
-import SafeImage from '../Utils/SafeImage';
+import AuthorInfo from '../Auth/AuthorInfo';
 import { useUser } from '../../context/UserContext';
-import { usePostClap } from '../../hooks/usePostClap';
-import { usePostComments } from '../../hooks/usePostComments';
+import { useClapsCount } from '../../hooks/useClapsCount';
+import { clapPost } from '../../services/activityService';
+import { useComments } from '../../hooks/useComments';
+import ShareMenu from '../Utils/ShareMenu';
 import TimeAgo from '../Utils/TimeAgo';
+import { BASE_FE_URL } from '../../config/api';
 import { useRouter } from 'next/router';
-import { deletePost } from '../../services/postService';
+import { deletePost } from '../../services/postService'; // Hàm API xóa bài viết
+import { FaComment } from 'react-icons/fa';
 
 const PostItemProfile = ({ post, isOwner }) => {
   if (!post) {
-    return (
-      <div className="bg-surface rounded-xl py-4 sm:py-6 border border-border-primary">
-        <div className="text-muted">Đang tải bài viết...</div>
-      </div>
-    );
+    return <div>Đang tải bài viết...</div>;
   }
 
+  const { clapsCount, loading: clapsLoading, mutate: mutateClaps } = useClapsCount('post', post.id);
   const { user } = useUser();
+  const [isCommentsOpen, setCommentsOpen] = useState(false);
+  const [isShareMenuOpen, setShareMenuOpen] = useState(false);
+  const shareMenuRef = useRef();
   const router = useRouter();
-  
-  // Use reusable hooks
-  const { currentClapCount, clapLoading, handleClap } = usePostClap(post.clap_count || 0);
-  const {
-    isCommentsOpen,
-    comments,
-    totalCount,
-    totalCommentReply,
-    isLoading,
-    isError,
-    handleAddComment,
-    toggleComments,
-    mutate,
-  } = usePostComments(post.id, false, 10); // Use regular comments
 
-  const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this post?')) {
-      try {
-        await deletePost(post.id);
-        alert('Post deleted successfully!');
-        router.reload();
-      } catch (error) {
-        console.error('Failed to delete post:', error);
-        alert('Failed to delete post. Please try again.');
+  const { comments, totalCommentReply, totalCount, isLoading, isError, mutate } = useComments(post.id, true, 1, 10);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (shareMenuRef.current && !shareMenuRef.current.contains(event.target)) {
+        setShareMenuOpen(false);
       }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handleClap = async () => {
+    if (!user) {
+      alert('Bạn cần đăng nhập để clap.');
+      return;
+    }
+    try {
+      await clapPost(post.id);
+      mutateClaps();
+    } catch (error) {
+      console.error('Failed to clap:', error);
+      mutateClaps();
+      alert('Đã xảy ra lỗi khi clap. Vui lòng thử lại sau.');
+    }
+  };
+
+  const toggleCommentPopup = () => {
+    setCommentsOpen((prev) => !prev);
+  };
+
+  const closeCommentPopup = () => {
+    setCommentsOpen(false);
+  };
+
+  const shareUrl = `${BASE_FE_URL}/p/${post.title_name}`;
+
+  const handleShare = () => {
+    setShareMenuOpen((prev) => !prev);
+  };
+
+  // Hàm xử lý xóa bài viết
+  const handleDelete = async () => {
+    const confirmDelete = confirm('Bạn có chắc chắn muốn xóa bài viết này không?');
+    if (!confirmDelete) return;
+
+    try {
+      await deletePost(post.id);
+      alert('Bài viết đã được xóa thành công!');
+      router.reload(); // Reload trang để cập nhật danh sách bài viết
+    } catch (error) {
+      console.error('Failed to delete post:', error);
+      alert('Đã xảy ra lỗi khi xóa bài viết. Vui lòng thử lại sau.');
     }
   };
 
   return (
-    <div className="w-full">
-      <article className="rounded-xl hover:shadow-lg transition-all duration-300">
-        <div className="flex py-6 border-b border-border-primary/20">
-          {/* Left Side - Content (2/3) */}
-          <div className="flex-1 pr-6 flex flex-col">
-            <div className="flex-1">
-              {/* Post Title */}
-              <Link href={`/p/${post.title_name}`}>
-                <h2 className="text-xl md:text-2xl font-bold text-primary hover:text-primary-hover transition-colors duration-200 line-clamp-2 mb-3">
-                  {post.title}
-                </h2>
-              </Link>
+    <div className="rounded-lg mb-6 bg-white transition-shadow duration-300">
+      <div className="flex flex-col md:flex-row">
+        {/* Post Section */}
+        <div className="w-full md:w-2/3 pr-0 md:pr-4">
+          {/* Author Information */}
+          <AuthorInfo author={post.user} />
 
-              {/* Content Preview */}
-              <div className="text-text-secondary text-sm sm:text-base line-clamp-3 sm:line-clamp-4 lg:line-clamp-6 mb-3 sm:mb-4 leading-relaxed">
-                <TextUtils html={post.preview_content || post.content} maxLength={200} />
-              </div>
+          {/* Post Title */}
+          <Link href={`/p/${post.title_name}`} className="block">
+            <h5 className="text-lg text-gray-800 hover:text-blue-600 transition-colors duration-200 line-clamp-2">
+              {post.title}
+            </h5>
+          </Link>
 
-              {/* Categories */}
-              {post.categories && post.categories.length > 0 && (
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {post.categories.slice(0, 2).map((category, index) => (
-                    <Link
-                      key={index}
-                      href={`/category/${(category.name || category).toLowerCase()}`}
-                      className="px-2 py-1 bg-primary/10 text-primary rounded text-xs font-medium hover:bg-primary/20 transition-colors"
-                    >
-                      {category.name || category}
-                    </Link>
-                  ))}
-                </div>
-              )}
+          {/* Post Preview Content */}
+          <p className="text-gray-600 text-sm line-clamp-2">
+            <TextUtils html={post.preview_content} maxLength={200} />
+          </p>
+
+          {/* Rating Component */}
+          <Rating postId={post.id} />
+
+          {/* Interaction Buttons */}
+          <div className="flex flex-wrap items-center justify-between mt-4 space-y-2 md:space-y-0">
+            <div className="flex items-center space-x-4">
+              {/* Nút Clap */}
+              <button
+                onClick={handleClap}
+                className="flex items-center text-gray-600 hover:text-red-500 transition-colors"
+                aria-label="Clap for this post"
+              >
+                <FaHandsClapping className="mr-1" /> {clapsCount}
+              </button>
+
+              {/* Nút Comment */}
+              <button
+                onClick={toggleCommentPopup}
+                className="flex items-center text-gray-600 hover:text-blue-500 transition-colors"
+                aria-label="View comments"
+              >
+                <FaComment className="mr-1" /> {totalCommentReply}
+              </button>
+
+              {/* Số lượng View */}
+              <span className="flex items-center text-gray-600">
+                <FaEye className="mr-1" /> {post.views}
+              </span>
+              <TimeAgo timestamp={post.created_at} />
             </div>
 
-            {/* Action Bar - Bottom of left content */}
-            <div className="flex items-center justify-between text-text-secondary mt-auto">
-              <div className="flex items-center gap-4">
-                {/* Claps */}
+            <div className="flex items-center space-x-4">
+
+              {/* Nút Share */}
+              <div ref={shareMenuRef} className="relative">
                 <button
-                  onClick={() => handleClap(post.id)}
-                  disabled={clapLoading}
-                  className="flex items-center gap-1 text-muted hover:text-primary transition-colors"
+                  onClick={handleShare}
+                  className="flex items-center text-gray-600 hover:text-green-500 transition-colors"
+                  aria-label="Share this post"
                 >
-                  <FaHandsClapping className="w-4 h-4" />
-                  <span className="text-sm">{currentClapCount}</span>
+                  <FaShareAlt className="mr-1" />
                 </button>
 
-                {/* Comments */}
-                <button
-                  onClick={toggleComments}
-                  className="flex items-center gap-1 text-muted hover:text-primary transition-colors"
-                >
-                  <FaComment className="w-4 h-4" />
-                  <span className="text-sm">{post.comments_count || 0}</span>
-                </button>
-
-                {/* Views */}
-                <div className="flex items-center gap-1 text-muted">
-                  <FaEye className="w-4 h-4" />
-                  <span className="text-sm">{post.views || 0}</span>
-                </div>
+                {isShareMenuOpen && (
+                  <ShareMenu
+                    shareUrl={shareUrl}
+                    title={post.title}
+                    onClose={() => setShareMenuOpen(false)}
+                  />
+                )}
               </div>
 
-              {/* Owner Actions */}
+              {/* Nút Edit và Delete - Chỉ hiển thị nếu là chủ sở hữu */}
               {isOwner && (
-                <div className="flex text-text-secondary items-center space-x-2">
-                  <Link href={`/edit/${post.title_name}`}>
-                    <button className="p-2 text-muted hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Edit post">
-                      <FaEdit className="w-4 h-4 text-text-secondary" />
-                    </button>
+                <>
+                  <Link href={`/edit/${post.title_name}`} className="flex items-center text-gray-600 hover:text-blue-500 transition-colors" aria-label="Edit post">
+                    <FaEdit className="mr-1" />
                   </Link>
                   <button
                     onClick={handleDelete}
-                    className="p-2 text-text-secondary text-muted hover:text-danger hover:bg-danger/10 rounded-lg transition-colors"
-                    title="Delete post"
+                    className="flex items-center text-gray-600 hover:text-red-500 transition-colors"
+                    aria-label="Delete post"
                   >
-                    <FaTrash className="w-4 h-4" />
+                    <FaTrash className="mr-1" />
                   </button>
-                </div>
+                </>
               )}
             </div>
           </div>
 
-          {/* Right Side - Image (1/3) - Match PostItemTimeline */}
-          {post.image_title && (
-            <div className="w-1/3 flex  items-end">
-              <Link href={`/p/${post.title_name}`} className="w-full">
-                <div className="relative w-full h-32 md:h-40 lg:h-48">
-                  <SafeImage
-                    src={post.image_title}
-                    alt={post.title}
-                    fill
-                    className="object-cover hover:scale-105 transition-transform duration-300 rounded-lg"
-                    sizes="(max-width: 768px) 33vw, (max-width: 1024px) 33vw, 33vw"
-                  />
-                </div>
-              </Link>
+          {/* Comments Popup */}
+          {/* Comments feature temporarily disabled */}
+          {isCommentsOpen && (
+            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+              <p className="text-gray-600">Comments feature coming soon...</p>
             </div>
           )}
         </div>
 
-        {/* Comments Section - Inline like PostItemTimeline */}
-        {isCommentsOpen && (
-          <div className="border-t border-border-primary bg-surface-secondary">
-            {/* Add Comment Form */}
-            <div className="p-6 border-b border-border-secondary">
-              {user ? (
-                <AddCommentForm onAddComment={handleAddComment} />
-              ) : (
-                <div className="text-center py-4">
-                  <span className="text-muted text-sm">Please login to comment</span>
-                </div>
-              )}
+        {/* Image Section */}
+        <div className="w-full md:w-1/3 mt-4 md:mt-0">
+          {post.image_title && (
+            <div className="p-4">
+              <Link href={`/p/${post.title_name}`} className="block">
+                <img
+                  src={post.image_title}
+                  alt={post.title}
+                  className="h-48 w-full object-cover rounded transform hover:scale-105 transition-transform duration-300"
+                />
+              </Link>
             </div>
-
-            {/* Comments List */}
-            <div className="p-6">
-              {isError && (
-                <div className="text-danger text-sm text-center py-4">
-                  Failed to load comments
-                </div>
-              )}
-              
-              {isLoading && comments.length === 0 && (
-                <div className="flex justify-center items-center py-6">
-                  <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin mr-2"></div>
-                  <span className="text-secondary text-sm">Loading comments...</span>
-                </div>
-              )}
-
-              {comments && comments.length > 0 && (
-                <div className="space-y-4">
-                  {comments.map((comment) => (
-                    <CommentItem key={comment.id} comment={comment} postId={post.id} mutate={mutate} />
-                  ))}
-                </div>
-              )}
-
-              {!isLoading && !isError && comments.length === 0 && (
-                <div className="text-center py-6">
-                  <span className="text-muted text-sm">No comments yet</span>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </article>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

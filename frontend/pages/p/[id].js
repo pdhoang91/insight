@@ -4,7 +4,8 @@ import React, { useRef, useState } from 'react';
 import { usePostName } from '../../hooks/usePost';
 import { useUser } from '../../context/UserContext';
 import { clapPost } from '../../services/activityService';
-import CommentSection from '../../components/Comment/CommentSection';
+import LimitedCommentList from '../../components/Comment/LimitedCommentList';
+import { AddCommentForm } from '../../components/Comment';
 import ThreeColumnLayout from '../../components/Layout/ThreeColumnLayout';
 import PostDetail from '../../components/Post/PostDetail';
 import { LoadingSpinner } from '../../components/UI';
@@ -55,19 +56,19 @@ const PostPage = () => {
   };
 
   if (isLoading) return (
-    <div className="min-h-screen bg-terminal-black flex items-center justify-center">
+    <div className="min-h-screen bg-medium-bg-primary flex items-center justify-center">
       <div className="text-center">
         <LoadingSpinner size="lg" />
-        <p className="mt-4 text-text-secondary">Loading post...</p>
+        <p className="mt-4 text-medium-text-secondary">Loading post...</p>
       </div>
     </div>
   );
   
   if (isError) return (
-    <div className="min-h-screen bg-terminal-black flex items-center justify-center">
+    <div className="min-h-screen bg-medium-bg-primary flex items-center justify-center">
       <div className="text-center">
-        <div className="text-hacker-red mb-2">Failed to load post</div>
-        <p className="text-text-muted text-sm">Please try again later</p>
+        <div className="text-red-500 mb-2 font-serif text-lg">Failed to load post</div>
+        <p className="text-medium-text-muted text-sm">Please try again later</p>
       </div>
     </div>
   );
@@ -86,8 +87,22 @@ const PostPage = () => {
       />
       
       {/* Comments Section */}
-      <div ref={commentSectionRef} className="mt-6 sm:mt-8">
-        <CommentSection postId={post.id} user={user} />
+      <div ref={commentSectionRef} className="mt-12 space-y-6">
+        <h3 className="text-heading-3 font-serif text-medium-text-primary">Bình luận</h3>
+        <AddCommentForm 
+          postId={post.id} 
+          user={user} 
+          onCommentAdded={() => {/* reload comments */}}
+        />
+        <LimitedCommentList
+          comments={[]}
+          postId={post.id}
+          mutate={() => {}}
+          canLoadMore={false}
+          loadMore={() => {}}
+          isLoadingMore={false}
+          totalCount={0}
+        />
       </div>
 
 

@@ -10,9 +10,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Only allow S3 URLs for security
-    if (!url.includes('s3.amazonaws.com')) {
-      return res.status(403).json({ error: 'Only S3 URLs are allowed' });
+    // Only allow S3 URLs and localhost for security
+    if (!url.includes('s3.amazonaws.com') && !url.includes('localhost')) {
+      return res.status(403).json({ error: 'Only S3 URLs and localhost are allowed' });
     }
 
 

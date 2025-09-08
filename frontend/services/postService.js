@@ -9,7 +9,7 @@ export const createPost = async (postData) => {
 
 export const getPostById = async (id) => {
   const response = await axiosPublicInstance.get(`/posts/${id}`);
-  return response.data;
+  return response.data.data.post;
 };
 
 export const getPostByTitleName = async (titleName) => {

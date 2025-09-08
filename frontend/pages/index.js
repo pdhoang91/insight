@@ -1,8 +1,9 @@
-// pages/index.js
+// pages/index.js - Medium 2024 Design
 import React from 'react';
 import { useInfinitePosts } from '../hooks/useInfinitePosts';
-import BlogSidebar from '../components/Shared/BlogSidebar';
-import PostListTimeline from '../components/Post/PostListTimeline';
+import { HomeLayout } from '../components/Layout/Layout';
+import PostList from '../components/post/PostList';
+import PersonalBlogSidebar from '../components/Shared/PersonalBlogSidebar';
 
 const Home = () => {
   const {
@@ -14,40 +15,28 @@ const Home = () => {
   } = useInfinitePosts();
 
   return (
-    <>
-      {/* Page Content Container */}
-      <section className="min-h-screen bg-terminal-black">
-        {/* Main Content Area */}
-        <div className="pb-6">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
-              {/* Primary Content - Posts Feed */}
-              <section className="lg:col-span-3" role="main" aria-label="Danh sách bài viết">
-                <h1 className="sr-only">Trang chủ Insight - Bài viết công nghệ</h1>
-                <PostListTimeline
-                  posts={posts}
-                  isLoading={isLoading}
-                  isError={isError}
-                  setSize={setSize}
-                  isReachingEnd={isReachingEnd}
-                />
-              </section>
-
-              {/* Complementary Content - Sidebar */}
-              <aside 
-                className="lg:col-span-1" 
-                role="complementary" 
-                aria-label="Thông tin bổ sung và điều hướng"
-              >
-                <div className="sticky top-12">
-                  <BlogSidebar />
-                </div>
-              </aside>
-            </div>
-          </div>
-        </div>
-      </section>
-    </>
+    <HomeLayout sidebar={<PersonalBlogSidebar />}>
+      <div className="space-y-6 lg:space-y-8">
+        {/* Header Section */}
+        <header className="text-center lg:text-left">
+          <h1 className="font-serif font-bold text-3xl sm:text-4xl lg:text-5xl text-medium-text-primary mb-3 lg:mb-4">
+            Latest Stories
+          </h1>
+          <p className="text-base sm:text-lg text-medium-text-secondary max-w-2xl mx-auto lg:mx-0">
+            Discover insights, tutorials, and thoughts on technology, programming, and software development.
+          </p>
+        </header>
+        
+        {/* Posts List */}
+        <PostList
+          posts={posts}
+          isLoading={isLoading}
+          isError={isError}
+          setSize={setSize}
+          isReachingEnd={isReachingEnd}
+        />
+      </div>
+    </HomeLayout>
   );
 };
 

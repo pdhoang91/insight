@@ -10,7 +10,6 @@ export default function Document() {
         <meta name="description" content="Insight - Nền tảng chia sẻ kiến thức công nghệ và lập trình" />
         <meta name="keywords" content="tech, programming, development, insight, blog, công nghệ, lập trình" />
         <meta name="author" content="Insight Team" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         
         {/* Favicon */}
         <link rel="icon" href="/favicon.png" />

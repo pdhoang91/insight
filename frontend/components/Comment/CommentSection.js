@@ -1,88 +1,55 @@
 // components/Comment/CommentSection.js
-import React, { useMemo } from 'react';
+import React from 'react';
+import { useUser } from '../../context/UserContext';
+import { useInfiniteComments } from '../../hooks/useInfiniteComments';
 import LimitedCommentList from './LimitedCommentList';
 import AddCommentForm from './AddCommentForm';
-import { addComment } from '../../services/commentService';
-import { useInfiniteComments } from '../../hooks/useInfiniteComments';
-import { FaSpinner } from 'react-icons/fa';
 
-const CommentSection = ({ postId, user }) => {
+const CommentSection = ({ postId }) => {
+  const { user } = useUser();
+  
   const { 
     comments, 
     totalCount, 
-    totalCommentReply,
     isLoading, 
     isError, 
     canLoadMore,
     loadMore,
     mutate 
-  } = useInfiniteComments(postId, true, 2);
+  } = useInfiniteComments(postId, true, 5);
 
-  const totalComments = totalCount;
+  const flatComments = comments ? comments.flat() : [];
 
-  const handleAddComment = async (content) => {
-    if (!user) {
-      alert('Bạn cần đăng nhập để bình luận.');
-      return;
-    }
-    if (!content.trim()) {
-      alert('Nội dung bình luận không thể để trống.');
-      return;
-    }
-    try {
-      await addComment(postId, content); // Only pass postId and content
-      mutate(); // Refresh comments
-    } catch (err) {
-      console.error('Failed to add comment:', err);
-      alert('Không thể thêm bình luận. Vui lòng thử lại.');
-    }
+  const handleCommentAdded = () => {
+    mutate(); // Refresh comments
   };
 
   return (
-    <div className="mt-12">
-      {/* Header */}
-      <div>
-        <h2 className="text-2xl font-bold text-primary font-mono mb-2">
-          Bình luận ({totalComments})
-        </h2>
-      </div>
+    <div className="space-y-6">
+      {/* Section Header */}
+      <h3 className="text-heading-3 font-serif text-medium-text-primary">
+        Bình luận ({totalCount || 0})
+      </h3>
 
       {/* Add Comment Form */}
-      <div>
-        {user ? (
-          <AddCommentForm onAddComment={handleAddComment} />
-        ) : (
-          <div className="p-4 border border-primary rounded-md bg-elevated">
-            <p className="text-muted font-mono">// Cần đăng nhập để bình luận</p>
-          </div>
-        )}
-      </div>
+      <AddCommentForm 
+        postId={postId}
+        user={user}
+        onCommentAdded={handleCommentAdded}
+      />
 
       {/* Comments List */}
-      <div className="">
-        {isError && (
-          <div className="text-red-400 font-mono mb-4">// Không thể tải bình luận</div>
-        )}
-        {isLoading && !isError && (
-          <div className="flex justify-center items-center py-8">
-            <FaSpinner className="animate-spin text-primary mr-2" />
-            <span className="text-secondary font-mono">Đang tải bình luận...</span>
-          </div>
-        )}
-        {comments && (
-          <LimitedCommentList 
-            comments={comments} 
-            postId={postId} 
-            mutate={mutate}
-            canLoadMore={canLoadMore}
-            loadMore={loadMore}
-            isLoadingMore={isLoading}
-            totalCount={totalCount}
-          />
-        )}
-      </div>
+      <LimitedCommentList
+        comments={flatComments}
+        postId={postId}
+        mutate={mutate}
+        canLoadMore={canLoadMore}
+        loadMore={loadMore}
+        isLoadingMore={isLoading}
+        totalCount={totalCount || 0}
+      />
     </div>
   );
 };
 
-export default CommentSection; 
+export default CommentSection;

@@ -4,7 +4,6 @@ import { useUser } from '../context/UserContext';
 import CategoryTagsPopup from '../components/Category/CategoryTagsPopup';
 import PostForm from '../components/Editor/PostForm';
 import LoadingSpinner from '../components/Shared/LoadingSpinner';
-import Navbar from '../components/Navbar/Navbar';
 import { createPost } from '../services/postService';
 import { usePostContext } from '../context/PostContext';
 import { FaTimes } from 'react-icons/fa';
@@ -155,10 +154,10 @@ const Write = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-app flex items-center justify-center">
+      <div className="min-h-screen bg-medium-bg-primary flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-secondary">Đang tải trình soạn thảo...</p>
+          <p className="mt-4 text-medium-text-secondary">Đang tải trình soạn thảo...</p>
         </div>
       </div>
     );
@@ -169,18 +168,14 @@ const Write = () => {
   }
 
   return (
-    <>
-      {/* Custom Navbar with Publish functionality */}
-      {!isFullscreen && <Navbar onPublish={handlePublish} />}
-      
-      <div className={`min-h-screen bg-terminal-black transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50 pt-0' : ''}`}>
+    <div className={`min-h-screen bg-medium-bg-primary transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50 pt-0' : 'pt-16'}`}>
 
 
       {/* Fullscreen Exit Button */}
       {isFullscreen && (
         <button
           onClick={() => setIsFullscreen(false)}
-          className="fixed top-4 right-4 z-50 p-2 bg-terminal-gray/80 backdrop-blur-sm text-text-secondary hover:text-text-primary rounded-lg transition-colors"
+          className="fixed top-4 right-4 z-50 p-2 bg-medium-bg-secondary/80 backdrop-blur-sm text-medium-text-secondary hover:text-medium-text-primary rounded-lg transition-colors"
           title="Thoát toàn màn hình"
         >
           <FaTimes className="w-5 h-5" />
@@ -219,7 +214,6 @@ const Write = () => {
         />
       )}
     </div>
-    </>
   );
 };
 

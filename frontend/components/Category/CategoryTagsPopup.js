@@ -1,156 +1,82 @@
 // components/Category/CategoryTagsPopup.js
-import React, { useState, useEffect } from 'react';
-import { FaTimes, FaCheck, FaTag, FaFolderOpen, FaPaperPlane } from 'react-icons/fa';
-import { motion, AnimatePresence } from 'framer-motion';
-import SafeImage from '../Utils/SafeImage';
+import React, { useState } from 'react';
+import { FaTimes, FaPlus } from 'react-icons/fa';
+import { useCategories } from '../../hooks/useCategories';
 
-const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) => {
-  const [categories, setCategories] = useState('');
-  const [tags, setTags] = useState('');
+const CategoryTagsPopup = ({ isOpen, onClose, selectedCategories, onCategoriesChange }) => {
+  const { categories, isLoading } = useCategories();
+  const [searchTerm, setSearchTerm] = useState('');
+
+  if (!isOpen) return null;
+
+  const filteredCategories = categories?.filter(cat => 
+    cat.name.toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
+
+  const toggleCategory = (category) => {
+    const isSelected = selectedCategories.some(cat => cat.id === category.id);
+    if (isSelected) {
+      onCategoriesChange(selectedCategories.filter(cat => cat.id !== category.id));
+    } else {
+      onCategoriesChange([...selectedCategories, category]);
+    }
+  };
 
   return (
-    <AnimatePresence>
-      <motion.div
-        className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.3 }}
-      >
-        <motion.div
-          className="bg-surface rounded-xl shadow-xl border border-border-primary w-11/12 max-w-4xl mx-auto relative overflow-hidden max-h-[90vh]"
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          exit={{ scale: 0.8, opacity: 0 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-border-primary">
-            <h2 className="text-2xl font-bold text-primary">Sẵn sàng đăng bài?</h2>
-            <button
-              className="p-2 text-muted hover:text-secondary rounded-lg hover:bg-elevated transition-colors"
-              onClick={onCancel}
-              aria-label="Close"
-            >
-              <FaTimes className="w-5 h-5" />
-            </button>
-          </div>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[80vh] overflow-hidden">
+        <div className="flex items-center justify-between p-4 border-b dark:border-gray-700">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Chọn danh mục
+          </h3>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+          >
+            <FaTimes className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+          </button>
+        </div>
+        
+        <div className="p-4">
+          <input
+            type="text"
+            placeholder="Tìm kiếm danh mục..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+          />
+        </div>
 
-          <div className="flex flex-col lg:flex-row overflow-y-auto max-h-[calc(90vh-140px)]">
-            {/* Preview Section */}
-            <div className="w-full lg:w-1/2 p-6 border-r border-border-primary">
-              <h3 className="text-lg font-semibold mb-4 text-secondary">Xem trước bài viết</h3>
-              <div className="bg-elevated rounded-lg p-4 border border-border-primary">
-                {/* Image Preview */}
-                {imageTitle && (
-                  <div className="relative w-full h-48 mb-4 rounded-lg overflow-hidden">
-                    <SafeImage
-                      src={imageTitle}
-                      alt="Post cover"
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                    />
-                  </div>
-                )}
-                
-                {/* Title */}
-                <h4 className="text-xl font-bold text-primary mb-3 line-clamp-2">
-                  {title || 'Bài viết chưa có tiêu đề'}
-                </h4>
-                
-                {/* Content Preview */}
-                <div className="text-secondary text-sm leading-relaxed line-clamp-4 mb-4">
-                  {getLimitedContent(content, 200)}
-                </div>
-                
-                {/* Tip */}
-                <div className="bg-primary/5 rounded-lg p-3 border-l-4 border-primary">
-                  <p className="text-xs text-muted">
-                    💡 <strong>Mẹo:</strong> Một hình ảnh bìa hấp dẫn giúp bài viết của bạn nổi bật và thu hút nhiều độc giả hơn.
-                  </p>
-                </div>
-              </div>
+        <div className="overflow-y-auto max-h-[50vh] px-4 pb-4">
+          {isLoading ? (
+            <div className="text-center py-4">Đang tải...</div>
+          ) : (
+            <div className="space-y-2">
+              {filteredCategories.map((category) => {
+                const isSelected = selectedCategories.some(cat => cat.id === category.id);
+                return (
+                  <button
+                    key={category.id}
+                    onClick={() => toggleCategory(category)}
+                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                      isSelected 
+                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' 
+                        : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{category.name}</span>
+                      {isSelected && <FaPlus className="w-4 h-4 rotate-45" />}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
-
-            {/* Form Section */}
-            <div className="w-full lg:w-1/2 p-6">
-              <h3 className="text-lg font-semibold mb-6 text-secondary">Thêm danh mục và thẻ</h3>
-              
-              {/* Categories Input */}
-              <div className="mb-6">
-                <label className="flex items-center mb-3 font-medium text-primary">
-                  <FaFolderOpen className="w-4 h-4 mr-2 text-primary" />
-                  Danh mục
-                </label>
-                <input
-                  type="text"
-                  value={categories}
-                  onChange={(e) => setCategories(e.target.value)}
-                  className="w-full p-3 bg-elevated border border-border-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-primary placeholder-muted"
-                  placeholder="Ví dụ: Công nghệ, Khoa học, Lập trình"
-                  aria-label="Enter Categories"
-                />
-                <p className="text-xs text-muted mt-2">
-                  Phân cách các danh mục bằng dấu phẩy
-                </p>
-              </div>
-
-              {/* Tags Input */}
-              <div className="mb-8">
-                <label className="flex items-center mb-3 font-medium text-primary">
-                  <FaTag className="w-4 h-4 mr-2 text-primary" />
-                  Thẻ
-                </label>
-                <input
-                  type="text"
-                  value={tags}
-                  onChange={(e) => setTags(e.target.value)}
-                  className="w-full p-3 bg-elevated border border-border-primary rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all text-primary placeholder-muted"
-                  placeholder="Ví dụ: React, JavaScript, Phát triển Web"
-                  aria-label="Enter Tags"
-                />
-                <p className="text-xs text-muted mt-2">
-                  Giúp độc giả khám phá nội dung của bạn với các thẻ liên quan
-                </p>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button
-                  type="button"
-                  onClick={() => onPublish(categories, tags)}
-                  className="flex items-center justify-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors focus:outline-none focus:ring-2 focus:ring-primary/20 font-medium"
-                  aria-label="Publish Story"
-                >
-                  <FaPaperPlane className="w-4 h-4 mr-2" />
-                  Đăng bài
-                </button>
-                <button
-                  type="button"
-                  onClick={onCancel}
-                  className="flex items-center justify-center px-6 py-3 bg-elevated text-secondary border border-border-primary rounded-lg hover:bg-surface hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-border-primary font-medium"
-                  aria-label="Cancel"
-                >
-                  <FaTimes className="w-4 h-4 mr-2" />
-                  Hủy
-                </button>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+          )}
+        </div>
+      </div>
+    </div>
   );
-};
-
-// Helper function to limit content length
-const getLimitedContent = (content, maxLength) => {
-  if (!content) return 'Không có nội dung để xem trước...';
-  const strippedContent = content.replace(/<[^>]+>/g, ''); // Remove HTML tags
-  return strippedContent.length > maxLength
-    ? strippedContent.substring(0, maxLength) + '...'
-    : strippedContent;
 };
 
 export default CategoryTagsPopup;
