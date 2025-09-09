@@ -30,15 +30,15 @@ const Layout = ({
           {showSidebar && sidebar ? (
             /* Two Column Layout with Sidebar */
             <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 xl:gap-12 py-4 sm:py-6 lg:py-8">
-              {/* Main Content Area - Always first, takes most space */}
-              <main className="flex-1 min-w-0 order-first lg:max-w-none">
-                <div className={`w-full ${className}`}>
+              {/* Main Content Area - Always first on mobile */}
+              <div className="flex-1 min-w-0 order-first">
+                <div className={`${className}`}>
                   {children}
                 </div>
-              </main>
+              </div>
               
-              {/* Sidebar - Fixed width on desktop, full width on mobile */}
-              <aside className="order-last w-full lg:w-80 xl:w-96 lg:flex-shrink-0">
+              {/* Sidebar - Show after content on mobile, right side on desktop */}
+              <aside className="order-last lg:w-sidebar lg:flex-shrink-0">
                 <div className="lg:sticky lg:top-24">
                   {/* Mobile: Show condensed sidebar */}
                   <div className="lg:hidden">
@@ -73,7 +73,7 @@ const MobileSidebarContent = ({ sidebar }) => {
     <div className="mt-8 mb-6">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between p-3 bg-medium-bg-card rounded-card text-medium-text-primary hover:bg-medium-hover transition-colors shadow-sm"
+        className="w-full flex items-center justify-between p-3 bg-medium-bg-card border border-medium-border rounded-card text-medium-text-primary hover:bg-medium-hover transition-colors"
       >
         <span className="font-medium text-sm">More from this blog</span>
         {isExpanded ? (

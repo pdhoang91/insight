@@ -1,7 +1,7 @@
 // components/Post/ArticleReader.js - Medium 2024 Reading Experience
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { ArticleLayout } from '../Layout/MediumLayout';
+import { ArticleLayout } from '../Layout/Layout';
 import Card from '../UI/Card';
 import Avatar from '../UI/Avatar';
 import Button from '../UI/Button';

@@ -127,8 +127,8 @@ body {
   background-color: var(--medium-bg-primary);
   overflow-x: hidden;
   font-feature-settings: 'kern' 1, 'liga' 1;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: auto;
 }
 
 

@@ -4,8 +4,7 @@ import React, { useRef, useState } from 'react';
 import { usePostName } from '../../hooks/usePost';
 import { useUser } from '../../context/UserContext';
 import { clapPost } from '../../services/activityService';
-import LimitedCommentList from '../../components/Comment/LimitedCommentList';
-import { AddCommentForm } from '../../components/Comment';
+import { CommentSection } from '../../components/Comment';
 import ThreeColumnLayout from '../../components/Layout/ThreeColumnLayout';
 import PostDetail from '../../components/Post/PostDetail';
 import { LoadingSpinner } from '../../components/UI';
@@ -87,22 +86,8 @@ const PostPage = () => {
       />
       
       {/* Comments Section */}
-      <div ref={commentSectionRef} className="mt-12 space-y-6">
-        <h3 className="text-heading-3 font-serif text-medium-text-primary">Bình luận</h3>
-        <AddCommentForm 
-          postId={post.id} 
-          user={user} 
-          onCommentAdded={() => {/* reload comments */}}
-        />
-        <LimitedCommentList
-          comments={[]}
-          postId={post.id}
-          mutate={() => {}}
-          canLoadMore={false}
-          loadMore={() => {}}
-          isLoadingMore={false}
-          totalCount={0}
-        />
+      <div ref={commentSectionRef} className="mt-12">
+        <CommentSection postId={post.id} />
       </div>
 
 

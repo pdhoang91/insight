@@ -2,8 +2,9 @@
 // src/components/Comment/AddCommentForm.js
 import React, { useState } from 'react';
 import { FaPaperPlane } from 'react-icons/fa';
+import { addComment } from '../../services/commentService';
 
-const AddCommentForm = ({ onAddComment, parentId = null, placeholder }) => {
+const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId = null, placeholder }) => {
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -14,10 +15,30 @@ const AddCommentForm = ({ onAddComment, parentId = null, placeholder }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (content.trim() === '') return;
+    
+    if (!user) {
+      alert('Vui lòng đăng nhập để bình luận.');
+      return;
+    }
+
     setIsSubmitting(true);
-    await onAddComment(content, parentId);
-    setContent('');
-    setIsSubmitting(false);
+    try {
+      // Handle different prop patterns
+      if (onAddComment) {
+        // Used for replies in CommentItem
+        await onAddComment(content, parentId);
+      } else if (postId && onCommentAdded) {
+        // Used for main comments in CommentSection and PostItem
+        await addComment(postId, content);
+        onCommentAdded(); // Refresh comments
+      }
+      setContent('');
+    } catch (error) {
+      console.error('Failed to add comment:', error);
+      alert('Không thể thêm bình luận. Vui lòng thử lại.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
