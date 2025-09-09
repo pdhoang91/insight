@@ -48,13 +48,13 @@ const CommentItem = ({ comment, postId, mutate }) => {
 
   return (
     <motion.div
-      className="bg-medium-bg-card rounded-card p-6 shadow-card"
+      className="bg-medium-bg-card border border-medium-border rounded-card p-card shadow-card"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.2 }}
     >
       {/* Author Info */}
-      <div className="flex items-center gap-3 mb-3">
+      <div className="flex items-center gap-md mb-lg">
         <div className="w-8 h-8 bg-medium-bg-secondary rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
           {comment.user?.avatar_url ? (
             <img
@@ -66,8 +66,8 @@ const CommentItem = ({ comment, postId, mutate }) => {
             <FaUser className="w-4 h-4 text-medium-accent-green" />
           )}
         </div>
-        <div className="flex items-center gap-2">
-          <span className="font-medium text-medium-text-primary">
+        <div className="flex items-center gap-sm">
+          <span className="font-serif font-bold text-medium-text-primary text-body-small">
             {comment.user?.name || 'Anonymous'}
           </span>
           <span className="text-medium-text-muted text-body-small">
@@ -77,17 +77,17 @@ const CommentItem = ({ comment, postId, mutate }) => {
       </div>
 
       {/* Comment Content */}
-      <div className="mb-4 pl-11">
-        <div className="text-medium-text-secondary leading-relaxed">
+      <div className="mb-lg pl-11">
+        <div className="text-medium-text-secondary leading-relaxed text-body">
           <CommentContent content={comment.content} />
         </div>
       </div>
 
       {/* Action Bar */}
-      <div className="flex items-center gap-4 pl-11">
+      <div className="flex items-center gap-lg pl-11">
         <button
           onClick={handleClap}
-          className={`flex items-center gap-1 text-body-small transition-colors ${
+          className={`flex items-center gap-sm text-body-small transition-all duration-200 ${
             hasClapped ? 'text-medium-accent-green' : 'text-medium-text-muted hover:text-medium-accent-green'
           }`}
           aria-label="Clap for this comment"
@@ -98,7 +98,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
 
         <button
           onClick={handleToggleReply}
-          className="flex items-center gap-1 text-body-small text-medium-text-muted hover:text-medium-accent-green transition-colors"
+          className="flex items-center gap-sm text-body-small text-medium-text-muted hover:text-medium-accent-green transition-all duration-200"
           aria-label="Reply to this comment"
         >
           <FaComment className="w-3 h-3" />
@@ -110,14 +110,14 @@ const CommentItem = ({ comment, postId, mutate }) => {
       <AnimatePresence>
         {showReplyForm && (
           <motion.div
-            className="mt-4 ml-11"
+            className="mt-lg ml-11"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.2 }}
           >
             {/* Reply Form */}
-            <div className="mb-4">
+            <div className="mb-lg">
               <AddCommentForm 
                 onAddComment={(content) => handleReply(content, comment.id)} 
                 parentId={comment.id}
@@ -127,8 +127,8 @@ const CommentItem = ({ comment, postId, mutate }) => {
 
             {/* Replies List */}
             {comment.replies && comment.replies.length > 0 && (
-              <div className="space-y-3">
-                <div className="text-body-small text-medium-text-secondary mb-2">
+              <div className="space-y-md">
+                <div className="text-body-small text-medium-text-secondary mb-sm font-serif font-bold">
                   Replies ({comment.replies.length}):
                 </div>
                 <ReplyList replies={comment.replies} commentId={comment.id} mutate={mutate} />

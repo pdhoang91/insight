@@ -32,22 +32,71 @@ export const themeClasses = {
     transparent: 'border-transparent',
   },
 
-  // Typography
+  // Typography - Standardized Hierarchy
   typography: {
+    // Font Families
     serif: 'font-serif',
+    sans: 'font-sans',
+    mono: 'font-mono',
+    
+    // Font Weights
     bold: 'font-bold',
-    medium: 'font-medium',
     semibold: 'font-semibold',
+    medium: 'font-medium',
+    normal: 'font-normal',
+    
+    // Semantic Typography
     heading: 'font-serif font-bold',
-    body: 'font-sans',
+    subheading: 'font-serif font-semibold',
+    body: 'font-sans font-normal',
+    caption: 'font-sans font-medium',
+    label: 'font-sans font-medium',
+    
+    // Display Sizes (with consistent font family)
+    displayLarge: 'font-serif font-bold text-display',
+    displayMedium: 'font-serif font-bold text-article-title',
+    
+    // Heading Hierarchy
+    h1: 'font-serif font-bold text-heading-1',
+    h2: 'font-serif font-bold text-heading-2', 
+    h3: 'font-serif font-bold text-heading-3',
+    h4: 'font-serif font-semibold text-body-large',
+    
+    // Body Text
+    bodyLarge: 'font-sans font-normal text-body-large',
+    bodyMedium: 'font-sans font-normal text-body',
+    bodySmall: 'font-sans font-normal text-body-small',
+    
+    // UI Text
+    buttonText: 'font-sans font-medium text-button',
+    labelText: 'font-sans font-medium text-label',
+    captionText: 'font-sans font-normal text-caption',
   },
 
-  // Layout
+  // Layout - Mobile-first responsive
   layout: {
-    container: 'max-w-container mx-auto px-6 sm:px-8 lg:px-12',
-    article: 'max-w-article mx-auto',
+    // Container patterns
+    container: 'max-w-container mx-auto px-lg md:px-xl lg:px-2xl',
+    containerSmall: 'max-w-content mx-auto px-md md:px-lg lg:px-xl',
+    containerWide: 'max-w-wide mx-auto px-lg md:px-xl lg:px-2xl',
+    
+    // Content patterns
+    article: 'max-w-article mx-auto px-lg md:px-xl',
+    reading: 'max-w-article mx-auto px-lg md:px-xl lg:px-2xl',
+    
+    // Layout utilities
     fullHeight: 'min-h-screen',
-    sticky: 'sticky top-20',
+    sticky: 'sticky top-16 md:top-20 lg:top-24',
+    stickyNav: 'sticky top-0 z-50',
+    
+    // Responsive grid layouts
+    mainWithSidebar: 'grid grid-cols-1 lg:grid-cols-4 gap-lg lg:gap-xl items-start',
+    twoColumn: 'grid grid-cols-1 md:grid-cols-2 gap-lg lg:gap-xl',
+    threeColumn: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg lg:gap-xl',
+    
+    // Flex layouts
+    flexColumn: 'flex flex-col gap-lg lg:gap-xl',
+    flexRow: 'flex flex-col lg:flex-row gap-lg lg:gap-xl',
   },
 
   // Interactive states
@@ -69,16 +118,82 @@ export const themeClasses = {
     avatar: 'bg-medium-bg-secondary border-medium-border rounded-full flex items-center justify-center',
     tag: 'bg-medium-bg-secondary text-medium-text-secondary px-3 py-1 rounded-full text-sm',
   },
+  
+  // Standardized Icons
+  icons: {
+    // Icon Sizes
+    xs: 'w-3 h-3',      // 12px - Small UI elements
+    sm: 'w-4 h-4',      // 16px - Default size for most icons  
+    md: 'w-5 h-5',      // 20px - Medium emphasis icons
+    lg: 'w-6 h-6',      // 24px - Large interactive elements
+    xl: 'w-8 h-8',      // 32px - Avatar/profile icons
+    
+    // Icon Colors & States
+    primary: 'text-medium-text-primary',
+    secondary: 'text-medium-text-secondary',
+    muted: 'text-medium-text-muted',
+    accent: 'text-medium-accent-green',
+    interactive: 'text-medium-text-secondary hover:text-medium-accent-green transition-colors duration-200',
+    
+    // Interactive States
+    button: 'transition-all duration-200 group-hover:scale-110',
+    clickable: 'cursor-pointer hover:text-medium-accent-green transition-colors duration-200',
+  },
 
-  // Spacing
+  // Spacing - Mobile-first approach
   spacing: {
-    section: 'py-12',
-    card: 'p-6',
-    cardSmall: 'p-4',
-    cardLarge: 'p-8',
-    gap: 'gap-6',
-    gapSmall: 'gap-4',
-    gapLarge: 'gap-8',
+    // Section spacing
+    section: 'py-xl md:py-2xl lg:py-3xl',
+    sectionSmall: 'py-lg md:py-xl lg:py-2xl',
+    
+    // Card spacing
+    card: 'p-lg md:p-xl lg:p-2xl',
+    cardSmall: 'p-md md:p-lg',
+    cardLarge: 'p-xl md:p-2xl lg:p-3xl',
+    
+    // Gap spacing
+    gap: 'gap-lg md:gap-xl lg:gap-2xl',
+    gapSmall: 'gap-md md:gap-lg',
+    gapLarge: 'gap-xl md:gap-2xl lg:gap-3xl',
+    
+    // Container spacing
+    container: 'px-lg md:px-xl lg:px-2xl',
+    containerSmall: 'px-md md:px-lg',
+    containerLarge: 'px-xl md:px-2xl lg:px-3xl',
+  },
+  
+  // Responsive Layout Patterns
+  responsive: {
+    // Mobile-first grid patterns
+    gridMobileSingle: 'grid grid-cols-1',
+    gridTabletDouble: 'grid grid-cols-1 md:grid-cols-2',
+    gridDesktopTriple: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
+    gridDesktopQuad: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
+    
+    // Flex patterns
+    flexMobileColumn: 'flex flex-col',
+    flexTabletRow: 'flex flex-col md:flex-row',
+    flexDesktopRow: 'flex flex-col lg:flex-row',
+    
+    // Sidebar patterns
+    sidebarMobileHidden: 'hidden lg:block',
+    sidebarMobileCollapsed: 'lg:hidden',
+    sidebarDesktopSticky: 'lg:sticky lg:top-24',
+    
+    // Text alignment
+    textMobileCenter: 'text-center lg:text-left',
+    textMobileLeft: 'text-left',
+    
+    // Visibility
+    mobileOnly: 'block md:hidden',
+    tabletOnly: 'hidden md:block lg:hidden', 
+    desktopOnly: 'hidden lg:block',
+    touchOnly: 'block lg:hidden',
+    
+    // Sizing
+    fullMobile: 'w-full',
+    autoDesktop: 'w-full lg:w-auto',
+    sidebarWidth: 'w-full lg:w-sidebar lg:flex-shrink-0',
   },
 
   // Shadows and effects
@@ -88,6 +203,62 @@ export const themeClasses = {
     rounded: 'rounded-lg',
     roundedFull: 'rounded-full',
     blur: 'backdrop-blur-md',
+  },
+
+  // Advanced animations and micro-interactions
+  animations: {
+    // Entry animations
+    fadeIn: 'animate-fade-in',
+    slideUp: 'animate-slide-up',
+    slideDown: 'animate-slide-down',
+    slideLeft: 'animate-slide-left',
+    slideRight: 'animate-slide-right',
+    scaleIn: 'animate-scale-in',
+    
+    // Interactive animations
+    hoverLift: 'hover:animate-hover-lift',
+    tapScale: 'active:animate-tap-scale',
+    focusRing: 'focus:animate-focus-ring',
+    
+    // Feedback animations
+    bounceSubtle: 'animate-bounce-subtle',
+    shake: 'animate-shake',
+    pulseGentle: 'animate-pulse-gentle',
+    glow: 'animate-glow',
+    
+    // Loading animations
+    skeleton: 'animate-skeleton bg-gradient-to-r from-medium-bg-secondary via-medium-hover to-medium-bg-secondary bg-[length:200%_100%]',
+    spinSlow: 'animate-spin-slow',
+    pingSlow: 'animate-ping-slow',
+    
+    // Smooth transitions
+    smooth: 'transition-all duration-200 ease-out',
+    smoothSlow: 'transition-all duration-300 ease-out',
+    smoothFast: 'transition-all duration-150 ease-out',
+  },
+
+  // Interaction states with animations
+  interactions: {
+    // Card interactions
+    cardHover: 'hover:shadow-card-hover hover:-translate-y-1 transition-all duration-200',
+    cardPress: 'active:scale-[0.98] transition-transform duration-100',
+    
+    // Button interactions
+    buttonHover: 'hover:shadow-button-hover hover:-translate-y-0.5 transition-all duration-200',
+    buttonPress: 'active:scale-95 transition-transform duration-100',
+    buttonFocus: 'focus:ring-2 focus:ring-medium-accent-green focus:ring-opacity-50 focus:outline-none',
+    
+    // Link interactions
+    linkHover: 'hover:text-medium-accent-green transition-colors duration-200',
+    linkUnderline: 'hover:underline decoration-2 underline-offset-2 transition-all duration-200',
+    
+    // Icon interactions
+    iconHover: 'hover:scale-110 hover:text-medium-accent-green transition-all duration-200',
+    iconPress: 'active:scale-95 transition-transform duration-100',
+    
+    // Input interactions
+    inputFocus: 'focus:ring-2 focus:ring-medium-accent-green focus:border-medium-accent-green transition-all duration-200',
+    inputHover: 'hover:border-medium-text-secondary transition-colors duration-200',
   },
 };
 
@@ -150,10 +321,20 @@ export const componentClasses = {
   ),
 
   heading: {
-    h1: combineClasses(themeClasses.typography.heading, 'text-3xl md:text-4xl', themeClasses.text.primary),
-    h2: combineClasses(themeClasses.typography.heading, 'text-2xl md:text-3xl', themeClasses.text.primary),
-    h3: combineClasses(themeClasses.typography.heading, 'text-xl md:text-2xl', themeClasses.text.primary),
-    h4: combineClasses(themeClasses.typography.heading, 'text-lg md:text-xl', themeClasses.text.primary),
+    h1: combineClasses(themeClasses.typography.h1, themeClasses.text.primary),
+    h2: combineClasses(themeClasses.typography.h2, themeClasses.text.primary),
+    h3: combineClasses(themeClasses.typography.h3, themeClasses.text.primary),
+    h4: combineClasses(themeClasses.typography.h4, themeClasses.text.primary),
+    display: combineClasses(themeClasses.typography.displayLarge, themeClasses.text.primary),
+    article: combineClasses(themeClasses.typography.displayMedium, themeClasses.text.primary),
+  },
+  
+  text: {
+    body: combineClasses(themeClasses.typography.bodyMedium, themeClasses.text.primary),
+    bodyLarge: combineClasses(themeClasses.typography.bodyLarge, themeClasses.text.primary),
+    bodySmall: combineClasses(themeClasses.typography.bodySmall, themeClasses.text.secondary),
+    caption: combineClasses(themeClasses.typography.captionText, themeClasses.text.muted),
+    label: combineClasses(themeClasses.typography.labelText, themeClasses.text.secondary),
   },
 
   page: combineClasses(

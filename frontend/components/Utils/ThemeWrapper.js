@@ -42,50 +42,17 @@ const ThemeWrapper = ({
   );
 };
 
-/**
- * Hook to get theme-aware class names
- */
-export const useThemeClasses = () => {
-  const { isDark, isLight } = useTheme();
-
-  return {
-    // Background classes
-    bgPrimary: 'bg-medium-bg-primary',
-    bgSecondary: 'bg-medium-bg-secondary', 
-    bgCard: 'bg-medium-bg-card',
-    
-    // Text classes
-    textPrimary: 'text-medium-text-primary',
-    textSecondary: 'text-medium-text-secondary',
-    textMuted: 'text-medium-text-muted',
-    
-    // Border classes
-    border: 'border-medium-border',
-    divider: 'border-medium-divider',
-    
-    // Accent classes
-    accent: 'text-medium-accent-green',
-    accentBg: 'bg-medium-accent-green',
-    
-    // Utility classes
-    card: 'bg-medium-bg-card border border-medium-border rounded-lg',
-    button: 'bg-medium-accent-green text-white hover:bg-medium-accent-green/90 transition-colors',
-    input: 'bg-medium-bg-secondary border border-medium-border text-medium-text-primary',
-    
-    // Theme state
-    isDark,
-    isLight,
-  };
-};
+// Note: useThemeClasses has been moved to hooks/useThemeClasses.js for better organization
+// Import from there instead: import { useThemeClasses } from '../../hooks/useThemeClasses';
 
 /**
  * Component for theme-aware cards
  */
 export const ThemeCard = ({ children, className = '', ...props }) => {
-  const { card } = useThemeClasses();
+  const cardClasses = 'bg-medium-bg-card border border-medium-border rounded-lg';
   
   return (
-    <div className={`${card} ${className}`} {...props}>
+    <div className={`${cardClasses} ${className}`} {...props}>
       {children}
     </div>
   );

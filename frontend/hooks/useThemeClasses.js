@@ -1,4 +1,4 @@
-// hooks/useThemeClasses.js
+// hooks/useThemeClasses.js - Consolidated theme utilities
 import { useTheme } from '../context/ThemeContext';
 import { themeClasses, componentClasses, combineClasses } from '../utils/themeClasses';
 
@@ -67,6 +67,18 @@ export const useThemeClasses = () => {
     bg: themeClasses.bg,
     text: themeClasses.text,
     border: themeClasses.border,
+    
+    // Simple class utilities (compatible with ThemeWrapper version)
+    bgPrimary: 'bg-medium-bg-primary',
+    bgSecondary: 'bg-medium-bg-secondary', 
+    bgCard: 'bg-medium-bg-card',
+    textPrimary: 'text-medium-text-primary',
+    textSecondary: 'text-medium-text-secondary',
+    textMuted: 'text-medium-text-muted',
+    border: 'border-medium-border',
+    divider: 'border-medium-divider',
+    accent: 'text-medium-accent-green',
+    accentBg: 'bg-medium-accent-green',
   };
 
   return {
@@ -76,6 +88,21 @@ export const useThemeClasses = () => {
     isLight,
     getDynamicClass,
     combineClasses,
+    
+    // Legacy support for ThemeWrapper usage
+    bgPrimary: 'bg-medium-bg-primary',
+    bgSecondary: 'bg-medium-bg-secondary', 
+    bgCard: 'bg-medium-bg-card',
+    textPrimary: 'text-medium-text-primary',
+    textSecondary: 'text-medium-text-secondary',
+    textMuted: 'text-medium-text-muted',
+    border: 'border-medium-border',
+    divider: 'border-medium-divider',
+    accent: 'text-medium-accent-green',
+    accentBg: 'bg-medium-accent-green',
+    card: 'bg-medium-bg-card border border-medium-border rounded-lg',
+    button: 'bg-medium-accent-green text-white hover:bg-medium-accent-green/90 transition-colors',
+    input: 'bg-medium-bg-secondary border border-medium-border text-medium-text-primary',
   };
 };
 

@@ -33,9 +33,9 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
   };
 
   return (
-    <div className="bg-medium-bg-secondary rounded-lg p-3 hover:bg-medium-hover transition-colors duration-300 shadow-sm">
+    <div className="bg-medium-bg-secondary border border-medium-border rounded-lg p-md hover:bg-medium-hover transition-all duration-200 shadow-sm">
       {/* Author Info */}
-      <div className="flex items-center gap-2 mb-2">
+      <div className="flex items-center gap-sm mb-sm">
         <div className="w-6 h-6 bg-medium-bg-primary rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
           {reply.user?.avatar_url ? (
             <img
@@ -47,19 +47,19 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
             <FaUser className="w-3 h-3 text-medium-accent-green" />
           )}
         </div>
-        <div className="flex items-center gap-2">
-          <span className="font-medium text-medium-text-primary text-body-small">
+        <div className="flex items-center gap-sm">
+          <span className="font-serif font-bold text-medium-text-primary text-body-small">
             {reply.user?.name || 'Anonymous'}
           </span>
-          <span className="text-medium-text-muted text-small">
+          <span className="text-medium-text-muted text-body-small">
             <TimeAgo timestamp={reply.created_at} />
           </span>
         </div>
       </div>
 
       {/* Reply Content */}
-      <div className="pl-8 mb-2">
-        <div className="text-medium-text-secondary text-body-small leading-relaxed">
+      <div className="pl-8 mb-sm">
+        <div className="text-medium-text-secondary text-body leading-relaxed">
           {reply.content}
         </div>
       </div>
@@ -68,7 +68,7 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
       <div className="flex items-center pl-8">
         <button
           onClick={handleClap}
-          className={`flex items-center gap-1 text-body-small transition-colors ${
+          className={`flex items-center gap-sm text-body-small transition-all duration-200 ${
             hasClapped ? 'text-medium-accent-green' : 'text-medium-text-muted hover:text-medium-accent-green'
           }`}
           disabled={clapsLoading}

@@ -53,29 +53,29 @@ const PostItem = ({ post }) => {
 
   return (
     <article
-      className="rounded-card px-6 py-8 mb-8 bg-medium-bg-card border border-medium-border transition-all duration-200 hover:shadow-card-hover hover:border-medium-accent-green/20"
+      className="bg-medium-bg-card border border-medium-border rounded-card p-card transition-all duration-200 hover:shadow-card-hover hover:border-medium-accent-green/20 mb-gap"
     >
-      <div className="flex flex-col lg:flex-row lg:items-start gap-6">
+      <div className="flex flex-col lg:flex-row lg:items-start gap-gap">
         {/* Main Content Section */}
         <div className="flex-1 min-w-0">
           {/* Post Title */}
-          <Link href={`/p/${post.title_name}`} className="block mb-4">
-            <h2 className="text-heading-3 font-serif text-medium-text-primary hover:text-medium-accent-green transition-colors duration-200 line-clamp-2 leading-tight">
+          <Link href={`/p/${post.title_name}`} className="block mb-lg">
+            <h2 className="font-serif font-bold text-heading-3 text-medium-text-primary hover:text-medium-accent-green transition-colors duration-200 line-clamp-2 leading-tight">
               {post.title}
             </h2>
           </Link>
 
           {/* Post Preview Content */}
-          <div className="mb-6">
+          <div className="mb-xl">
             <p className="text-body text-medium-text-secondary line-clamp-3 leading-relaxed">
               <TextUtils html={post.preview_content} maxLength={280} />
             </p>
           </div>
 
           {/* Meta Information & Actions */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-lg">
             {/* Left side - Meta info */}
-            <div className="flex items-center space-x-4 text-sm">
+            <div className="flex items-center space-x-lg text-body-small">
               <TimeAgo timestamp={post.created_at} className="text-medium-text-muted" />
               <span className="w-1 h-1 bg-medium-text-muted rounded-full"></span>
               <span className="text-medium-text-muted">
@@ -84,40 +84,40 @@ const PostItem = ({ post }) => {
             </div>
 
             {/* Right side - Interaction buttons */}
-            <div className="flex items-center space-x-6">
+            <div className="flex items-center space-x-xl">
               {/* Clap Button */}
               <button
                 onClick={handleClap}
                 disabled={clapsLoading}
-                className="flex items-center space-x-2 text-medium-text-secondary hover:text-medium-accent-green transition-colors group"
+                className="flex items-center space-x-sm text-medium-text-secondary hover:text-medium-accent-green transition-all duration-200 group"
                 aria-label="Clap for this post"
               >
                 <FaHandsClapping className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                <span className="font-medium">{clapsCount}</span>
+                <span className="font-medium text-body-small">{clapsCount}</span>
               </button>
 
               {/* Comment Button */}
               <button
                 onClick={toggleCommentPopup}
-                className="flex items-center space-x-2 text-medium-text-secondary hover:text-medium-accent-green transition-colors group"
+                className="flex items-center space-x-sm text-medium-text-secondary hover:text-medium-accent-green transition-all duration-200 group"
                 aria-label="View comments"
               >
                 <FaComment className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                <span className="font-medium">{totalCount || 0}</span>
+                <span className="font-medium text-body-small">{totalCount || 0}</span>
               </button>
 
               {/* View Count */}
-              <div className="flex items-center space-x-2 text-medium-text-muted">
+              <div className="flex items-center space-x-sm text-medium-text-muted">
                 <FaEye className="w-4 h-4" />
-                <span className="font-medium">{post.views || 0}</span>
+                <span className="font-medium text-body-small">{post.views || 0}</span>
               </div>
             </div>
           </div>
 
           {/* Inline Comments Section */}
           {isCommentsOpen && (
-            <div className="mt-8 pt-6 border-t border-medium-border">
-              <div className="space-y-6">
+            <div className="mt-2xl pt-xl border-t border-medium-border">
+              <div className="space-y-xl">
                 <AddCommentForm 
                   postId={post.id} 
                   user={user} 
@@ -141,11 +141,11 @@ const PostItem = ({ post }) => {
         {post.image_title && (
           <div className="w-full lg:w-80 flex-shrink-0">
             <Link href={`/p/${post.title_name}`} className="block">
-              <div className="relative overflow-hidden rounded-medium bg-medium-bg-secondary">
+              <div className="relative overflow-hidden rounded-lg bg-medium-bg-secondary">
                 <img
                   src={post.image_title}
                   alt={post.title}
-                  className="w-full h-48 lg:h-40 object-cover transition-transform duration-300 hover:scale-105"
+                  className="w-full h-48 lg:h-40 object-cover transition-transform duration-200 hover:scale-105"
                   loading="lazy"
                 />
               </div>

@@ -18,9 +18,9 @@ const Input = ({
   const baseClasses = 'font-ui bg-medium-bg-secondary border border-medium-border text-medium-text-primary placeholder-medium-text-muted transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-medium-accent-green focus:border-medium-accent-green disabled:opacity-50 disabled:cursor-not-allowed';
   
   const sizes = {
-    sm: 'px-3 py-2 text-sm rounded-medium',
-    md: 'px-4 py-3 text-base rounded-medium',
-    lg: 'px-5 py-4 text-lg rounded-medium',
+    sm: 'px-md py-sm text-body-small rounded-lg',
+    md: 'px-lg py-md text-body rounded-lg',
+    lg: 'px-xl py-lg text-body-large rounded-lg',
   };
   
   const errorClasses = error ? 'border-error focus:border-error focus:ring-error' : '';
@@ -36,7 +36,7 @@ const Input = ({
   return (
     <div className={fullWidth ? 'w-full' : ''}>
       {label && (
-        <label className="block text-label font-medium text-medium-text-primary mb-2">
+        <label className="block text-label font-medium text-medium-text-primary mb-sm">
           {label}
         </label>
       )}
@@ -50,7 +50,7 @@ const Input = ({
         {...props}
       />
       {(helperText || error) && (
-        <p className={`mt-2 text-sm ${error ? 'text-error' : 'text-medium-text-muted'}`}>
+        <p className={`mt-sm text-body-small ${error ? 'text-error' : 'text-medium-text-muted'}`}>
           {error || helperText}
         </p>
       )}

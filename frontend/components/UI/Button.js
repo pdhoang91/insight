@@ -1,19 +1,33 @@
-// components/UI/Button.js - Medium 2024 Design
-import React from 'react';
+// components/UI/Button.js - Enhanced with accessibility
+import React, { forwardRef } from 'react';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
-const Button = ({ 
+const Button = forwardRef(({ 
   children, 
   variant = 'primary', 
   size = 'md', 
   disabled = false, 
   loading = false,
+  loadingText = 'Loading...',
   onClick,
   className = '',
   type = 'button',
   fullWidth = false,
+  ariaLabel,
+  ariaDescribedBy,
   ...props 
-}) => {
-  const baseClasses = 'inline-flex items-center justify-center font-ui font-medium transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-medium-accent-green focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+}, ref) => {
+  // Enhanced accessibility and interaction classes
+  const baseClasses = combineClasses(
+    'inline-flex items-center justify-center font-ui font-medium',
+    'focus:outline-none focus-visible:ring-2 focus-visible:ring-medium-accent-green focus-visible:ring-offset-2',
+    'disabled:opacity-50 disabled:cursor-not-allowed',
+    'transition-all duration-200 ease-out',
+    themeClasses.interactions.buttonHover,
+    themeClasses.interactions.buttonPress,
+    'min-h-[44px] touch:min-w-[44px]', // Touch-friendly sizing
+    'select-none' // Prevent text selection
+  );
 
   const variants = {
     primary: 'bg-medium-accent-green text-white hover:bg-medium-accent-green/90 active:bg-medium-accent-green/80 shadow-sm hover:shadow-md',
@@ -24,10 +38,10 @@ const Button = ({
   };
 
   const sizes = {
-    sm: 'px-3 py-1.5 text-sm rounded-button',
-    md: 'px-4 py-2 text-button rounded-button',
-    lg: 'px-6 py-3 text-lg rounded-button',
-    xl: 'px-8 py-4 text-xl rounded-button',
+    sm: 'px-md py-sm text-body-small rounded-button',
+    md: 'px-lg py-md text-button rounded-button',
+    lg: 'px-xl py-lg text-body-large rounded-button',
+    xl: 'px-2xl py-xl text-heading-3 rounded-button',
   };
 
   const buttonClasses = [
@@ -55,6 +69,8 @@ const Button = ({
       {children}
     </button>
   );
-};
+});
+
+Button.displayName = 'Button';
 
 export default Button;
