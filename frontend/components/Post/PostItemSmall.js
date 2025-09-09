@@ -5,6 +5,7 @@ import TextUtils from '../Utils/TextUtils';
 import TimeAgo from '../Utils/TimeAgo';
 import { motion } from 'framer-motion';
 import { FaChevronRight } from 'react-icons/fa';
+import { themeClasses, componentClasses } from '../../utils/themeClasses';
 
 const PostItemSmall = ({ post }) => {
   if (!post) {
@@ -12,31 +13,33 @@ const PostItemSmall = ({ post }) => {
   }
 
   return (
-    <motion.div
-      className="flex flex-col sm:flex-row items-start space-x-0 sm:space-x-4 mb-6 p-6 rounded-card shadow-card hover:shadow-card-hover transition-shadow duration-200 bg-medium-bg-card cursor-pointer"
+    <motion.article
+      className={`${componentClasses.card.hover} cursor-pointer mb-6`}
       whileHover={{ scale: 1.02 }}
       transition={{ type: 'spring', stiffness: 200, damping: 20 }}
     >
-      {/* Content */}
-      <div className="flex-1">
-        <Link href={`/p/${post.title_name}`}>
-          <h5 className="text-heading-3 text-medium-text-primary hover:text-medium-accent-green transition-colors duration-200 line-clamp-2">
-            {post.title}
-          </h5>
-        </Link>
-        <div className="flex items-center text-medium-text-muted text-body-small my-2">
-          <TimeAgo timestamp={post.created_at} />
+      <div className={`${themeClasses.responsive.flexTabletRow} items-start ${themeClasses.spacing.gap}`}>
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <Link href={`/p/${post.title_name}`} className={`block ${themeClasses.spacing.marginBottomSmall}`}>
+            <h3 className={`${componentClasses.heading.h4} ${themeClasses.interactive.link} line-clamp-2 text-balance`}>
+              {post.title}
+            </h3>
+          </Link>
+          <div className={`flex items-center ${componentClasses.text.bodyTiny} ${themeClasses.spacing.marginBottomSmall}`}>
+            <TimeAgo timestamp={post.created_at} className="text-medium-text-muted" />
+          </div>
+          <p className={`${componentClasses.text.bodySmall} line-clamp-2 text-pretty`}>
+            <TextUtils html={post.preview_content} maxLength={100} />
+          </p>
         </div>
-        <p className="text-medium-text-secondary text-body-small line-clamp-2">
-          <TextUtils html={post.preview_content} maxLength={100} />
-        </p>
+        
+        {/* Arrow Icon for Navigation */}
+        <div className="flex-shrink-0">
+          <FaChevronRight className={`${themeClasses.icons.sm} text-medium-accent-blue`} />
+        </div>
       </div>
-      
-      {/* Arrow Icon for Navigation */}
-      <div className="mt-2 sm:mt-0 flex-shrink-0">
-        <FaChevronRight className="text-medium-accent-blue" />
-      </div>
-    </motion.div>
+    </motion.article>
   );
 };
 
