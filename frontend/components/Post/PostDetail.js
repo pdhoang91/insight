@@ -38,68 +38,96 @@ export const PostDetail = ({ post }) => {
   };
 
   return (
-    <div className="flex flex-col">
+    <article className="max-w-article mx-auto">
       {/* Title Section */}
-      <h1 className="text-article-title font-serif text-medium-text-primary mb-6">{post.title}</h1>
+      <header>
+        <h1 className="text-article-title font-serif text-medium-text-primary mb-4 lg:mb-6 leading-tight">
+          {post.title}
+        </h1>
 
-      {/* Post Meta Information */}
-      <div className="flex items-center text-body-small text-medium-text-secondary mb-4">
-        <span>{new Date(post.created_at).toLocaleDateString()}</span>
-      </div>
-
-      {/* Interaction Section */}
-      <div className="flex flex-wrap items-center text-medium-text-secondary mb-6 space-x-4">
-        {/* Claps */}
-        <button
-          onClick={handleClap}
-          className={`flex items-center ${
-            hasClapped ? 'text-medium-accent-green' : 'text-medium-text-secondary hover:text-medium-accent-green'
-          } transition-colors`}
-        >
-          <FaHandsClapping className="mr-1" /> {postClapsCount}
-        </button>
-
-        {/* Comments */}
-        <button 
-          onClick={toggleCommentPopup} 
-          className="flex items-center text-medium-text-secondary hover:text-medium-accent-green transition-colors"
-        >
-          <FaComment className="mr-1" /> {totalCommentReply}
-        </button>
-
-        {/* Views */}
-        <div className="flex items-center">
-          <FaEye className="mr-1" /> {post.views}
+        {/* Post Meta Information */}
+        <div className="flex items-center space-x-4 text-body-small text-medium-text-muted">
+          <time dateTime={post.created_at}>
+            {new Date(post.created_at).toLocaleDateString('vi-VN', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}
+          </time>
+          <span className="w-1 h-1 bg-medium-text-muted rounded-full"></span>
+          <span>{Math.ceil((post.content?.length || 0) / 1000)} min read</span>
         </div>
-      </div>
+      </header>
 
-      {/* Post Content */}
-      <div className="prose lg:prose-xl max-w-none mb-8">
-        {post.image_title && (
+      {/* Featured Image */}
+      {post.image_title && (
+        <div>
           <img
             src={post.image_title}
             alt={post.title}
-            className="h-48 w-full object-cover rounded-card transform hover:scale-105 transition-transform duration-300"
+            className="w-full h-auto max-h-96 object-cover rounded-medium shadow-card"
+            loading="eager"
           />
-        )}
+        </div>
+      )}
+
+      {/* Post Content */}
+      <div className="prose prose-lg max-w-none">
         <div
-          className="post-content reading-content"
+          className="post-content reading-content text-body text-medium-text-primary leading-relaxed"
           dangerouslySetInnerHTML={{ __html: post.content }}
         />
       </div>
 
+      {/* Interaction Section */}
+      <footer className="border-t border-medium-border pt-6 lg:pt-8">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-6">
+            {/* Claps */}
+            <button
+              onClick={handleClap}
+              className={`flex items-center space-x-2 transition-colors group ${
+                hasClapped 
+                  ? 'text-medium-accent-green' 
+                  : 'text-medium-text-secondary hover:text-medium-accent-green'
+              }`}
+              aria-label="Clap for this post"
+            >
+              <FaHandsClapping className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <span className="font-medium">{postClapsCount}</span>
+            </button>
+
+            {/* Comments */}
+            <button 
+              onClick={toggleCommentPopup} 
+              className="flex items-center space-x-2 text-medium-text-secondary hover:text-medium-accent-green transition-colors group"
+              aria-label="View comments"
+            >
+              <FaComment className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <span className="font-medium">{totalCommentReply || 0}</span>
+            </button>
+          </div>
+
+          {/* Views */}
+          <div className="flex items-center space-x-2 text-medium-text-muted">
+            <FaEye className="w-4 h-4" />
+            <span className="font-medium">{post.views || 0}</span>
+          </div>
+        </div>
+      </footer>
+
       {/* Rating */}
-      <div className="mt-6">
+      <div>
         <Rating postId={post.id} userId={user ? user.id : null} />
       </div>
 
       {/* Comments Section */}
       {isCommentsOpen && (
-        <div className="mt-4 p-4 bg-medium-bg-secondary rounded-card">
+        <div className="p-4 bg-medium-bg-secondary rounded-card">
           <p className="text-medium-text-muted">Comments feature coming soon...</p>
         </div>
       )}
-    </div>
+    </article>
   );
 };
 

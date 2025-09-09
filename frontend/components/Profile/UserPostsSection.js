@@ -30,7 +30,7 @@ const UserPostsSection = ({ posts, isLoading, isError, setSize, isReachingEnd, i
       hasMore={!isReachingEnd}
       loader={<div className="text-center my-4">Đang tải thêm bài viết...</div>}
       endMessage={<p className="text-center mt-4">Đã tải hết bài viết.</p>}
-      className="space-y-4"
+      className="space-y-0"
     />
   );
 };

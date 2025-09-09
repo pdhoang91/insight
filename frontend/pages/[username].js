@@ -8,6 +8,7 @@ import ProfileUpdateForm from '../components/Profile/ProfileUpdateForm';
 import ProfileHeader from '../components/Profile/ProfileHeader';
 import UserPostsSection from '../components/Profile/UserPostsSection';
 import LoadingSpinner from '../components/Shared/LoadingSpinner';
+import Layout from '../components/Layout/Layout';
 import { isSuperAdmin } from '../services/authService';
 import { USER_ROLES } from '../constants/roles';
 import { FaShieldAlt } from 'react-icons/fa';
@@ -101,53 +102,49 @@ const UserProfilePage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-medium-bg-primary">
-      {/* Main Content Container - Match other pages */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        {/* Profile Header */}
-        <ProfileHeader
-          avatarUrl={profile?.avatar_url}
-          name={profile?.name || username}
-          email={profile?.email}
-          bio={profile?.bio}
-          id={profile?.id}
-          onUpdate={(isOwner || isAdmin) ? () => setShowPopup(true) : null}
+    <Layout maxWidth="wide" showSidebar={false}>
+      {/* Profile Header */}
+      <ProfileHeader
+        avatarUrl={profile?.avatar_url}
+        name={profile?.name || username}
+        email={profile?.email}
+        bio={profile?.bio}
+        id={profile?.id}
+        onUpdate={(isOwner || isAdmin) ? () => setShowPopup(true) : null}
+        isOwner={isOwner}
+        isAdmin={isAdmin}
+        userRole={profile?.role || USER_ROLES.USER}
+      />
+
+      {/* Posts Section */}
+      <section>
+        <header className="text-center lg:text-left">
+          <h2 className="font-serif font-bold text-2xl sm:text-3xl lg:text-4xl text-medium-text-primary mb-2 lg:mb-3">
+            {isOwner ? 'Bài viết của tôi' : `Bài viết của ${profile?.name || username}`}
+          </h2>
+          <p className="text-base sm:text-lg text-medium-text-secondary max-w-2xl mx-auto lg:mx-0">
+            {isOwner 
+              ? 'Quản lý và xem tất cả bài viết đã đăng của bạn' 
+              : `Xem tất cả bài viết của ${profile?.name || username}`
+            }
+          </p>
+          {isAdmin && !isOwner && (
+            <div className="mt-4 inline-flex items-center space-x-2 px-3 py-1 bg-medium-accent-green/10 border border-medium-accent-green/30 rounded-medium">
+              <FaShieldAlt className="w-3 h-3 text-medium-accent-green" />
+              <span className="text-xs text-medium-accent-green font-medium">Quyền quản trị</span>
+            </div>
+          )}
+        </header>
+
+        <UserPostsSection
+          posts={infinitePosts}
+          isLoading={isLoadingPosts}
+          isError={isErrorPosts}
+          setSize={setSizePosts}
+          isReachingEnd={isReachingEndPosts}
           isOwner={isOwner}
-          isAdmin={isAdmin}
-          userRole={profile?.role || USER_ROLES.USER}
         />
-
-        {/* Posts Section */}
-        <div className="py-8">
-          <div className="mb-6">
-            <h2 className="text-2xl font-bold text-primary mb-2">
-              {isOwner ? 'Bài viết của tôi' : `Bài viết của ${profile?.name || username}`}
-            </h2>
-            <p className="text-muted">
-              {isOwner 
-                ? 'Quản lý và xem tất cả bài viết đã đăng của bạn' 
-                : `Xem tất cả bài viết của ${profile?.name || username}`
-              }
-            </p>
-            {isAdmin && !isOwner && (
-              <div className="mt-2 inline-flex items-center space-x-2 px-3 py-1 bg-hacker-yellow/10 border border-hacker-yellow/30 rounded-md">
-                <FaShieldAlt className="w-3 h-3 text-hacker-yellow" />
-                <span className="text-xs text-hacker-yellow font-mono">Quyền quản trị</span>
-              </div>
-            )}
-          </div>
-
-          <UserPostsSection
-            posts={infinitePosts}
-            isLoading={isLoadingPosts}
-            isError={isErrorPosts}
-            setSize={setSizePosts}
-            isReachingEnd={isReachingEndPosts}
-            isOwner={isOwner}
-          />
-        </div>
-      </div>
+      </section>
 
       {/* Profile Update Modal */}
       {showPopup && (
@@ -157,7 +154,7 @@ const UserProfilePage = () => {
           onCancel={() => setShowPopup(false)}
         />
       )}
-    </div>
+    </Layout>
   );
 };
 

@@ -52,96 +52,108 @@ const PostItem = ({ post }) => {
 
 
   return (
-    <div
-      className="rounded-card p-6 mb-6 bg-medium-bg-card transition-all duration-200 hover:shadow-card-hover"
+    <article
+      className="rounded-card px-6 py-8 mb-8 bg-medium-bg-card border border-medium-border transition-all duration-200 hover:shadow-card-hover hover:border-medium-accent-green/20"
     >
-      <div className="flex flex-col md:flex-row">
-        {/* Post Section */}
-        <div className="w-full md:w-2/3 pr-0 md:pr-4">
-
+      <div className="flex flex-col lg:flex-row lg:items-start gap-6">
+        {/* Main Content Section */}
+        <div className="flex-1 min-w-0">
           {/* Post Title */}
-          <Link href={`/p/${post.title_name}`}>
-          <h5 className="text-heading-3 font-serif text-medium-text-primary hover:text-medium-accent-green transition-colors duration-200 line-clamp-2">
-          {post.title}
-          </h5>
-           
+          <Link href={`/p/${post.title_name}`} className="block mb-4">
+            <h2 className="text-heading-3 font-serif text-medium-text-primary hover:text-medium-accent-green transition-colors duration-200 line-clamp-2 leading-tight">
+              {post.title}
+            </h2>
           </Link>
 
           {/* Post Preview Content */}
-          <p className="text-body-small text-medium-text-secondary line-clamp-2">
-            <TextUtils html={post.preview_content} maxLength={200} />
-          </p>
+          <div className="mb-6">
+            <p className="text-body text-medium-text-secondary line-clamp-3 leading-relaxed">
+              <TextUtils html={post.preview_content} maxLength={280} />
+            </p>
+          </div>
 
-          {/* Rating Component */}
-          {/* <Rating postId={post.id} /> */}
-
-          {/* Interaction Buttons */}
-          <div className="flex flex-wrap items-center justify-between mt-4 space-y-2 md:space-y-0">
-            <div className="flex items-center space-x-4">
-              <TimeAgo timestamp={post.created_at} />
-              {/* Nút Clap */}
-              <button
-                onClick={handleClap}
-                className="flex items-center text-medium-text-secondary hover:text-medium-accent-green transition-colors"
-                aria-label="Clap for this post"
-              >
-                <FaHandsClapping className="mr-1" /> {clapsCount}
-              </button>
-
-              {/* Nút Comment */}
-                         <button
-                           onClick={toggleCommentPopup}
-                           className="flex items-center text-medium-text-secondary hover:text-medium-accent-green transition-colors"
-                           aria-label="View comments"
-                         >
-                           <FaComment className="mr-1" /> {totalCount || 0}
-                         </button>
-
-              {/* Số lượng View */}
-              <span className="flex items-center text-medium-text-secondary">
-                <FaEye className="mr-1" /> {post.views}
+          {/* Meta Information & Actions */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* Left side - Meta info */}
+            <div className="flex items-center space-x-4 text-sm">
+              <TimeAgo timestamp={post.created_at} className="text-medium-text-muted" />
+              <span className="w-1 h-1 bg-medium-text-muted rounded-full"></span>
+              <span className="text-medium-text-muted">
+                {Math.ceil((post.preview_content?.length || 0) / 200)} min read
               </span>
             </div>
 
+            {/* Right side - Interaction buttons */}
+            <div className="flex items-center space-x-6">
+              {/* Clap Button */}
+              <button
+                onClick={handleClap}
+                disabled={clapsLoading}
+                className="flex items-center space-x-2 text-medium-text-secondary hover:text-medium-accent-green transition-colors group"
+                aria-label="Clap for this post"
+              >
+                <FaHandsClapping className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                <span className="font-medium">{clapsCount}</span>
+              </button>
+
+              {/* Comment Button */}
+              <button
+                onClick={toggleCommentPopup}
+                className="flex items-center space-x-2 text-medium-text-secondary hover:text-medium-accent-green transition-colors group"
+                aria-label="View comments"
+              >
+                <FaComment className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                <span className="font-medium">{totalCount || 0}</span>
+              </button>
+
+              {/* View Count */}
+              <div className="flex items-center space-x-2 text-medium-text-muted">
+                <FaEye className="w-4 h-4" />
+                <span className="font-medium">{post.views || 0}</span>
+              </div>
+            </div>
           </div>
 
           {/* Inline Comments Section */}
           {isCommentsOpen && (
-            <div className="mt-8 pt-2">
-              <AddCommentForm 
-                postId={post.id} 
-                user={user} 
-                onCommentAdded={mutate}
-              />
-                         <LimitedCommentList
-                           comments={comments ? comments.flat() : []}
-                           postId={post.id}
-                           mutate={mutate}
-                           canLoadMore={canLoadMore}
-                           loadMore={loadMore}
-                           isLoadingMore={isLoading}
-                           totalCount={totalCount || 0}
-                         />
+            <div className="mt-8 pt-6 border-t border-medium-border">
+              <div className="space-y-6">
+                <AddCommentForm 
+                  postId={post.id} 
+                  user={user} 
+                  onCommentAdded={mutate}
+                />
+                <LimitedCommentList
+                  comments={comments ? comments.flat() : []}
+                  postId={post.id}
+                  mutate={mutate}
+                  canLoadMore={canLoadMore}
+                  loadMore={loadMore}
+                  isLoadingMore={isLoading}
+                  totalCount={totalCount || 0}
+                />
+              </div>
             </div>
           )}
         </div>
 
         {/* Image Section */}
-        <div className="w-full md:w-1/3 mt-4 md:mt-0">
-          {post.image_title && (
-            <div className="p-4">
-              <Link href={`/p/${post.title_name}`}>
+        {post.image_title && (
+          <div className="w-full lg:w-80 flex-shrink-0">
+            <Link href={`/p/${post.title_name}`} className="block">
+              <div className="relative overflow-hidden rounded-medium bg-medium-bg-secondary">
                 <img
                   src={post.image_title}
                   alt={post.title}
-                  className="h-48 w-full object-cover rounded transform hover:scale-105 transition-transform duration-300"
+                  className="w-full h-48 lg:h-40 object-cover transition-transform duration-300 hover:scale-105"
+                  loading="lazy"
                 />
-              </Link>
-            </div>
-          )}
-        </div>
+              </div>
+            </Link>
+          </div>
+        )}
       </div>
-    </div>
+    </article>
   );
 };
 

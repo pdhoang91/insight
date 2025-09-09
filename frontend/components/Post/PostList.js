@@ -48,9 +48,23 @@ const PostList = ({
   // Loading state for initial load
   if (isLoading && (!posts || posts.length === 0)) {
     return (
-      <div className={`space-y-6 ${className}`}>
+      <div className={`space-y-8 ${className}`}>
         {[...Array(3)].map((_, index) => (
-          <div key={index} className="animate-pulse bg-medium-bg-secondary h-32 rounded-card"></div>
+          <div key={index} className="animate-pulse bg-medium-bg-secondary h-48 rounded-card border border-medium-border p-6">
+            <div className="flex flex-col lg:flex-row lg:items-start gap-6">
+              <div className="flex-1 space-y-4">
+                <div className="h-6 bg-medium-bg-secondary rounded w-3/4"></div>
+                <div className="h-4 bg-medium-bg-secondary rounded w-full"></div>
+                <div className="h-4 bg-medium-bg-secondary rounded w-5/6"></div>
+                <div className="flex items-center space-x-4 mt-4">
+                  <div className="h-3 bg-medium-bg-secondary rounded w-16"></div>
+                  <div className="h-3 bg-medium-bg-secondary rounded w-12"></div>
+                  <div className="h-3 bg-medium-bg-secondary rounded w-12"></div>
+                </div>
+              </div>
+              <div className="w-full lg:w-80 h-40 bg-medium-bg-secondary rounded-medium"></div>
+            </div>
+          </div>
         ))}
       </div>
     );
@@ -85,9 +99,23 @@ const PostList = ({
         next={fetchMore}
         hasMore={!isReachingEnd}
         loader={
-          <div className="space-y-6 mt-6">
+          <div className="space-y-8 mt-8">
             {[...Array(2)].map((_, index) => (
-              <div key={`loading-${index}`} className="animate-pulse bg-medium-bg-secondary h-32 rounded-card"></div>
+              <div key={`loading-${index}`} className="animate-pulse bg-medium-bg-card h-48 rounded-card border border-medium-border p-6">
+                <div className="flex flex-col lg:flex-row lg:items-start gap-6">
+                  <div className="flex-1 space-y-4">
+                    <div className="h-6 bg-medium-bg-secondary rounded w-3/4"></div>
+                    <div className="h-4 bg-medium-bg-secondary rounded w-full"></div>
+                    <div className="h-4 bg-medium-bg-secondary rounded w-5/6"></div>
+                    <div className="flex items-center space-x-4 mt-4">
+                      <div className="h-3 bg-medium-bg-secondary rounded w-16"></div>
+                      <div className="h-3 bg-medium-bg-secondary rounded w-12"></div>
+                      <div className="h-3 bg-medium-bg-secondary rounded w-12"></div>
+                    </div>
+                  </div>
+                  <div className="w-full lg:w-80 h-40 bg-medium-bg-secondary rounded-medium"></div>
+                </div>
+              </div>
             ))}
           </div>
         }
@@ -102,7 +130,7 @@ const PostList = ({
         }
         refreshFunction={() => window.location.reload()}
         pullDownToRefresh={false}
-        className="space-y-6"
+        className="space-y-0"
       >
         {flatPosts.map((post, index) => (
           <PostItem

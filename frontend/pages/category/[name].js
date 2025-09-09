@@ -2,7 +2,7 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import { useThemeClasses } from '../../hooks/useThemeClasses';
-import { PageLayout } from '../../components/layout';
+import Layout from '../../components/Layout/Layout';
 import { CategoryPosts } from '../../components/Category';
 import { useInfinitePostByCategory } from '../../hooks/useInfinitePostByCategory';
 import { LoadingSpinner } from '../../components/UI';
@@ -33,7 +33,7 @@ const CategoryPage = () => {
   } = useInfinitePostByCategory(name);
 
   return (
-    <PageLayout title={name?.charAt(0).toUpperCase() + name?.slice(1)}>
+    <Layout showSidebar={false}>
       <CategoryPosts
         categoryName={name}
         posts={posts}
@@ -42,7 +42,7 @@ const CategoryPage = () => {
         setSize={setSize}
         isReachingEnd={isReachingEnd}
       />
-    </PageLayout>
+    </Layout>
   );
 };
 

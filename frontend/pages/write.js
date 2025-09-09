@@ -7,6 +7,7 @@ import LoadingSpinner from '../components/Shared/LoadingSpinner';
 import { createPost } from '../services/postService';
 import { usePostContext } from '../context/PostContext';
 import { FaTimes } from 'react-icons/fa';
+import Layout from '../components/Layout/Layout';
 
 const Write = () => {
   const router = useRouter();
@@ -166,7 +167,7 @@ const Write = () => {
   }
 
   return (
-    <div className={`min-h-screen bg-medium-bg-primary transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50 pt-0' : 'pt-16'}`}>
+    <div className={`${isFullscreen ? 'fixed inset-0 z-50 bg-medium-bg-primary' : ''}`}>
 
 
       {/* Fullscreen Exit Button */}
@@ -180,26 +181,46 @@ const Write = () => {
         </button>
       )}
 
-              {/* Main Content */}
-        <main className={`transition-all duration-300 ${isFullscreen ? 'p-8' : ''}`}>
-          <div className={`px-4 sm:px-6 lg:px-8 ${isFullscreen ? 'py-4' : 'py-4'}`}>
-
-            {/* Editor Container */}
-            <div className={`transition-all duration-300 ${isFullscreen ? 'h-[calc(100vh-3.5rem)]' : ''}`}>
-              <PostForm
-                title={title}
-                setTitle={setTitle}
-                content={content}
-                setContent={setContent}
-                imageTitle={imageTitle}
-                setImageTitle={setImageTitle}
-                isFullscreen={isFullscreen}
-              />
-            </div>
-
- 
+      {isFullscreen ? (
+        /* Fullscreen Mode - Direct rendering */
+        <main className="p-8">
+          <div className="h-[calc(100vh-3.5rem)]">
+            <PostForm
+              title={title}
+              setTitle={setTitle}
+              content={content}
+              setContent={setContent}
+              imageTitle={imageTitle}
+              setImageTitle={setImageTitle}
+              isFullscreen={isFullscreen}
+            />
           </div>
         </main>
+      ) : (
+        /* Normal Mode - Use Layout system */
+        <Layout showSidebar={false}>
+          {/* Page Header */}
+          <header className="text-center lg:text-left">
+            <h1 className="font-serif font-bold text-3xl sm:text-4xl lg:text-5xl text-medium-text-primary mb-3 lg:mb-4">
+              Tạo bài viết mới
+            </h1>
+            <p className="text-base sm:text-lg text-medium-text-secondary max-w-2xl mx-auto lg:mx-0">
+              Chia sẻ kiến thức và ý tưởng của bạn
+            </p>
+          </header>
+
+          {/* Editor Container */}
+          <PostForm
+            title={title}
+            setTitle={setTitle}
+            content={content}
+            setContent={setContent}
+            imageTitle={imageTitle}
+            setImageTitle={setImageTitle}
+            isFullscreen={isFullscreen}
+          />
+        </Layout>
+      )}
 
       {/* Publish Modal */}
       {showPopup && (

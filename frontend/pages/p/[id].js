@@ -5,7 +5,7 @@ import { usePostName } from '../../hooks/usePost';
 import { useUser } from '../../context/UserContext';
 import { clapPost } from '../../services/activityService';
 import CommentSection from '../../components/Comment/CommentSection';
-import ThreeColumnLayout from '../../components/Layout/ThreeColumnLayout';
+import Layout from '../../components/Layout/Layout';
 import PostDetail from '../../components/Post/PostDetail';
 import LoadingSpinner from '../../components/Shared/LoadingSpinner';
 
@@ -73,10 +73,7 @@ const PostPage = () => {
   );
 
   return (
-    <ThreeColumnLayout 
-      content={post.content}
-      showTOC={true}
-    >
+    <Layout showSidebar={false} maxWidth="wide">
       <PostDetail 
         post={post}
         currentClapCount={currentClapCount}
@@ -86,14 +83,10 @@ const PostPage = () => {
       />
       
       {/* Comments Section */}
-      <div ref={commentSectionRef} className="mt-12">
+      <section ref={commentSectionRef}>
         <CommentSection postId={post.id} />
-      </div>
-
-
-
-
-    </ThreeColumnLayout>
+      </section>
+    </Layout>
   );
 };
 

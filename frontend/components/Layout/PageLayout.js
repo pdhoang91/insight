@@ -17,24 +17,26 @@ const PageLayout = ({
     <section className={classes.page}>
       <div className={classes.section}>
         <div className={classes.container}>
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 items-start">
             {/* Main Content */}
             <section className={mainClassName} role="main">
-              {(title || description) && (
-                <header className="mb-8">
-                  {title && (
-                    <h1 className={`${classes.heading.h1} mb-4`}>
-                      {title}
-                    </h1>
-                  )}
-                  {description && (
-                    <p className={classes.text.secondary}>
-                      {description}
-                    </p>
-                  )}
-                </header>
-              )}
-              {children}
+              <div className="space-y-6 lg:space-y-8">
+                {(title || description) && (
+                  <header className="text-center lg:text-left">
+                    {title && (
+                      <h1 className="font-serif font-bold text-3xl sm:text-4xl lg:text-5xl text-medium-text-primary mb-3 lg:mb-4">
+                        {title}
+                      </h1>
+                    )}
+                    {description && (
+                      <p className="text-base sm:text-lg text-medium-text-secondary max-w-2xl mx-auto lg:mx-0">
+                        {description}
+                      </p>
+                    )}
+                  </header>
+                )}
+                {children}
+              </div>
             </section>
 
             {/* Sidebar */}

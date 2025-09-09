@@ -26,13 +26,13 @@ const Layout = ({
       
       {/* Main Content */}
       <main className="pt-16" role="main" {...props}>
-        <div className={`${containerClasses[maxWidth]} mx-auto px-4 sm:px-6 lg:px-8 xl:px-12`}>
+        <div className={`${containerClasses[maxWidth]} mx-auto px-6 sm:px-8 lg:px-12`}>
           {showSidebar && sidebar ? (
             /* Two Column Layout with Sidebar */
-            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 xl:gap-12 py-4 sm:py-6 lg:py-8">
+            <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 xl:gap-12 py-6 lg:py-8">
               {/* Main Content Area - Always first on mobile */}
               <div className="flex-1 min-w-0 order-first">
-                <div className={`${className}`}>
+                <div className={`space-y-6 lg:space-y-8 ${className}`}>
                   {children}
                 </div>
               </div>
@@ -53,8 +53,10 @@ const Layout = ({
             </div>
           ) : (
             /* Single Column Layout */
-            <div className={`py-4 sm:py-6 lg:py-8 ${className}`}>
-              {children}
+            <div className={`py-6 lg:py-8 ${className}`}>
+              <div className="space-y-6 lg:space-y-8">
+                {children}
+              </div>
             </div>
           )}
         </div>

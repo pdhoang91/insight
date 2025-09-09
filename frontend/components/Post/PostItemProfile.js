@@ -69,96 +69,112 @@ const PostItemProfile = ({ post, isOwner }) => {
   };
 
   return (
-    <div className="rounded-card mb-6 bg-medium-bg-card shadow-card hover:shadow-card-hover transition-shadow duration-200">
-      <div className="flex flex-col md:flex-row">
+    <div className="rounded-card px-6 py-8 mb-8 bg-medium-bg-card border border-medium-border shadow-card hover:shadow-card-hover hover:border-medium-accent-green/20 transition-all duration-200">
+      <div className="flex flex-col lg:flex-row lg:items-start gap-6">
         {/* Post Section */}
-        <div className="w-full md:w-2/3 pr-0 md:pr-4">
+        <div className="flex-1 min-w-0">
 
           {/* Post Title */}
-          <Link href={`/p/${post.title_name}`} className="block">
-            <h5 className="text-heading-3 text-medium-text-primary hover:text-medium-accent-green transition-colors duration-200 line-clamp-2">
+          <Link href={`/p/${post.title_name}`} className="block mb-4">
+            <h5 className="text-heading-3 font-serif text-medium-text-primary hover:text-medium-accent-green transition-colors duration-200 line-clamp-2 leading-tight">
               {post.title}
             </h5>
           </Link>
 
           {/* Post Preview Content */}
-          <p className="text-medium-text-secondary text-body-small line-clamp-2">
-            <TextUtils html={post.preview_content} maxLength={200} />
-          </p>
+          <div className="mb-6">
+            <p className="text-body text-medium-text-secondary line-clamp-3 leading-relaxed">
+              <TextUtils html={post.preview_content} maxLength={280} />
+            </p>
+          </div>
 
           {/* Rating Component */}
-          <Rating postId={post.id} />
+          <div className="mb-6">
+            <Rating postId={post.id} />
+          </div>
 
           {/* Interaction Buttons */}
-          <div className="flex flex-wrap items-center justify-between mt-4 space-y-2 md:space-y-0">
-            <div className="flex items-center space-x-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* Left side - Meta info */}
+            <div className="flex items-center space-x-4 text-sm">
+              <TimeAgo timestamp={post.created_at} className="text-medium-text-muted" />
+              <span className="w-1 h-1 bg-medium-text-muted rounded-full"></span>
+              <span className="text-medium-text-muted">
+                {Math.ceil((post.preview_content?.length || 0) / 200)} min read
+              </span>
+            </div>
+
+            {/* Right side - Interaction buttons */}
+            <div className="flex items-center space-x-6">
               {/* Nút Clap */}
               <button
                 onClick={handleClap}
-                className="flex items-center text-medium-text-secondary hover:text-medium-accent-green transition-colors"
+                className="flex items-center space-x-2 text-medium-text-secondary hover:text-medium-accent-green transition-colors group"
                 aria-label="Clap for this post"
               >
-                <FaHandsClapping className="mr-1" /> {clapsCount}
+                <FaHandsClapping className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                <span className="font-medium">{clapsCount}</span>
               </button>
 
               {/* Nút Comment */}
               <button
                 onClick={toggleCommentPopup}
-                className="flex items-center text-medium-text-secondary hover:text-medium-accent-green transition-colors"
+                className="flex items-center space-x-2 text-medium-text-secondary hover:text-medium-accent-green transition-colors group"
                 aria-label="View comments"
               >
-                <FaComment className="mr-1" /> {totalCommentReply}
+                <FaComment className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                <span className="font-medium">{totalCommentReply}</span>
               </button>
 
               {/* Số lượng View */}
-              <span className="flex items-center text-medium-text-muted">
-                <FaEye className="mr-1" /> {post.views}
-              </span>
-              <TimeAgo timestamp={post.created_at} />
-            </div>
+              <div className="flex items-center space-x-2 text-medium-text-muted">
+                <FaEye className="w-4 h-4" />
+                <span className="font-medium">{post.views || 0}</span>
+              </div>
 
-            <div className="flex items-center space-x-4">
-              {/* Nút Edit và Delete - Chỉ hiển thị nếu là chủ sở hữu */}
+              {/* Action buttons for owner */}
               {isOwner && (
-                <>
-                  <Link href={`/edit/${post.title_name}`} className="flex items-center text-medium-text-secondary hover:text-medium-accent-green transition-colors" aria-label="Edit post">
-                    <FaEdit className="mr-1" />
+                <div className="flex items-center space-x-4">
+                  <Link href={`/edit/${post.title_name}`} className="flex items-center space-x-1 text-medium-text-secondary hover:text-medium-accent-green transition-colors" aria-label="Edit post">
+                    <FaEdit className="w-4 h-4" />
+                    <span className="text-sm">Edit</span>
                   </Link>
                   <button
                     onClick={handleDelete}
-                    className="flex items-center text-medium-text-secondary hover:text-error transition-colors"
+                    className="flex items-center space-x-1 text-medium-text-secondary hover:text-error transition-colors"
                     aria-label="Delete post"
                   >
-                    <FaTrash className="mr-1" />
+                    <FaTrash className="w-4 h-4" />
+                    <span className="text-sm">Delete</span>
                   </button>
-                </>
+                </div>
               )}
             </div>
           </div>
 
           {/* Comments Popup */}
-          {/* Comments feature temporarily disabled */}
           {isCommentsOpen && (
-            <div className="mt-4 p-6 bg-medium-bg-secondary rounded-card">
+            <div className="mt-8 pt-6 border-t border-medium-border">
               <p className="text-medium-text-muted">Comments feature coming soon...</p>
             </div>
           )}
         </div>
 
         {/* Image Section */}
-        <div className="w-full md:w-1/3 mt-4 md:mt-0">
-          {post.image_title && (
-            <div className="p-4">
-              <Link href={`/p/${post.title_name}`} className="block">
+        {post.image_title && (
+          <div className="w-full lg:w-80 flex-shrink-0">
+            <Link href={`/p/${post.title_name}`} className="block">
+              <div className="relative overflow-hidden rounded-medium bg-medium-bg-secondary">
                 <img
                   src={post.image_title}
                   alt={post.title}
-                  className="h-48 w-full object-cover rounded transform hover:scale-105 transition-transform duration-300"
+                  className="w-full h-48 lg:h-40 object-cover transition-transform duration-300 hover:scale-105"
+                  loading="lazy"
                 />
-              </Link>
-            </div>
-          )}
-        </div>
+              </div>
+            </Link>
+          </div>
+        )}
       </div>
     </div>
   );
