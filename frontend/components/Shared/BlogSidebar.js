@@ -50,9 +50,9 @@ const BlogSidebar = () => {
     <div className="space-y-6">
       {/* Popular Posts Section */}
       {!popularPostsLoading && popularPosts.length > 0 && (
-        <section className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
-          <h2 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
-            <FaFire className="w-4 h-4 text-hacker-orange" />
+        <section className="bg-medium-bg-card rounded-lg border border-medium-border p-4">
+          <h2 className="text-base font-semibold text-medium-text-primary mb-3 flex items-center gap-2">
+            <FaFire className="w-4 h-4 text-medium-accent-green" />
             Bài viết phổ biến
           </h2>
           <ul className="space-y-2.5">
@@ -67,8 +67,8 @@ const BlogSidebar = () => {
 
       {/* Categories Navigation */}
       {!categoriesLoading && categories && categories.length > 0 && (
-        <section className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
-          <h2 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
+        <section className="bg-medium-bg-card rounded-lg border border-medium-border p-4">
+          <h2 className="text-base font-semibold text-medium-text-primary mb-3 flex items-center gap-2">
             <FaCode className="w-4 h-4 text-matrix-green" />
             <Link href="/category" className="hover:text-matrix-green transition-colors">
               Danh mục
@@ -97,8 +97,8 @@ const BlogSidebar = () => {
 
       {/* Latest Posts Section */}
       {!latestPostsLoading && latestPosts.length > 0 && (
-        <section className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
-          <h2 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
+        <section className="bg-medium-bg-card rounded-lg border border-medium-border p-4">
+          <h2 className="text-base font-semibold text-medium-text-primary mb-3 flex items-center gap-2">
             <FaClock className="w-4 h-4 text-hacker-blue" />
             Bài viết mới nhất
           </h2>
@@ -114,8 +114,8 @@ const BlogSidebar = () => {
 
       {/* Popular Tags Navigation */}
       {!tagsLoading && tags && tags.length > 0 && (
-        <section className="bg-terminal-gray rounded-lg border border-terminal-border p-4">
-          <h2 className="text-base font-semibold text-text-primary mb-3 flex items-center gap-2">
+        <section className="bg-medium-bg-card rounded-lg border border-medium-border p-4">
+          <h2 className="text-base font-semibold text-medium-text-primary mb-3 flex items-center gap-2">
             <FaBolt className="w-4 h-4 text-hacker-yellow" />
             Thẻ phổ biến
           </h2>
@@ -124,7 +124,7 @@ const BlogSidebar = () => {
               <Link
                 key={tag.id}
                 href={`/search?q=${encodeURIComponent(tag.name)}`}
-                className="px-3 py-1 bg-terminal-light text-text-secondary hover:text-matrix-green hover:bg-terminal-dark text-xs rounded-full border border-terminal-border hover:border-matrix-green/50 transition-all"
+                className="px-3 py-1 bg-terminal-light text-text-secondary hover:text-matrix-green hover:bg-terminal-dark text-xs rounded-full border border-medium-border hover:border-matrix-green/50 transition-all"
               >
                 #{tag.name}
                 {tag.post_count && (

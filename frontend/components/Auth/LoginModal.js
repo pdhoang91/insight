@@ -92,7 +92,7 @@ const LoginModal = ({ isOpen, onClose }) => {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
-        className="fixed inset-0 flex items-center justify-center bg-terminal-black/80 backdrop-blur-sm z-50"
+        className="fixed inset-0 flex items-center justify-center bg-medium-bg-primary/80 backdrop-blur-sm z-50"
         onClick={onClose}
       >
         <motion.div
@@ -104,18 +104,18 @@ const LoginModal = ({ isOpen, onClose }) => {
           onClick={(e) => e.stopPropagation()}
         >
           {/* Ultra Transparent Modal */}
-          <div className="bg-terminal-black/20 backdrop-blur-lg rounded-lg p-8 space-y-6 relative">
+          <div className="bg-medium-bg-card backdrop-blur-lg rounded-card border border-medium-border p-8 space-y-6 relative shadow-card">
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 text-matrix-green/60 hover:text-hacker-red transition-colors"
+              className="absolute top-4 right-4 text-medium-text-muted hover:text-medium-accent-green transition-colors"
             >
               <FaTimes className="w-4 h-4" />
             </button>
 
             {/* Simple Header */}
             <div className="text-center space-y-2">
-              <h2 className="text-2xl font-bold text-matrix-green font-mono">
+              <h2 className="text-2xl font-serif font-bold text-medium-text-primary">
                 {isSignUp ? 'Đăng Ký' : 'Đăng Nhập'}
               </h2>
             </div>
@@ -125,7 +125,7 @@ const LoginModal = ({ isOpen, onClose }) => {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-hacker-red/20 backdrop-blur-sm rounded-md p-3 text-hacker-red text-sm font-mono text-center"
+                className="bg-error/20 backdrop-blur-sm rounded-md p-3 text-error text-sm text-center"
               >
                 {error}
               </motion.div>

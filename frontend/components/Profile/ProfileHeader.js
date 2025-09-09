@@ -46,7 +46,7 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
             transition={{ delay: 0.3 }}
             className="space-y-2"
           >
-            <h1 className="text-xl font-bold text-white">
+            <h1 className="text-xl font-bold text-medium-text-primary">
               {name}
             </h1>
             
@@ -60,7 +60,7 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
 
             {/* Bio */}
             {bio && (
-              <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
+              <p className="text-sm text-medium-text-secondary leading-relaxed max-w-xs">
                 {bio}
               </p>
             )}
@@ -70,7 +70,7 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
           {onUpdate && (isOwner || isAdmin) && (
             <motion.button
               onClick={onUpdate}
-              className="flex items-center space-x-2 px-4 py-2 text-matrix-green hover:bg-matrix-green/10 rounded-lg transition-colors"
+              className="flex items-center space-x-2 px-4 py-2 text-medium-accent-green hover:bg-medium-accent-green/10 rounded-lg transition-colors"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
@@ -111,13 +111,13 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
           <div className="flex items-start justify-between">
             <div className="space-y-3">
               <div>
-                <h1 className="text-2xl lg:text-3xl font-bold text-white">
+                <h1 className="text-2xl lg:text-3xl font-bold text-medium-text-primary">
                   {name}
                 </h1>
                 
                 {/* Role Badge */}
                 {isAdmin && !isOwner && (
-                  <div className="mt-2 inline-flex items-center space-x-2 px-3 py-1 bg-matrix-green/10 text-matrix-green rounded-md text-sm">
+                  <div className="mt-2 inline-flex items-center space-x-2 px-3 py-1 bg-medium-accent-green/10 text-medium-accent-green rounded-md text-sm">
                     <FaShieldAlt className="w-4 h-4" />
                     <span>{getRoleDisplayName(userRole)}</span>
                   </div>
@@ -126,7 +126,7 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
 
               {/* Bio */}
               {bio && (
-                <p className="text-gray-400 leading-relaxed max-w-2xl">
+                <p className="text-medium-text-secondary leading-relaxed max-w-2xl">
                   {bio}
                 </p>
               )}
@@ -136,7 +136,7 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
             {onUpdate && (isOwner || isAdmin) && (
               <motion.button
                 onClick={onUpdate}
-                className="flex items-center space-x-2 px-4 py-2 text-matrix-green hover:bg-matrix-green/10 rounded-lg transition-colors flex-shrink-0"
+                className="flex items-center space-x-2 px-4 py-2 text-medium-accent-green hover:bg-medium-accent-green/10 rounded-lg transition-colors flex-shrink-0"
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.4 }}

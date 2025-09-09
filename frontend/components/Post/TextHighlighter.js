@@ -192,7 +192,7 @@ const HighlightsOverlay = ({ highlights }) => {
       {highlights.map(highlight => (
         <div
           key={highlight.id}
-          className="absolute bg-yellow-200/30 pointer-events-none"
+          className="absolute bg-warning/30 pointer-events-none"
           style={{
             top: highlight.rect.top,
             left: highlight.rect.left,
