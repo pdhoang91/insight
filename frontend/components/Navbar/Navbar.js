@@ -9,8 +9,7 @@ import {
   FaEdit,
   FaBars, 
   FaTimes,
-  FaSearch,
-  FaCog
+  FaSearch
 } from 'react-icons/fa';
 import { useUser } from '../../context/UserContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -227,13 +226,6 @@ const Navbar = () => {
                           <FaUser className="w-4 h-4 mr-3" />
                           Profile
                         </Link>
-                        
-                        <button
-                          className={`w-full flex items-center px-4 py-2 text-sm ${classes.text.secondary} hover:${classes.bg.secondary} hover:${classes.text.primary} transition-colors`}
-                        >
-                          <FaCog className="w-4 h-4 mr-3" />
-                          Settings
-                        </button>
                       </div>
 
                       {/* Theme Toggle */}

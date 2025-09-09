@@ -48,10 +48,10 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
           )}
         </div>
         <div className="flex items-center gap-2">
-          <span className="font-medium text-medium-text-primary text-sm">
+          <span className="font-medium text-medium-text-primary text-body-small">
             {reply.user?.name || 'Anonymous'}
           </span>
-          <span className="text-medium-text-muted text-xs">
+          <span className="text-medium-text-muted text-small">
             <TimeAgo timestamp={reply.created_at} />
           </span>
         </div>
@@ -59,7 +59,7 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
 
       {/* Reply Content */}
       <div className="pl-8 mb-2">
-        <div className="text-medium-text-secondary text-sm leading-relaxed">
+        <div className="text-medium-text-secondary text-body-small leading-relaxed">
           {reply.content}
         </div>
       </div>
@@ -68,7 +68,7 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
       <div className="flex items-center pl-8">
         <button
           onClick={handleClap}
-          className={`flex items-center gap-1 text-sm transition-colors ${
+          className={`flex items-center gap-1 text-body-small transition-colors ${
             hasClapped ? 'text-medium-accent-green' : 'text-medium-text-muted hover:text-medium-accent-green'
           }`}
           disabled={clapsLoading}

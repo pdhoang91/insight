@@ -6,8 +6,8 @@ const ReplyList = ({ replies, commentId, mutate }) => {
   if (!Array.isArray(replies)) {
 
     return (
-      <div className="text-hacker-red text-sm font-mono">
-        <span className="text-hacker-red">ERROR:</span> Invalid replies data format
+      <div className="text-error text-body-small font-ui">
+        <span className="text-error">ERROR:</span> Invalid replies data format
       </div>
     );
   }

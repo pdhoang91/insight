@@ -35,7 +35,7 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
   if (variant === 'toggle') {
     return (
       <div className={`flex items-center space-x-3 ${className}`}>
-        <FaSun className={`w-4 h-4 transition-colors ${isLight ? 'text-yellow-500' : 'text-medium-text-muted'}`} />
+        <FaSun className={`w-4 h-4 transition-colors ${isLight ? 'text-warning' : 'text-medium-text-muted'}`} />
         <button
           onClick={toggleTheme}
           className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-medium-accent-green focus:ring-offset-2 ${
@@ -49,7 +49,7 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
             }`}
           />
         </button>
-        <FaMoon className={`w-4 h-4 transition-colors ${isDark ? 'text-blue-600' : 'text-medium-text-muted'}`} />
+        <FaMoon className={`w-4 h-4 transition-colors ${isDark ? 'text-medium-accent-blue' : 'text-medium-text-muted'}`} />
       </div>
     );
   }
@@ -57,13 +57,13 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
   // Dropdown variant
   return (
     <div className={`space-y-1 ${className}`}>
-      <div className="text-sm font-medium text-medium-text-secondary mb-2">
+      <div className="text-body-small font-medium text-medium-text-secondary mb-2">
         Theme
       </div>
       
       <button
         onClick={setLightTheme}
-        className={`w-full flex items-center px-3 py-2 text-sm rounded-md transition-colors ${
+        className={`w-full flex items-center px-3 py-2 text-body-small rounded-medium transition-colors ${
           isLight
             ? 'bg-medium-accent-green text-white'
             : 'text-medium-text-secondary hover:bg-medium-bg-secondary'
@@ -75,7 +75,7 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
       
       <button
         onClick={setDarkTheme}
-        className={`w-full flex items-center px-3 py-2 text-sm rounded-md transition-colors ${
+        className={`w-full flex items-center px-3 py-2 text-body-small rounded-medium transition-colors ${
           isDark
             ? 'bg-medium-accent-green text-white'
             : 'text-medium-text-secondary hover:bg-medium-bg-secondary'

@@ -1,17 +1,15 @@
 // components/Post/PostItemProfile.js
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { FaEye, FaShareAlt, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
 import { FaHandsClapping, FaRegComments } from "react-icons/fa6";
 // import CommentsPopup from '../Comment/CommentsPopup'; // Removed - using inline comments
 import Rating from './Rating';
 import TextUtils from '../Utils/TextUtils';
-import AuthorInfo from '../Auth/AuthorInfo';
 import { useUser } from '../../context/UserContext';
 import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapPost } from '../../services/activityService';
 import { useComments } from '../../hooks/useComments';
-import ShareMenu from '../Utils/ShareMenu';
 import TimeAgo from '../Utils/TimeAgo';
 import { BASE_FE_URL } from '../../config/api';
 import { useRouter } from 'next/router';
@@ -26,23 +24,10 @@ const PostItemProfile = ({ post, isOwner }) => {
   const { clapsCount, loading: clapsLoading, mutate: mutateClaps } = useClapsCount('post', post.id);
   const { user } = useUser();
   const [isCommentsOpen, setCommentsOpen] = useState(false);
-  const [isShareMenuOpen, setShareMenuOpen] = useState(false);
-  const shareMenuRef = useRef();
   const router = useRouter();
 
   const { comments, totalCommentReply, totalCount, isLoading, isError, mutate } = useComments(post.id, true, 1, 10);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (shareMenuRef.current && !shareMenuRef.current.contains(event.target)) {
-        setShareMenuOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
 
   const handleClap = async () => {
     if (!user) {
@@ -67,11 +52,6 @@ const PostItemProfile = ({ post, isOwner }) => {
     setCommentsOpen(false);
   };
 
-  const shareUrl = `${BASE_FE_URL}/p/${post.title_name}`;
-
-  const handleShare = () => {
-    setShareMenuOpen((prev) => !prev);
-  };
 
   // Hàm xử lý xóa bài viết
   const handleDelete = async () => {
@@ -93,8 +73,6 @@ const PostItemProfile = ({ post, isOwner }) => {
       <div className="flex flex-col md:flex-row">
         {/* Post Section */}
         <div className="w-full md:w-2/3 pr-0 md:pr-4">
-          {/* Author Information */}
-          <AuthorInfo author={post.user} />
 
           {/* Post Title */}
           <Link href={`/p/${post.title_name}`} className="block">
@@ -117,7 +95,7 @@ const PostItemProfile = ({ post, isOwner }) => {
               {/* Nút Clap */}
               <button
                 onClick={handleClap}
-                className="flex items-center text-gray-600 hover:text-red-500 transition-colors"
+                className="flex items-center text-medium-text-secondary hover:text-medium-accent-green transition-colors"
                 aria-label="Clap for this post"
               >
                 <FaHandsClapping className="mr-1" /> {clapsCount}
@@ -126,49 +104,29 @@ const PostItemProfile = ({ post, isOwner }) => {
               {/* Nút Comment */}
               <button
                 onClick={toggleCommentPopup}
-                className="flex items-center text-gray-600 hover:text-blue-500 transition-colors"
+                className="flex items-center text-medium-text-secondary hover:text-medium-accent-green transition-colors"
                 aria-label="View comments"
               >
                 <FaComment className="mr-1" /> {totalCommentReply}
               </button>
 
               {/* Số lượng View */}
-              <span className="flex items-center text-gray-600">
+              <span className="flex items-center text-medium-text-muted">
                 <FaEye className="mr-1" /> {post.views}
               </span>
               <TimeAgo timestamp={post.created_at} />
             </div>
 
             <div className="flex items-center space-x-4">
-
-              {/* Nút Share */}
-              <div ref={shareMenuRef} className="relative">
-                <button
-                  onClick={handleShare}
-                  className="flex items-center text-gray-600 hover:text-green-500 transition-colors"
-                  aria-label="Share this post"
-                >
-                  <FaShareAlt className="mr-1" />
-                </button>
-
-                {isShareMenuOpen && (
-                  <ShareMenu
-                    shareUrl={shareUrl}
-                    title={post.title}
-                    onClose={() => setShareMenuOpen(false)}
-                  />
-                )}
-              </div>
-
               {/* Nút Edit và Delete - Chỉ hiển thị nếu là chủ sở hữu */}
               {isOwner && (
                 <>
-                  <Link href={`/edit/${post.title_name}`} className="flex items-center text-gray-600 hover:text-blue-500 transition-colors" aria-label="Edit post">
+                  <Link href={`/edit/${post.title_name}`} className="flex items-center text-medium-text-secondary hover:text-medium-accent-green transition-colors" aria-label="Edit post">
                     <FaEdit className="mr-1" />
                   </Link>
                   <button
                     onClick={handleDelete}
-                    className="flex items-center text-gray-600 hover:text-red-500 transition-colors"
+                    className="flex items-center text-medium-text-secondary hover:text-error transition-colors"
                     aria-label="Delete post"
                   >
                     <FaTrash className="mr-1" />
@@ -182,7 +140,7 @@ const PostItemProfile = ({ post, isOwner }) => {
           {/* Comments feature temporarily disabled */}
           {isCommentsOpen && (
             <div className="mt-4 p-6 bg-medium-bg-secondary rounded-card">
-              <p className="text-gray-600">Comments feature coming soon...</p>
+              <p className="text-medium-text-muted">Comments feature coming soon...</p>
             </div>
           )}
         </div>

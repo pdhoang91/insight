@@ -70,7 +70,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
           <span className="font-medium text-medium-text-primary">
             {comment.user?.name || 'Anonymous'}
           </span>
-          <span className="text-medium-text-muted text-sm">
+          <span className="text-medium-text-muted text-body-small">
             <TimeAgo timestamp={comment.created_at} />
           </span>
         </div>
@@ -87,7 +87,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
       <div className="flex items-center gap-4 pl-11">
         <button
           onClick={handleClap}
-          className={`flex items-center gap-1 text-sm transition-colors ${
+          className={`flex items-center gap-1 text-body-small transition-colors ${
             hasClapped ? 'text-medium-accent-green' : 'text-medium-text-muted hover:text-medium-accent-green'
           }`}
           aria-label="Clap for this comment"
@@ -98,7 +98,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
 
         <button
           onClick={handleToggleReply}
-          className="flex items-center gap-1 text-sm text-medium-text-muted hover:text-medium-accent-green transition-colors"
+          className="flex items-center gap-1 text-body-small text-medium-text-muted hover:text-medium-accent-green transition-colors"
           aria-label="Reply to this comment"
         >
           <FaComment className="w-3 h-3" />
@@ -127,7 +127,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
             {/* Replies List */}
             {comment.replies && comment.replies.length > 0 && (
               <div className="space-y-3">
-                <div className="text-sm text-matrix-green mb-2">
+                <div className="text-body-small text-medium-text-secondary mb-2">
                   Replies ({comment.replies.length}):
                 </div>
                 <ReplyList replies={comment.replies} commentId={comment.id} mutate={mutate} />

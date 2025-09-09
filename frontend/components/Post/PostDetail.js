@@ -163,11 +163,10 @@
 import React from 'react';
 import { useUser } from '../../context/UserContext';
 import { FaHandsClapping, FaRegComments } from "react-icons/fa6";
-import { FaEye, FaShareAlt, FaCommentDots, FaComment } from 'react-icons/fa';
+import { FaEye, FaCommentDots, FaComment } from 'react-icons/fa';
 
 // import CommentsPopup from '../Comment/CommentsPopup'; // Removed
 import Rating from './Rating';
-import AuthorInfo from '../Auth/AuthorInfo';
 import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapPost } from '../../services/activityService';
 import { useComments } from '../../hooks/useComments';
@@ -207,18 +206,6 @@ export const PostDetail = ({ post }) => {
     setCommentsOpen(false);
   };
 
-  const shareUrl = `${BASE_FE_URL}/p/${post.title_name}`;
-
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: post.title,
-        url: shareUrl,
-      });
-    } else {
-      alert('Trình duyệt của bạn không hỗ trợ chia sẻ.');
-    }
-  };
 
   return (
     <div className="flex flex-col">
@@ -236,28 +223,27 @@ export const PostDetail = ({ post }) => {
       )} */}
 
       {/* Title Section */}
-      <h1 className="text-3xl sm:text-4xl font-bold mb-2 text-gray-800">{post.title}</h1>
+      <h1 className="text-article-title font-serif text-medium-text-primary mb-6">{post.title}</h1>
 
-      {/* Author and Meta Information */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center text-sm text-gray-600 mb-4">
-        {post.user && <AuthorInfo author={post.user} />}
-        <span className="mt-1 sm:mt-0 sm:ml-2">{new Date(post.created_at).toLocaleDateString()}</span>
+      {/* Post Meta Information */}
+      <div className="flex items-center text-sm text-medium-text-secondary mb-4">
+        <span>{new Date(post.created_at).toLocaleDateString()}</span>
       </div>
 
       {/* Interaction Section */}
-      <div className="flex flex-wrap items-center text-gray-600 mb-4 space-x-4">
+      <div className="flex flex-wrap items-center text-medium-text-secondary mb-6 space-x-4">
         {/* Claps */}
         <button
           onClick={handleClap}
           className={`flex items-center mr-2 ${
-            hasClapped ? 'text-red-500' : 'text-gray-600 hover:text-red-500'
-          }`}
+            hasClapped ? 'text-medium-accent-green' : 'text-medium-text-secondary hover:text-medium-accent-green'
+          } transition-colors`}
         >
           <FaHandsClapping className="mr-1" /> {postClapsCount}
         </button>
 
         {/* Comments */}
-        <button onClick={toggleCommentPopup} className="flex items-center mr-2">
+        <button onClick={toggleCommentPopup} className="flex items-center mr-2 text-medium-text-secondary hover:text-medium-accent-green transition-colors">
           <FaComment className="mr-1" /> {totalCommentReply}
         </button>
 
@@ -265,12 +251,6 @@ export const PostDetail = ({ post }) => {
         <div className="flex items-center mr-2">
           <FaEye className="mr-1" /> {post.views}
         </div>
-
-
-        {/* Share */}
-        <button onClick={handleShare} className="flex items-center">
-          <FaShareAlt className="mr-1" />
-        </button>
       </div>
 
       {/* Post Content */}
@@ -294,8 +274,8 @@ export const PostDetail = ({ post }) => {
       {/* Comments Popup */}
       {/* Comments temporarily disabled */}
       {isCommentsOpen && (
-        <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-          <p className="text-gray-600">Comments feature coming soon...</p>
+        <div className="mt-4 p-4 bg-medium-bg-secondary rounded-card">
+          <p className="text-medium-text-muted">Comments feature coming soon...</p>
         </div>
       )}
     </div>

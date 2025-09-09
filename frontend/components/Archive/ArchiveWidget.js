@@ -50,11 +50,11 @@ const ArchiveWidget = ({ posts = [], className = '' }) => {
   if (!posts.length) {
     return (
       <div className={`bg-medium-bg-card rounded-lg p-6 border border-medium-border ${className}`}>
-        <h3 className="text-lg font-serif font-bold text-medium-text-primary mb-4 flex items-center">
+        <h3 className="text-heading-3 font-serif font-bold text-medium-text-primary mb-4 flex items-center">
           <FaCalendarAlt className="w-4 h-4 mr-2 text-medium-accent-green" />
           Archive
         </h3>
-        <p className="text-medium-text-muted text-sm">No posts yet.</p>
+        <p className="text-medium-text-muted text-body-small">No posts yet.</p>
       </div>
     );
   }
@@ -62,7 +62,7 @@ const ArchiveWidget = ({ posts = [], className = '' }) => {
   return (
     <div className={`bg-medium-bg-card rounded-lg p-6 border border-medium-border ${className}`}>
       {/* Header */}
-      <h3 className="text-lg font-serif font-bold text-medium-text-primary mb-4 flex items-center">
+      <h3 className="text-heading-3 font-serif font-bold text-medium-text-primary mb-4 flex items-center">
         <FaCalendarAlt className="w-4 h-4 mr-2 text-medium-accent-green" />
         Archive
       </h3>

@@ -50,13 +50,13 @@ const PersonalBlogSidebar = () => {
         
         {/* Popular Posts Widget */}
         <div className="space-y-4">
-          <h3 className="font-serif font-bold text-xl text-medium-text-primary flex items-center">
+          <h3 className="font-serif font-bold text-heading-3 text-medium-text-primary flex items-center">
             <FaFire className="w-5 h-5 mr-3 text-medium-accent-green" />
             Trending
           </h3>
-          <div className="bg-medium-bg-card rounded-lg shadow-sm p-6">
-            <PopularPostsWidget limit={5} showImages={false} />
-          </div>
+        <div className="bg-medium-bg-card rounded-card shadow-card p-6">
+          <PopularPostsWidget limit={5} showImages={false} />
+        </div>
         </div>
 
         {/* Categories */}

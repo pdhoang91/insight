@@ -1,6 +1,6 @@
 // components/Mobile/MobileReadingBar.js
 import React, { useState } from 'react';
-import { FaHeart, FaComment, FaBookmark, FaShare, FaChevronUp } from 'react-icons/fa';
+import { FaHeart, FaComment, FaBookmark, FaChevronUp } from 'react-icons/fa';
 import { usePostClap } from '../../hooks/usePostClap';
 import BookmarkButton from '../Post/BookmarkButton';
 import { useUser } from '../../context/UserContext';
@@ -8,8 +8,7 @@ import { useUser } from '../../context/UserContext';
 const MobileReadingBar = ({ 
   post, 
   isVisible = true, 
-  onCommentClick, 
-  onShareClick,
+  onCommentClick,
   className = '' 
 }) => {
   const { user, setModalOpen } = useUser();
@@ -38,18 +37,6 @@ const MobileReadingBar = ({
     }
   };
 
-  const handleShareClick = () => {
-    if (onShareClick) {
-      onShareClick();
-    } else if (navigator.share) {
-      navigator.share({
-        title: post.title,
-        url: window.location.href
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-    }
-  };
 
   return (
     <>
@@ -100,16 +87,6 @@ const MobileReadingBar = ({
               <BookmarkButton postId={post.id} />
             </div>
 
-            {/* Share Action */}
-            <button
-              onClick={handleShareClick}
-              className="w-full flex items-center justify-between p-3 bg-medium-bg-secondary rounded-lg hover:bg-medium-divider transition-colors"
-            >
-              <div className="flex items-center space-x-3">
-                <FaShare className="w-5 h-5 text-medium-text-secondary" />
-                <span className="text-medium-text-primary font-medium">Share article</span>
-              </div>
-            </button>
           </div>
         )}
 
@@ -131,8 +108,8 @@ const MobileReadingBar = ({
               <div className="text-sm font-medium text-medium-text-primary truncate">
                 {post.title}
               </div>
-              <div className="text-xs text-medium-text-muted">
-                {post.user?.name || 'Anonymous'}
+              <div className="text-caption text-medium-text-muted">
+                Reading Progress
               </div>
             </div>
 
