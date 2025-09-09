@@ -32,45 +32,54 @@ export const themeClasses = {
     transparent: 'border-transparent',
   },
 
-  // Typography - Standardized Hierarchy
+  // Typography - Enhanced Standardized Hierarchy
   typography: {
-    // Font Families
+    // Font Families - Consistent usage
     serif: 'font-serif',
-    sans: 'font-sans',
+    sans: 'font-sans', 
     mono: 'font-mono',
     
-    // Font Weights
-    bold: 'font-bold',
-    semibold: 'font-semibold',
-    medium: 'font-medium',
-    normal: 'font-normal',
+    // Font Weights - Semantic naming
+    weightLight: 'font-light',     // 300
+    weightNormal: 'font-normal',   // 400
+    weightMedium: 'font-medium',   // 500
+    weightSemibold: 'font-semibold', // 600
+    weightBold: 'font-bold',       // 700
+    weightBlack: 'font-black',     // 900
     
-    // Semantic Typography
-    heading: 'font-serif font-bold',
-    subheading: 'font-serif font-semibold',
-    body: 'font-sans font-normal',
-    caption: 'font-sans font-medium',
-    label: 'font-sans font-medium',
+    // Display Typography - Hero sections
+    displayHero: 'font-serif font-black text-5xl md:text-6xl lg:text-7xl leading-tight tracking-tight',
+    displayLarge: 'font-serif font-bold text-4xl md:text-5xl lg:text-6xl leading-tight tracking-tight',
+    displayMedium: 'font-serif font-bold text-3xl md:text-4xl lg:text-5xl leading-tight tracking-tight',
     
-    // Display Sizes (with consistent font family)
-    displayLarge: 'font-serif font-bold text-display',
-    displayMedium: 'font-serif font-bold text-article-title',
+    // Heading Hierarchy - Consistent scale
+    h1: 'font-serif font-bold text-2xl md:text-3xl lg:text-4xl leading-tight tracking-tight',
+    h2: 'font-serif font-bold text-xl md:text-2xl lg:text-3xl leading-tight tracking-tight',
+    h3: 'font-serif font-bold text-lg md:text-xl lg:text-2xl leading-snug tracking-tight',
+    h4: 'font-serif font-semibold text-base md:text-lg lg:text-xl leading-snug',
+    h5: 'font-serif font-semibold text-sm md:text-base lg:text-lg leading-snug',
+    h6: 'font-serif font-semibold text-xs md:text-sm lg:text-base leading-snug',
     
-    // Heading Hierarchy
-    h1: 'font-serif font-bold text-heading-1',
-    h2: 'font-serif font-bold text-heading-2', 
-    h3: 'font-serif font-bold text-heading-3',
-    h4: 'font-serif font-semibold text-body-large',
+    // Body Text - Reading optimized
+    bodyHero: 'font-serif font-normal text-xl md:text-2xl lg:text-3xl leading-relaxed',
+    bodyLarge: 'font-serif font-normal text-lg md:text-xl lg:text-2xl leading-relaxed',
+    bodyMedium: 'font-sans font-normal text-base md:text-lg leading-relaxed',
+    bodySmall: 'font-sans font-normal text-sm md:text-base leading-relaxed',
+    bodyTiny: 'font-sans font-normal text-xs md:text-sm leading-normal',
     
-    // Body Text
-    bodyLarge: 'font-sans font-normal text-body-large',
-    bodyMedium: 'font-sans font-normal text-body',
-    bodySmall: 'font-sans font-normal text-body-small',
+    // UI Text - Interface elements
+    buttonLarge: 'font-sans font-semibold text-base md:text-lg leading-none',
+    buttonMedium: 'font-sans font-medium text-sm md:text-base leading-none',
+    buttonSmall: 'font-sans font-medium text-xs md:text-sm leading-none',
+    labelLarge: 'font-sans font-medium text-sm md:text-base leading-tight',
+    labelMedium: 'font-sans font-medium text-xs md:text-sm leading-tight',
+    labelSmall: 'font-sans font-medium text-xs leading-tight',
+    captionText: 'font-sans font-normal text-xs md:text-sm leading-tight text-medium-text-muted',
     
-    // UI Text
-    buttonText: 'font-sans font-medium text-button',
-    labelText: 'font-sans font-medium text-label',
-    captionText: 'font-sans font-normal text-caption',
+    // Specialized Typography
+    code: 'font-mono font-normal text-sm leading-relaxed',
+    quote: 'font-serif font-normal text-lg md:text-xl leading-relaxed italic',
+    subtitle: 'font-sans font-normal text-lg md:text-xl leading-relaxed text-medium-text-secondary',
   },
 
   // Layout - Mobile-first responsive
@@ -99,15 +108,39 @@ export const themeClasses = {
     flexRow: 'flex flex-col lg:flex-row gap-lg lg:gap-xl',
   },
 
-  // Interactive states with touch targets
+  // Interactive states with enhanced touch targets and accessibility
   interactive: {
-    button: 'min-h-[44px] min-w-[44px] touch-manipulation transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-medium-accent-green/50',
-    buttonPrimary: 'bg-medium-accent-green text-white hover:bg-medium-accent-green/90 min-h-[44px] touch-manipulation',
-    buttonSecondary: 'bg-medium-bg-secondary text-medium-text-primary hover:bg-medium-bg-primary min-h-[44px] touch-manipulation',
-    buttonGhost: 'text-medium-text-secondary hover:text-medium-accent-green hover:bg-medium-bg-secondary min-h-[44px] touch-manipulation',
-    input: 'bg-medium-bg-secondary border-medium-border text-medium-text-primary placeholder-medium-text-muted focus:border-medium-accent-green focus:ring-2 focus:ring-medium-accent-green/50 min-h-[44px]',
-    card: 'bg-medium-bg-card border-medium-border hover:border-medium-accent-green/40 transition-colors duration-300',
-    touchTarget: 'min-h-[44px] min-w-[44px] touch-manipulation flex items-center justify-center',
+    // Base interactive styles
+    base: 'touch-manipulation transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-medium-accent-green focus-visible:ring-offset-2',
+    touchTarget: 'min-h-[44px] min-w-[44px] flex items-center justify-center',
+    
+    // Button variants with consistent sizing and states
+    buttonBase: 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed',
+    buttonLarge: 'px-6 py-3 min-h-[48px] text-base',
+    buttonMedium: 'px-4 py-2 min-h-[44px] text-sm',
+    buttonSmall: 'px-3 py-1.5 min-h-[36px] text-xs',
+    
+    // Button color variants
+    buttonPrimary: 'bg-medium-accent-green text-white hover:bg-medium-accent-green/90 focus-visible:ring-medium-accent-green shadow-sm hover:shadow-md',
+    buttonSecondary: 'bg-medium-bg-secondary text-medium-text-primary hover:bg-medium-hover border border-medium-border focus-visible:ring-medium-accent-green',
+    buttonGhost: 'text-medium-text-secondary hover:text-medium-accent-green hover:bg-medium-bg-secondary focus-visible:ring-medium-accent-green',
+    buttonDanger: 'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-600 shadow-sm hover:shadow-md',
+    
+    // Input styles with consistent sizing
+    inputBase: 'w-full border rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-medium-accent-green/50 focus:border-medium-accent-green disabled:opacity-50 disabled:cursor-not-allowed',
+    inputLarge: 'px-4 py-3 min-h-[48px] text-base',
+    inputMedium: 'px-3 py-2 min-h-[44px] text-sm',
+    inputSmall: 'px-2 py-1.5 min-h-[36px] text-xs',
+    input: 'bg-medium-bg-card border-medium-border text-medium-text-primary placeholder-medium-text-muted',
+    
+    // Card interactions with hover states
+    cardBase: 'bg-medium-bg-card border border-medium-border rounded-lg transition-all duration-200',
+    cardHover: 'hover:border-medium-accent-green/40 hover:shadow-md hover:-translate-y-0.5',
+    cardClickable: 'cursor-pointer hover:border-medium-accent-green/60 hover:shadow-lg hover:-translate-y-1 active:scale-[0.98]',
+    
+    // Link styles
+    link: 'text-medium-accent-green hover:text-medium-accent-green/80 transition-colors duration-200',
+    linkUnderline: 'underline decoration-2 underline-offset-2 hover:decoration-medium-accent-green/60',
   },
 
   // Common patterns
@@ -147,26 +180,37 @@ export const themeClasses = {
     accentMd: 'w-5 h-5 text-medium-accent-green',
   },
 
-  // Spacing - Mobile-first approach
+  // Spacing - Mobile-first approach with enhanced consistency
   spacing: {
-    // Section spacing
-    section: 'py-xl md:py-2xl lg:py-3xl',
-    sectionSmall: 'py-lg md:py-xl lg:py-2xl',
+    // Section spacing - Consistent vertical rhythm
+    section: 'py-6 md:py-8 lg:py-12',          // 24px -> 32px -> 48px
+    sectionLarge: 'py-8 md:py-12 lg:py-16',    // 32px -> 48px -> 64px
+    sectionSmall: 'py-4 md:py-6 lg:py-8',      // 16px -> 24px -> 32px
     
-    // Card spacing
-    card: 'p-lg md:p-xl lg:p-2xl',
-    cardSmall: 'p-md md:p-lg',
-    cardLarge: 'p-xl md:p-2xl lg:p-3xl',
+    // Card spacing - Consistent internal padding
+    card: 'p-4 md:p-6 lg:p-8',                 // 16px -> 24px -> 32px
+    cardSmall: 'p-3 md:p-4 lg:p-5',            // 12px -> 16px -> 20px
+    cardLarge: 'p-6 md:p-8 lg:p-10',           // 24px -> 32px -> 40px
     
-    // Gap spacing
-    gap: 'gap-lg md:gap-xl lg:gap-2xl',
-    gapSmall: 'gap-md md:gap-lg',
-    gapLarge: 'gap-xl md:gap-2xl lg:gap-3xl',
+    // Gap spacing - For flex/grid layouts
+    gap: 'gap-4 md:gap-6 lg:gap-8',            // 16px -> 24px -> 32px
+    gapSmall: 'gap-2 md:gap-3 lg:gap-4',       // 8px -> 12px -> 16px
+    gapLarge: 'gap-6 md:gap-8 lg:gap-12',      // 24px -> 32px -> 48px
     
-    // Container spacing
-    container: 'px-lg md:px-xl lg:px-2xl',
-    containerSmall: 'px-md md:px-lg',
-    containerLarge: 'px-xl md:px-2xl lg:px-3xl',
+    // Stack spacing - For vertical layouts
+    stack: 'space-y-4 md:space-y-6 lg:space-y-8',
+    stackSmall: 'space-y-2 md:space-y-3 lg:space-y-4',
+    stackLarge: 'space-y-6 md:space-y-8 lg:space-y-12',
+    
+    // Container spacing - Horizontal padding
+    container: 'px-4 md:px-6 lg:px-8',         // 16px -> 24px -> 32px
+    containerSmall: 'px-3 md:px-4 lg:px-6',    // 12px -> 16px -> 24px
+    containerLarge: 'px-6 md:px-8 lg:px-12',   // 24px -> 32px -> 48px
+    
+    // Margin utilities
+    marginTop: 'mt-4 md:mt-6 lg:mt-8',
+    marginBottom: 'mb-4 md:mb-6 lg:mb-8',
+    marginVertical: 'my-4 md:my-6 lg:my-8',
   },
   
   // Responsive Layout Patterns
@@ -295,53 +339,156 @@ export const componentClasses = {
   ),
 
   button: {
+    // Large buttons - Primary actions
+    primaryLarge: combineClasses(
+      themeClasses.interactive.buttonBase,
+      themeClasses.interactive.buttonLarge,
+      themeClasses.interactive.buttonPrimary
+    ),
+    secondaryLarge: combineClasses(
+      themeClasses.interactive.buttonBase,
+      themeClasses.interactive.buttonLarge,
+      themeClasses.interactive.buttonSecondary
+    ),
+    ghostLarge: combineClasses(
+      themeClasses.interactive.buttonBase,
+      themeClasses.interactive.buttonLarge,
+      themeClasses.interactive.buttonGhost
+    ),
+    
+    // Medium buttons - Default size
     primary: combineClasses(
-      themeClasses.interactive.buttonPrimary,
-      themeClasses.interactive.button,
-      themeClasses.effects.rounded,
-      'px-6 py-2'
+      themeClasses.interactive.buttonBase,
+      themeClasses.interactive.buttonMedium,
+      themeClasses.interactive.buttonPrimary
     ),
     secondary: combineClasses(
-      themeClasses.interactive.buttonSecondary,
-      themeClasses.interactive.button,
-      themeClasses.effects.rounded,
-      'px-6 py-2'
+      themeClasses.interactive.buttonBase,
+      themeClasses.interactive.buttonMedium,
+      themeClasses.interactive.buttonSecondary
     ),
     ghost: combineClasses(
-      themeClasses.interactive.buttonGhost,
-      themeClasses.interactive.button,
-      themeClasses.effects.rounded,
-      'px-4 py-2'
+      themeClasses.interactive.buttonBase,
+      themeClasses.interactive.buttonMedium,
+      themeClasses.interactive.buttonGhost
+    ),
+    danger: combineClasses(
+      themeClasses.interactive.buttonBase,
+      themeClasses.interactive.buttonMedium,
+      themeClasses.interactive.buttonDanger
+    ),
+    
+    // Small buttons - Compact areas
+    primarySmall: combineClasses(
+      themeClasses.interactive.buttonBase,
+      themeClasses.interactive.buttonSmall,
+      themeClasses.interactive.buttonPrimary
+    ),
+    secondarySmall: combineClasses(
+      themeClasses.interactive.buttonBase,
+      themeClasses.interactive.buttonSmall,
+      themeClasses.interactive.buttonSecondary
+    ),
+    ghostSmall: combineClasses(
+      themeClasses.interactive.buttonBase,
+      themeClasses.interactive.buttonSmall,
+      themeClasses.interactive.buttonGhost
     ),
   },
 
-  input: combineClasses(
-    themeClasses.interactive.input,
-    themeClasses.effects.rounded,
-    'px-4 py-2 w-full'
-  ),
+  input: {
+    large: combineClasses(
+      themeClasses.interactive.inputBase,
+      themeClasses.interactive.inputLarge,
+      themeClasses.interactive.input
+    ),
+    medium: combineClasses(
+      themeClasses.interactive.inputBase,
+      themeClasses.interactive.inputMedium,
+      themeClasses.interactive.input
+    ),
+    small: combineClasses(
+      themeClasses.interactive.inputBase,
+      themeClasses.interactive.inputSmall,
+      themeClasses.interactive.input
+    ),
+  },
 
-  textarea: combineClasses(
-    themeClasses.interactive.input,
-    themeClasses.effects.rounded,
-    'px-4 py-3 w-full resize-none'
-  ),
+  textarea: {
+    large: combineClasses(
+      themeClasses.interactive.inputBase,
+      themeClasses.interactive.inputLarge,
+      themeClasses.interactive.input,
+      'resize-none min-h-[120px]'
+    ),
+    medium: combineClasses(
+      themeClasses.interactive.inputBase,
+      themeClasses.interactive.inputMedium,
+      themeClasses.interactive.input,
+      'resize-none min-h-[100px]'
+    ),
+    small: combineClasses(
+      themeClasses.interactive.inputBase,
+      themeClasses.interactive.inputSmall,
+      themeClasses.interactive.input,
+      'resize-none min-h-[80px]'
+    ),
+  },
+
+  card: {
+    base: combineClasses(
+      themeClasses.interactive.cardBase,
+      themeClasses.spacing.card
+    ),
+    hover: combineClasses(
+      themeClasses.interactive.cardBase,
+      themeClasses.interactive.cardHover,
+      themeClasses.spacing.card
+    ),
+    clickable: combineClasses(
+      themeClasses.interactive.cardBase,
+      themeClasses.interactive.cardClickable,
+      themeClasses.spacing.card
+    ),
+  },
 
   heading: {
     h1: combineClasses(themeClasses.typography.h1, themeClasses.text.primary),
     h2: combineClasses(themeClasses.typography.h2, themeClasses.text.primary),
     h3: combineClasses(themeClasses.typography.h3, themeClasses.text.primary),
     h4: combineClasses(themeClasses.typography.h4, themeClasses.text.primary),
+    h5: combineClasses(themeClasses.typography.h5, themeClasses.text.primary),
+    h6: combineClasses(themeClasses.typography.h6, themeClasses.text.primary),
     display: combineClasses(themeClasses.typography.displayLarge, themeClasses.text.primary),
     article: combineClasses(themeClasses.typography.displayMedium, themeClasses.text.primary),
   },
   
   text: {
-    body: combineClasses(themeClasses.typography.bodyMedium, themeClasses.text.primary),
+    // Display text
+    displayHero: combineClasses(themeClasses.typography.displayHero, themeClasses.text.primary),
+    displayLarge: combineClasses(themeClasses.typography.displayLarge, themeClasses.text.primary),
+    displayMedium: combineClasses(themeClasses.typography.displayMedium, themeClasses.text.primary),
+    
+    // Body text with semantic colors
+    bodyHero: combineClasses(themeClasses.typography.bodyHero, themeClasses.text.primary),
     bodyLarge: combineClasses(themeClasses.typography.bodyLarge, themeClasses.text.primary),
+    body: combineClasses(themeClasses.typography.bodyMedium, themeClasses.text.primary),
     bodySmall: combineClasses(themeClasses.typography.bodySmall, themeClasses.text.secondary),
-    caption: combineClasses(themeClasses.typography.captionText, themeClasses.text.muted),
-    label: combineClasses(themeClasses.typography.labelText, themeClasses.text.secondary),
+    bodyTiny: combineClasses(themeClasses.typography.bodyTiny, themeClasses.text.muted),
+    
+    // UI text
+    buttonLarge: combineClasses(themeClasses.typography.buttonLarge),
+    buttonMedium: combineClasses(themeClasses.typography.buttonMedium),
+    buttonSmall: combineClasses(themeClasses.typography.buttonSmall),
+    labelLarge: combineClasses(themeClasses.typography.labelLarge, themeClasses.text.secondary),
+    labelMedium: combineClasses(themeClasses.typography.labelMedium, themeClasses.text.secondary),
+    labelSmall: combineClasses(themeClasses.typography.labelSmall, themeClasses.text.muted),
+    caption: combineClasses(themeClasses.typography.captionText),
+    
+    // Specialized text
+    code: combineClasses(themeClasses.typography.code, themeClasses.text.primary),
+    quote: combineClasses(themeClasses.typography.quote, themeClasses.text.secondary),
+    subtitle: combineClasses(themeClasses.typography.subtitle),
   },
 
   page: combineClasses(

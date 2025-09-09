@@ -24,28 +24,38 @@ body {
 
 /* Medium 2024 Design System - CSS Custom Properties */
 :root {
-  /* Light Mode - Medium 2024 */
+  /* Enhanced Light Mode - Medium 2024 with better contrast */
   --medium-bg-primary: #FFFFFF;
   --medium-bg-secondary: #F7F4ED;
   --medium-bg-card: #FFFFFF;
   --medium-bg-elevated: #FAFAFA;
+  --medium-bg-overlay: rgba(255, 255, 255, 0.95);
   
-  --medium-text-primary: #242424;
-  --medium-text-secondary: #757575;
-  --medium-text-muted: #B3B3B1;
+  --medium-text-primary: #1A1A1A;      /* Improved contrast */
+  --medium-text-secondary: #6B6B6B;    /* Better readability */
+  --medium-text-muted: #9CA3AF;        /* Softer muted text */
   --medium-text-accent: #1A8917;
+  --medium-text-inverse: #FFFFFF;
   
   --medium-accent-green: #1A8917;
+  --medium-accent-green-hover: #157A14;
+  --medium-accent-green-light: rgba(26, 137, 23, 0.1);
   --medium-accent-gray: #6B6B6B;
   --medium-accent-blue: #1976D2;
   
-  --medium-border: #E6E6E6;
-  --medium-border-light: #F2F2F2;
-  --medium-divider: #F2F2F2;
+  --medium-border: #E5E7EB;            /* Subtle borders */
+  --medium-border-light: #F3F4F6;      /* Very light borders */
+  --medium-divider: #E5E7EB;
   
-  --medium-hover: #F8F9FA;
-  --medium-active: #E9ECEF;
+  --medium-hover: #F9FAFB;             /* Subtle hover */
+  --medium-active: #F3F4F6;            /* Clear active state */
   --medium-focus: rgba(26, 137, 23, 0.2);
+  
+  /* Status colors */
+  --medium-success: #10B981;
+  --medium-warning: #F59E0B;
+  --medium-error: #EF4444;
+  --medium-info: #3B82F6;
   
   /* Reading Experience */
   --reading-width: 680px;
@@ -82,35 +92,45 @@ body {
   --border-radius-full: 9999px;
 }
 
-/* Dark Mode - Medium 2024 */
+/* Enhanced Dark Mode - Medium 2024 with better hierarchy */
 [data-theme="dark"] {
-  --medium-bg-primary: #0F0F0F;
-  --medium-bg-secondary: #1A1A1A;
-  --medium-bg-card: #1A1A1A;
-  --medium-bg-elevated: #242424;
+  --medium-bg-primary: #0D1117;          /* GitHub dark inspired */
+  --medium-bg-secondary: #161B22;
+  --medium-bg-card: #21262D;
+  --medium-bg-elevated: #2D333B;
+  --medium-bg-overlay: rgba(13, 17, 23, 0.95);
   
-  --medium-text-primary: #E6E6E6;
-  --medium-text-secondary: #B3B3B3;
-  --medium-text-muted: #6B6B6B;
-  --medium-text-accent: #1DB954;
+  --medium-text-primary: #F0F6FC;        /* High contrast white */
+  --medium-text-secondary: #8B949E;      /* Medium gray */
+  --medium-text-muted: #6E7681;          /* Muted gray */
+  --medium-text-accent: #2EA043;         /* GitHub green */
+  --medium-text-inverse: #0D1117;
   
-  --medium-accent-green: #1DB954;
-  --medium-accent-gray: #8B8B8B;
-  --medium-accent-blue: #42A5F5;
+  --medium-accent-green: #2EA043;
+  --medium-accent-green-hover: #2C974B;
+  --medium-accent-green-light: rgba(46, 160, 67, 0.15);
+  --medium-accent-gray: #8B949E;
+  --medium-accent-blue: #58A6FF;
   
-  --medium-border: #2F2F2F;
-  --medium-border-light: #262626;
-  --medium-divider: #262626;
+  --medium-border: #30363D;              /* Subtle dark borders */
+  --medium-border-light: #21262D;        /* Very subtle */
+  --medium-divider: #30363D;
   
-  --medium-hover: #242424;
-  --medium-active: #2F2F2F;
-  --medium-focus: rgba(29, 185, 84, 0.2);
+  --medium-hover: #262C36;               /* Subtle hover */
+  --medium-active: #30363D;              /* Clear active */
+  --medium-focus: rgba(46, 160, 67, 0.3);
   
-  /* Dark Mode Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+  /* Dark mode status colors */
+  --medium-success: #2EA043;
+  --medium-warning: #FB8500;
+  --medium-error: #FF6B6B;
+  --medium-info: #58A6FF;
+  
+  /* Enhanced Dark Mode Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.6);
 }
 
 /* To ensure all elements use border-box sizing */
@@ -302,10 +322,66 @@ a:hover {
 
 /* Removed a:hover::before rule that was causing > icon to appear on hover */
 
-/* Medium 2024 Utility Classes */
+/* Enhanced Typography Utilities */
 @layer utilities {
+  /* Typography utilities */
   .text-balance {
     text-wrap: balance;
+  }
+  
+  .text-pretty {
+    text-wrap: pretty;
+  }
+  
+  .text-wrap {
+    text-wrap: wrap;
+  }
+  
+  .text-nowrap {
+    text-wrap: nowrap;
+  }
+  
+  .text-ellipsis {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  /* Reading flow utilities */
+  .reading-flow {
+    text-wrap: pretty;
+    hanging-punctuation: first last;
+    hyphens: auto;
+  }
+  
+  /* Font feature utilities */
+  .font-feature-normal {
+    font-feature-settings: normal;
+  }
+  
+  .font-feature-small-caps {
+    font-feature-settings: 'smcp' 1;
+  }
+  
+  .font-feature-tabular {
+    font-feature-settings: 'tnum' 1;
+  }
+  
+  .font-feature-oldstyle {
+    font-feature-settings: 'onum' 1;
+  }
+  
+  /* Accessibility utilities */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 }
 

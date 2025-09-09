@@ -53,21 +53,19 @@ const PostItem = ({ post }) => {
 
 
   return (
-    <article
-      className="bg-medium-bg-card border border-medium-border rounded-card p-card transition-all duration-200 hover:shadow-card-hover hover:border-medium-accent-green/20 mb-gap"
-    >
-      <div className="flex flex-col lg:flex-row lg:items-start gap-lg lg:gap-xl">
+    <article className={componentClasses.card.hover}>
+      <div className={`${themeClasses.responsive.flexDesktopRow} ${themeClasses.spacing.gap} items-start`}>
         {/* Main Content Section */}
         <div className="flex-1 min-w-0">
           {/* Post Title */}
-          <Link href={`/p/${post.title_name}`} className="block mb-lg">
-            <h2 className={`${componentClasses.heading.h3} hover:text-medium-accent-green transition-colors duration-200 line-clamp-2 leading-tight`}>
+          <Link href={`/p/${post.title_name}`} className={`block ${themeClasses.spacing.marginBottom}`}>
+            <h2 className={`${componentClasses.heading.h3} ${themeClasses.interactive.link} line-clamp-2 text-balance`}>
               {post.title}
             </h2>
           </Link>
 
           {/* Post Preview Content */}
-          <div className="mb-xl">
+          <div className={themeClasses.spacing.marginBottom}>
             <p className="text-body text-medium-text-secondary line-clamp-3 leading-relaxed">
               <TextUtils html={post.preview_content} maxLength={280} />
             </p>
