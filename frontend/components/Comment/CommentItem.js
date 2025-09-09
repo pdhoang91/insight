@@ -55,7 +55,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
       transition={{ duration: 0.2 }}
     >
       {/* Author Info */}
-      <div className="flex items-center gap-md mb-lg">
+      <div className="flex items-center gap-3 mb-4">
         <div className="w-8 h-8 bg-medium-bg-secondary rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
           {comment.user?.avatar_url ? (
             <img
@@ -78,14 +78,14 @@ const CommentItem = ({ comment, postId, mutate }) => {
       </div>
 
       {/* Comment Content */}
-      <div className="mb-lg pl-11">
+      <div className="mb-4 pl-11">
         <div className="text-medium-text-secondary leading-relaxed text-body">
           <CommentContent content={comment.content} />
         </div>
       </div>
 
       {/* Action Bar */}
-      <div className="flex items-center gap-xl pl-11">
+      <div className="flex items-center gap-6 pl-11">
         <button
           onClick={handleClap}
           className={`${themeClasses.interactive.touchTarget} gap-sm text-body-small transition-all duration-200 ${
@@ -111,14 +111,14 @@ const CommentItem = ({ comment, postId, mutate }) => {
       <AnimatePresence>
         {showReplyForm && (
           <motion.div
-            className="mt-lg ml-11"
+            className="mt-4 ml-11"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
           >
             {/* Reply Form */}
-            <div className="mb-lg">
+            <div className="mb-4">
               <AddCommentForm 
                 onAddComment={(content) => handleReply(content, comment.id)} 
                 parentId={comment.id}

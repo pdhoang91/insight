@@ -72,9 +72,9 @@ const PostItem = ({ post }) => {
           </div>
 
           {/* Meta Information & Actions */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-lg">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             {/* Left side - Meta info */}
-            <div className="flex items-center gap-lg text-body-small">
+            <div className="flex items-center gap-4 text-body-small">
               <TimeAgo timestamp={post.created_at} className="text-medium-text-muted" />
               <span className="w-1 h-1 bg-medium-text-muted rounded-full"></span>
               <span className="text-medium-text-muted">
@@ -83,7 +83,7 @@ const PostItem = ({ post }) => {
             </div>
 
             {/* Right side - Interaction buttons */}
-            <div className="flex items-center gap-xl">
+            <div className="flex items-center gap-6">
               {/* Clap Button */}
               <button
                 onClick={handleClap}
@@ -119,7 +119,7 @@ const PostItem = ({ post }) => {
 
           {/* Inline Comments Section */}
           {isCommentsOpen && (
-            <div className="mt-2xl pt-xl border-t border-medium-border">
+            <div className="mt-8 pt-6 border-t border-medium-border">
               <div className="space-y-6">
                 <AddCommentForm 
                   postId={post.id} 

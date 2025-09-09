@@ -82,7 +82,7 @@ export const SkeletonText = ({ lines = 1, className = '', ...props }) => (
 
 export const SkeletonCard = ({ className = '', showImage = true, showMeta = true, ...props }) => (
   <div className={combineClasses('animate-fade-in', className)} {...props}>
-    <div className="p-card bg-medium-bg-card rounded-card border border-medium-border space-y-lg">
+    <div className="p-4 bg-medium-bg-card rounded-lg border border-medium-border space-y-4">
       {showImage && (
         <Skeleton variant="image" className="w-full" />
       )}
@@ -90,7 +90,7 @@ export const SkeletonCard = ({ className = '', showImage = true, showMeta = true
         <Skeleton variant="heading" width="3/4" />
         <SkeletonText lines={3} />
         {showMeta && (
-          <div className="flex items-center gap-lg pt-lg">
+          <div className="flex items-center gap-4 pt-4">
             <Skeleton variant="avatar" />
             <div className="space-y-sm flex-1">
               <Skeleton variant="text" width="1/3" />
@@ -106,20 +106,20 @@ export const SkeletonCard = ({ className = '', showImage = true, showMeta = true
 export const SkeletonPost = ({ className = '', ...props }) => (
   <div className={combineClasses('animate-slide-up', className)} {...props}>
     <div className="p-card bg-medium-bg-card rounded-card border border-medium-border">
-      <div className="flex flex-col lg:flex-row gap-lg">
+      <div className="flex flex-col lg:flex-row gap-4">
         {/* Main content */}
-        <div className="flex-1 space-y-lg">
+        <div className="flex-1 space-y-4">
           <Skeleton variant="heading" width="2/3" />
           <SkeletonText lines={3} />
           
           {/* Meta information */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-lg pt-lg">
-            <div className="flex items-center gap-lg">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-4">
+            <div className="flex items-center gap-4">
               <Skeleton variant="text" width="20" />
               <div className="w-1 h-1 bg-medium-text-muted rounded-full"></div>
               <Skeleton variant="text" width="16" />
             </div>
-            <div className="flex items-center gap-xl">
+            <div className="flex items-center gap-6">
               <Skeleton variant="button" width="16" height="sm" />
               <Skeleton variant="button" width="16" height="sm" />
               <Skeleton variant="button" width="16" height="sm" />
@@ -147,7 +147,7 @@ export const SkeletonComment = ({ className = '', showReplies = false, ...props 
             <Skeleton variant="text" width="16" />
           </div>
           <SkeletonText lines={2} />
-          <div className="flex items-center gap-lg">
+          <div className="flex items-center gap-4">
             <Skeleton variant="button" width="12" height="sm" />
             <Skeleton variant="button" width="12" height="sm" />
           </div>
@@ -155,7 +155,7 @@ export const SkeletonComment = ({ className = '', showReplies = false, ...props 
       </div>
       
       {showReplies && (
-        <div className="mt-lg ml-14 space-y-md">
+        <div className="mt-4 ml-14 space-y-3">
           <SkeletonComment />
         </div>
       )}
@@ -165,7 +165,7 @@ export const SkeletonComment = ({ className = '', showReplies = false, ...props 
 
 export const SkeletonProfile = ({ className = '', ...props }) => (
   <div className={combineClasses('animate-scale-in', className)} {...props}>
-    <div className="text-center space-y-xl">
+    <div className="text-center space-y-6">
       {/* Avatar */}
       <div className="flex justify-center">
         <Skeleton variant="avatar" className="w-24 h-24" />
@@ -179,7 +179,7 @@ export const SkeletonProfile = ({ className = '', ...props }) => (
       </div>
       
       {/* Stats */}
-      <div className="flex justify-center gap-xl">
+      <div className="flex justify-center gap-6">
         {[1, 2, 3].map((i) => (
           <div key={i} className="text-center space-y-sm">
             <Skeleton variant="text" width="12" />

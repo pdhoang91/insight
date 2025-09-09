@@ -8,7 +8,6 @@ import CommentSection from '../../components/Comment/CommentSection';
 import { ReadingLayout } from '../../components/Layout/Layout';
 import PostDetail from '../../components/Post/PostDetail';
 import LoadingSpinner from '../../components/Shared/LoadingSpinner';
-import PersonalBlogSidebar from '../../components/Shared/PersonalBlogSidebar';
 import { themeClasses, componentClasses } from '../../utils/themeClasses';
 
 const PostPage = () => {
@@ -75,7 +74,7 @@ const PostPage = () => {
   );
 
   return (
-    <ReadingLayout sidebar={<PersonalBlogSidebar />}>
+    <ReadingLayout>
       <PostDetail 
         post={post}
         currentClapCount={currentClapCount}
@@ -85,7 +84,7 @@ const PostPage = () => {
       />
       
       {/* Comments Section */}
-      <section ref={commentSectionRef} className="mt-2xl pt-2xl border-t border-medium-divider">
+      <section ref={commentSectionRef} className="mt-8 pt-8 border-t border-medium-divider">
         <CommentSection postId={post.id} />
       </section>
     </ReadingLayout>

@@ -38,15 +38,15 @@ export const PostDetail = ({ post }) => {
   };
 
   return (
-    <article className="max-w-article mx-auto">
+    <article>
       {/* Title Section */}
-      <header className="mb-2xl">
-        <h1 className="text-article-title font-serif font-bold text-medium-text-primary mb-lg leading-tight">
+      <header className="mb-8">
+        <h1 className="text-article-title font-serif font-bold text-medium-text-primary mb-4 leading-tight text-balance">
           {post.title}
         </h1>
 
         {/* Post Meta Information */}
-        <div className="flex items-center space-x-lg text-body-small text-medium-text-muted">
+        <div className="flex items-center space-x-4 text-body-small text-medium-text-muted">
           <time dateTime={post.created_at}>
             {new Date(post.created_at).toLocaleDateString('vi-VN', {
               year: 'numeric',
@@ -61,7 +61,7 @@ export const PostDetail = ({ post }) => {
 
       {/* Featured Image */}
       {post.image_title && (
-        <div className="mb-2xl">
+        <div className="mb-8">
           <img
             src={post.image_title}
             alt={post.title}
@@ -72,7 +72,7 @@ export const PostDetail = ({ post }) => {
       )}
 
       {/* Post Content */}
-      <div className="prose prose-lg max-w-none mb-2xl">
+      <div className="prose prose-lg max-w-none mb-8">
         <div
           className="post-content reading-content text-body text-medium-text-primary leading-relaxed"
           dangerouslySetInnerHTML={{ __html: post.content }}
@@ -80,13 +80,13 @@ export const PostDetail = ({ post }) => {
       </div>
 
       {/* Interaction Section */}
-      <footer className="border-t border-medium-border pt-xl">
+      <footer className="border-t border-medium-border pt-6">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-xl">
+          <div className="flex items-center space-x-6">
             {/* Claps */}
             <button
               onClick={handleClap}
-              className={`flex items-center space-x-sm transition-all duration-200 group ${
+              className={`flex items-center space-x-2 transition-all duration-200 group ${
                 hasClapped 
                   ? 'text-medium-accent-green' 
                   : 'text-medium-text-secondary hover:text-medium-accent-green'
@@ -100,7 +100,7 @@ export const PostDetail = ({ post }) => {
             {/* Comments */}
             <button 
               onClick={toggleCommentPopup} 
-              className="flex items-center space-x-sm text-medium-text-secondary hover:text-medium-accent-green transition-all duration-200 group"
+              className="flex items-center space-x-2 text-medium-text-secondary hover:text-medium-accent-green transition-all duration-200 group"
               aria-label="View comments"
             >
               <FaComment className="w-5 h-5 group-hover:scale-110 transition-transform" />
@@ -109,7 +109,7 @@ export const PostDetail = ({ post }) => {
           </div>
 
           {/* Views */}
-          <div className="flex items-center space-x-sm text-medium-text-muted">
+          <div className="flex items-center space-x-2 text-medium-text-muted">
             <FaEye className="w-4 h-4" />
             <span className="font-medium text-body-small">{post.views || 0}</span>
           </div>
@@ -117,13 +117,13 @@ export const PostDetail = ({ post }) => {
       </footer>
 
       {/* Rating */}
-      <div className="mt-xl">
+      <div className="mt-6">
         <Rating postId={post.id} userId={user ? user.id : null} />
       </div>
 
       {/* Comments Section */}
       {isCommentsOpen && (
-        <div className="mt-2xl p-card bg-medium-bg-secondary rounded-card">
+        <div className="mt-8 p-4 bg-medium-bg-secondary rounded-lg">
           <p className="text-medium-text-muted text-body-small">Comments feature coming soon...</p>
         </div>
       )}

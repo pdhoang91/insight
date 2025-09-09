@@ -216,7 +216,7 @@ const EditPost = () => {
 
         {/* Main Content */}
         <main className={`transition-all duration-300 ${isFullscreen ? 'p-8' : ''}`}>
-          <div className={`px-4 sm:px-6 lg:px-8 ${isFullscreen ? 'py-4' : 'py-8'}`}>
+          <div className={`${themeClasses.layout.container} ${isFullscreen ? 'py-4' : 'py-8'}`}>
 
             {/* Editor Container */}
             <div className={`transition-all duration-300 ${isFullscreen ? 'h-[calc(100vh-3.5rem)]' : ''}`}>

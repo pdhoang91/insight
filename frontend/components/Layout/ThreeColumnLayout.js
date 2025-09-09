@@ -16,18 +16,18 @@ const ThreeColumnLayout = ({
       {/* Main Content - Using consistent Layout patterns */}
       <div className="py-6 lg:py-8">
         <div className={themeClasses.layout.container}>
-          <div className={`flex flex-col lg:flex-row gap-xl lg:gap-2xl ${leftSidebar ? '' : 'justify-center'}`}>
+          <div className={`flex flex-col lg:flex-row gap-6 lg:gap-8 ${leftSidebar ? '' : 'justify-center'}`}>
             {/* Left Sidebar - Optional */}
             {leftSidebar && (
               <aside className="order-last lg:order-first w-full lg:w-80 lg:flex-shrink-0">
                 <div className="lg:sticky lg:top-24">
-                  <div className="lg:hidden mb-xl">
+                  <div className="lg:hidden mb-6">
                     {/* Mobile: Collapsed sidebar */}
                     <details className="bg-medium-bg-card border border-medium-border rounded-card">
-                      <summary className="p-lg cursor-pointer font-serif font-bold text-medium-text-primary">
+                      <summary className="p-4 cursor-pointer font-serif font-bold text-medium-text-primary">
                         Sidebar Content
                       </summary>
-                      <div className="p-lg border-t border-medium-border">
+                      <div className="p-4 border-t border-medium-border">
                         {leftSidebar}
                       </div>
                     </details>
@@ -46,7 +46,7 @@ const ThreeColumnLayout = ({
                 {/* Mobile TOC - Only show on mobile/tablet */}
                 {showTOC && content && (
                   <div className="lg:hidden">
-                    <div className="bg-medium-bg-card border border-medium-border rounded-card p-lg">
+                    <div className="bg-medium-bg-card border border-medium-border rounded-card p-4">
                       <h3 className="font-serif font-bold text-medium-text-primary mb-md">
                         Table of Contents
                       </h3>
@@ -66,7 +66,7 @@ const ThreeColumnLayout = ({
                 <div className="lg:sticky lg:top-24 space-y-6 max-h-[calc(100vh-6rem)] overflow-y-auto">
                   {/* Desktop TOC */}
                   {showTOC && content && (
-                    <div className="hidden lg:block bg-medium-bg-card border border-medium-border rounded-card p-lg">
+                    <div className="hidden lg:block bg-medium-bg-card border border-medium-border rounded-card p-4">
                       <h3 className="font-serif font-bold text-medium-text-primary mb-md">
                         Table of Contents
                       </h3>

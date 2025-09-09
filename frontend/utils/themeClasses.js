@@ -90,8 +90,8 @@ export const themeClasses = {
     containerWide: 'max-w-wide mx-auto px-4 md:px-6 lg:px-8',         // Same as container
     
     // Content patterns - Consistent with container
-    article: 'max-w-article mx-auto px-4 md:px-6 lg:px-8',            // Same as container
-    reading: 'max-w-article mx-auto px-4 md:px-6 lg:px-8',            // Same as container
+    article: 'max-w-container mx-auto px-4 md:px-6 lg:px-8',            // Same as container
+    reading: 'max-w-container mx-auto px-4 md:px-6 lg:px-8',            // Same as container
     
     // Layout utilities
     fullHeight: 'min-h-screen',
@@ -99,13 +99,13 @@ export const themeClasses = {
     stickyNav: 'sticky top-0 z-50',
     
     // Responsive grid layouts
-    mainWithSidebar: 'grid grid-cols-1 lg:grid-cols-4 gap-lg lg:gap-xl items-start',
-    twoColumn: 'grid grid-cols-1 md:grid-cols-2 gap-lg lg:gap-xl',
-    threeColumn: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg lg:gap-xl',
+    mainWithSidebar: 'grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6 items-start',
+    twoColumn: 'grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6',
+    threeColumn: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6',
     
     // Flex layouts
-    flexColumn: 'flex flex-col gap-lg lg:gap-xl',
-    flexRow: 'flex flex-col lg:flex-row gap-lg lg:gap-xl',
+    flexColumn: 'flex flex-col gap-4 lg:gap-6',
+    flexRow: 'flex flex-col lg:flex-row gap-4 lg:gap-6',
   },
 
   // Interactive states with enhanced touch targets and accessibility

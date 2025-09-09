@@ -15,12 +15,12 @@ const SearchPage = () => {
       {q ? (
         <SearchResults query={q} />
       ) : (
-        <div className="text-center py-16">
+        <div className="text-center py-12">
           <header className="mb-8">
-            <h1 className="font-serif font-bold text-3xl sm:text-4xl lg:text-5xl text-medium-text-primary mb-3 lg:mb-4">
+            <h1 className="font-serif font-bold text-3xl sm:text-4xl lg:text-5xl text-medium-text-primary mb-3 lg:mb-4 text-balance">
               Tìm kiếm
             </h1>
-            <p className="text-base sm:text-lg text-medium-text-secondary max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-medium-text-secondary max-w-2xl mx-auto text-pretty">
               Khám phá các bài viết thông qua tìm kiếm
             </p>
           </header>
