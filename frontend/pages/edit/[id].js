@@ -63,13 +63,6 @@ const EditPost = () => {
     }
   };
 
-  const handleUpdate = () => {
-    if (!title.trim() || !content.trim()) {
-      alert('Please add a title and content to your post');
-      return;
-    }
-    setShowPopup(true);
-  };
 
   // Auto-save functionality
   useEffect(() => {
@@ -112,7 +105,7 @@ const EditPost = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isFullscreen, handleSaveDraft, handleUpdate]);
+  }, [isFullscreen, handleSaveDraft]);
 
   const updateFunction = useCallback(async (categories, tags) => {
     if (!user) {
@@ -135,13 +128,22 @@ const EditPost = () => {
     }
   }, [user, title, content, imageTitle, post?.id, router]);
 
+  const handleUpdate = useCallback(() => {
+    if (!title.trim() || !content.trim()) {
+      alert('Vui lòng thêm tiêu đề và nội dung cho bài viết của bạn');
+      return;
+    }
+    setShowPopup(true);
+  }, [title, content]);
+
   useEffect(() => {
-    setHandleUpdate(() => updateFunction);
-    setHandlePublish(null);
+    setHandleUpdate(() => handleUpdate);
+    setHandlePublish(() => handleUpdate);
     return () => {
       setHandleUpdate(null);
+      setHandlePublish(null);
     };
-  }, [updateFunction, setHandleUpdate, setHandlePublish]);
+  }, [handleUpdate, setHandleUpdate, setHandlePublish]);
 
   useEffect(() => {
     if (router.asPath.includes('#submit')) {

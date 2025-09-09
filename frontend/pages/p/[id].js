@@ -4,10 +4,10 @@ import React, { useRef, useState } from 'react';
 import { usePostName } from '../../hooks/usePost';
 import { useUser } from '../../context/UserContext';
 import { clapPost } from '../../services/activityService';
-import { CommentSection } from '../../components/Comment';
+import CommentSection from '../../components/Comment/CommentSection';
 import ThreeColumnLayout from '../../components/Layout/ThreeColumnLayout';
 import PostDetail from '../../components/Post/PostDetail';
-import { LoadingSpinner } from '../../components/UI';
+import LoadingSpinner from '../../components/Shared/LoadingSpinner';
 
 const PostPage = () => {
   const router = useRouter();
@@ -66,8 +66,8 @@ const PostPage = () => {
   if (isError) return (
     <div className="min-h-screen bg-medium-bg-primary flex items-center justify-center">
       <div className="text-center">
-        <div className="text-red-500 mb-2 font-serif text-lg">Failed to load post</div>
-        <p className="text-medium-text-muted text-sm">Please try again later</p>
+        <div className="text-error mb-2 font-serif text-lg">Failed to load post</div>
+        <p className="text-medium-text-muted text-body-small">Please try again later</p>
       </div>
     </div>
   );

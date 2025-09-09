@@ -121,6 +121,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
               <AddCommentForm 
                 onAddComment={(content) => handleReply(content, comment.id)} 
                 parentId={comment.id}
+                user={user}
               />
             </div>
 

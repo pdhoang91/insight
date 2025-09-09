@@ -38,15 +38,13 @@ const Write = () => {
     }
   };
 
-  const handlePublish = () => {
+  const handlePublish = useCallback(() => {
     if (!title.trim() || !content.trim()) {
       alert('Vui lòng thêm tiêu đề và nội dung cho bài viết của bạn');
       return;
     }
     setShowPopup(true);
-  };
-
-
+  }, [title, content]);
 
   // Auto-save functionality
   useEffect(() => {
@@ -127,12 +125,12 @@ const Write = () => {
   }, [user, title, content, imageTitle, router]);
 
   useEffect(() => {
-    setHandlePublish(() => publishFunction);
+    setHandlePublish(() => handlePublish); // Use local handlePublish function
     setHandleUpdate(null);
     return () => {
       setHandlePublish(null);
     };
-  }, [publishFunction, setHandlePublish, setHandleUpdate]);
+  }, [handlePublish, setHandlePublish, setHandleUpdate]);
 
   const getSaveStatusText = () => {
     switch (saveStatus) {
