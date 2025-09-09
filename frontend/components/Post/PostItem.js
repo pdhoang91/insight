@@ -117,27 +117,6 @@ const PostItem = ({ post }) => {
             </div>
           </div>
 
-          {/* Inline Comments Section */}
-          {isCommentsOpen && (
-            <div className="mt-8 pt-6 border-t border-medium-border">
-              <div className="space-y-6">
-                <AddCommentForm 
-                  postId={post.id} 
-                  user={user} 
-                  onCommentAdded={mutate}
-                />
-                <LimitedCommentList
-                  comments={comments ? comments.flat() : []}
-                  postId={post.id}
-                  mutate={mutate}
-                  canLoadMore={canLoadMore}
-                  loadMore={loadMore}
-                  isLoadingMore={isLoading}
-                  totalCount={totalCount || 0}
-                />
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Image Section */}
@@ -156,6 +135,28 @@ const PostItem = ({ post }) => {
           </div>
         )}
       </div>
+
+      {/* Comments Section - Full Width */}
+      {isCommentsOpen && (
+        <div className="mt-8 pt-6 border-t border-medium-border">
+          <div className="space-y-6">
+            <AddCommentForm 
+              postId={post.id} 
+              user={user} 
+              onCommentAdded={mutate}
+            />
+            <LimitedCommentList
+              comments={comments ? comments.flat() : []}
+              postId={post.id}
+              mutate={mutate}
+              canLoadMore={canLoadMore}
+              loadMore={loadMore}
+              isLoadingMore={isLoading}
+              totalCount={totalCount || 0}
+            />
+          </div>
+        </div>
+      )}
     </article>
   );
 };

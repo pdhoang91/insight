@@ -44,7 +44,7 @@ const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId =
   return (
     <form onSubmit={handleSubmit} className="relative">
       <textarea
-        className="w-full bg-medium-bg-secondary border border-medium-border rounded-lg text-medium-text-primary placeholder-medium-text-muted p-md pr-12 resize-none focus:outline-none focus:ring-2 focus:ring-medium-accent-green/50 focus:border-medium-accent-green transition-all duration-200 shadow-sm focus:shadow-card text-body"
+        className="w-full bg-medium-bg-secondary border border-medium-border rounded-lg text-medium-text-primary placeholder-medium-text-muted p-3 pr-12 resize-none focus:outline-none focus:ring-2 focus:ring-medium-accent-green/50 focus:border-medium-accent-green transition-all duration-200 shadow-sm focus:shadow-card text-body"
         placeholder={placeholder || defaultPlaceholder}
         value={content}
         onChange={(e) => setContent(e.target.value)}
@@ -56,7 +56,7 @@ const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId =
       {/* Submit Button */}
       <button
         type="submit"
-        className={`absolute right-md bottom-md p-sm rounded-lg transition-all duration-200 ${
+        className={`absolute right-3 bottom-3 p-2 rounded-lg transition-all duration-200 ${
           isSubmitting 
             ? 'bg-medium-bg-primary text-medium-text-muted cursor-not-allowed' 
             : 'bg-medium-accent-green/20 text-medium-accent-green hover:bg-medium-accent-green hover:text-white hover:scale-105'
