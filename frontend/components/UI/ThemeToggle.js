@@ -2,6 +2,7 @@
 import React from 'react';
 import { FaSun, FaMoon } from 'react-icons/fa';
 import { useTheme } from '../../context/ThemeContext';
+import { themeClasses } from '../../utils/themeClasses';
 
 const ThemeToggle = ({ variant = 'simple', className = '' }) => {
   const { theme, isDark, isLight, toggleTheme, setLightTheme, setDarkTheme, mounted } = useTheme();
@@ -24,9 +25,9 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
         title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
       >
         {isDark ? (
-          <FaSun className="w-4 h-4 text-warning" />
-        ) : (
-          <FaMoon className="w-4 h-4 text-medium-accent-blue" />
+        <FaSun className={`${themeClasses.icons.sm} ${themeClasses.text.accent}`} />
+      ) : (
+        <FaMoon className={`${themeClasses.icons.sm} ${themeClasses.text.accent}`} />
         )}
       </button>
     );
@@ -35,21 +36,21 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
   if (variant === 'toggle') {
     return (
       <div className={`flex items-center space-x-3 ${className}`}>
-        <FaSun className={`w-4 h-4 transition-colors ${isLight ? 'text-warning' : 'text-medium-text-muted'}`} />
-        <button
-          onClick={toggleTheme}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-medium-accent-green focus:ring-offset-2 ${
-            isDark ? 'bg-medium-accent-green' : 'bg-medium-border'
+      <FaSun className={`${themeClasses.icons.sm} transition-colors ${isLight ? themeClasses.text.accent : themeClasses.text.muted}`} />
+      <button
+        onClick={toggleTheme}
+        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-medium-accent-green focus:ring-offset-2 ${
+          isDark ? 'bg-medium-accent-green' : 'bg-medium-border'
+        }`}
+        aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+      >
+        <span
+          className={`inline-block h-4 w-4 transform rounded-full bg-medium-bg-card transition-transform ${
+            isDark ? 'translate-x-6' : 'translate-x-1'
           }`}
-          aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
-        >
-          <span
-            className={`inline-block h-4 w-4 transform rounded-full bg-medium-bg-card transition-transform ${
-              isDark ? 'translate-x-6' : 'translate-x-1'
-            }`}
-          />
-        </button>
-        <FaMoon className={`w-4 h-4 transition-colors ${isDark ? 'text-medium-accent-blue' : 'text-medium-text-muted'}`} />
+        />
+      </button>
+      <FaMoon className={`${themeClasses.icons.sm} transition-colors ${isDark ? themeClasses.text.accent : themeClasses.text.muted}`} />
       </div>
     );
   }
@@ -69,7 +70,7 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
             : 'text-medium-text-secondary hover:bg-medium-bg-secondary'
         }`}
       >
-        <FaSun className="w-4 h-4 mr-3" />
+        <FaSun className={`${themeClasses.icons.sm} mr-3`} />
         Light Mode
       </button>
       
@@ -81,7 +82,7 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
             : 'text-medium-text-secondary hover:bg-medium-bg-secondary'
         }`}
       >
-        <FaMoon className="w-4 h-4 mr-3" />
+        <FaMoon className={`${themeClasses.icons.sm} mr-3`} />
         Dark Mode
       </button>
     </div>

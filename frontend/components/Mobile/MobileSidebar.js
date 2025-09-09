@@ -6,6 +6,7 @@ import AuthorProfile from '../Author/AuthorProfile';
 import PopularPostsWidget from '../Widgets/PopularPostsWidget';
 import ArchiveWidget from '../Archive/ArchiveWidget';
 import NewsletterWidget from '../Widgets/NewsletterWidget';
+import { themeClasses } from '../../utils/themeClasses';
 
 const MobileSidebar = ({ 
   isOpen, 
@@ -24,6 +25,7 @@ const MobileSidebar = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             className="fixed inset-0 bg-medium-bg-primary/80 backdrop-blur-sm z-50 md:hidden"
             onClick={onClose}
           />
@@ -33,8 +35,9 @@ const MobileSidebar = ({
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
-            transition={{ type: 'tween', duration: 0.3 }}
-            className={`fixed top-0 right-0 bottom-0 w-80 max-w-[90vw] bg-medium-bg-primary z-50 overflow-y-auto ${className}`}
+            transition={{ type: 'tween', duration: 0.2, ease: 'easeOut' }}
+            className={`fixed top-0 right-0 bottom-0 w-80 max-w-[90vw] bg-medium-bg-primary border-l border-medium-border z-50 overflow-y-auto overscroll-contain ${className}`}
+            style={{ WebkitOverflowScrolling: 'touch' }}
           >
             {/* Header */}
             <div className="sticky top-0 bg-medium-bg-primary border-b border-medium-border p-4 flex items-center justify-between">
@@ -84,23 +87,29 @@ const MobileSidebar = ({
               </div>
 
               {/* Popular Posts - Mobile Optimized */}
-              <PopularPostsWidget 
-                limit={3} 
-                showImages={true}
-                className="bg-medium-bg-card"
-              />
+              <div className="bg-medium-bg-card rounded-lg p-4 border border-medium-border">
+                <h3 className="text-lg font-serif font-bold text-medium-text-primary mb-3 flex items-center">
+                  <FaFire className={themeClasses.icons.accentSm + " mr-2"} />
+                  Popular Posts
+                </h3>
+                <PopularPostsWidget 
+                  limit={3} 
+                  showImages={false}
+                  compact={true}
+                />
+              </div>
 
               {/* Categories - Compact */}
               <div className="bg-medium-bg-card rounded-lg p-4 border border-medium-border">
                 <h3 className="text-lg font-serif font-bold text-medium-text-primary mb-3 flex items-center">
-                  <FaTag className="w-4 h-4 mr-2 text-medium-accent-green" />
+                  <FaTag className={themeClasses.icons.accentSm + " mr-2"} />
                   Topics
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {categories.slice(0, 8).map((category) => (
                     <span
                       key={category.id}
-                      className="px-3 py-1 bg-medium-bg-secondary text-medium-text-secondary text-sm rounded-full hover:bg-medium-accent-green hover:text-white transition-colors cursor-pointer"
+                      className="px-3 py-1 bg-medium-bg-secondary text-medium-text-secondary text-sm rounded-full hover:bg-medium-accent-green hover:text-white transition-colors cursor-pointer touch-manipulation"
                     >
                       {category.name}
                     </span>
@@ -109,10 +118,22 @@ const MobileSidebar = ({
               </div>
 
               {/* Newsletter - Mobile Optimized */}
-              <NewsletterWidget />
+              <div className="bg-medium-bg-card rounded-lg p-4 border border-medium-border">
+                <h3 className="text-lg font-serif font-bold text-medium-text-primary mb-3 flex items-center">
+                  <FaEnvelope className={themeClasses.icons.accentSm + " mr-2"} />
+                  Newsletter
+                </h3>
+                <NewsletterWidget compact={true} />
+              </div>
 
               {/* Archive - Compact */}
-              <ArchiveWidget posts={posts} />
+              <div className="bg-medium-bg-card rounded-lg p-4 border border-medium-border">
+                <h3 className="text-lg font-serif font-bold text-medium-text-primary mb-3 flex items-center">
+                  <FaCalendar className={themeClasses.icons.accentSm + " mr-2"} />
+                  Archive
+                </h3>
+                <ArchiveWidget posts={posts.slice(0, 12)} compact={true} />
+              </div>
             </div>
           </motion.div>
         </>

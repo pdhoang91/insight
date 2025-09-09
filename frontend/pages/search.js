@@ -1,15 +1,17 @@
 // pages/search.js
 import React from 'react';
 import { useRouter } from 'next/router';
-import Layout from '../components/Layout/Layout';
+import { HomeLayout } from '../components/Layout/Layout';
 import { SearchResults } from '../components/search';
+import PersonalBlogSidebar from '../components/Shared/PersonalBlogSidebar';
+import { themeClasses } from '../utils/themeClasses';
 
 const SearchPage = () => {
   const router = useRouter();
   const { q } = router.query; // Từ khóa tìm kiếm
 
   return (
-    <Layout showSidebar={false}>
+    <HomeLayout sidebar={<PersonalBlogSidebar />}>
       {q ? (
         <SearchResults query={q} />
       ) : (
@@ -24,7 +26,7 @@ const SearchPage = () => {
           </header>
           
           <div className="w-16 h-16 mx-auto mb-6 bg-medium-accent-green/10 rounded-full flex items-center justify-center">
-            <svg className="w-8 h-8 text-medium-accent-green" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className={`${themeClasses.icons.xl} text-medium-accent-green`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </div>
@@ -38,7 +40,7 @@ const SearchPage = () => {
           </div>
         </div>
       )}
-    </Layout>
+    </HomeLayout>
   );
 };
 

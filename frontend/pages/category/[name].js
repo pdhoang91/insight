@@ -2,10 +2,12 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import { useThemeClasses } from '../../hooks/useThemeClasses';
-import Layout from '../../components/Layout/Layout';
+import { HomeLayout } from '../../components/Layout/Layout';
 import { CategoryPosts } from '../../components/Category';
 import { useInfinitePostByCategory } from '../../hooks/useInfinitePostByCategory';
 import { LoadingSpinner } from '../../components/UI';
+import PersonalBlogSidebar from '../../components/Shared/PersonalBlogSidebar';
+import { componentClasses } from '../../utils/themeClasses';
 
 const CategoryPage = () => {
   const router = useRouter();
@@ -14,10 +16,10 @@ const CategoryPage = () => {
 
   if (!name) {
     return (
-      <div className={classes.pageLoading}>
+      <div className={componentClasses.pageLoading}>
         <div className="text-center">
           <LoadingSpinner size="lg" />
-          <p className={`mt-4 ${classes.text.secondary}`}>Đang tải danh mục...</p>
+          <p className="mt-4 text-medium-text-secondary">Đang tải danh mục...</p>
         </div>
       </div>
     );
@@ -33,7 +35,7 @@ const CategoryPage = () => {
   } = useInfinitePostByCategory(name);
 
   return (
-    <Layout showSidebar={false}>
+    <HomeLayout sidebar={<PersonalBlogSidebar />}>
       <CategoryPosts
         categoryName={name}
         posts={posts}
@@ -42,7 +44,7 @@ const CategoryPage = () => {
         setSize={setSize}
         isReachingEnd={isReachingEnd}
       />
-    </Layout>
+    </HomeLayout>
   );
 };
 

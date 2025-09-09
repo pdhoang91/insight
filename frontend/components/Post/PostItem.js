@@ -12,6 +12,7 @@ import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapPost } from '../../services/activityService';
 import { useInfiniteComments } from '../../hooks/useInfiniteComments';
 import TimeAgo from '../Utils/TimeAgo';
+import { themeClasses, componentClasses } from '../../utils/themeClasses';
 
 const PostItem = ({ post }) => {
   if (!post) {
@@ -55,12 +56,12 @@ const PostItem = ({ post }) => {
     <article
       className="bg-medium-bg-card border border-medium-border rounded-card p-card transition-all duration-200 hover:shadow-card-hover hover:border-medium-accent-green/20 mb-gap"
     >
-      <div className="flex flex-col lg:flex-row lg:items-start gap-gap">
+      <div className="flex flex-col lg:flex-row lg:items-start gap-lg lg:gap-xl">
         {/* Main Content Section */}
         <div className="flex-1 min-w-0">
           {/* Post Title */}
           <Link href={`/p/${post.title_name}`} className="block mb-lg">
-            <h2 className="font-serif font-bold text-heading-3 text-medium-text-primary hover:text-medium-accent-green transition-colors duration-200 line-clamp-2 leading-tight">
+            <h2 className={`${componentClasses.heading.h3} hover:text-medium-accent-green transition-colors duration-200 line-clamp-2 leading-tight`}>
               {post.title}
             </h2>
           </Link>
@@ -75,7 +76,7 @@ const PostItem = ({ post }) => {
           {/* Meta Information & Actions */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-lg">
             {/* Left side - Meta info */}
-            <div className="flex items-center space-x-lg text-body-small">
+            <div className="flex items-center gap-lg text-body-small">
               <TimeAgo timestamp={post.created_at} className="text-medium-text-muted" />
               <span className="w-1 h-1 bg-medium-text-muted rounded-full"></span>
               <span className="text-medium-text-muted">
@@ -84,31 +85,35 @@ const PostItem = ({ post }) => {
             </div>
 
             {/* Right side - Interaction buttons */}
-            <div className="flex items-center space-x-xl">
+            <div className="flex items-center gap-xl">
               {/* Clap Button */}
               <button
                 onClick={handleClap}
                 disabled={clapsLoading}
-                className="flex items-center space-x-sm text-medium-text-secondary hover:text-medium-accent-green transition-all duration-200 group"
-                aria-label="Clap for this post"
+                className={`${themeClasses.interactive.touchTarget} gap-sm text-medium-text-secondary hover:text-medium-accent-green transition-all duration-200 group`}
+                aria-label={`Clap for this post. Current claps: ${clapsCount}`}
+                role="button"
+                tabIndex={0}
               >
-                <FaHandsClapping className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                <FaHandsClapping className={`${themeClasses.icons.buttonSm} group-hover:scale-110`} />
                 <span className="font-medium text-body-small">{clapsCount}</span>
               </button>
 
               {/* Comment Button */}
               <button
                 onClick={toggleCommentPopup}
-                className="flex items-center space-x-sm text-medium-text-secondary hover:text-medium-accent-green transition-all duration-200 group"
-                aria-label="View comments"
+                className={`${themeClasses.interactive.touchTarget} gap-sm text-medium-text-secondary hover:text-medium-accent-green transition-all duration-200 group`}
+                aria-label={`View comments. ${totalCount || 0} comments`}
+                role="button"
+                tabIndex={0}
               >
-                <FaComment className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                <FaComment className={`${themeClasses.icons.buttonSm} group-hover:scale-110`} />
                 <span className="font-medium text-body-small">{totalCount || 0}</span>
               </button>
 
               {/* View Count */}
-              <div className="flex items-center space-x-sm text-medium-text-muted">
-                <FaEye className="w-4 h-4" />
+              <div className="flex items-center gap-sm text-medium-text-muted">
+                <FaEye className={themeClasses.icons.sm} />
                 <span className="font-medium text-body-small">{post.views || 0}</span>
               </div>
             </div>

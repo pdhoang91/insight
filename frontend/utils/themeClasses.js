@@ -99,14 +99,15 @@ export const themeClasses = {
     flexRow: 'flex flex-col lg:flex-row gap-lg lg:gap-xl',
   },
 
-  // Interactive states
+  // Interactive states with touch targets
   interactive: {
-    button: 'transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-medium-accent-green/50',
-    buttonPrimary: 'bg-medium-accent-green text-white hover:bg-medium-accent-green/90',
-    buttonSecondary: 'bg-medium-bg-secondary text-medium-text-primary hover:bg-medium-bg-primary',
-    buttonGhost: 'text-medium-text-secondary hover:text-medium-accent-green hover:bg-medium-bg-secondary',
-    input: 'bg-medium-bg-secondary border-medium-border text-medium-text-primary placeholder-medium-text-muted focus:border-medium-accent-green focus:ring-2 focus:ring-medium-accent-green/50',
+    button: 'min-h-[44px] min-w-[44px] touch-manipulation transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-medium-accent-green/50',
+    buttonPrimary: 'bg-medium-accent-green text-white hover:bg-medium-accent-green/90 min-h-[44px] touch-manipulation',
+    buttonSecondary: 'bg-medium-bg-secondary text-medium-text-primary hover:bg-medium-bg-primary min-h-[44px] touch-manipulation',
+    buttonGhost: 'text-medium-text-secondary hover:text-medium-accent-green hover:bg-medium-bg-secondary min-h-[44px] touch-manipulation',
+    input: 'bg-medium-bg-secondary border-medium-border text-medium-text-primary placeholder-medium-text-muted focus:border-medium-accent-green focus:ring-2 focus:ring-medium-accent-green/50 min-h-[44px]',
     card: 'bg-medium-bg-card border-medium-border hover:border-medium-accent-green/40 transition-colors duration-300',
+    touchTarget: 'min-h-[44px] min-w-[44px] touch-manipulation flex items-center justify-center',
   },
 
   // Common patterns
@@ -119,14 +120,14 @@ export const themeClasses = {
     tag: 'bg-medium-bg-secondary text-medium-text-secondary px-3 py-1 rounded-full text-sm',
   },
   
-  // Standardized Icons
+  // Standardized Icons - Updated for consistency
   icons: {
-    // Icon Sizes
-    xs: 'w-3 h-3',      // 12px - Small UI elements
-    sm: 'w-4 h-4',      // 16px - Default size for most icons  
-    md: 'w-5 h-5',      // 20px - Medium emphasis icons
-    lg: 'w-6 h-6',      // 24px - Large interactive elements
-    xl: 'w-8 h-8',      // 32px - Avatar/profile icons
+    // Icon Sizes (Standardized)
+    xs: 'w-3 h-3',      // 12px - Very small UI elements, badges
+    sm: 'w-4 h-4',      // 16px - Default size for most UI icons (buttons, nav, etc.)
+    md: 'w-5 h-5',      // 20px - Medium emphasis icons (section headers, important actions)
+    lg: 'w-6 h-6',      // 24px - Large interactive elements, primary actions
+    xl: 'w-8 h-8',      // 32px - Avatar/profile icons, hero elements
     
     // Icon Colors & States
     primary: 'text-medium-text-primary',
@@ -138,6 +139,12 @@ export const themeClasses = {
     // Interactive States
     button: 'transition-all duration-200 group-hover:scale-110',
     clickable: 'cursor-pointer hover:text-medium-accent-green transition-colors duration-200',
+    
+    // Combined Size + Color Utilities
+    buttonSm: 'w-4 h-4 text-medium-text-secondary hover:text-medium-accent-green transition-colors duration-200',
+    buttonMd: 'w-5 h-5 text-medium-text-secondary hover:text-medium-accent-green transition-colors duration-200',
+    accentSm: 'w-4 h-4 text-medium-accent-green',
+    accentMd: 'w-5 h-5 text-medium-accent-green',
   },
 
   // Spacing - Mobile-first approach

@@ -5,9 +5,11 @@ import { usePostName } from '../../hooks/usePost';
 import { useUser } from '../../context/UserContext';
 import { clapPost } from '../../services/activityService';
 import CommentSection from '../../components/Comment/CommentSection';
-import Layout from '../../components/Layout/Layout';
+import { ReadingLayout } from '../../components/Layout/Layout';
 import PostDetail from '../../components/Post/PostDetail';
 import LoadingSpinner from '../../components/Shared/LoadingSpinner';
+import PersonalBlogSidebar from '../../components/Shared/PersonalBlogSidebar';
+import { themeClasses, componentClasses } from '../../utils/themeClasses';
 
 const PostPage = () => {
   const router = useRouter();
@@ -55,7 +57,7 @@ const PostPage = () => {
   };
 
   if (isLoading) return (
-    <div className="min-h-screen bg-medium-bg-primary flex items-center justify-center">
+    <div className={componentClasses.pageLoading}>
       <div className="text-center">
         <LoadingSpinner size="lg" />
         <p className="mt-4 text-medium-text-secondary">Loading post...</p>
@@ -64,7 +66,7 @@ const PostPage = () => {
   );
   
   if (isError) return (
-    <div className="min-h-screen bg-medium-bg-primary flex items-center justify-center">
+    <div className={componentClasses.pageError}>
       <div className="text-center">
         <div className="text-error mb-2 font-serif text-lg">Failed to load post</div>
         <p className="text-medium-text-muted text-body-small">Please try again later</p>
@@ -73,7 +75,7 @@ const PostPage = () => {
   );
 
   return (
-    <Layout showSidebar={false} maxWidth="wide">
+    <ReadingLayout sidebar={<PersonalBlogSidebar />}>
       <PostDetail 
         post={post}
         currentClapCount={currentClapCount}
@@ -83,10 +85,10 @@ const PostPage = () => {
       />
       
       {/* Comments Section */}
-      <section ref={commentSectionRef}>
+      <section ref={commentSectionRef} className="mt-2xl pt-2xl border-t border-medium-divider">
         <CommentSection postId={post.id} />
       </section>
-    </Layout>
+    </ReadingLayout>
   );
 };
 

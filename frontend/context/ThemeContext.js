@@ -47,13 +47,16 @@ export const ThemeProvider = ({ children }) => {
     setMounted(true);
   }, []);
 
-  // Apply theme to document
+  // Apply theme to document with optimized performance
   useEffect(() => {
     if (mounted && typeof window !== 'undefined') {
       try {
-        document.documentElement.setAttribute('data-theme', theme);
-        document.documentElement.className = theme; // Also add as class for compatibility
-        localStorage.setItem('theme', theme);
+        // Use requestAnimationFrame for smooth transition
+        requestAnimationFrame(() => {
+          document.documentElement.setAttribute('data-theme', theme);
+          document.documentElement.className = theme; // Also add as class for compatibility
+          localStorage.setItem('theme', theme);
+        });
       } catch (error) {
         console.warn('Failed to apply theme:', error);
       }

@@ -18,6 +18,7 @@ import { useThemeClasses } from '../../hooks/useThemeClasses';
 import ThemeToggle from '../UI/ThemeToggle';
 import SimpleSearchBar from '../Shared/SimpleSearchBar';
 import { canWritePosts } from '../../services/authService';
+import { themeClasses } from '../../utils/themeClasses';
 
 const Navbar = () => {
   const { user, setUser, setModalOpen } = useUser();
@@ -120,7 +121,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center gap-xl">
             {/* Search */}
             <div className="relative">
               {isSearchOpen ? (
@@ -133,10 +134,12 @@ const Navbar = () => {
               ) : (
                 <button
                   onClick={() => setIsSearchOpen(true)}
-                  className="p-2 text-medium-text-secondary hover:text-medium-text-primary hover:bg-medium-hover rounded-medium transition-all duration-200"
-                  aria-label="Search"
+                  className={`p-2 text-medium-text-secondary hover:text-medium-text-primary hover:bg-medium-hover rounded-medium transition-all duration-200 ${themeClasses.interactive.touchTarget}`}
+                  aria-label="Open search"
+                  role="button"
+                  tabIndex={0}
                 >
-                  <FaSearch className="w-4 h-4" />
+                  <FaSearch className={`${themeClasses.icons.sm} ${themeClasses.text.secondary}`} />
                 </button>
               )}
             </div>
@@ -156,7 +159,7 @@ const Navbar = () => {
                     onClick={handleWriteClick}
                     className="flex items-center px-6 py-2 bg-medium-accent-green hover:bg-medium-accent-green/90 text-white rounded-button text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
                   >
-                    <FaEdit className="w-4 h-4 mr-2" />
+                    <FaEdit className={`${themeClasses.icons.sm} mr-2 text-white`} />
                     Write
                   </button>
                 )}
@@ -168,7 +171,7 @@ const Navbar = () => {
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={toggleUserMenu}
-                  className="flex items-center space-x-2 p-1 rounded-full hover:bg-medium-hover transition-all duration-200"
+                  className="flex items-center gap-sm p-1 rounded-full hover:bg-medium-hover transition-all duration-200"
                 >
                   {user.avatar_url ? (
                     <img
@@ -193,7 +196,7 @@ const Navbar = () => {
                     >
                       {/* User Info */}
                       <div className={`px-4 py-3 border-b ${classes.border.primary}`}>
-                        <div className="flex items-center space-x-3">
+                        <div className="flex items-center gap-md">
                           {user.avatar_url ? (
                             <img
                               src={user.avatar_url}
@@ -248,7 +251,7 @@ const Navbar = () => {
                 </AnimatePresence>
               </div>
             ) : (
-              <div className="flex items-center space-x-4">
+                <div className="flex items-center gap-lg">
                 <button
                   onClick={() => setModalOpen(true)}
                   className="text-medium-text-secondary hover:text-medium-text-primary hover:bg-medium-hover px-3 py-2 rounded-medium transition-all duration-200"

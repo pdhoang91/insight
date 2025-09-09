@@ -2,6 +2,7 @@
 import React from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import PostItem from '../Post/PostItem';
+import { componentClasses } from '../../utils/themeClasses';
 
 const PostList = ({ 
   posts, 
@@ -37,7 +38,7 @@ const PostList = ({
         </p>
         <button 
           onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-medium-accent-green text-white rounded-button hover:bg-medium-accent-green/90 transition-colors"
+          className={componentClasses.button.primary}
         >
           Try again
         </button>
@@ -130,16 +131,17 @@ const PostList = ({
         }
         refreshFunction={() => window.location.reload()}
         pullDownToRefresh={false}
-        className="space-y-0"
+        className="space-y-gap"
       >
         {flatPosts.map((post, index) => (
-          <PostItem
-            key={`${post.id}-${index}`}
-            post={post}
-            variant={variant}
-            showImage={showImages}
-            showExcerpt={showExcerpts}
-          />
+          <div key={`${post.id}-${index}`} className="mb-gap">
+            <PostItem
+              post={post}
+              variant={variant}
+              showImage={showImages}
+              showExcerpt={showExcerpts}
+            />
+          </div>
         ))}
       </InfiniteScroll>
     </div>

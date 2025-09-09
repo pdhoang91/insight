@@ -10,6 +10,7 @@ import AddCommentForm from './AddCommentForm';
 import CommentContent from './CommentContent';
 import ReplyList from './ReplyList';
 import TimeAgo from '../Utils/TimeAgo';
+import { themeClasses, componentClasses } from '../../utils/themeClasses';
 
 const CommentItem = ({ comment, postId, mutate }) => {
   const [showReplyForm, setShowReplyForm] = useState(false);
@@ -63,11 +64,11 @@ const CommentItem = ({ comment, postId, mutate }) => {
               className="w-full h-full rounded-full object-cover"
             />
           ) : (
-            <FaUser className="w-4 h-4 text-medium-accent-green" />
+            <FaUser className={`${themeClasses.icons.sm} ${themeClasses.text.accent}`} />
           )}
         </div>
         <div className="flex items-center gap-sm">
-          <span className="font-serif font-bold text-medium-text-primary text-body-small">
+          <span className={`${componentClasses.text.label} text-medium-text-primary`}>
             {comment.user?.name || 'Anonymous'}
           </span>
           <span className="text-medium-text-muted text-body-small">
@@ -84,24 +85,24 @@ const CommentItem = ({ comment, postId, mutate }) => {
       </div>
 
       {/* Action Bar */}
-      <div className="flex items-center gap-lg pl-11">
+      <div className="flex items-center gap-xl pl-11">
         <button
           onClick={handleClap}
-          className={`flex items-center gap-sm text-body-small transition-all duration-200 ${
+          className={`${themeClasses.interactive.touchTarget} gap-sm text-body-small transition-all duration-200 ${
             hasClapped ? 'text-medium-accent-green' : 'text-medium-text-muted hover:text-medium-accent-green'
           }`}
           aria-label="Clap for this comment"
         >
-          <FaHeart className={`w-3 h-3 ${clapsLoading ? 'animate-pulse' : ''}`} />
+          <FaHeart className={`${themeClasses.icons.sm} ${clapsLoading ? 'animate-pulse' : ''}`} />
           <span>{clapsCount}</span>
         </button>
 
         <button
           onClick={handleToggleReply}
-          className="flex items-center gap-sm text-body-small text-medium-text-muted hover:text-medium-accent-green transition-all duration-200"
+          className={`${themeClasses.interactive.touchTarget} gap-sm text-body-small text-medium-text-muted hover:text-medium-accent-green transition-all duration-200`}
           aria-label="Reply to this comment"
         >
-          <FaComment className="w-3 h-3" />
+          <FaComment className={themeClasses.icons.sm} />
           <span>{repliesCount}</span>
         </button>
       </div>

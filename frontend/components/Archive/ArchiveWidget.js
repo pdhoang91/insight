@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { FaCalendarAlt, FaChevronDown, FaChevronRight } from 'react-icons/fa';
+import { themeClasses, componentClasses } from '../../utils/themeClasses';
 
 const ArchiveWidget = ({ posts = [], className = '' }) => {
   const [expandedYears, setExpandedYears] = useState(new Set([new Date().getFullYear()]));
@@ -50,8 +51,8 @@ const ArchiveWidget = ({ posts = [], className = '' }) => {
   if (!posts.length) {
     return (
       <div className={`bg-medium-bg-card rounded-lg p-6 border border-medium-border ${className}`}>
-        <h3 className="text-heading-3 font-serif font-bold text-medium-text-primary mb-4 flex items-center">
-          <FaCalendarAlt className="w-4 h-4 mr-2 text-medium-accent-green" />
+        <h3 className={`${componentClasses.heading.h3} mb-4 flex items-center`}>
+          <FaCalendarAlt className={`${themeClasses.icons.sm} ${themeClasses.text.accent} mr-2`} />
           Archive
         </h3>
         <p className="text-medium-text-muted text-body-small">No posts yet.</p>
@@ -62,8 +63,8 @@ const ArchiveWidget = ({ posts = [], className = '' }) => {
   return (
     <div className={`bg-medium-bg-card rounded-lg p-6 border border-medium-border ${className}`}>
       {/* Header */}
-      <h3 className="text-heading-3 font-serif font-bold text-medium-text-primary mb-4 flex items-center">
-        <FaCalendarAlt className="w-4 h-4 mr-2 text-medium-accent-green" />
+      <h3 className={`${componentClasses.heading.h3} mb-4 flex items-center`}>
+        <FaCalendarAlt className={`${themeClasses.icons.sm} ${themeClasses.text.accent} mr-2`} />
         Archive
       </h3>
 
@@ -82,11 +83,11 @@ const ArchiveWidget = ({ posts = [], className = '' }) => {
                 onClick={() => toggleYear(yearInt)}
                 className="w-full flex items-center justify-between py-2 text-left hover:text-medium-accent-green transition-colors group"
               >
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center gap-sm">
                   {isExpanded ? (
-                    <FaChevronDown className="w-3 h-3 text-medium-text-muted group-hover:text-medium-accent-green" />
+                    <FaChevronDown className={`${themeClasses.icons.xs} ${themeClasses.text.muted} group-hover:${themeClasses.text.accentHover}`} />
                   ) : (
-                    <FaChevronRight className="w-3 h-3 text-medium-text-muted group-hover:text-medium-accent-green" />
+                    <FaChevronRight className={`${themeClasses.icons.xs} ${themeClasses.text.muted} group-hover:${themeClasses.text.accentHover}`} />
                   )}
                   <span className="font-medium text-medium-text-primary group-hover:text-medium-accent-green">
                     {year}

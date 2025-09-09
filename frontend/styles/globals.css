@@ -353,22 +353,9 @@ a:hover {
 
 
 
-.animate-slide-up {
-  animation: slideUp 0.3s ease-out;
-}
 
 
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 
 /* Medium 2024 Content Styles */
 .content {
@@ -627,8 +614,22 @@ button:focus {
   animation: spin 1s linear infinite;
 }
 
-/* Smooth Transitions - Enhanced */
+/* Smooth Transitions - Optimized for performance */
 * {
+  transition-property: color, background-color, border-color, opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+  will-change: auto;
+}
+
+/* Specific transitions for transform and other expensive properties */
+.transition-transform {
+  transition-property: transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.transition-all {
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
@@ -808,7 +809,7 @@ button, a, [role="button"] {
     color: var(--medium-text-muted);
   }
 
-/* Performance Optimizations */
+/* Performance Optimizations - Enhanced */
 .gpu-accelerated {
   transform: translateZ(0);
   will-change: transform;
@@ -837,6 +838,43 @@ button, a, [role="button"] {
 .lazy-content {
   content-visibility: auto;
   contain-intrinsic-size: 0 500px;
+}
+
+/* Performance utilities */
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-auto {
+  will-change: auto;
+}
+
+.contain-layout {
+  contain: layout;
+}
+
+.contain-paint {
+  contain: paint;
+}
+
+.contain-strict {
+  contain: strict;
+}
+
+/* Optimize font loading */
+@font-face {
+  font-family: 'Charter';
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-display: swap;
 }
 
 /* Cross-browser compatibility fixes */

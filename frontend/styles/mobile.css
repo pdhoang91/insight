@@ -17,15 +17,21 @@
   }
   
   /* Better button touch targets */
-  button {
+  button,
+  .touch-target,
+  [role="button"] {
     min-height: 44px;
     min-width: 44px;
     touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
   
   /* Improve tap highlighting */
-  a, button {
-    -webkit-tap-highlight-color: rgba(var(--medium-accent-green-rgb), 0.1);
+  a, button, .touch-target {
+    -webkit-tap-highlight-color: rgba(26, 137, 23, 0.1);
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
   }
   
   /* Safe area insets for modern phones */
@@ -108,16 +114,39 @@
 }
 
 /* Dark mode mobile optimizations */
-@media (max-width: 768px) and (prefers-color-scheme: dark) {
-  /* Reduce contrast for better mobile reading in dark mode */
-  .reading-content {
-    color: rgba(255, 255, 255, 0.9);
+@media (max-width: 768px) {
+  [data-theme="dark"] .reading-content {
+    color: rgba(255, 255, 255, 0.92);
+    line-height: 1.75; /* Optimized line height for mobile dark mode reading */
+    letter-spacing: 0.01em; /* Improve readability */
   }
   
-  .reading-content h1,
-  .reading-content h2,
-  .reading-content h3 {
+  [data-theme="dark"] .reading-content h1,
+  [data-theme="dark"] .reading-content h2,
+  [data-theme="dark"] .reading-content h3 {
     color: rgba(255, 255, 255, 0.95);
+    line-height: 1.3; /* Better heading line height on mobile */
+  }
+  
+  [data-theme="dark"] .reading-content p {
+    margin-bottom: 1.75em; /* More spacing between paragraphs in dark mode */
+  }
+  
+  [data-theme="dark"] .mobile-card {
+    background-color: var(--medium-bg-card);
+    border-color: var(--medium-border);
+  }
+  
+  /* Better contrast for interactive elements in dark mode mobile */
+  [data-theme="dark"] button,
+  [data-theme="dark"] .touch-target {
+    background-color: var(--medium-bg-elevated);
+    color: var(--medium-text-primary);
+  }
+  
+  [data-theme="dark"] button:hover,
+  [data-theme="dark"] .touch-target:hover {
+    background-color: var(--medium-hover);
   }
 }
 
@@ -126,9 +155,10 @@
   /* GPU acceleration for smooth animations */
   .mobile-card,
   .mobile-nav,
-  button {
+  button,
+  .touch-target {
     transform: translateZ(0);
-    will-change: transform;
+    will-change: transform, opacity;
   }
   
   /* Reduce motion for better performance */

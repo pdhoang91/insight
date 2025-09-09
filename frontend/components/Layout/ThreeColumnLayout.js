@@ -13,28 +13,43 @@ const ThreeColumnLayout = ({
 }) => {
   return (
     <div className={`min-h-screen bg-medium-bg-primary ${className}`}>
-      {/* Main Content - Using BlogSidebar pattern */}
-      <div className="py-6 lg:py-8">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-12">
-          <div className={`grid grid-cols-1 gap-6 ${leftSidebar ? 'lg:grid-cols-4' : 'lg:grid-cols-1'}`} style={{overflow: 'visible'}}>
+      {/* Main Content - Using consistent Layout patterns */}
+      <div className="py-xl lg:py-2xl">
+        <div className="max-w-container mx-auto px-lg md:px-xl lg:px-2xl">
+          <div className={`flex flex-col lg:flex-row gap-xl lg:gap-2xl ${leftSidebar ? '' : 'justify-center'}`}>
             {/* Left Sidebar - Optional */}
             {leftSidebar && (
-              <div className="hidden lg:block lg:col-span-1">
-                <div className="sticky top-16">
-                  {leftSidebar}
+              <aside className="order-last lg:order-first w-full lg:w-80 lg:flex-shrink-0">
+                <div className="lg:sticky lg:top-24">
+                  <div className="lg:hidden mb-xl">
+                    {/* Mobile: Collapsed sidebar */}
+                    <details className="bg-medium-bg-card border border-medium-border rounded-card">
+                      <summary className="p-lg cursor-pointer font-serif font-bold text-medium-text-primary">
+                        Sidebar Content
+                      </summary>
+                      <div className="p-lg border-t border-medium-border">
+                        {leftSidebar}
+                      </div>
+                    </details>
+                  </div>
+                  {/* Desktop: Full sidebar */}
+                  <div className="hidden lg:block">
+                    {leftSidebar}
+                  </div>
                 </div>
-              </div>
+              </aside>
             )}
             
             {/* Main Content Area */}
-            <div className={`${leftSidebar ? 'lg:col-span-3' : 'w-full'} ${showTOC && content ? 'lg:pr-80' : ''}`}>
-              <div className="space-y-6 lg:space-y-8">
+            <main className="flex-1 min-w-0 order-first">
+              <div className="space-y-xl lg:space-y-2xl">
                 {/* Mobile TOC - Only show on mobile/tablet */}
                 {showTOC && content && (
                   <div className="lg:hidden">
-                    <div className="rounded-lg p-4">
-                      <div className="mb-3">
-                      </div>
+                    <div className="bg-medium-bg-card border border-medium-border rounded-card p-lg">
+                      <h3 className="font-serif font-bold text-medium-text-primary mb-md">
+                        Table of Contents
+                      </h3>
                       <TableOfContents content={content} renderOnlyList={true} />
                     </div>
                   </div>
@@ -43,31 +58,36 @@ const ThreeColumnLayout = ({
                 {/* Main Content */}
                 {children}
               </div>
-            </div>
+            </main>
             
-            {/* Fixed TOC - Positioned outside grid */}
-            {showTOC && content && (
-              <div className="toc-fixed-grid">
-                <div className="rounded-lg p-4 shadow-lg shadow-matrix-green/20">
-                  {/* TOC Content - Scrollable list */}
-                  <div className="custom-scrollbar max-h-[calc(100vh-10rem)] overflow-y-auto">
-                    <TableOfContents 
-                      content={content}
-                      renderOnlyList={true}
-                    />
-                  </div>
+            {/* Right Sidebar with TOC */}
+            {(showTOC && content) || rightSidebar ? (
+              <aside className="order-last w-full lg:w-80 lg:flex-shrink-0">
+                <div className="lg:sticky lg:top-24 space-y-xl max-h-[calc(100vh-6rem)] overflow-y-auto">
+                  {/* Desktop TOC */}
+                  {showTOC && content && (
+                    <div className="hidden lg:block bg-medium-bg-card border border-medium-border rounded-card p-lg">
+                      <h3 className="font-serif font-bold text-medium-text-primary mb-md">
+                        Table of Contents
+                      </h3>
+                      <div className="custom-scrollbar max-h-[calc(100vh-12rem)] overflow-y-auto">
+                        <TableOfContents 
+                          content={content}
+                          renderOnlyList={true}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Additional right sidebar content */}
+                  {rightSidebar && (
+                    <div className="hidden lg:block">
+                      {rightSidebar}
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
-            
-            {/* Additional right sidebar content (if provided) */}
-            {rightSidebar && (
-              <div className="hidden lg:block lg:col-span-1">
-                <div className="sticky top-16">
-                  {rightSidebar}
-                </div>
-              </div>
-            )}
+              </aside>
+            ) : null}
           </div>
         </div>
       </div>
