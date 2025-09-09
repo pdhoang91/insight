@@ -15,15 +15,6 @@ const Home = () => {
 
   return (
     <HomeLayout sidebar={<PersonalBlogSidebar />}>
-      {/* Header Section */}
-      <header className="text-center lg:text-left">
-        <h1 className="font-serif font-bold text-3xl sm:text-4xl lg:text-5xl text-medium-text-primary mb-3 lg:mb-4">
-          Latest Stories
-        </h1>
-        <p className="text-base sm:text-lg text-medium-text-secondary max-w-2xl mx-auto lg:mx-0">
-          Discover insights, tutorials, and thoughts on technology, programming, and software development.
-        </p>
-      </header>
       
       {/* Posts List */}
       <PostList

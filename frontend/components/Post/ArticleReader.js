@@ -9,7 +9,7 @@ import AuthorInfo from './AuthorInfo';
 import EngagementActions, { FloatingEngagementActions } from './EngagementActions';
 import ReadingProgressBar from './ReadingProgressBar';
 import TextHighlighter from './TextHighlighter';
-import RelatedArticles from './RelatedArticles';
+import RelatedArticles from '../Article/RelatedArticles';
 import CommentSection from '../Comment/CommentSection';
 import { useUser } from '../../context/UserContext';
 import { useComments } from '../../hooks/useComments';

@@ -133,7 +133,7 @@ const TextHighlighter = ({ children, className = '' }) => {
         <div
           ref={toolbarRef}
           style={toolbarStyle}
-          className="bg-medium-text-primary text-white rounded-button shadow-floating px-2 py-1 flex items-center space-x-1 animate-fade-in"
+          className="bg-medium-text-primary text-white rounded-lg shadow-lg px-2 py-1 flex items-center space-x-1 animate-fade-in"
         >
           <ToolbarButton
             icon={<FaHighlighter className="w-4 h-4" />}
@@ -192,7 +192,7 @@ const HighlightsOverlay = ({ highlights }) => {
       {highlights.map(highlight => (
         <div
           key={highlight.id}
-          className="absolute bg-warning/30 pointer-events-none"
+          className="absolute bg-medium-accent-green/30 pointer-events-none"
           style={{
             top: highlight.rect.top,
             left: highlight.rect.left,
@@ -293,7 +293,7 @@ export const HighlightsManager = ({ articleId, className = '' }) => {
       
       <div className="space-y-3">
         {highlights.map(highlight => (
-          <div key={highlight.id} className="p-3 bg-medium-bg-secondary rounded-medium">
+            <div key={highlight.id} className="p-3 bg-medium-bg-secondary rounded-lg">
             <p className="text-sm text-medium-text-primary mb-2 line-clamp-3">
               "{highlight.text}"
             </p>
@@ -303,7 +303,7 @@ export const HighlightsManager = ({ articleId, className = '' }) => {
               </span>
               <button
                 onClick={() => removeHighlight(highlight.id)}
-                className="text-xs text-medium-text-muted hover:text-error transition-colors"
+                className="text-xs text-medium-text-muted hover:text-red-500 transition-colors"
               >
                 Remove
               </button>
