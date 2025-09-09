@@ -55,8 +55,24 @@ const PostItem = ({ post }) => {
   return (
     <article className={componentClasses.card.hover}>
       <div className={`${themeClasses.responsive.flexDesktopRow} ${themeClasses.spacing.gap} items-start`}>
-        {/* Main Content Section */}
-        <div className="flex-1 min-w-0">
+        {/* Image Section - First on mobile, second on desktop */}
+        {post.image_title && (
+          <div className="w-full lg:w-80 flex-shrink-0 order-1 lg:order-2">
+            <Link href={`/p/${post.title_name}`} className="block">
+              <div className="relative overflow-hidden rounded-lg bg-medium-bg-secondary">
+                <img
+                  src={post.image_title}
+                  alt={post.title}
+                  className="w-full h-48 lg:h-40 object-cover transition-transform duration-200 hover:scale-105"
+                  loading="lazy"
+                />
+              </div>
+            </Link>
+          </div>
+        )}
+
+        {/* Main Content Section - Second on mobile, first on desktop */}
+        <div className="flex-1 min-w-0 order-2 lg:order-1">
           {/* Post Title */}
           <Link href={`/p/${post.title_name}`} className={`block ${themeClasses.spacing.marginBottom}`}>
             <h2 className={`${componentClasses.heading.h3} ${themeClasses.interactive.link} line-clamp-2 text-balance`}>
@@ -118,22 +134,6 @@ const PostItem = ({ post }) => {
           </div>
 
         </div>
-
-        {/* Image Section */}
-        {post.image_title && (
-          <div className="w-full lg:w-80 flex-shrink-0">
-            <Link href={`/p/${post.title_name}`} className="block">
-              <div className="relative overflow-hidden rounded-lg bg-medium-bg-secondary">
-                <img
-                  src={post.image_title}
-                  alt={post.title}
-                  className="w-full h-48 lg:h-40 object-cover transition-transform duration-200 hover:scale-105"
-                  loading="lazy"
-                />
-              </div>
-            </Link>
-          </div>
-        )}
       </div>
 
       {/* Comments Section - Full Width */}
