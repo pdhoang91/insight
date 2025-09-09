@@ -5,7 +5,7 @@ import { useUser } from '../../context/UserContext';
 import CategoryTagsPopup from '../../components/Category/CategoryTagsPopup';
 import PostForm from '../../components/Editor/PostForm';
 import LoadingSpinner from '../../components/Shared/LoadingSpinner';
-import MediumNavbar from '../../components/Navbar/MediumNavbar';
+import MediumNavbar from '../../components/Navbar/Navbar';
 import { updatePost } from '../../services/postService';
 import { usePostName } from '../../hooks/usePost';
 import { usePostContext } from '../../context/PostContext';

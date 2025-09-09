@@ -1,4 +1,4 @@
-// components/widgets/index.js
+// components/Widgets/index.js - Sidebar widgets
 export { 
   PopularPostsWidget, 
   ArchiveWidget, 
@@ -6,9 +6,7 @@ export {
   ReadingProgressWidget 
 } from './SidebarWidgets';
 
-// Re-export existing components (for gradual migration)
-export { default as OldPopularPostsWidget } from '../Widgets/PopularPostsWidget';
-export { default as OldNewsletterWidget } from '../Widgets/NewsletterWidget';
-export { default as OldArchiveWidget } from '../Archive/ArchiveWidget';
-export { default as ReadingProgressBar } from '../Reading/ReadingProgressBar';
-export { default as ReadingStats } from '../Reading/ReadingStats';
+// Legacy widgets (maintain for backward compatibility)
+export { default as PopularPostsWidget as LegacyPopularPostsWidget } from './PopularPostsWidget';
+export { default as NewsletterWidget as LegacyNewsletterWidget } from './NewsletterWidget';
+export { default as ArchiveWidget as LegacyArchiveWidget } from '../Archive/ArchiveWidget';

@@ -1,10 +1,6 @@
-// components/ui/index.js - Centralized UI components
+// components/UI/index.js - Core UI components
 export { default as Button } from './Button';
 export { default as Input } from './Input';
+export { default as Card } from './Card';
+export { default as Avatar } from './Avatar';
 export { default as ThemeToggle } from './ThemeToggle';
-
-// Re-export from old locations (temporary)
-export { default as LoadingSpinner } from '../Shared/LoadingSpinner';
-export { default as SafeImage } from '../Utils/SafeImage';
-export { default as ErrorBoundary } from '../Utils/ErrorBoundary';
-export { default as InfiniteScrollWrapper } from '../Utils/InfiniteScrollWrapper';

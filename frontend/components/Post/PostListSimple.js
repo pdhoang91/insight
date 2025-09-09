@@ -1,6 +1,6 @@
 // components/Post/PostListSimple.js
 import React from 'react';
-import PostItemWorking from './PostItemWorking';
+import PostItem from './PostItem';
 
 const PostListSimple = ({ posts, isLoading, isError }) => {
   if (isLoading) {
@@ -23,7 +23,7 @@ const PostListSimple = ({ posts, isLoading, isError }) => {
   return (
     <div className="space-y-6">
       {posts.map((post) => (
-        <PostItemWorking key={post.id} post={post} />
+        <PostItem key={post.id} post={post} />
       ))}
     </div>
   );

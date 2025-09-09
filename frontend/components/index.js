@@ -1,20 +1,23 @@
 // components/index.js - Main components export
-// New consolidated components
-export * from './ui';
-export * from './layout';
-export * from './post';
-export * from './Comment';
-export * from './profile';
-export * from './category';
-export * from './search';
-export * from './widgets';
-export * from './common';
 
-// Backward compatibility - re-export old structure
+// Core UI Components
+export * from './UI';
+
+// Layout Components
 export { default as ThreeColumnLayout } from './Layout/ThreeColumnLayout';
-export { default as MediumNavbar } from './Navbar/MediumNavbar';
-export { default as PersonalBlogSidebar } from './Shared/PersonalBlogSidebar';
-export { default as BlogSidebar } from './Shared/BlogSidebar';
+export { default as Navbar } from './Navbar/Navbar';
+export { default as PageLayout } from './Layout/PageLayout';
+
+// Content Components
+export { default as PostItem } from './Post/PostItem';
+export { default as PostItemSmall } from './Post/PostItemSmall';
+export { default as PostItemProfile } from './Post/PostItemProfile';
+export { default as ArticleReader } from './Post/ArticleReader';
+
+// Comment System
+export * from './Comment';
+
+// Auth Components
 export { default as LoginModal } from './Auth/LoginModal';
 
 // Editor components (to be migrated)
@@ -30,13 +33,13 @@ export { default as MobileReadingBar } from './Mobile/MobileReadingBar';
 
 // Reading components
 export { default as BookmarkButton } from './Post/BookmarkButton';
-export { default as ReadingProgressBar } from './Reading/ReadingProgressBar';
+export { default as ReadingProgressBar } from './Post/ReadingProgressBar';
 export { default as ReadingStats } from './Reading/ReadingStats';
-export { default as TextHighlighter } from './Reading/TextHighlighter';
+export { default as TextHighlighter } from './Post/TextHighlighter';
 
 // Article components
-export { default as ArticleReader } from './Article/ArticleReader';
-export { default as MediumArticleLayout } from './Article/MediumArticleLayout';
+export { default as ArticleReader } from './Post/ArticleReader';
+export { default as MediumArticleLayout } from './Article/ArticleLayout';
 export { default as RelatedArticles } from './Article/RelatedArticles';
 
 // Utils

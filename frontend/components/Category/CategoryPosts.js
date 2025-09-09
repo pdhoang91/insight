@@ -1,8 +1,6 @@
 // components/Category/CategoryPosts.js
 import React from 'react';
 import PostList from '../post/PostList';
-import { useTheme } from '../../context/ThemeContext';
-
 const CategoryPosts = ({ 
   categoryName, 
   posts, 
@@ -11,13 +9,10 @@ const CategoryPosts = ({
   setSize, 
   isReachingEnd 
 }) => {
-  const { theme } = useTheme();
 
   if (isError) {
     return (
-      <div className={`text-center py-12 ${
-        theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-      }`}>
+      <div className="text-center py-12 text-medium-text-secondary">
         <h3 className="text-lg font-medium mb-2">Có lỗi xảy ra</h3>
         <p>Không thể tải bài viết cho danh mục này.</p>
       </div>

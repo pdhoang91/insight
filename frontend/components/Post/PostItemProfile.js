@@ -89,7 +89,7 @@ const PostItemProfile = ({ post, isOwner }) => {
   };
 
   return (
-    <div className="rounded-lg mb-6 bg-white transition-shadow duration-300">
+    <div className="rounded-card mb-6 bg-medium-bg-card shadow-card hover:shadow-card-hover transition-shadow duration-200">
       <div className="flex flex-col md:flex-row">
         {/* Post Section */}
         <div className="w-full md:w-2/3 pr-0 md:pr-4">
@@ -98,13 +98,13 @@ const PostItemProfile = ({ post, isOwner }) => {
 
           {/* Post Title */}
           <Link href={`/p/${post.title_name}`} className="block">
-            <h5 className="text-lg text-gray-800 hover:text-blue-600 transition-colors duration-200 line-clamp-2">
+            <h5 className="text-heading-3 text-medium-text-primary hover:text-medium-accent-green transition-colors duration-200 line-clamp-2">
               {post.title}
             </h5>
           </Link>
 
           {/* Post Preview Content */}
-          <p className="text-gray-600 text-sm line-clamp-2">
+          <p className="text-medium-text-secondary text-body-small line-clamp-2">
             <TextUtils html={post.preview_content} maxLength={200} />
           </p>
 
@@ -181,7 +181,7 @@ const PostItemProfile = ({ post, isOwner }) => {
           {/* Comments Popup */}
           {/* Comments feature temporarily disabled */}
           {isCommentsOpen && (
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+            <div className="mt-4 p-6 bg-medium-bg-secondary rounded-card">
               <p className="text-gray-600">Comments feature coming soon...</p>
             </div>
           )}

@@ -1,8 +1,8 @@
 // components/Article/MediumArticleLayout.js
 import React from 'react';
 import { useTheme } from '../../context/ThemeContext';
-import ReadingProgressBar from '../Reading/ReadingProgressBar';
-import ArticleReader from './ArticleReader';
+import ReadingProgressBar from '../Post/ReadingProgressBar';
+import ArticleReader from '../Post/ArticleReader';
 
 const MediumArticleLayout = ({ post, children }) => {
   const { isDark } = useTheme();

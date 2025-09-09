@@ -10,7 +10,7 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
   if (!mounted) {
     return (
       <div className={`animate-pulse ${className}`}>
-        <div className="w-8 h-8 bg-gray-200 rounded-lg"></div>
+        <div className="w-8 h-8 bg-medium-border rounded-lg"></div>
       </div>
     );
   }
@@ -24,9 +24,9 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
         title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
       >
         {isDark ? (
-          <FaSun className="w-4 h-4 text-yellow-500" />
+          <FaSun className="w-4 h-4 text-warning" />
         ) : (
-          <FaMoon className="w-4 h-4 text-blue-600" />
+          <FaMoon className="w-4 h-4 text-medium-accent-blue" />
         )}
       </button>
     );
