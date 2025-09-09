@@ -82,16 +82,16 @@ export const themeClasses = {
     subtitle: 'font-sans font-normal text-lg md:text-xl leading-relaxed text-medium-text-secondary',
   },
 
-  // Layout - Mobile-first responsive
+  // Layout - Mobile-first responsive with consistent spacing
   layout: {
-    // Container patterns
-    container: 'max-w-container mx-auto px-lg md:px-xl lg:px-2xl',
-    containerSmall: 'max-w-content mx-auto px-md md:px-lg lg:px-xl',
-    containerWide: 'max-w-wide mx-auto px-lg md:px-xl lg:px-2xl',
+    // Container patterns - Standardized spacing
+    container: 'max-w-container mx-auto px-4 md:px-6 lg:px-8',        // 16px -> 24px -> 32px
+    containerSmall: 'max-w-content mx-auto px-3 md:px-4 lg:px-6',     // 12px -> 16px -> 24px  
+    containerWide: 'max-w-wide mx-auto px-4 md:px-6 lg:px-8',         // Same as container
     
-    // Content patterns
-    article: 'max-w-article mx-auto px-lg md:px-xl',
-    reading: 'max-w-article mx-auto px-lg md:px-xl lg:px-2xl',
+    // Content patterns - Consistent with container
+    article: 'max-w-article mx-auto px-4 md:px-6 lg:px-8',            // Same as container
+    reading: 'max-w-article mx-auto px-4 md:px-6 lg:px-8',            // Same as container
     
     // Layout utilities
     fullHeight: 'min-h-screen',
@@ -202,10 +202,10 @@ export const themeClasses = {
     stackSmall: 'space-y-2 md:space-y-3 lg:space-y-4',
     stackLarge: 'space-y-6 md:space-y-8 lg:space-y-12',
     
-    // Container spacing - Horizontal padding
-    container: 'px-4 md:px-6 lg:px-8',         // 16px -> 24px -> 32px
-    containerSmall: 'px-3 md:px-4 lg:px-6',    // 12px -> 16px -> 24px
-    containerLarge: 'px-6 md:px-8 lg:px-12',   // 24px -> 32px -> 48px
+    // Container spacing - Horizontal padding (STANDARDIZED)
+    container: 'px-4 md:px-6 lg:px-8',         // 16px -> 24px -> 32px (MAIN STANDARD)
+    containerSmall: 'px-3 md:px-4 lg:px-6',    // 12px -> 16px -> 24px (Compact areas)
+    containerLarge: 'px-6 md:px-8 lg:px-12',   // 24px -> 32px -> 48px (Special cases only)
     
     // Margin utilities
     marginTop: 'mt-4 md:mt-6 lg:mt-8',

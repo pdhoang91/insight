@@ -19,7 +19,7 @@ const Layout = ({
     article: themeClasses.layout.article,
     reading: themeClasses.layout.reading,
     wide: themeClasses.layout.containerWide,
-    full: 'w-full px-lg md:px-xl lg:px-2xl',
+    full: 'w-full px-4 md:px-6 lg:px-8',
   };
 
   const containerClass = containerVariants[variant] || containerVariants.container;
@@ -34,10 +34,10 @@ const Layout = ({
         <div className={containerClass}>
           {showSidebar && sidebar ? (
             /* Layout with Sidebar - Mobile-first responsive */
-            <div className={combineClasses('flex flex-col lg:flex-row gap-lg lg:gap-xl', themeClasses.spacing.section)}>
+            <div className={combineClasses('flex flex-col lg:flex-row gap-4 lg:gap-6', themeClasses.spacing.section)}>
               {/* Main Content Area - Always first on mobile */}
               <div className="flex-1 min-w-0 order-first">
-                <div className={combineClasses('space-y-lg lg:space-y-xl', className)}>
+                <div className={combineClasses('space-y-4 lg:space-y-6', className)}>
                   {children}
                 </div>
               </div>
@@ -62,7 +62,7 @@ const Layout = ({
           ) : (
             /* Single Column Layout */
             <div className={combineClasses(themeClasses.spacing.section, className)}>
-              <div className="space-y-lg lg:space-y-xl">
+              <div className="space-y-4 lg:space-y-6">
                 {children}
               </div>
             </div>
@@ -104,7 +104,7 @@ const MobileSidebarContent = ({ sidebar }) => {
       {isExpanded && (
         <div 
           id="mobile-sidebar-content"
-          className="mt-md space-y-md max-h-96 overflow-y-auto overscroll-contain"
+          className="mt-3 space-y-3 max-h-96 overflow-y-auto overscroll-contain"
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {sidebar}

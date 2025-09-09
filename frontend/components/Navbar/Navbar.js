@@ -90,7 +90,7 @@ const Navbar = () => {
   if (!mounted) {
     return (
       <nav className={`fixed top-0 left-0 right-0 z-50 ${classes.bg.primary}/80`}>
-        <div className="max-w-container mx-auto px-6 sm:px-8 lg:px-12">
+        <div className={themeClasses.layout.container}>
           <div className="flex items-center justify-between h-16">
             <div className="animate-pulse">
               <div className={`h-8 w-32 ${classes.skeleton} rounded`}></div>
@@ -107,7 +107,7 @@ const Navbar = () => {
         ? `${classes.bg.primary} border-b ${classes.border.primary} shadow-sm` 
         : `${classes.bg.primary}/90`
     }`}>
-      <div className="max-w-container mx-auto px-6 sm:px-8 lg:px-12">
+      <div className={themeClasses.layout.container}>
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link 
@@ -121,7 +121,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-xl">
+          <div className="hidden md:flex items-center gap-6">
             {/* Search */}
             <div className="relative">
               {isSearchOpen ? (
@@ -171,7 +171,7 @@ const Navbar = () => {
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={toggleUserMenu}
-                  className="flex items-center gap-sm p-1 rounded-full hover:bg-medium-hover transition-all duration-200"
+                  className="flex items-center gap-2 p-1 rounded-full hover:bg-medium-hover transition-all duration-200"
                 >
                   {user.avatar_url ? (
                     <img
@@ -196,7 +196,7 @@ const Navbar = () => {
                     >
                       {/* User Info */}
                       <div className={`px-4 py-3 border-b ${classes.border.primary}`}>
-                        <div className="flex items-center gap-md">
+                        <div className="flex items-center gap-3">
                           {user.avatar_url ? (
                             <img
                               src={user.avatar_url}
@@ -251,7 +251,7 @@ const Navbar = () => {
                 </AnimatePresence>
               </div>
             ) : (
-                <div className="flex items-center gap-lg">
+                <div className="flex items-center gap-4">
                 <button
                   onClick={() => setModalOpen(true)}
                   className="text-medium-text-secondary hover:text-medium-text-primary hover:bg-medium-hover px-3 py-2 rounded-medium transition-all duration-200"

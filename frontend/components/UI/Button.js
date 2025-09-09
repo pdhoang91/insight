@@ -38,10 +38,10 @@ const Button = forwardRef(({
   };
 
   const sizes = {
-    sm: 'px-md py-sm text-body-small rounded-button',
-    md: 'px-lg py-md text-button rounded-button',
-    lg: 'px-xl py-lg text-body-large rounded-button',
-    xl: 'px-2xl py-xl text-heading-3 rounded-button',
+    sm: 'px-3 py-1.5 text-body-small rounded-button',
+    md: 'px-4 py-2 text-button rounded-button',
+    lg: 'px-6 py-3 text-body-large rounded-button',
+    xl: 'px-8 py-4 text-heading-3 rounded-button',
   };
 
   const buttonClasses = [

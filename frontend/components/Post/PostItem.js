@@ -120,7 +120,7 @@ const PostItem = ({ post }) => {
           {/* Inline Comments Section */}
           {isCommentsOpen && (
             <div className="mt-2xl pt-xl border-t border-medium-border">
-              <div className="space-y-xl">
+              <div className="space-y-6">
                 <AddCommentForm 
                   postId={post.id} 
                   user={user} 

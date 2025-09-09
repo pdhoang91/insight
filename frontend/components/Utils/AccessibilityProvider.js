@@ -197,7 +197,7 @@ export const AccessibilityProvider = ({ children }) => {
       
       {/* Skip to content link */}
       <button
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 bg-medium-accent-green text-white px-lg py-md rounded-lg font-medium"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 bg-medium-accent-green text-white px-4 py-2 rounded-lg font-medium"
         onClick={() => skipToContent()}
         onFocus={(e) => e.target.classList.remove('sr-only')}
         onBlur={(e) => e.target.classList.add('sr-only')}

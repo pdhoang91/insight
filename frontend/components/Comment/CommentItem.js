@@ -128,7 +128,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
 
             {/* Replies List */}
             {comment.replies && comment.replies.length > 0 && (
-              <div className="space-y-md">
+              <div className="space-y-3">
                 <div className="text-body-small text-medium-text-secondary mb-sm font-serif font-bold">
                   Replies ({comment.replies.length}):
                 </div>

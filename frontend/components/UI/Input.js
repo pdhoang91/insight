@@ -18,9 +18,9 @@ const Input = ({
   const baseClasses = 'font-ui bg-medium-bg-secondary border border-medium-border text-medium-text-primary placeholder-medium-text-muted transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-medium-accent-green focus:border-medium-accent-green disabled:opacity-50 disabled:cursor-not-allowed';
   
   const sizes = {
-    sm: 'px-md py-sm text-body-small rounded-lg',
-    md: 'px-lg py-md text-body rounded-lg',
-    lg: 'px-xl py-lg text-body-large rounded-lg',
+    sm: 'px-3 py-1.5 text-body-small rounded-lg',
+    md: 'px-4 py-2 text-body rounded-lg',
+    lg: 'px-6 py-3 text-body-large rounded-lg',
   };
   
   const errorClasses = error ? 'border-error focus:border-error focus:ring-error' : '';

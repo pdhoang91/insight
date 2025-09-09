@@ -14,8 +14,8 @@ const ThreeColumnLayout = ({
   return (
     <div className={`min-h-screen bg-medium-bg-primary ${className}`}>
       {/* Main Content - Using consistent Layout patterns */}
-      <div className="py-xl lg:py-2xl">
-        <div className="max-w-container mx-auto px-lg md:px-xl lg:px-2xl">
+      <div className="py-6 lg:py-8">
+        <div className={themeClasses.layout.container}>
           <div className={`flex flex-col lg:flex-row gap-xl lg:gap-2xl ${leftSidebar ? '' : 'justify-center'}`}>
             {/* Left Sidebar - Optional */}
             {leftSidebar && (
@@ -42,7 +42,7 @@ const ThreeColumnLayout = ({
             
             {/* Main Content Area */}
             <main className="flex-1 min-w-0 order-first">
-              <div className="space-y-xl lg:space-y-2xl">
+              <div className="space-y-6 lg:space-y-8">
                 {/* Mobile TOC - Only show on mobile/tablet */}
                 {showTOC && content && (
                   <div className="lg:hidden">
@@ -63,7 +63,7 @@ const ThreeColumnLayout = ({
             {/* Right Sidebar with TOC */}
             {(showTOC && content) || rightSidebar ? (
               <aside className="order-last w-full lg:w-80 lg:flex-shrink-0">
-                <div className="lg:sticky lg:top-24 space-y-xl max-h-[calc(100vh-6rem)] overflow-y-auto">
+                <div className="lg:sticky lg:top-24 space-y-6 max-h-[calc(100vh-6rem)] overflow-y-auto">
                   {/* Desktop TOC */}
                   {showTOC && content && (
                     <div className="hidden lg:block bg-medium-bg-card border border-medium-border rounded-card p-lg">
