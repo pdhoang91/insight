@@ -71,7 +71,7 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
           <div className="flex items-center justify-between px-4 py-3">
             <h2 className="text-lg font-mono text-matrix-green">$ edit_profile</h2>
             <button
-              className="text-gray-400 hover:text-white transition-colors"
+              className="text-medium-text-muted hover:text-medium-text-primary transition-colors"
               onClick={onCancel}
             >
               <FaTimes className="w-4 h-4" />
@@ -147,7 +147,7 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
                 <button 
                   type="button" 
                   onClick={onCancel}
-                  className="flex-1 text-gray-400 font-mono hover:bg-gray-400/10 rounded py-2 transition-colors"
+                  className="flex-1 text-medium-text-muted font-mono hover:bg-medium-hover rounded py-2 transition-colors"
                 >
                   ./cancel
                 </button>

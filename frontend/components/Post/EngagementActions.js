@@ -1,13 +1,11 @@
 // components/Post/EngagementActions.js - Medium 2024 Design
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { FaShareAlt, FaComment, FaBookmark, FaEllipsisH, FaFlag, FaCopy } from 'react-icons/fa';
+import { FaComment, FaBookmark, FaEllipsisH, FaFlag, FaCopy } from 'react-icons/fa';
 import { FaHandsClapping } from "react-icons/fa6";
 import { useUser } from '../../context/UserContext';
 import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapPost } from '../../services/activityService';
-import ShareMenu from '../Utils/ShareMenu';
-import { BASE_FE_URL } from '../../config/api';
 
 const EngagementActions = ({ 
   post,
@@ -19,19 +17,13 @@ const EngagementActions = ({
 }) => {
   const { user } = useUser();
   const { clapsCount, loading: clapsLoading, mutate: mutateClaps } = useClapsCount('post', post.id);
-  const [isShareMenuOpen, setShareMenuOpen] = useState(false);
   const [isMoreMenuOpen, setMoreMenuOpen] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const shareMenuRef = useRef();
   const moreMenuRef = useRef();
 
-  const shareUrl = `${BASE_FE_URL}/p/${post.title_name}`;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (shareMenuRef.current && !shareMenuRef.current.contains(event.target)) {
-        setShareMenuOpen(false);
-      }
       if (moreMenuRef.current && !moreMenuRef.current.contains(event.target)) {
         setMoreMenuOpen(false);
       }
@@ -64,9 +56,6 @@ const EngagementActions = ({
     // TODO: Implement bookmark API
   };
 
-  const handleShare = () => {
-    setShareMenuOpen(!isShareMenuOpen);
-  };
 
   const handleMoreOptions = () => {
     setMoreMenuOpen(!isMoreMenuOpen);
@@ -135,25 +124,6 @@ const EngagementActions = ({
           {showLabels && <span className={sizeClasses[size]}>Save</span>}
         </button>
 
-        {/* Share Button */}
-        <div ref={shareMenuRef} className="relative">
-          <button
-            onClick={handleShare}
-            className={buttonClasses}
-            aria-label="Share this post"
-          >
-            <FaShareAlt className={iconSizes[size]} />
-            {showLabels && <span className={sizeClasses[size]}>Share</span>}
-          </button>
-
-          {isShareMenuOpen && (
-            <ShareMenu
-              shareUrl={shareUrl}
-              title={post.title}
-              onClose={() => setShareMenuOpen(false)}
-            />
-          )}
-        </div>
 
         {/* More Options */}
         <div ref={moreMenuRef} className="relative">

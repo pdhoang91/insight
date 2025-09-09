@@ -44,7 +44,7 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
           aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
         >
           <span
-            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+            className={`inline-block h-4 w-4 transform rounded-full bg-medium-bg-card transition-transform ${
               isDark ? 'translate-x-6' : 'translate-x-1'
             }`}
           />

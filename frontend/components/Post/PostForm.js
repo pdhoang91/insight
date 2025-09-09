@@ -175,7 +175,7 @@
 //           <button
 //             type="button"
 //             onClick={handleImageTitleUpload}
-//             className="absolute right-0 top-0 mt-3 mr-3 text-gray-500 hover:text-blue-500"
+//             className="absolute right-0 top-0 mt-3 mr-3 text-medium-text-muted hover:text-medium-accent-green"
 //             aria-label="Upload Image Title"
 //             title="Tải lên ảnh tiêu đề"
 //           >
@@ -524,8 +524,8 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
                   editor.chain().focus().toggleHeading({ level }).run();
                   console.log(`Heading ${level} toggled:`, editor.isActive('heading', { level }));
                 }}
-                className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 
-                  ${editor.isActive('heading', { level }) ? 'bg-blue-100' : ''}`}
+                className={`w-full text-left px-4 py-2 text-sm hover:bg-medium-hover 
+                  ${editor.isActive('heading', { level }) ? 'bg-medium-accent-green/10' : ''}`}
               >
                 Heading {level}
               </button>
@@ -578,7 +578,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
   };
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-5xl mx-auto p-6 relative bg-white">
+    <form onSubmit={handleSubmit} className="max-w-container mx-auto p-6 relative bg-medium-bg-primary">
       {/* Tiêu đề và Hình ảnh tiêu đề */}
       <div className="mb-6">
         <div className="relative">
@@ -587,13 +587,13 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
-            className="w-full pr-10 p-3 border border-gray-300 rounded text-gray-500 italic top-4 left-4 focus:outline-none focus:border-blue-500"
+            className="w-full pr-10 p-3 border border-medium-border rounded-medium text-medium-text-primary focus:outline-none focus:border-medium-accent-green bg-medium-bg-secondary"
             placeholder="Tiêu đề bài viết..."
           />
           <button
             type="button"
             onClick={handleImageTitleUpload}
-            className="absolute right-0 top-0 mt-3 mr-3 text-gray-500 hover:text-blue-500"
+            className="absolute right-0 top-0 mt-3 mr-3 text-medium-text-muted hover:text-medium-accent-green"
             aria-label="Upload Image Title"
             title="Tải lên ảnh tiêu đề"
           >
@@ -625,7 +625,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         }}
       >
         {/* Thanh công cụ (Toolbar) */}
-        <div className="sticky top-0 z-10 bg-white p-2 flex items-center space-x-2">
+        <div className="sticky top-0 z-10 bg-medium-bg-card p-2 flex items-center space-x-2 border-b border-medium-border">
           {menuBar.map((item, index) => (
             <ToolbarButton
               key={index}
@@ -661,9 +661,9 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
           className="p-4 relative editor-content content"
         >
           {isUploading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50">
+            <div className="absolute inset-0 flex items-center justify-center bg-medium-bg-primary/80 backdrop-blur-sm">
               <svg
-                className="animate-spin h-8 w-8 text-blue-500"
+                className="animate-spin h-8 w-8 text-medium-accent-green"
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
@@ -686,7 +686,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
                 <>
                   <EditorContent editor={editor} className="min-h-[300px] focus:outline-none prose content" /> {/* Thêm lớp .content */}
                   {isContentEmpty && (
-                    <p className="absolute text-gray-500 italic top-4 left-4 pointer-events-none">
+                    <p className="absolute text-medium-text-muted italic top-4 left-4 pointer-events-none">
                       Nội dung bài viết...
                     </p>
                   )}

@@ -28,17 +28,17 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 max-h-[80vh] overflow-hidden">
-        <div className="flex items-center justify-between p-4 border-b dark:border-gray-700">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-medium-bg-primary/80 backdrop-blur-sm">
+      <div className="bg-medium-bg-card rounded-card shadow-card max-w-md w-full mx-4 max-h-[80vh] overflow-hidden">
+        <div className="flex items-center justify-between p-4 border-b border-medium-border">
+          <h3 className="text-lg font-semibold text-medium-text-primary">
             Chọn danh mục
           </h3>
           <button
             onClick={onCancel}
-            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors"
+            className="p-2 hover:bg-medium-hover rounded-full transition-colors"
           >
-            <FaTimes className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+            <FaTimes className="w-4 h-4 text-medium-text-muted" />
           </button>
         </div>
         
@@ -48,12 +48,12 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
             placeholder="Tìm kiếm danh mục..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            className="w-full px-3 py-2 border border-medium-border rounded-medium focus:outline-none focus:ring-2 focus:ring-medium-accent-green bg-medium-bg-secondary text-medium-text-primary"
           />
           
           {/* Tags Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-medium-text-primary mb-2">
               Tags (phân cách bằng dấu phẩy)
             </label>
             <input
@@ -61,7 +61,7 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
               placeholder="react, javascript, web development..."
               value={tags}
               onChange={(e) => setTags(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+              className="w-full px-3 py-2 border border-medium-border rounded-medium focus:outline-none focus:ring-2 focus:ring-medium-accent-green bg-medium-bg-secondary text-medium-text-primary"
             />
           </div>
         </div>
@@ -77,10 +77,10 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
                   <button
                     key={category.id}
                     onClick={() => toggleCategory(category)}
-                    className={`w-full text-left px-3 py-2 rounded-md transition-colors ${
+                    className={`w-full text-left px-3 py-2 rounded-medium transition-colors ${
                       isSelected 
-                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' 
-                        : 'hover:bg-gray-100 dark:hover:bg-gray-700'
+                        ? 'bg-medium-accent-green/10 text-medium-accent-green' 
+                        : 'hover:bg-medium-hover text-medium-text-primary'
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -95,16 +95,16 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
         </div>
         
         {/* Action Buttons */}
-        <div className="flex items-center justify-end gap-3 p-4 border-t dark:border-gray-700">
+        <div className="flex items-center justify-end gap-3 p-4 border-t border-medium-border">
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
+            className="px-4 py-2 text-medium-text-secondary hover:bg-medium-hover rounded-medium transition-colors"
           >
             Hủy
           </button>
           <button
             onClick={handlePublish}
-            className="px-6 py-2 bg-medium-accent-green hover:bg-medium-accent-green/90 text-white rounded-md transition-colors font-medium"
+            className="px-6 py-2 bg-medium-accent-green hover:bg-medium-accent-green/90 text-white rounded-medium transition-colors font-medium"
           >
             Publish
           </button>

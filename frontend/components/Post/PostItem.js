@@ -1,7 +1,7 @@
 // components/Post/PostItem.js
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { FaEye, FaShareAlt, FaComment } from 'react-icons/fa';
+import { FaEye, FaComment } from 'react-icons/fa';
 import { FaHandsClapping } from "react-icons/fa6";
 import { AddCommentForm, LimitedCommentList } from '../Comment';
 import Rating from './Rating';
@@ -11,9 +11,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapPost } from '../../services/activityService';
 import { useInfiniteComments } from '../../hooks/useInfiniteComments';
-import ShareMenu from '../Utils/ShareMenu';
 import TimeAgo from '../Utils/TimeAgo';
-import { BASE_FE_URL } from '../../config/api';
 
 const PostItem = ({ post }) => {
   if (!post) {
@@ -24,22 +22,9 @@ const PostItem = ({ post }) => {
   const { user } = useUser();
   const { theme } = useTheme();
   const [isCommentsOpen, setCommentsOpen] = useState(false);
-  const [isShareMenuOpen, setShareMenuOpen] = useState(false);
-  const shareMenuRef = useRef();
 
   const { comments, totalCount, isLoading, isError, mutate, canLoadMore, loadMore } = useInfiniteComments(post.id, isCommentsOpen, 3);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (shareMenuRef.current && !shareMenuRef.current.contains(event.target)) {
-        setShareMenuOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
 
   const handleClap = async () => {
     if (!user) {
@@ -65,12 +50,6 @@ const PostItem = ({ post }) => {
     setCommentsOpen(false);
   };
 
-  //const shareUrl = `http://localhost:3000/p/${post.title_name}`;
-  const shareUrl = `${BASE_FE_URL}/p/${post.title_name}`;
-
-  const handleShare = () => {
-    setShareMenuOpen((prev) => !prev);
-  };
 
   return (
     <div
@@ -124,27 +103,6 @@ const PostItem = ({ post }) => {
               </span>
             </div>
 
-            <div className="flex items-center space-x-4">
-
-              {/* Nút Share */}
-              <div ref={shareMenuRef} className="relative">
-                <button
-                  onClick={handleShare}
-                  className="flex items-center text-medium-text-secondary hover:text-medium-accent-green transition-colors"
-                  aria-label="Share this post"
-                >
-                  <FaShareAlt className="mr-1" />
-                </button>
-
-                {isShareMenuOpen && (
-                  <ShareMenu
-                    shareUrl={shareUrl}
-                    title={post.title}
-                    onClose={() => setShareMenuOpen(false)}
-                  />
-                )}
-              </div>
-            </div>
           </div>
 
           {/* Inline Comments Section */}

@@ -35,7 +35,7 @@ export const timeAgo = (date) => {
 const TimeAgo = ({ timestamp }) => {
   return (
     <span
-      className="text-sm text-gray-600 inline-flex items-center space-x-1"
+      className="text-body-small text-medium-text-secondary inline-flex items-center space-x-1"
       style={{ fontFamily: 'inherit' }} // Ensures consistent font-family
     >
       <span>{timeAgo(timestamp)}</span>

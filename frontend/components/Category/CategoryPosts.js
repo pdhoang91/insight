@@ -1,6 +1,6 @@
 // components/Category/CategoryPosts.js
 import React from 'react';
-import PostList from '../post/PostList';
+import PostList from '../Post/PostList';
 const CategoryPosts = ({ 
   categoryName, 
   posts, 
@@ -20,17 +20,13 @@ const CategoryPosts = ({
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-container mx-auto px-6 py-8">
       {/* Category Header */}
       <div className="mb-8">
-        <h1 className={`text-3xl font-bold mb-2 ${
-          theme === 'dark' ? 'text-gray-100' : 'text-gray-900'
-        }`}>
+        <h1 className="text-heading-1 font-serif text-medium-text-primary mb-2">
           {categoryName?.charAt(0).toUpperCase() + categoryName?.slice(1)}
         </h1>
-        <p className={`text-lg ${
-          theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-        }`}>
+        <p className="text-body-large text-medium-text-secondary">
           Khám phá các bài viết trong danh mục này
         </p>
       </div>

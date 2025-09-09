@@ -24,9 +24,9 @@ const PostItemSmall = ({ post }) => {
             {post.title}
           </h5>
         </Link>
-        {/* <div className="flex items-center text-gray-500 text-sm my-2">
+        <div className="flex items-center text-medium-text-muted text-body-small my-2">
           <TimeAgo timestamp={post.created_at} />
-        </div> */}
+        </div>
         <p className="text-medium-text-secondary text-body-small line-clamp-2">
           <TextUtils html={post.preview_content} maxLength={100} />
         </p>

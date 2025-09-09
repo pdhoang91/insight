@@ -35,7 +35,7 @@ const Rating = ({ postId }) => {
         </span>
       ))}
       {averageRating > 0 && (
-        <span className="ml-2 text-gray-700 text-sm">
+        <span className="ml-2 text-medium-text-primary text-body-small">
           {averageRating.toFixed(1)} / 5 
         </span>
       )}

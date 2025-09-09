@@ -1,16 +1,6 @@
 // components/Shared/PersonalBlogSidebar.js - Clean Medium 2024 Design
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { 
-  FaFire, 
-  FaTag, 
-  FaEnvelope,
-  FaCalendarAlt,
-  FaMapMarkerAlt,
-  FaGithub,
-  FaTwitter,
-  FaLinkedin
-} from 'react-icons/fa';
 import { useCategories } from '../../hooks/useCategories';
 import { useRecentPosts } from '../../hooks/useRecentPosts';
 import PopularPostsWidget from '../Widgets/PopularPostsWidget';
@@ -50,19 +40,15 @@ const PersonalBlogSidebar = () => {
         
         {/* Popular Posts Widget */}
         <div className="space-y-4">
-          <h3 className="font-serif font-bold text-heading-3 text-medium-text-primary flex items-center">
-            <FaFire className="w-5 h-5 mr-3 text-medium-accent-green" />
+          <h3 className="font-serif font-bold text-heading-3 text-medium-text-primary">
             Trending
           </h3>
-        <div className="bg-medium-bg-card rounded-card shadow-card p-6">
           <PopularPostsWidget limit={5} showImages={false} />
-        </div>
         </div>
 
         {/* Categories */}
         <div className="space-y-4">
-          <h3 className="font-serif font-bold text-xl text-medium-text-primary flex items-center">
-            <FaTag className="w-5 h-5 mr-3 text-medium-accent-green" />
+          <h3 className="font-serif font-bold text-heading-3 text-medium-text-primary">
             Topics
           </h3>
           
@@ -78,7 +64,7 @@ const PersonalBlogSidebar = () => {
                 <Link
                   key={category.id}
                   href={`/category/${category.name}`}
-                  className="inline-flex items-center px-4 py-2 rounded-full text-sm bg-medium-bg-secondary text-medium-text-secondary hover:bg-medium-accent-green hover:text-white transition-all duration-200 shadow-sm hover:shadow-md"
+                  className="inline-flex items-center px-3 py-1.5 rounded-full text-body-small bg-medium-bg-secondary text-medium-text-secondary hover:bg-medium-accent-green hover:text-white transition-all duration-200"
                 >
                   {category.name}
                   <span className="ml-2 text-xs opacity-75">
@@ -92,12 +78,11 @@ const PersonalBlogSidebar = () => {
 
         {/* Newsletter Signup */}
         <div className="space-y-4">
-          <h3 className="font-serif font-bold text-xl text-medium-text-primary flex items-center">
-            <FaEnvelope className="w-5 h-5 mr-3 text-medium-accent-green" />
+          <h3 className="font-serif font-bold text-heading-3 text-medium-text-primary">
             Stay Updated
           </h3>
-          <div className="bg-medium-bg-card rounded-lg shadow-sm p-6">
-            <p className="text-sm text-medium-text-secondary mb-4">
+          <div className="bg-medium-bg-secondary rounded-medium p-4">
+            <p className="text-body-small text-medium-text-secondary mb-4">
               Get the latest posts delivered right to your inbox.
             </p>
             
@@ -125,13 +110,10 @@ const PersonalBlogSidebar = () => {
 
         {/* Archive Widget */}
         <div className="space-y-4">
-          <h3 className="font-serif font-bold text-xl text-medium-text-primary flex items-center">
-            <FaCalendarAlt className="w-5 h-5 mr-3 text-medium-accent-green" />
+          <h3 className="font-serif font-bold text-heading-3 text-medium-text-primary">
             Archive
           </h3>
-          <div className="bg-medium-bg-card rounded-lg shadow-sm p-6">
-            <ArchiveWidget posts={recentPosts} isLoading={postsLoading} />
-          </div>
+          <ArchiveWidget posts={recentPosts} isLoading={postsLoading} />
         </div>
 
       </div>
