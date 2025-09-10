@@ -24,7 +24,7 @@ const ThreeColumnLayout = ({
                 <div className="lg:sticky lg:top-24">
                   <div className="lg:hidden mb-6">
                     {/* Mobile: Collapsed sidebar */}
-                    <details className="rounded-card shadow-sm">
+                    <details className="bg-medium-bg-card rounded-card shadow-sm border border-medium-border">
                       <summary className="p-4 cursor-pointer font-serif font-bold text-medium-text-primary">
                         Sidebar Content
                       </summary>

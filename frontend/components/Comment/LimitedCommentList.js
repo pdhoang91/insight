@@ -40,7 +40,7 @@ const LimitedCommentList = ({
           <button
             onClick={loadMore}
             disabled={isLoadingMore}
-            className="flex items-center gap-2 px-6 py-3  rounded-button text-medium-text-secondary hover:text-medium-text-primary hover:bg-medium-hover transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+            className="flex items-center gap-2 px-6 py-3 bg-medium-bg-card rounded-button text-medium-text-secondary hover:text-medium-text-primary hover:bg-medium-hover transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
           >
             {isLoadingMore ? (
               <>

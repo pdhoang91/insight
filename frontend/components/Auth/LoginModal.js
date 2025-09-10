@@ -104,7 +104,7 @@ const LoginModal = ({ isOpen, onClose }) => {
           onClick={(e) => e.stopPropagation()}
         >
           {/* Ultra Transparent Modal */}
-          <div className="backdrop-blur-lg rounded-card border border-medium-border p-8 space-y-6 relative shadow-card">
+          <div className="bg-medium-bg-card backdrop-blur-lg rounded-card border border-medium-border p-8 space-y-6 relative shadow-card">
             {/* Close Button */}
             <button
               onClick={onClose}
@@ -139,7 +139,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-terminal-black/20 backdrop-blur-sm rounded-md text-text-primary font-mono placeholder-text-muted/60 focus:bg-terminal-black/30 focus:outline-none transition-all"
+                  className="w-full pl-10 pr-4 py-3 bg-medium-bg-primary border border-medium-border rounded-md text-medium-text-primary font-mono placeholder-medium-text-muted focus:bg-medium-bg-secondary focus:outline-none focus:ring-2 focus:ring-medium-accent-green transition-all"
                   placeholder="Email"
                   disabled={isLoading}
                 />
@@ -151,7 +151,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-terminal-black/20 backdrop-blur-sm rounded-md text-text-primary font-mono placeholder-text-muted/60 focus:bg-terminal-black/30 focus:outline-none transition-all"
+                  className="w-full pl-10 pr-4 py-3 bg-medium-bg-primary border border-medium-border rounded-md text-medium-text-primary font-mono placeholder-medium-text-muted focus:bg-medium-bg-secondary focus:outline-none focus:ring-2 focus:ring-medium-accent-green transition-all"
                   placeholder="Mật khẩu"
                   disabled={isLoading}
                 />
@@ -166,7 +166,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                 className="w-full py-3 bg-matrix-green/20 backdrop-blur-sm text-matrix-green rounded-md font-mono font-medium hover:bg-matrix-green/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               >
                 {isLoading ? (
-                  <div className="w-4 h-4 border-2 border-matrix-green/30 border-t-matrix-green rounded-full animate-spin"></div>
+                  <div className="w-4 h-4 border-2 border-medium-accent-green/30 border-t-medium-accent-green rounded-full animate-spin"></div>
                 ) : (
                   <span>{isSignUp ? 'Đăng Ký' : 'Đăng Nhập'}</span>
                 )}

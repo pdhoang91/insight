@@ -29,7 +29,7 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-medium-bg-primary/80 backdrop-blur-sm">
-      <div className="rounded-card shadow-card max-w-md w-full mx-4 max-h-[80vh] overflow-hidden">
+      <div className="bg-medium-bg-card rounded-card shadow-card max-w-md w-full mx-4 max-h-[80vh] overflow-hidden">
         <div className="flex items-center justify-between p-4 border-b border-medium-border">
           <h3 className="text-lg font-semibold text-medium-text-primary">
             Chọn danh mục
@@ -48,7 +48,7 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
             placeholder="Tìm kiếm danh mục..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-3 py-2 border border-medium-border rounded-medium focus:outline-none focus:ring-2 focus:ring-medium-accent-green  text-medium-text-primary"
+            className="w-full px-3 py-2 border border-medium-border rounded-medium focus:outline-none focus:ring-2 focus:ring-medium-accent-green bg-medium-bg-primary text-medium-text-primary"
           />
           
           {/* Tags Input */}
@@ -61,7 +61,7 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
               placeholder="react, javascript, web development..."
               value={tags}
               onChange={(e) => setTags(e.target.value)}
-              className="w-full px-3 py-2 border border-medium-border rounded-medium focus:outline-none focus:ring-2 focus:ring-medium-accent-green  text-medium-text-primary"
+              className="w-full px-3 py-2 border border-medium-border rounded-medium focus:outline-none focus:ring-2 focus:ring-medium-accent-green bg-medium-bg-primary text-medium-text-primary"
             />
           </div>
         </div>

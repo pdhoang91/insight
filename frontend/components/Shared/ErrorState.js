@@ -11,7 +11,7 @@ const ErrorState = ({
     <div className="text-center py-12">
       <div className="max-w-md mx-auto">
         {/* Error Icon */}
-        <div className="w-16 h-16 mx-auto mb-4  rounded-full flex items-center justify-center">
+        <div className="w-16 h-16 mx-auto mb-4 bg-medium-bg-secondary rounded-full flex items-center justify-center">
           <svg 
             className="w-8 h-8 text-medium-text-muted" 
             fill="none" 

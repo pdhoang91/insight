@@ -60,7 +60,7 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
         onClick={onCancel}
       >
         <motion.div 
-          className="bg-black/20 backdrop-blur-sm rounded-lg w-full max-w-sm mx-2 relative"
+          className="bg-medium-bg-card backdrop-blur-sm rounded-lg w-full max-w-sm mx-2 relative"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}

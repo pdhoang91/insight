@@ -33,10 +33,10 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
   };
 
   return (
-    <div className="border border-medium-border rounded-lg p-md hover:bg-medium-hover transition-all duration-200 shadow-sm">
+    <div className="bg-medium-bg-card border border-medium-border rounded-lg p-md hover:bg-medium-hover transition-all duration-200 shadow-sm">
       {/* Author Info */}
       <div className="flex items-center gap-sm mb-sm">
-        <div className="w-6 h-6 bg-medium-bg-primary rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+        <div className="w-6 h-6 bg-medium-bg-secondary rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
           {reply.user?.avatar_url ? (
             <img
               src={reply.user.avatar_url}

@@ -81,7 +81,7 @@ const PersonalBlogSidebar = () => {
           <h3 className="font-serif font-bold text-heading-3 text-medium-text-primary">
             Stay Updated
           </h3>
-          <div className="rounded-medium p-4">
+          <div className="bg-medium-bg-card rounded-medium p-4 border border-medium-border">
             <p className="text-body-small text-medium-text-secondary mb-4">
               Get the latest posts delivered right to your inbox.
             </p>
