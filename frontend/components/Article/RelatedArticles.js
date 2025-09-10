@@ -136,7 +136,7 @@ const RelatedArticleCard = ({ post }) => {
 
             {/* Category */}
             {post.categories && post.categories.length > 0 && (
-              <span className="px-2 py-1 bg-medium-bg-secondary rounded-full">
+              <span className="px-2 py-1  rounded-full">
                 {post.categories[0].name}
               </span>
             )}

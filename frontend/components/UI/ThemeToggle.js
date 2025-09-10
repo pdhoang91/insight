@@ -20,7 +20,7 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
     return (
       <button
         onClick={toggleTheme}
-        className={`p-2 rounded-medium bg-medium-bg-secondary hover:bg-medium-hover transition-all duration-200 ${className}`}
+        className={`p-2 rounded-medium hover:bg-medium-hover transition-all duration-200 ${className}`}
         aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
         title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
       >
@@ -67,7 +67,7 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
         className={`w-full flex items-center px-3 py-2 text-body-small rounded-medium transition-colors ${
           isLight
             ? 'bg-medium-accent-green text-white'
-            : 'text-medium-text-secondary hover:bg-medium-bg-secondary'
+            : 'text-medium-text-secondary hover:'
         }`}
       >
         <FaSun className={`${themeClasses.icons.sm} mr-3`} />
@@ -79,7 +79,7 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
         className={`w-full flex items-center px-3 py-2 text-body-small rounded-medium transition-colors ${
           isDark
             ? 'bg-medium-accent-green text-white'
-            : 'text-medium-text-secondary hover:bg-medium-bg-secondary'
+            : 'text-medium-text-secondary hover:'
         }`}
       >
         <FaMoon className={`${themeClasses.icons.sm} mr-3`} />

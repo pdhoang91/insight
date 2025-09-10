@@ -59,7 +59,7 @@ const PostItem = ({ post }) => {
         {post.image_title && (
           <div className="w-full lg:w-80 flex-shrink-0 order-1 lg:order-2">
             <Link href={`/p/${post.title_name}`} className="block">
-              <div className="relative overflow-hidden rounded-lg bg-medium-bg-secondary">
+              <div className="relative overflow-hidden rounded-lg ">
                 <img
                   src={post.image_title}
                   alt={post.title}

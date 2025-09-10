@@ -15,7 +15,7 @@ const Input = ({
   className = '',
   ...props 
 }) => {
-  const baseClasses = 'font-ui bg-medium-bg-secondary border border-medium-border text-medium-text-primary placeholder-medium-text-muted transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-medium-accent-green focus:border-medium-accent-green disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseClasses = 'font-ui  border border-medium-border text-medium-text-primary placeholder-medium-text-muted transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-medium-accent-green focus:border-medium-accent-green disabled:opacity-50 disabled:cursor-not-allowed';
   
   const sizes = {
     sm: 'px-3 py-1.5 text-body-small rounded-lg',

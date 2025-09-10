@@ -46,7 +46,7 @@ const MobileSidebar = ({
               </h2>
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-medium-bg-secondary rounded-full transition-colors"
+                className="p-2 hover: rounded-full transition-colors"
               >
                 <FaTimes className="w-5 h-5 text-medium-text-secondary" />
               </button>
@@ -109,7 +109,7 @@ const MobileSidebar = ({
                   {categories.slice(0, 8).map((category) => (
                     <span
                       key={category.id}
-                      className="px-3 py-1 bg-medium-bg-secondary text-medium-text-secondary text-sm rounded-full hover:bg-medium-accent-green hover:text-white transition-colors cursor-pointer touch-manipulation"
+                      className="px-3 py-1 text-medium-text-secondary text-sm rounded-full hover:bg-medium-accent-green hover:text-white transition-colors cursor-pointer touch-manipulation"
                     >
                       {category.name}
                     </span>

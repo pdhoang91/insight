@@ -23,7 +23,7 @@ const RecommendedTopicsSection = () => {
           <Link
             key={topic.id}
             href={`/category/${encodeURIComponent(topic.name)}`}
-            className="px-4 py-2 bg-medium-bg-secondary text-medium-text-primary rounded-full text-sm font-medium hover:bg-medium-accent-green hover:text-white transition-all duration-200"
+            className="px-4 py-2  text-medium-text-primary rounded-full text-sm font-medium hover:bg-medium-accent-green hover:text-white transition-all duration-200"
           >
               {topic.name}
           </Link>

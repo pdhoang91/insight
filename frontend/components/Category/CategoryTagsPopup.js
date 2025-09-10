@@ -48,7 +48,7 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
             placeholder="Tìm kiếm danh mục..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-3 py-2 border border-medium-border rounded-medium focus:outline-none focus:ring-2 focus:ring-medium-accent-green bg-medium-bg-secondary text-medium-text-primary"
+            className="w-full px-3 py-2 border border-medium-border rounded-medium focus:outline-none focus:ring-2 focus:ring-medium-accent-green  text-medium-text-primary"
           />
           
           {/* Tags Input */}
@@ -61,7 +61,7 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
               placeholder="react, javascript, web development..."
               value={tags}
               onChange={(e) => setTags(e.target.value)}
-              className="w-full px-3 py-2 border border-medium-border rounded-medium focus:outline-none focus:ring-2 focus:ring-medium-accent-green bg-medium-bg-secondary text-medium-text-primary"
+              className="w-full px-3 py-2 border border-medium-border rounded-medium focus:outline-none focus:ring-2 focus:ring-medium-accent-green  text-medium-text-primary"
             />
           </div>
         </div>

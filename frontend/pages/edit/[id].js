@@ -215,7 +215,7 @@ const EditPost = () => {
       {isFullscreen && (
         <button
           onClick={() => setIsFullscreen(false)}
-          className="fixed top-4 right-4 z-50 p-2 bg-medium-bg-secondary/80 backdrop-blur-sm text-medium-text-secondary hover:text-medium-text-primary rounded-lg transition-colors"
+          className="fixed top-4 right-4 z-50 p-2 /80 backdrop-blur-sm text-medium-text-secondary hover:text-medium-text-primary rounded-lg transition-colors"
           title="Thoát toàn màn hình"
         >
           <FaTimes className="w-5 h-5" />

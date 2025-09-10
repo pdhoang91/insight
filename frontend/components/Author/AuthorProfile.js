@@ -164,7 +164,7 @@ const AuthorProfile = ({
               href={authorData.social.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-3 bg-medium-bg-secondary hover:bg-medium-accent-green hover:text-white rounded-full transition-colors"
+              className="p-3  hover:bg-medium-accent-green hover:text-white rounded-full transition-colors"
               aria-label="GitHub"
             >
               <FaGithub className="w-5 h-5" />
@@ -176,7 +176,7 @@ const AuthorProfile = ({
               href={authorData?.social?.twitter}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-3 bg-medium-bg-secondary hover:bg-medium-accent-green hover:text-white rounded-full transition-colors"
+              className="p-3  hover:bg-medium-accent-green hover:text-white rounded-full transition-colors"
               aria-label="Twitter"
             >
               <FaTwitter className="w-5 h-5" />
@@ -188,7 +188,7 @@ const AuthorProfile = ({
               href={authorData?.social?.linkedin}
               target="_blank"
               rel="noopener noreferrer"
-              className="p-3 bg-medium-bg-secondary hover:bg-medium-accent-green hover:text-white rounded-full transition-colors"
+              className="p-3  hover:bg-medium-accent-green hover:text-white rounded-full transition-colors"
               aria-label="LinkedIn"
             >
               <FaLinkedin className="w-5 h-5" />
@@ -198,7 +198,7 @@ const AuthorProfile = ({
           {authorData?.social?.email && (
             <a
               href={`mailto:${authorData?.social?.email}`}
-              className="p-3 bg-medium-bg-secondary hover:bg-medium-accent-green hover:text-white rounded-full transition-colors"
+              className="p-3  hover:bg-medium-accent-green hover:text-white rounded-full transition-colors"
               aria-label="Email"
             >
               <FaEnvelope className="w-5 h-5" />

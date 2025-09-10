@@ -89,7 +89,7 @@ const NewsletterWidget = ({ className = '' }) => {
                 : 'border-medium-border focus:ring-medium-accent-green/20 focus:border-medium-accent-green'
             } ${
               status === 'success' 
-                ? 'bg-green-50 border-green-300' 
+                ? 'bg-green-500/20 border-green-500/40' 
                 : ''
             }`}
           />
@@ -116,7 +116,7 @@ const NewsletterWidget = ({ className = '' }) => {
             status === 'loading'
               ? 'bg-medium-text-muted text-white cursor-not-allowed'
               : status === 'success'
-              ? 'bg-green-500 text-white cursor-not-allowed'
+              ? 'bg-green-500/80 text-white cursor-not-allowed'
               : 'bg-medium-accent-green text-white hover:bg-medium-accent-green/90'
           }`}
         >
@@ -139,9 +139,9 @@ const NewsletterWidget = ({ className = '' }) => {
         {message && (
           <div className={`text-xs text-center p-2 rounded ${
             status === 'success' 
-              ? 'text-green-700 bg-green-50' 
+              ? 'text-green-600 bg-green-500/20' 
               : status === 'error'
-              ? 'text-red-700 bg-red-50'
+              ? 'text-red-600 bg-red-500/20'
               : ''
           }`}>
             {message}

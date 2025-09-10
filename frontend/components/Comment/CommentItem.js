@@ -56,7 +56,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
     >
       {/* Author Info */}
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-8 h-8 bg-medium-bg-secondary rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+        <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
           {comment.user?.avatar_url ? (
             <img
               src={comment.user.avatar_url}

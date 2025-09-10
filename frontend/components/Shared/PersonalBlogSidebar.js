@@ -55,7 +55,7 @@ const PersonalBlogSidebar = () => {
           {categoriesLoading ? (
             <div className="space-y-3">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-8 bg-medium-bg-secondary animate-pulse rounded"></div>
+                <div key={i} className="h-8  animate-pulse rounded"></div>
               ))}
             </div>
           ) : (
@@ -64,7 +64,7 @@ const PersonalBlogSidebar = () => {
                 <Link
                   key={category.id}
                   href={`/category/${category.name}`}
-                  className="inline-flex items-center px-3 py-1.5 rounded-full text-body-small bg-medium-bg-secondary text-medium-text-secondary hover:bg-medium-accent-green hover:text-white transition-all duration-200"
+                  className="inline-flex items-center px-3 py-1.5 rounded-full text-body-small  text-medium-text-secondary hover:bg-medium-accent-green hover:text-white transition-all duration-200"
                 >
                   {category.name}
                   <span className="ml-2 text-xs opacity-75">
@@ -81,7 +81,7 @@ const PersonalBlogSidebar = () => {
           <h3 className="font-serif font-bold text-heading-3 text-medium-text-primary">
             Stay Updated
           </h3>
-          <div className="bg-medium-bg-secondary rounded-medium p-4">
+          <div className="rounded-medium p-4">
             <p className="text-body-small text-medium-text-secondary mb-4">
               Get the latest posts delivered right to your inbox.
             </p>

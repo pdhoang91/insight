@@ -63,7 +63,7 @@ const TitleInput = ({
           />
           <button
             onClick={() => setImageTitle(null)}
-            className="absolute top-2 right-2 p-1 bg-medium-bg-secondary/80 backdrop-blur-sm text-medium-text-secondary hover:text-red-500 rounded-full transition-colors"
+            className="absolute top-2 right-2 p-1 /80 backdrop-blur-sm text-medium-text-secondary hover:text-red-500 rounded-full transition-colors"
             title="Xóa ảnh bìa"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

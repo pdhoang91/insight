@@ -31,7 +31,7 @@ const Button = forwardRef(({
 
   const variants = {
     primary: 'bg-medium-accent-green text-white hover:bg-medium-accent-green/90 active:bg-medium-accent-green/80 shadow-sm hover:shadow-md',
-    secondary: 'bg-medium-bg-secondary text-medium-text-primary border border-medium-border hover:bg-medium-hover active:bg-medium-active',
+    secondary: ' text-medium-text-primary border border-medium-border hover:bg-medium-hover active:bg-medium-active',
     ghost: 'text-medium-text-secondary hover:text-medium-text-primary hover:bg-medium-hover active:bg-medium-active',
     outline: 'border border-medium-border text-medium-text-primary hover:bg-medium-hover active:bg-medium-active',
     danger: 'bg-error text-white hover:bg-error-dark active:bg-error-dark shadow-sm hover:shadow-md',

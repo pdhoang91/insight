@@ -71,9 +71,9 @@ export const ThemeButton = ({
   
   const variants = {
     primary: 'bg-medium-accent-green text-white hover:bg-medium-accent-green/90',
-    secondary: 'bg-medium-bg-secondary text-medium-text-primary hover:bg-medium-divider',
-    outline: 'border border-medium-border text-medium-text-primary hover:bg-medium-bg-secondary',
-    ghost: 'text-medium-text-secondary hover:text-medium-text-primary hover:bg-medium-bg-secondary',
+    secondary: ' text-medium-text-primary hover:bg-medium-divider',
+    outline: 'border border-medium-border text-medium-text-primary hover:',
+    ghost: 'text-medium-text-secondary hover:text-medium-text-primary hover:',
   };
 
   return (

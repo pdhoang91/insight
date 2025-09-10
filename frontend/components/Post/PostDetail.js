@@ -123,7 +123,7 @@ export const PostDetail = ({ post }) => {
 
       {/* Comments Section */}
       {isCommentsOpen && (
-        <div className="mt-8 p-4 bg-medium-bg-secondary rounded-lg">
+        <div className="mt-8 p-4  rounded-lg">
           <p className="text-medium-text-muted text-body-small">Comments feature coming soon...</p>
         </div>
       )}

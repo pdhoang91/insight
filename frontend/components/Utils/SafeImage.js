@@ -101,7 +101,7 @@ const SafeImage = ({
   if (hasError) {
     return (
       <div 
-        className={`bg-medium-bg-secondary flex items-center justify-center ${className}`}
+        className={` flex items-center justify-center ${className}`}
         style={{ width: fill ? '100%' : width, height: fill ? '100%' : height }}
         {...props}
       >

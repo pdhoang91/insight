@@ -120,7 +120,7 @@ const ArticleReader = ({ post }) => {
                   <Link
                     key={index}
                     href={`/tag/${tag}`}
-                    className="px-3 py-1 bg-medium-bg-secondary text-medium-text-secondary hover:bg-medium-accent-green hover:text-white rounded-button text-sm transition-colors"
+                    className="px-3 py-1  text-medium-text-secondary hover:bg-medium-accent-green hover:text-white rounded-button text-sm transition-colors"
                   >
                     {tag}
                   </Link>
@@ -224,28 +224,28 @@ const ArticleReaderSkeleton = () => (
     <div className={`${themeClasses.layout.reading} animate-pulse`}>
       {/* Title skeleton */}
       <div className="mb-12">
-        <div className="h-12 bg-medium-bg-secondary rounded mb-4"></div>
-        <div className="h-8 bg-medium-bg-secondary rounded w-3/4 mb-8"></div>
+        <div className="h-12  rounded mb-4"></div>
+        <div className="h-8  rounded w-3/4 mb-8"></div>
         
         {/* Author skeleton */}
         <div className="flex items-center space-x-4 mb-8">
-          <div className="w-12 h-12 bg-medium-bg-secondary rounded-full"></div>
+          <div className="w-12 h-12  rounded-full"></div>
           <div>
-            <div className="h-4 bg-medium-bg-secondary rounded w-32 mb-2"></div>
-            <div className="h-3 bg-medium-bg-secondary rounded w-24"></div>
+            <div className="h-4  rounded w-32 mb-2"></div>
+            <div className="h-3  rounded w-24"></div>
           </div>
         </div>
         
         {/* Image skeleton */}
-        <div className="h-64 bg-medium-bg-secondary rounded-lg mb-12"></div>
+        <div className="h-64  rounded-lg mb-12"></div>
       </div>
       
       {/* Content skeleton */}
       <div className="space-y-4">
         {[...Array(8)].map((_, i) => (
-          <div key={i} className="h-4 bg-medium-bg-secondary rounded w-full"></div>
+          <div key={i} className="h-4  rounded w-full"></div>
         ))}
-        <div className="h-4 bg-medium-bg-secondary rounded w-2/3"></div>
+        <div className="h-4  rounded w-2/3"></div>
       </div>
     </div>
   </ArticleLayout>

@@ -130,7 +130,7 @@ export const ArchiveWidget = ({ archives = [], isLoading = false }) => {
             className={combineClasses(
               'flex items-center justify-between py-2 px-3 rounded-lg transition-colors',
               classes.text.secondary,
-              'hover:bg-medium-bg-secondary hover:text-medium-accent-green'
+              'hover: hover:text-medium-accent-green'
             )}
           >
             <span className="text-sm">

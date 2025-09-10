@@ -112,11 +112,11 @@ const AuthorInfoSkeleton = ({ variant = 'compact' }) => {
   if (variant === 'detailed') {
     return (
       <div className="flex items-start space-x-4 animate-pulse">
-        <div className="w-12 h-12 bg-medium-bg-secondary rounded-full"></div>
+        <div className="w-12 h-12  rounded-full"></div>
         <div className="flex-1">
-          <div className="h-4 bg-medium-bg-secondary rounded w-32 mb-2"></div>
-          <div className="h-3 bg-medium-bg-secondary rounded w-48 mb-3"></div>
-          <div className="h-3 bg-medium-bg-secondary rounded w-24"></div>
+          <div className="h-4  rounded w-32 mb-2"></div>
+          <div className="h-3  rounded w-48 mb-3"></div>
+          <div className="h-3  rounded w-24"></div>
         </div>
       </div>
     );
@@ -124,10 +124,10 @@ const AuthorInfoSkeleton = ({ variant = 'compact' }) => {
 
   return (
     <div className="flex items-center space-x-3 animate-pulse">
-      <div className="w-8 h-8 bg-medium-bg-secondary rounded-full"></div>
+      <div className="w-8 h-8  rounded-full"></div>
       <div className="flex-1">
-        <div className="h-4 bg-medium-bg-secondary rounded w-24 mb-1"></div>
-        <div className="h-3 bg-medium-bg-secondary rounded w-16"></div>
+        <div className="h-4  rounded w-24 mb-1"></div>
+        <div className="h-3  rounded w-16"></div>
       </div>
     </div>
   );

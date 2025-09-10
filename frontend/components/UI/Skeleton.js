@@ -54,7 +54,7 @@ const Skeleton = ({
   };
 
   const baseClasses = combineClasses(
-    'bg-medium-bg-secondary',
+    '',
     animation ? themeClasses.animations.skeleton : '',
     variants[variant] || variants.text,
     widths[width] || widths.full,

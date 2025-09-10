@@ -57,7 +57,7 @@ const MobileReadingBar = ({
             <button
               onClick={handleClapClick}
               disabled={clapLoading}
-              className="w-full flex items-center justify-between p-3 bg-medium-bg-secondary rounded-lg hover:bg-medium-divider transition-colors"
+              className="w-full flex items-center justify-between p-3  rounded-lg hover:bg-medium-hover transition-colors"
             >
               <div className="flex items-center space-x-3">
                 <FaHeart className={`w-5 h-5 text-medium-text-secondary ${clapLoading ? 'animate-pulse' : ''}`} />
@@ -69,7 +69,7 @@ const MobileReadingBar = ({
             {/* Comment Action */}
             <button
               onClick={handleCommentClick}
-              className="w-full flex items-center justify-between p-3 bg-medium-bg-secondary rounded-lg hover:bg-medium-divider transition-colors"
+              className="w-full flex items-center justify-between p-3  rounded-lg hover:bg-medium-hover transition-colors"
             >
               <div className="flex items-center space-x-3">
                 <FaComment className="w-5 h-5 text-medium-text-secondary" />
@@ -79,7 +79,7 @@ const MobileReadingBar = ({
             </button>
 
             {/* Bookmark Action */}
-            <div className="w-full flex items-center justify-between p-3 bg-medium-bg-secondary rounded-lg">
+            <div className="w-full flex items-center justify-between p-3  rounded-lg">
               <div className="flex items-center space-x-3">
                 <FaBookmark className="w-5 h-5 text-medium-text-secondary" />
                 <span className="text-medium-text-primary font-medium">Bookmark article</span>
@@ -97,7 +97,7 @@ const MobileReadingBar = ({
             <button
               onClick={handleClapClick}
               disabled={clapLoading}
-              className="flex items-center space-x-2 px-3 py-2 bg-medium-bg-secondary rounded-full hover:bg-medium-accent-green hover:text-white transition-colors"
+              className="flex items-center space-x-2 px-3 py-2  rounded-full hover:bg-medium-accent-green hover:text-white transition-colors"
             >
               <FaHeart className={`w-4 h-4 ${clapLoading ? 'animate-pulse' : ''}`} />
               <span className="font-medium">{currentClapCount}</span>
@@ -116,7 +116,7 @@ const MobileReadingBar = ({
             {/* Right: More Actions */}
             <button
               onClick={() => setShowActions(!showActions)}
-              className="flex items-center space-x-1 px-3 py-2 bg-medium-bg-secondary rounded-full hover:bg-medium-divider transition-colors"
+              className="flex items-center space-x-1 px-3 py-2  rounded-full hover:bg-medium-hover transition-colors"
             >
               <FaChevronUp className={`w-4 h-4 transition-transform ${showActions ? 'rotate-180' : ''}`} />
               <span className="text-sm">More</span>

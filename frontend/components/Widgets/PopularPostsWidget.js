@@ -147,7 +147,7 @@ const PopularPostsWidget = ({
             Popular Posts
           </h3>
         </div>
-        <span className="text-xs text-medium-text-muted bg-medium-bg-secondary px-2 py-1 rounded">
+        <span className="text-xs text-medium-text-muted  px-2 py-1 rounded">
           {getTimeframeLabel()}
         </span>
       </div>

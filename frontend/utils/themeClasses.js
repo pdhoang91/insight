@@ -5,7 +5,7 @@ export const themeClasses = {
   // Background colors
   bg: {
     primary: 'bg-medium-bg-primary',
-    secondary: 'bg-medium-bg-secondary', 
+    secondary: '', 
     card: '',
     accent: 'bg-medium-accent-green',
     accentHover: 'hover:bg-medium-accent-green',
@@ -123,8 +123,8 @@ export const themeClasses = {
     
     // Button color variants
     buttonPrimary: 'bg-medium-accent-green text-white hover:bg-medium-accent-green/90 focus-visible:ring-medium-accent-green shadow-sm hover:shadow-md',
-    buttonSecondary: 'bg-medium-bg-secondary text-medium-text-primary hover:bg-medium-hover border border-medium-border focus-visible:ring-medium-accent-green',
-    buttonGhost: 'text-medium-text-secondary hover:text-medium-accent-green hover:bg-medium-bg-secondary focus-visible:ring-medium-accent-green',
+    buttonSecondary: ' text-medium-text-primary hover:bg-medium-hover border border-medium-border focus-visible:ring-medium-accent-green',
+    buttonGhost: 'text-medium-text-secondary hover:text-medium-accent-green hover: focus-visible:ring-medium-accent-green',
     buttonDanger: 'bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-600 shadow-sm hover:shadow-md',
     
     // Input styles with consistent sizing
@@ -149,9 +149,9 @@ export const themeClasses = {
     loadingState: 'bg-medium-bg-primary flex items-center justify-center',
     errorState: 'bg-medium-bg-primary text-center',
     emptyState: 'bg-medium-bg-primary text-center py-12',
-    skeleton: 'bg-medium-bg-secondary animate-pulse',
-    avatar: 'bg-medium-bg-secondary border-medium-border rounded-full flex items-center justify-center',
-    tag: 'bg-medium-bg-secondary text-medium-text-secondary px-3 py-1 rounded-full text-sm',
+    skeleton: ' animate-pulse',
+    avatar: ' border-medium-border rounded-full flex items-center justify-center',
+    tag: ' text-medium-text-secondary px-3 py-1 rounded-full text-sm',
   },
   
   // Standardized Icons - Updated for consistency

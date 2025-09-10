@@ -63,7 +63,7 @@ export const Skeleton = ({
 
   return (
     <div 
-      className={`bg-medium-bg-secondary ${variants[variant]} ${animateClass} ${className}`}
+      className={`${variants[variant]} ${animateClass} ${className}`}
       style={{ width, height }}
       aria-hidden="true"
     />

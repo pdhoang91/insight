@@ -84,7 +84,7 @@ const BookmarkButton = ({
           inline-flex items-center space-x-2 px-3 py-2 rounded-button
           ${isBookmarked 
             ? 'bg-medium-accent-green text-white hover:bg-medium-accent-green/90' 
-            : 'bg-medium-bg-secondary text-medium-text-secondary hover:bg-medium-hover'
+            : ' text-medium-text-secondary hover:bg-medium-hover'
           }
           transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed
           ${className}
@@ -267,8 +267,8 @@ export const BookmarksList = ({ className = '' }) => {
       <div className={`space-y-4 ${className}`}>
         {[...Array(3)].map((_, i) => (
           <div key={i} className="animate-pulse">
-            <div className="h-4 bg-medium-bg-secondary rounded w-3/4 mb-2"></div>
-            <div className="h-3 bg-medium-bg-secondary rounded w-1/2"></div>
+            <div className="h-4  rounded w-3/4 mb-2"></div>
+            <div className="h-3  rounded w-1/2"></div>
           </div>
         ))}
       </div>

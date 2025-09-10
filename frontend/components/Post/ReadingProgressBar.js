@@ -60,7 +60,7 @@ const ReadingProgressBar = ({ contentRef, className = '' }) => {
       <div className={`fixed top-16 left-0 right-0 z-40 transition-opacity duration-300 ${
         isVisible ? 'opacity-100' : 'opacity-0'
       } ${className}`}>
-        <div className="h-1 bg-medium-bg-secondary">
+        <div className="h-1 ">
           <div 
             className="h-full bg-medium-accent-green transition-all duration-150 ease-out"
             style={{ width: `${progress}%` }}

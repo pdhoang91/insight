@@ -293,7 +293,7 @@ const Navbar = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className={`md:hidden ${classes.bg.card} backdrop-blur-md rounded-b-lg shadow-lg`}
+            className={`md:hidden backdrop-blur-md rounded-b-lg shadow-lg`}
           >
             <div className="px-6 py-4 space-y-4">
               {/* Mobile Search */}

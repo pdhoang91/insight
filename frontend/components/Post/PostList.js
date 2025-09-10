@@ -51,19 +51,19 @@ const PostList = ({
     return (
       <div className={`space-y-8 ${className}`}>
         {[...Array(3)].map((_, index) => (
-          <div key={index} className="animate-pulse bg-medium-bg-secondary h-48 rounded-card p-6">
+          <div key={index} className="animate-pulse  h-48 rounded-card p-6">
             <div className="flex flex-col lg:flex-row lg:items-start gap-6">
               <div className="flex-1 space-y-4">
-                <div className="h-6 bg-medium-bg-secondary rounded w-3/4"></div>
-                <div className="h-4 bg-medium-bg-secondary rounded w-full"></div>
-                <div className="h-4 bg-medium-bg-secondary rounded w-5/6"></div>
+                <div className="h-6  rounded w-3/4"></div>
+                <div className="h-4  rounded w-full"></div>
+                <div className="h-4  rounded w-5/6"></div>
                 <div className="flex items-center space-x-4 mt-4">
-                  <div className="h-3 bg-medium-bg-secondary rounded w-16"></div>
-                  <div className="h-3 bg-medium-bg-secondary rounded w-12"></div>
-                  <div className="h-3 bg-medium-bg-secondary rounded w-12"></div>
+                  <div className="h-3  rounded w-16"></div>
+                  <div className="h-3  rounded w-12"></div>
+                  <div className="h-3  rounded w-12"></div>
                 </div>
               </div>
-              <div className="w-full lg:w-80 h-40 bg-medium-bg-secondary rounded-medium"></div>
+              <div className="w-full lg:w-80 h-40  rounded-medium"></div>
             </div>
           </div>
         ))}
@@ -102,19 +102,19 @@ const PostList = ({
         loader={
           <div className="space-y-8 mt-8">
             {[...Array(2)].map((_, index) => (
-              <div key={`loading-${index}`} className="animate-pulse bg-medium-bg-secondary h-48 rounded-card p-6">
+              <div key={`loading-${index}`} className="animate-pulse  h-48 rounded-card p-6">
                 <div className="flex flex-col lg:flex-row lg:items-start gap-6">
                   <div className="flex-1 space-y-4">
-                    <div className="h-6 bg-medium-bg-secondary rounded w-3/4"></div>
-                    <div className="h-4 bg-medium-bg-secondary rounded w-full"></div>
-                    <div className="h-4 bg-medium-bg-secondary rounded w-5/6"></div>
+                    <div className="h-6  rounded w-3/4"></div>
+                    <div className="h-4  rounded w-full"></div>
+                    <div className="h-4  rounded w-5/6"></div>
                     <div className="flex items-center space-x-4 mt-4">
-                      <div className="h-3 bg-medium-bg-secondary rounded w-16"></div>
-                      <div className="h-3 bg-medium-bg-secondary rounded w-12"></div>
-                      <div className="h-3 bg-medium-bg-secondary rounded w-12"></div>
+                      <div className="h-3  rounded w-16"></div>
+                      <div className="h-3  rounded w-12"></div>
+                      <div className="h-3  rounded w-12"></div>
                     </div>
                   </div>
-                  <div className="w-full lg:w-80 h-40 bg-medium-bg-secondary rounded-medium"></div>
+                  <div className="w-full lg:w-80 h-40  rounded-medium"></div>
                 </div>
               </div>
             ))}

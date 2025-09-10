@@ -293,7 +293,7 @@ export const HighlightsManager = ({ articleId, className = '' }) => {
       
       <div className="space-y-3">
         {highlights.map(highlight => (
-            <div key={highlight.id} className="p-3 bg-medium-bg-secondary rounded-lg">
+            <div key={highlight.id} className="p-3  rounded-lg">
             <p className="text-sm text-medium-text-primary mb-2 line-clamp-3">
               "{highlight.text}"
             </p>

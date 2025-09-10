@@ -93,7 +93,7 @@ const ArchiveWidget = ({ posts = [], className = '' }) => {
                     {year}
                   </span>
                 </div>
-                <span className="text-xs bg-medium-bg-secondary px-2 py-1 rounded-full text-medium-text-muted">
+                <span className="text-xs  px-2 py-1 rounded-full text-medium-text-muted">
                   {totalYearPosts}
                 </span>
               </button>
@@ -112,7 +112,7 @@ const ArchiveWidget = ({ posts = [], className = '' }) => {
                         <Link
                           key={month}
                           href={`/archive/${year}/${monthInt + 1}`}
-                          className="flex items-center justify-between py-1 px-2 rounded hover:bg-medium-bg-secondary transition-colors group"
+                          className="flex items-center justify-between py-1 px-2 rounded hover: transition-colors group"
                         >
                           <span className="text-sm text-medium-text-secondary group-hover:text-medium-accent-green">
                             {monthName}
