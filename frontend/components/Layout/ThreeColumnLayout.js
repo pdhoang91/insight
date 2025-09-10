@@ -24,11 +24,11 @@ const ThreeColumnLayout = ({
                 <div className="lg:sticky lg:top-24">
                   <div className="lg:hidden mb-6">
                     {/* Mobile: Collapsed sidebar */}
-                    <details className="bg-medium-bg-card border border-medium-border rounded-card">
+                    <details className="bg-medium-bg-card rounded-card shadow-sm">
                       <summary className="p-4 cursor-pointer font-serif font-bold text-medium-text-primary">
                         Sidebar Content
                       </summary>
-                      <div className="p-4 border-t border-medium-border">
+                      <div className="p-4">
                         {leftSidebar}
                       </div>
                     </details>
@@ -47,7 +47,7 @@ const ThreeColumnLayout = ({
                 {/* Mobile TOC - Only show on mobile/tablet */}
                 {showTOC && content && (
                   <div className="lg:hidden">
-                    <div className="bg-medium-bg-card border border-medium-border rounded-card p-4">
+                    <div className="bg-medium-bg-card rounded-card p-4 shadow-sm">
                       <h3 className="font-serif font-bold text-medium-text-primary mb-md">
                         Table of Contents
                       </h3>
@@ -67,7 +67,7 @@ const ThreeColumnLayout = ({
                 <div className="lg:sticky lg:top-24 space-y-6 max-h-[calc(100vh-6rem)] overflow-y-auto">
                   {/* Desktop TOC */}
                   {showTOC && content && (
-                    <div className="hidden lg:block bg-medium-bg-card border border-medium-border rounded-card p-4">
+                    <div className="hidden lg:block bg-medium-bg-card rounded-card p-4 shadow-sm">
                       <h3 className="font-serif font-bold text-medium-text-primary mb-md">
                         Table of Contents
                       </h3>

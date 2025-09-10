@@ -258,8 +258,8 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
                   editor.chain().focus().toggleHeading({ level }).run();
 
                 }}
-                className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 
-                  ${editor.isActive('heading', { level }) ? 'bg-blue-100' : ''}`}
+                className={`w-full text-left px-4 py-2 text-sm hover:bg-medium-hover 
+                  ${editor.isActive('heading', { level }) ? 'bg-medium-accent-green/20' : ''}`}
               >
                 Tiêu đề {level}
               </button>

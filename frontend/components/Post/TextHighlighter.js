@@ -174,7 +174,7 @@ const ToolbarButton = ({ icon, onClick, tooltip }) => {
   return (
     <button
       onClick={onClick}
-      className="p-2 hover:bg-white/20 rounded transition-colors"
+      className="p-2 hover:bg-medium-hover rounded transition-colors"
       title={tooltip}
       aria-label={tooltip}
     >

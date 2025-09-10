@@ -107,7 +107,7 @@ const PopularPostsWidget = ({
 
   if (isLoading) {
     return (
-      <div className={`bg-medium-bg-card rounded-lg p-6 border border-medium-border ${className}`}>
+      <div className={`bg-medium-bg-card rounded-lg p-6 shadow-sm ${className}`}>
         <div className="flex items-center space-x-2 mb-4">
           <div className="w-4 h-4 bg-medium-divider rounded animate-pulse"></div>
           <div className="h-5 bg-medium-divider rounded w-32 animate-pulse"></div>
@@ -123,7 +123,7 @@ const PopularPostsWidget = ({
 
   if (!popularPosts || popularPosts.length === 0) {
     return (
-      <div className={`bg-medium-bg-card rounded-lg p-6 border border-medium-border ${className}`}>
+      <div className={`bg-medium-bg-card rounded-lg p-6 shadow-sm ${className}`}>
         <div className="flex items-center space-x-2 mb-4">
           <FaFire className="w-4 h-4 text-medium-accent-green" />
           <h3 className="font-serif font-bold text-medium-text-primary">
@@ -138,7 +138,7 @@ const PopularPostsWidget = ({
   }
 
   return (
-    <div className={`bg-medium-bg-card rounded-lg p-6 border border-medium-border ${className}`}>
+    <div className={`bg-medium-bg-card rounded-lg p-6 shadow-sm ${className}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">

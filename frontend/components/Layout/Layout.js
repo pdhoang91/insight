@@ -86,7 +86,7 @@ const MobileSidebarContent = ({ sidebar }) => {
         onClick={() => setIsExpanded(!isExpanded)}
         className={combineClasses(
           'w-full flex items-center justify-between',
-          'p-4 bg-medium-bg-card border border-medium-border rounded-card',
+          'p-4 bg-medium-bg-card rounded-card shadow-sm',
           'text-medium-text-primary hover:bg-medium-hover',
           'transition-all duration-200 min-h-[44px]', // Touch-friendly height
           'focus:ring-2 focus:ring-medium-accent-green focus:outline-none'

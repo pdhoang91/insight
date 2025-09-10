@@ -192,10 +192,10 @@ const Navbar = () => {
                       initial={{ opacity: 0, scale: 0.95, y: -10 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                      className={`absolute right-0 mt-2 w-64 ${classes.card} shadow-lg border ${classes.border.primary} overflow-hidden`}
+                      className={`absolute right-0 mt-2 w-64 ${classes.bg.card} shadow-lg rounded-lg overflow-hidden backdrop-blur-md`}
                     >
                       {/* User Info */}
-                      <div className={`px-4 py-3 border-b ${classes.border.primary}`}>
+                      <div className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           {user.avatar_url ? (
                             <img
@@ -223,7 +223,7 @@ const Navbar = () => {
                       <div className="py-2">
                         <Link
                           href={`/${user.username}`}
-                          className={`flex items-center px-4 py-2 text-sm ${classes.text.secondary} hover:${classes.bg.secondary} hover:${classes.text.primary} transition-colors`}
+                          className={`flex items-center px-4 py-2 text-sm ${classes.text.secondary} hover:bg-medium-hover hover:${classes.text.primary} transition-colors rounded-md mx-2`}
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           <FaUser className="w-4 h-4 mr-3" />
@@ -232,15 +232,15 @@ const Navbar = () => {
                       </div>
 
                       {/* Theme Toggle */}
-                      <div className={`px-4 py-3 border-t ${classes.border.primary}`}>
+                      <div className="px-4 py-3">
                         <ThemeToggle />
                       </div>
 
                       {/* Logout */}
-                      <div className={`border-t ${classes.border.primary}`}>
+                      <div>
                         <button
                           onClick={handleLogout}
-                          className={`w-full flex items-center px-4 py-3 text-sm ${classes.text.secondary} hover:${classes.bg.secondary} hover:${classes.text.primary} transition-colors`}
+                          className={`w-full flex items-center px-4 py-3 text-sm ${classes.text.secondary} hover:bg-medium-hover hover:${classes.text.primary} transition-colors rounded-md mx-2`}
                         >
                           <FaSignOutAlt className="w-4 h-4 mr-3" />
                           Sign out
@@ -293,7 +293,7 @@ const Navbar = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className={`md:hidden ${classes.card} border-t ${classes.border.primary}`}
+            className={`md:hidden ${classes.bg.card} backdrop-blur-md rounded-b-lg shadow-lg`}
           >
             <div className="px-6 py-4 space-y-4">
               {/* Mobile Search */}

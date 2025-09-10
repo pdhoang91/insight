@@ -135,9 +135,9 @@ export const themeClasses = {
     input: 'bg-medium-bg-card border-medium-border text-medium-text-primary placeholder-medium-text-muted',
     
     // Card interactions with hover states
-    cardBase: 'bg-medium-bg-card border border-medium-border rounded-lg transition-all duration-200',
-    cardHover: 'hover:border-medium-accent-green/40 hover:shadow-md hover:-translate-y-0.5',
-    cardClickable: 'cursor-pointer hover:border-medium-accent-green/60 hover:shadow-lg hover:-translate-y-1 active:scale-[0.98]',
+    cardBase: 'bg-medium-bg-card rounded-lg shadow-sm transition-all duration-200',
+    cardHover: 'hover:shadow-md hover:-translate-y-0.5',
+    cardClickable: 'cursor-pointer hover:shadow-lg hover:-translate-y-1 active:scale-[0.98]',
     
     // Link styles
     link: 'text-medium-accent-green hover:text-medium-accent-green/80 transition-colors duration-200',
