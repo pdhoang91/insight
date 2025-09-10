@@ -105,7 +105,7 @@ export const SkeletonCard = ({ className = '', showImage = true, showMeta = true
 
 export const SkeletonPost = ({ className = '', ...props }) => (
   <div className={combineClasses('animate-slide-up', className)} {...props}>
-    <div className="p-card  rounded-card border border-medium-border">
+    <div className="p-card bg-medium-bg-card border-b border-medium-border pb-6 mb-6">
       <div className="flex flex-col lg:flex-row gap-4">
         {/* Main content */}
         <div className="flex-1 space-y-4">

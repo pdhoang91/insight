@@ -3,7 +3,6 @@ import React from 'react';
 import Link from 'next/link';
 import TextUtils from '../Utils/TextUtils';
 import TimeAgo from '../Utils/TimeAgo';
-import { motion } from 'framer-motion';
 import { FaChevronRight } from 'react-icons/fa';
 import { themeClasses, componentClasses } from '../../utils/themeClasses';
 
@@ -13,14 +12,10 @@ const PostItemSmall = ({ post }) => {
   }
 
   return (
-    <motion.article
-      className={`${componentClasses.card.hover} cursor-pointer mb-6`}
-      whileHover={{ scale: 1.02 }}
-      transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-    >
+    <article className="bg-medium-bg-card pb-4 mb-6">
       <div className={`${themeClasses.responsive.flexTabletRow} items-start ${themeClasses.spacing.gap}`}>
         {/* Content */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 border-b border-medium-border pb-3">
           <Link href={`/p/${post.title_name}`} className={`block ${themeClasses.spacing.marginBottomSmall}`}>
             <h3 className={`${componentClasses.heading.h4} ${themeClasses.interactive.link} line-clamp-2 text-balance`}>
               {post.title}
@@ -39,7 +34,7 @@ const PostItemSmall = ({ post }) => {
           <FaChevronRight className={`${themeClasses.icons.sm} text-medium-accent-blue`} />
         </div>
       </div>
-    </motion.article>
+    </article>
   );
 };
 

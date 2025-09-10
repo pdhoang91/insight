@@ -4,7 +4,7 @@ import React from 'react';
 const PostSkeleton = ({ variant = 'card' }) => {
   if (variant === 'enhanced') {
     return (
-      <div className="bg-medium-bg-card bg-medium-bg-secondary rounded-2xl shadow-sm overflow-hidden animate-pulse">
+      <div className="bg-medium-bg-card border-b border-medium-border pb-8 mb-8 overflow-hidden animate-pulse">
         {/* Image skeleton */}
         <div className="h-56 bg-medium-bg-secondary"></div>
         <div className="p-6">
@@ -55,7 +55,7 @@ const PostSkeleton = ({ variant = 'card' }) => {
 
   if (variant === 'compact') {
     return (
-      <div className="bg-medium-bg-card bg-medium-bg-secondary rounded-lg overflow-hidden animate-pulse shadow-sm">
+      <div className="bg-medium-bg-card bg-medium-bg-secondary rounded-lg overflow-hidden animate-pulse border-b border-medium-border pb-6 mb-6">
         <div className="flex">
           <div className="w-20 h-20 "></div>
           <div className="flex-1 p-3">
@@ -85,7 +85,7 @@ const PostSkeleton = ({ variant = 'card' }) => {
 
   if (variant === 'list') {
     return (
-      <div className="bg-medium-bg-card bg-medium-bg-secondary rounded-lg shadow-sm overflow-hidden animate-pulse p-6">
+      <div className="bg-medium-bg-card bg-medium-bg-secondary rounded-lg border-b border-medium-border pb-6 mb-6 overflow-hidden animate-pulse p-6">
         <div className="flex space-x-4">
           <div className="flex-1">
             <div className="h-4  bg-medium-bg-secondary rounded w-3/4 mb-3"></div>
@@ -111,7 +111,7 @@ const PostSkeleton = ({ variant = 'card' }) => {
 
   if (variant === 'timeline') {
     return (
-      <div className="bg-medium-bg-card bg-medium-bg-secondary rounded-lg shadow-sm overflow-hidden animate-pulse p-6">
+      <div className="bg-medium-bg-card bg-medium-bg-secondary rounded-lg border-b border-medium-border pb-6 mb-6 overflow-hidden animate-pulse p-6">
         <div className="flex space-x-4">
           <div className="flex-shrink-0">
             <div className="w-12 h-12  bg-medium-bg-secondary rounded-full"></div>
@@ -140,7 +140,7 @@ const PostSkeleton = ({ variant = 'card' }) => {
 
   // Default card skeleton
   return (
-    <div className="bg-medium-bg-card bg-medium-bg-secondary rounded-xl shadow-sm overflow-hidden animate-pulse">
+    <div className="bg-medium-bg-card bg-medium-bg-secondary rounded-xl border-b border-medium-border pb-6 mb-6 overflow-hidden animate-pulse">
       <div className="h-48 "></div>
       <div className="p-6">
         <div className="h-4  bg-medium-bg-secondary rounded w-3/4 mb-3"></div>

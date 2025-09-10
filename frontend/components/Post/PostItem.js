@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { FaEye, FaComment } from 'react-icons/fa';
 import { FaHandsClapping } from "react-icons/fa6";
 import { AddCommentForm, LimitedCommentList } from '../Comment';
-import Rating from './Rating';
 import TextUtils from '../Utils/TextUtils';
 import { useUser } from '../../context/UserContext';
 import { useTheme } from '../../context/ThemeContext';
@@ -53,7 +52,7 @@ const PostItem = ({ post }) => {
 
 
   return (
-    <article className={componentClasses.card.float}>
+    <article className="bg-medium-bg-card pb-8 mb-8">
       <div className={`${themeClasses.responsive.flexDesktopRow} ${themeClasses.spacing.gap} items-start`}>
         {/* Image Section - First on mobile, second on desktop */}
         {post.image_title && (
@@ -63,7 +62,7 @@ const PostItem = ({ post }) => {
                 <img
                   src={post.image_title}
                   alt={post.title}
-                  className="w-full h-48 lg:h-40 object-cover transition-transform duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) hover:scale-105"
+                  className="w-full h-48 lg:h-40 object-cover"
                   loading="lazy"
                 />
               </div>
@@ -72,7 +71,7 @@ const PostItem = ({ post }) => {
         )}
 
         {/* Main Content Section - Second on mobile, first on desktop */}
-        <div className="flex-1 min-w-0 order-2 lg:order-1">
+        <div className="flex-1 min-w-0 order-2 lg:order-1 border-b border-medium-border pb-4">
           {/* Post Title */}
           <Link href={`/p/${post.title_name}`} className={`block ${themeClasses.spacing.marginBottom}`}>
             <h2 className={`${componentClasses.heading.h3} ${themeClasses.interactive.link} line-clamp-2 text-balance`}>
@@ -104,24 +103,24 @@ const PostItem = ({ post }) => {
               <button
                 onClick={handleClap}
                 disabled={clapsLoading}
-                className={`${themeClasses.interactive.touchTarget} gap-sm text-medium-text-secondary hover:text-medium-accent-green transition-all duration-200 group`}
+                className={`${themeClasses.interactive.touchTarget} gap-sm text-medium-text-secondary group`}
                 aria-label={`Clap for this post. Current claps: ${clapsCount}`}
                 role="button"
                 tabIndex={0}
               >
-                <FaHandsClapping className={`${themeClasses.icons.buttonSm} group-hover:scale-110`} />
+                <FaHandsClapping className={`${themeClasses.icons.buttonSm}`} />
                 <span className="font-medium text-body-small">{clapsCount}</span>
               </button>
 
               {/* Comment Button */}
               <button
                 onClick={toggleCommentPopup}
-                className={`${themeClasses.interactive.touchTarget} gap-sm text-medium-text-secondary hover:text-medium-accent-green transition-all duration-200 group`}
+                className={`${themeClasses.interactive.touchTarget} gap-sm text-medium-text-secondary group`}
                 aria-label={`View comments. ${totalCount || 0} comments`}
                 role="button"
                 tabIndex={0}
               >
-                <FaComment className={`${themeClasses.icons.buttonSm} group-hover:scale-110`} />
+                <FaComment className={`${themeClasses.icons.buttonSm}`} />
                 <span className="font-medium text-body-small">{totalCount || 0}</span>
               </button>
 

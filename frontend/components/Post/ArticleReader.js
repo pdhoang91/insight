@@ -89,7 +89,7 @@ const ArticleReader = ({ post }) => {
               <img
                 src={post.image_title}
                 alt={post.title}
-                className="w-full h-auto sm:rounded-lg shadow-medium"
+                className="w-full h-auto sm:rounded-lg border border-medium-border"
               />
               {post.image_caption && (
                 <p className="text-center text-sm text-medium-text-muted mt-3 sm:mt-4 italic px-4 sm:px-0">

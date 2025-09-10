@@ -3,7 +3,6 @@ import React from 'react';
 import { useUser } from '../../context/UserContext';
 import { FaHandsClapping } from "react-icons/fa6";
 import { FaEye, FaComment } from 'react-icons/fa';
-import Rating from './Rating';
 import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapPost } from '../../services/activityService';
 import { useComments } from '../../hooks/useComments';
@@ -65,7 +64,7 @@ export const PostDetail = ({ post }) => {
           <img
             src={post.image_title}
             alt={post.title}
-            className="w-full h-auto max-h-96 object-cover rounded-lg shadow-card"
+            className="w-full h-auto max-h-96 object-cover rounded-lg border border-medium-border"
             loading="eager"
           />
         </div>
@@ -89,21 +88,21 @@ export const PostDetail = ({ post }) => {
               className={`flex items-center space-x-2 transition-all duration-200 group ${
                 hasClapped 
                   ? 'text-medium-accent-green' 
-                  : 'text-medium-text-secondary hover:text-medium-accent-green'
+                  : 'text-medium-text-secondary'
               }`}
               aria-label="Clap for this post"
             >
-              <FaHandsClapping className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <FaHandsClapping className="w-5 h-5" />
               <span className="font-medium text-body-small">{postClapsCount}</span>
             </button>
 
             {/* Comments */}
             <button 
               onClick={toggleCommentPopup} 
-              className="flex items-center space-x-2 text-medium-text-secondary hover:text-medium-accent-green transition-all duration-200 group"
+              className="flex items-center space-x-2 text-medium-text-secondary group"
               aria-label="View comments"
             >
-              <FaComment className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              <FaComment className="w-5 h-5" />
               <span className="font-medium text-body-small">{totalCommentReply || 0}</span>
             </button>
           </div>
@@ -116,10 +115,6 @@ export const PostDetail = ({ post }) => {
         </div>
       </footer>
 
-      {/* Rating */}
-      <div className="mt-6">
-        <Rating postId={post.id} userId={user ? user.id : null} />
-      </div>
 
       {/* Comments Section */}
       {isCommentsOpen && (

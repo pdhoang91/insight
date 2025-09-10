@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { FaEye, FaEdit, FaTrash } from 'react-icons/fa';
 import { FaHandsClapping, FaRegComments } from "react-icons/fa6";
 // import CommentsPopup from '../Comment/CommentsPopup'; // Removed - using inline comments
-import Rating from './Rating';
 import TextUtils from '../Utils/TextUtils';
 import { useUser } from '../../context/UserContext';
 import { useClapsCount } from '../../hooks/useClapsCount';
@@ -74,7 +73,7 @@ const PostItemProfile = ({ post, isOwner }) => {
   };
 
   return (
-    <article className={componentClasses.card.hover}>
+    <article className="bg-medium-bg-card pb-8 mb-8">
       <div className={`${themeClasses.responsive.flexDesktopRow} ${themeClasses.spacing.gap} items-start`}>
         {/* Image Section - First on mobile, second on desktop */}
         {post.image_title && (
@@ -84,7 +83,7 @@ const PostItemProfile = ({ post, isOwner }) => {
                 <img
                   src={post.image_title}
                   alt={post.title}
-                  className="w-full h-48 lg:h-40 object-cover transition-transform duration-200 hover:scale-105"
+                  className="w-full h-48 lg:h-40 object-cover"
                   loading="lazy"
                 />
               </div>
@@ -93,7 +92,7 @@ const PostItemProfile = ({ post, isOwner }) => {
         )}
 
         {/* Main Content Section - Second on mobile, first on desktop */}
-        <div className="flex-1 min-w-0 order-2 lg:order-1">
+        <div className="flex-1 min-w-0 order-2 lg:order-1 border-b border-medium-border pb-4">
 
           {/* Post Title */}
           <Link href={`/p/${post.title_name}`} className={`block ${themeClasses.spacing.marginBottom}`}>
@@ -109,10 +108,6 @@ const PostItemProfile = ({ post, isOwner }) => {
             </p>
           </div>
 
-          {/* Rating Component */}
-          <div className={themeClasses.spacing.marginBottom}>
-            <Rating postId={post.id} />
-          </div>
 
           {/* Meta Information & Actions */}
           <div className={`${themeClasses.responsive.flexTabletRow} items-center justify-between ${themeClasses.spacing.gap}`}>
@@ -136,7 +131,7 @@ const PostItemProfile = ({ post, isOwner }) => {
                 role="button"
                 tabIndex={0}
               >
-                <FaHandsClapping className={`${themeClasses.icons.buttonSm} group-hover:scale-110`} />
+                <FaHandsClapping className={`${themeClasses.icons.buttonSm}`} />
                 <span className={componentClasses.text.labelSmall}>{clapsCount}</span>
               </button>
 
@@ -148,7 +143,7 @@ const PostItemProfile = ({ post, isOwner }) => {
                 role="button"
                 tabIndex={0}
               >
-                <FaComment className={`${themeClasses.icons.buttonSm} group-hover:scale-110`} />
+                <FaComment className={`${themeClasses.icons.buttonSm}`} />
                 <span className={componentClasses.text.labelSmall}>{totalCommentReply || 0}</span>
               </button>
 
