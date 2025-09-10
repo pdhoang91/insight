@@ -9,7 +9,7 @@ const Card = ({
   className = '',
   ...props 
 }) => {
-  const baseClasses = 'transition-all duration-200';
+  const baseClasses = 'transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1)';
 
   const variants = {
     default: 'rounded-card shadow-card',
@@ -26,7 +26,7 @@ const Card = ({
     xl: 'p-12',
   };
 
-  const hoverClasses = hover ? 'hover:shadow-card-hover hover:-translate-y-0.5' : '';
+  const hoverClasses = hover ? 'hover:shadow-[0_8px_25px_rgba(0,0,0,0.15),0_3px_6px_rgba(0,0,0,0.10)] hover:-translate-y-1 transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1)' : '';
 
   const cardClasses = [
     baseClasses,

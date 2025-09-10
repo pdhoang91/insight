@@ -170,9 +170,12 @@ export const themeClasses = {
     accent: 'text-medium-accent-green',
     interactive: 'text-medium-text-secondary hover:text-medium-accent-green transition-colors duration-200',
     
-    // Interactive States
+    // Enhanced Interactive States
     button: 'transition-all duration-200 group-hover:scale-110',
     clickable: 'cursor-pointer hover:text-medium-accent-green transition-colors duration-200',
+    float: 'cursor-pointer transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1)',
+    pulse: 'cursor-pointer transition-all duration-200',
+    magnetic: 'cursor-pointer transition-all duration-300 cubic-bezier(0.68, -0.55, 0.265, 1.55)',
     
     // Combined Size + Color Utilities
     buttonSm: 'w-4 h-4 text-medium-text-secondary hover:text-medium-accent-green transition-colors duration-200',
@@ -249,13 +252,36 @@ export const themeClasses = {
     sidebarWidthLarge: 'w-full lg:w-80 xl:w-72 2xl:w-64 lg:flex-shrink-0',
   },
 
-  // Shadows and effects
+  // Enhanced shadows and effects with layered system
   effects: {
+    // Basic shadows
     shadow: 'shadow-sm',
     shadowLarge: 'shadow-lg',
+    
+    // Layered shadow system
+    shadowLayered: 'shadow-[0_1px_3px_rgba(0,0,0,0.12),0_1px_2px_rgba(0,0,0,0.24)]',
+    shadowLayeredMd: 'shadow-[0_3px_6px_rgba(0,0,0,0.15),0_2px_4px_rgba(0,0,0,0.12)]',
+    shadowLayeredLg: 'shadow-[0_10px_20px_rgba(0,0,0,0.15),0_3px_6px_rgba(0,0,0,0.10)]',
+    shadowLayeredXl: 'shadow-[0_15px_35px_rgba(0,0,0,0.1),0_5px_15px_rgba(0,0,0,0.07)]',
+    
+    // Hover shadow progressions
+    shadowHoverSoft: 'hover:shadow-[0_4px_12px_rgba(0,0,0,0.15),0_2px_4px_rgba(0,0,0,0.12)]',
+    shadowHoverMedium: 'hover:shadow-[0_8px_25px_rgba(0,0,0,0.15),0_3px_6px_rgba(0,0,0,0.10)]',
+    shadowHoverStrong: 'hover:shadow-[0_20px_40px_rgba(0,0,0,0.15),0_5px_10px_rgba(0,0,0,0.10)]',
+    
+    // Colored shadows for accent elements
+    shadowAccent: 'shadow-[0_4px_14px_0_rgba(26,137,23,0.15)]',
+    shadowAccentHover: 'hover:shadow-[0_8px_25px_0_rgba(26,137,23,0.25)]',
+    
+    // Border radius
     rounded: 'rounded-lg',
     roundedFull: 'rounded-full',
+    roundedDynamic: 'rounded-lg hover:rounded-xl transition-all duration-300',
+    
+    // Effects
     blur: 'backdrop-blur-md',
+    glow: 'shadow-[0_0_20px_rgba(26,137,23,0.3)]',
+    glowSubtle: 'shadow-[0_0_10px_rgba(26,137,23,0.15)]',
   },
 
   // Advanced animations and micro-interactions
@@ -273,6 +299,13 @@ export const themeClasses = {
     tapScale: 'active:animate-tap-scale',
     focusRing: 'focus:animate-focus-ring',
     
+    // Enhanced Micro-interactions
+    microBounce: 'hover:animate-micro-bounce',
+    gentleFloat: 'hover:animate-gentle-float',
+    subtlePulse: 'hover:animate-subtle-pulse',
+    magneticPull: 'hover:animate-magnetic-pull',
+    springScale: 'hover:animate-spring-scale',
+    
     // Feedback animations
     bounceSubtle: 'animate-bounce-subtle',
     shake: 'animate-shake',
@@ -284,34 +317,45 @@ export const themeClasses = {
     spinSlow: 'animate-spin-slow',
     pingSlow: 'animate-ping-slow',
     
-    // Smooth transitions
+    // Smooth transitions with spring physics
     smooth: 'transition-all duration-200 ease-out',
     smoothSlow: 'transition-all duration-300 ease-out',
     smoothFast: 'transition-all duration-150 ease-out',
+    spring: 'transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1)',
+    springFast: 'transition-all duration-200 cubic-bezier(0.34, 1.56, 0.64, 1)',
+    elastic: 'transition-all duration-400 cubic-bezier(0.68, -0.55, 0.265, 1.55)',
   },
 
-  // Interaction states with animations
+  // Enhanced interaction states with micro-animations
   interactions: {
-    // Card interactions
-    cardHover: 'hover:shadow-card-hover hover:-translate-y-1 transition-all duration-200',
-    cardPress: 'active:scale-[0.98] transition-transform duration-100',
+    // Card interactions with layered effects
+    cardHover: 'hover:shadow-[0_8px_25px_rgba(0,0,0,0.15),0_3px_6px_rgba(0,0,0,0.10)] hover:-translate-y-1 transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1)',
+    cardHoverSubtle: 'hover:shadow-[0_4px_12px_rgba(0,0,0,0.15),0_2px_4px_rgba(0,0,0,0.12)] hover:-translate-y-0.5 transition-all duration-200 ease-out',
+    cardPress: 'active:scale-[0.98] active:shadow-[0_2px_4px_rgba(0,0,0,0.12)] transition-all duration-100',
+    cardFloat: 'hover:shadow-[0_15px_35px_rgba(0,0,0,0.1),0_5px_15px_rgba(0,0,0,0.07)] hover:-translate-y-2 hover:scale-[1.02] transition-all duration-400 cubic-bezier(0.34, 1.56, 0.64, 1)',
     
-    // Button interactions
-    buttonHover: 'hover:shadow-button-hover hover:-translate-y-0.5 transition-all duration-200',
-    buttonPress: 'active:scale-95 transition-transform duration-100',
-    buttonFocus: 'focus:ring-2 focus:ring-medium-accent-green focus:ring-opacity-50 focus:outline-none',
+    // Button interactions with spring physics
+    buttonHover: 'hover:shadow-[0_8px_25px_rgba(26,137,23,0.25)] hover:-translate-y-0.5 hover:scale-[1.02] transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1)',
+    buttonHoverSubtle: 'hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 transition-all duration-200 ease-out',
+    buttonPress: 'active:scale-95 active:shadow-[0_2px_4px_rgba(0,0,0,0.12)] transition-all duration-100',
+    buttonFocus: 'focus:ring-2 focus:ring-medium-accent-green focus:ring-opacity-50 focus:outline-none focus:shadow-[0_0_0_3px_rgba(26,137,23,0.1)]',
+    buttonMagnetic: 'hover:shadow-[0_10px_30px_rgba(26,137,23,0.3)] hover:-translate-y-1 hover:scale-105 transition-all duration-300 cubic-bezier(0.68, -0.55, 0.265, 1.55)',
     
-    // Link interactions
-    linkHover: 'hover:text-medium-accent-green transition-colors duration-200',
-    linkUnderline: 'hover:underline decoration-2 underline-offset-2 transition-all duration-200',
+    // Link interactions with micro-feedback
+    linkHover: 'hover:text-medium-accent-green hover:scale-[1.02] transition-all duration-200 cubic-bezier(0.34, 1.56, 0.64, 1)',
+    linkUnderline: 'hover:underline decoration-2 underline-offset-2 hover:decoration-medium-accent-green/80 transition-all duration-200',
+    linkFloat: 'hover:text-medium-accent-green hover:-translate-y-0.5 hover:drop-shadow-sm transition-all duration-200 ease-out',
     
-    // Icon interactions
-    iconHover: 'hover:scale-110 hover:text-medium-accent-green transition-all duration-200',
+    // Icon interactions with spring animations
+    iconHover: 'hover:scale-110 hover:text-medium-accent-green hover:drop-shadow-sm transition-all duration-200 cubic-bezier(0.34, 1.56, 0.64, 1)',
     iconPress: 'active:scale-95 transition-transform duration-100',
+    iconFloat: 'hover:scale-110 hover:text-medium-accent-green hover:-translate-y-0.5 hover:drop-shadow-md transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1)',
+    iconPulse: 'hover:scale-110 hover:text-medium-accent-green hover:shadow-[0_0_10px_rgba(26,137,23,0.3)] transition-all duration-200',
     
-    // Input interactions
-    inputFocus: 'focus:ring-2 focus:ring-medium-accent-green focus:border-medium-accent-green transition-all duration-200',
-    inputHover: 'hover:border-medium-text-secondary transition-colors duration-200',
+    // Input interactions with enhanced feedback
+    inputFocus: 'focus:ring-2 focus:ring-medium-accent-green focus:border-medium-accent-green focus:shadow-[0_0_0_3px_rgba(26,137,23,0.1)] transition-all duration-200',
+    inputHover: 'hover:border-medium-text-secondary hover:shadow-[0_2px_4px_rgba(0,0,0,0.05)] transition-all duration-200',
+    inputFloating: 'focus:shadow-[0_8px_25px_rgba(26,137,23,0.15)] focus:-translate-y-0.5 transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1)',
   },
 };
 
@@ -358,26 +402,36 @@ export const componentClasses = {
       themeClasses.interactive.buttonGhost
     ),
     
-    // Medium buttons - Default size
+    // Medium buttons - Default size with enhanced hover
     primary: combineClasses(
       themeClasses.interactive.buttonBase,
       themeClasses.interactive.buttonMedium,
-      themeClasses.interactive.buttonPrimary
+      themeClasses.interactive.buttonPrimary,
+      themeClasses.interactions.buttonHover
+    ),
+    primaryMagnetic: combineClasses(
+      themeClasses.interactive.buttonBase,
+      themeClasses.interactive.buttonMedium,
+      themeClasses.interactive.buttonPrimary,
+      themeClasses.interactions.buttonMagnetic
     ),
     secondary: combineClasses(
       themeClasses.interactive.buttonBase,
       themeClasses.interactive.buttonMedium,
-      themeClasses.interactive.buttonSecondary
+      themeClasses.interactive.buttonSecondary,
+      themeClasses.interactions.buttonHoverSubtle
     ),
     ghost: combineClasses(
       themeClasses.interactive.buttonBase,
       themeClasses.interactive.buttonMedium,
-      themeClasses.interactive.buttonGhost
+      themeClasses.interactive.buttonGhost,
+      themeClasses.interactions.buttonHoverSubtle
     ),
     danger: combineClasses(
       themeClasses.interactive.buttonBase,
       themeClasses.interactive.buttonMedium,
-      themeClasses.interactive.buttonDanger
+      themeClasses.interactive.buttonDanger,
+      themeClasses.interactions.buttonHover
     ),
     
     // Small buttons - Compact areas
@@ -445,6 +499,16 @@ export const componentClasses = {
     hover: combineClasses(
       themeClasses.interactive.cardBase,
       themeClasses.interactive.cardHover,
+      themeClasses.spacing.card
+    ),
+    hoverSubtle: combineClasses(
+      themeClasses.interactive.cardBase,
+      themeClasses.interactive.cardHoverSubtle,
+      themeClasses.spacing.card
+    ),
+    float: combineClasses(
+      themeClasses.interactive.cardBase,
+      themeClasses.interactive.cardFloat,
       themeClasses.spacing.card
     ),
     clickable: combineClasses(

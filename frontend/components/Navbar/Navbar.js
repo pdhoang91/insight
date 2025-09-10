@@ -134,7 +134,7 @@ const Navbar = () => {
               ) : (
                 <button
                   onClick={() => setIsSearchOpen(true)}
-                  className={`p-2 text-medium-text-secondary hover:text-medium-text-primary hover:bg-medium-hover rounded-medium transition-all duration-200 ${themeClasses.interactive.touchTarget}`}
+                  className={`p-2 text-medium-text-secondary hover:text-medium-text-primary hover:bg-medium-hover rounded-medium transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) hover:scale-105 ${themeClasses.interactive.touchTarget}`}
                   aria-label="Open search"
                   role="button"
                   tabIndex={0}
@@ -150,14 +150,14 @@ const Navbar = () => {
                 {isWritePage ? (
                   <button
                     onClick={handlePublishClick}
-                    className="px-6 py-2 bg-medium-accent-green hover:bg-medium-accent-green/90 text-white rounded-button text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+                    className="px-6 py-2 bg-medium-accent-green hover:bg-medium-accent-green/90 text-white rounded-button text-sm font-medium transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) shadow-sm hover:shadow-[0_8px_25px_rgba(26,137,23,0.25)] hover:-translate-y-0.5 hover:scale-[1.02]"
                   >
                     Publish
                   </button>
                 ) : (
                   <button
                     onClick={handleWriteClick}
-                    className="flex items-center px-6 py-2 bg-medium-accent-green hover:bg-medium-accent-green/90 text-white rounded-button text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+                    className="flex items-center px-6 py-2 bg-medium-accent-green hover:bg-medium-accent-green/90 text-white rounded-button text-sm font-medium transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) shadow-sm hover:shadow-[0_8px_25px_rgba(26,137,23,0.25)] hover:-translate-y-0.5 hover:scale-[1.02]"
                   >
                     <FaEdit className={`${themeClasses.icons.sm} mr-2 text-white`} />
                     Write
@@ -171,7 +171,7 @@ const Navbar = () => {
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={toggleUserMenu}
-                  className="flex items-center gap-2 p-1 rounded-full hover:bg-medium-hover transition-all duration-200"
+                  className="flex items-center gap-2 p-1 rounded-full hover:bg-medium-hover transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) hover:scale-105"
                 >
                   {user.avatar_url ? (
                     <img

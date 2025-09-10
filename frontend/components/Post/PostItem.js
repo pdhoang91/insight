@@ -53,7 +53,7 @@ const PostItem = ({ post }) => {
 
 
   return (
-    <article className={componentClasses.card.hover}>
+    <article className={componentClasses.card.float}>
       <div className={`${themeClasses.responsive.flexDesktopRow} ${themeClasses.spacing.gap} items-start`}>
         {/* Image Section - First on mobile, second on desktop */}
         {post.image_title && (
@@ -63,7 +63,7 @@ const PostItem = ({ post }) => {
                 <img
                   src={post.image_title}
                   alt={post.title}
-                  className="w-full h-48 lg:h-40 object-cover transition-transform duration-200 hover:scale-105"
+                  className="w-full h-48 lg:h-40 object-cover transition-transform duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) hover:scale-105"
                   loading="lazy"
                 />
               </div>
