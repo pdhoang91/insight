@@ -5,7 +5,20 @@ import { useUser } from '../../context/UserContext';
 import CategoryTagsPopup from '../../components/Category/CategoryTagsPopup';
 import PostForm from '../../components/Editor/PostForm';
 import LoadingSpinner from '../../components/Shared/LoadingSpinner';
-import MediumNavbar from '../../components/Navbar/Navbar';
+import { WriteLayout } from '../../components/Layout/Layout';
+import { themeClasses } from '../../utils/themeClasses';
+
+// Edit Page Header Component - Following home page pattern
+const EditPageHeader = () => (
+  <header className={`text-center lg:text-left ${themeClasses.spacing.gap}`}>
+    <h1 className={`${themeClasses.typography.h1} mb-3`}>
+      Chỉnh sửa bài viết
+    </h1>
+    <p className={`${themeClasses.typography.bodyLarge} text-medium-text-secondary max-w-2xl mx-auto lg:mx-0`}>
+      Cập nhật nội dung và thông tin bài viết
+    </p>
+  </header>
+);
 import { updatePost } from '../../services/postService';
 import { usePostName } from '../../hooks/usePost';
 import { usePostContext } from '../../context/PostContext';
@@ -172,10 +185,10 @@ const EditPost = () => {
 
   if (!router.isReady || isLoading || loading) {
     return (
-      <div className="min-h-screen bg-terminal-black flex items-center justify-center">
+      <div className="min-h-screen bg-medium-bg-primary flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-text-secondary">Loading editor...</p>
+          <p className="mt-4 text-medium-text-secondary">Đang tải trình soạn thảo...</p>
         </div>
       </div>
     );
@@ -183,10 +196,10 @@ const EditPost = () => {
 
   if (isError) {
     return (
-      <div className="min-h-screen bg-terminal-black flex items-center justify-center">
+      <div className="min-h-screen bg-medium-bg-primary flex items-center justify-center">
         <div className="text-center">
-          <div className="text-hacker-red mb-2">Failed to load post</div>
-          <p className="text-text-muted">The post you're trying to edit could not be found.</p>
+          <div className="text-red-500 font-serif text-lg mb-2">Lỗi khi tải bài viết</div>
+          <p className="text-medium-text-muted">Không thể tìm thấy bài viết bạn muốn chỉnh sửa.</p>
         </div>
       </div>
     );
@@ -197,55 +210,61 @@ const EditPost = () => {
   }
 
   return (
-    <>
-      {/* Custom Navbar with Update functionality */}
-      {!isFullscreen && <MediumNavbar onPublish={handleUpdate} />}
-      
-      <div className={`min-h-screen bg-terminal-black transition-all duration-300 ${isFullscreen ? 'fixed inset-0 z-50 pt-0' : ''}`}>
+    <div className={`${isFullscreen ? 'fixed inset-0 z-50 bg-medium-bg-primary' : ''}`}>
+      {/* Fullscreen Exit Button */}
+      {isFullscreen && (
+        <button
+          onClick={() => setIsFullscreen(false)}
+          className="fixed top-4 right-4 z-50 p-2 bg-medium-bg-secondary/80 backdrop-blur-sm text-medium-text-secondary hover:text-medium-text-primary rounded-lg transition-colors"
+          title="Thoát toàn màn hình"
+        >
+          <FaTimes className="w-5 h-5" />
+        </button>
+      )}
 
-        {/* Fullscreen Exit Button */}
-        {isFullscreen && (
-          <button
-            onClick={() => setIsFullscreen(false)}
-            className="fixed top-4 right-4 z-50 p-2 bg-terminal-gray/80 backdrop-blur-sm text-text-secondary hover:text-text-primary rounded-lg transition-colors"
-            title="Exit fullscreen"
-          >
-            <FaTimes className="w-5 h-5" />
-          </button>
-        )}
-
-        {/* Main Content */}
-        <main className={`transition-all duration-300 ${isFullscreen ? 'p-8' : ''}`}>
-          <div className={`${themeClasses.layout.container} ${isFullscreen ? 'py-4' : 'py-8'}`}>
-
-            {/* Editor Container */}
-            <div className={`transition-all duration-300 ${isFullscreen ? 'h-[calc(100vh-3.5rem)]' : ''}`}>
-              <PostForm
-                title={title}
-                setTitle={setTitle}
-                content={content}
-                setContent={setContent}
-                imageTitle={imageTitle}
-                setImageTitle={setImageTitle}
-                isFullscreen={isFullscreen}
-              />
-            </div>
-
+      {isFullscreen ? (
+        /* Fullscreen Mode - Direct rendering */
+        <main className={`${themeClasses.layout.container} pt-16 md:pt-20`}>
+          <div className="h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)]">
+            <PostForm
+              title={title}
+              setTitle={setTitle}
+              content={content}
+              setContent={setContent}
+              imageTitle={imageTitle}
+              setImageTitle={setImageTitle}
+              isFullscreen={isFullscreen}
+            />
           </div>
         </main>
-
-        {/* Update Modal */}
-        {showPopup && (
-          <CategoryTagsPopup
+      ) : (
+        /* Normal Mode - Use optimized WriteLayout */
+        <WriteLayout>
+          <EditPageHeader />
+          
+          <PostForm
             title={title}
+            setTitle={setTitle}
             content={content}
+            setContent={setContent}
             imageTitle={imageTitle}
-            onPublish={updateFunction}
-            onCancel={() => setShowPopup(false)}
+            setImageTitle={setImageTitle}
+            isFullscreen={isFullscreen}
           />
-        )}
-      </div>
-    </>
+        </WriteLayout>
+      )}
+
+      {/* Update Modal */}
+      {showPopup && (
+        <CategoryTagsPopup
+          title={title}
+          content={content}
+          imageTitle={imageTitle}
+          onPublish={updateFunction}
+          onCancel={() => setShowPopup(false)}
+        />
+      )}
+    </div>
   );
 };
 

@@ -7,7 +7,20 @@ import LoadingSpinner from '../components/Shared/LoadingSpinner';
 import { createPost } from '../services/postService';
 import { usePostContext } from '../context/PostContext';
 import { FaTimes } from 'react-icons/fa';
-import Layout from '../components/Layout/Layout';
+import { WriteLayout } from '../components/Layout/Layout';
+import { themeClasses } from '../utils/themeClasses';
+
+// Write Page Header Component - Following home page pattern
+const WritePageHeader = () => (
+  <header className={`text-center lg:text-left ${themeClasses.spacing.gap}`}>
+    <h1 className={`${themeClasses.typography.h1} mb-3`}>
+      Tạo bài viết mới
+    </h1>
+    <p className={`${themeClasses.typography.bodyLarge} text-medium-text-secondary max-w-2xl mx-auto lg:mx-0`}>
+      Chia sẻ kiến thức và ý tưởng của bạn
+    </p>
+  </header>
+);
 
 const Write = () => {
   const router = useRouter();
@@ -183,8 +196,8 @@ const Write = () => {
 
       {isFullscreen ? (
         /* Fullscreen Mode - Direct rendering */
-        <main className="p-8">
-          <div className="h-[calc(100vh-3.5rem)]">
+        <main className={`${themeClasses.layout.container} pt-16 md:pt-20`}>
+          <div className="h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)]">
             <PostForm
               title={title}
               setTitle={setTitle}
@@ -197,19 +210,10 @@ const Write = () => {
           </div>
         </main>
       ) : (
-        /* Normal Mode - Use Layout system */
-        <Layout showSidebar={false}>
-          {/* Page Header */}
-          <header className="text-center lg:text-left">
-            <h1 className="font-serif font-bold text-3xl sm:text-4xl lg:text-5xl text-medium-text-primary mb-3 lg:mb-4">
-              Tạo bài viết mới
-            </h1>
-            <p className="text-base sm:text-lg text-medium-text-secondary max-w-2xl mx-auto lg:mx-0">
-              Chia sẻ kiến thức và ý tưởng của bạn
-            </p>
-          </header>
-
-          {/* Editor Container */}
+        /* Normal Mode - Use optimized WriteLayout */
+        <WriteLayout>
+          <WritePageHeader />
+          
           <PostForm
             title={title}
             setTitle={setTitle}
@@ -219,7 +223,7 @@ const Write = () => {
             setImageTitle={setImageTitle}
             isFullscreen={isFullscreen}
           />
-        </Layout>
+        </WriteLayout>
       )}
 
       {/* Publish Modal */}

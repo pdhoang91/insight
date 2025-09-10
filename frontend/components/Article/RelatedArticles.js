@@ -5,6 +5,7 @@ import { FaUser, FaClock } from 'react-icons/fa';
 import { useRecentPosts } from '../../hooks/useRecentPosts';
 import TimeAgo from '../Utils/TimeAgo';
 import SafeImage from '../Utils/SafeImage';
+import { themeClasses } from '../../utils/themeClasses';
 
 const RelatedArticles = ({ currentPostId, categories = [], tags = [], limit = 3 }) => {
   // For now, we'll use recent posts. In a real implementation, 
@@ -16,7 +17,7 @@ const RelatedArticles = ({ currentPostId, categories = [], tags = [], limit = 3 
 
   if (isLoading) {
     return (
-      <div className="max-w-article mx-auto px-6 py-12">
+      <div className={`${themeClasses.layout.reading} py-12`}>
         <div className="space-y-6">
           <div className="h-6 bg-medium-divider rounded w-48 animate-pulse"></div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -34,7 +35,7 @@ const RelatedArticles = ({ currentPostId, categories = [], tags = [], limit = 3 
   }
 
   return (
-    <div className="max-w-article mx-auto px-6 py-12">
+    <div className={`${themeClasses.layout.reading} py-12`}>
       {/* Section Header */}
       <div className="mb-8">
         <h2 className="text-2xl font-serif font-bold text-medium-text-primary mb-2">

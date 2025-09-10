@@ -84,7 +84,7 @@ const PostPage = () => {
       />
       
       {/* Comments Section */}
-      <section ref={commentSectionRef} className="mt-8 pt-8 border-t border-medium-divider">
+      <section ref={commentSectionRef} className={`${themeClasses.spacing.section} border-t border-medium-divider`}>
         <CommentSection postId={post.id} />
       </section>
     </ReadingLayout>

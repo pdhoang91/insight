@@ -8,10 +8,34 @@ import ProfileUpdateForm from '../components/Profile/ProfileUpdateForm';
 import ProfileHeader from '../components/Profile/ProfileHeader';
 import UserPostsSection from '../components/Profile/UserPostsSection';
 import LoadingSpinner from '../components/Shared/LoadingSpinner';
-import Layout from '../components/Layout/Layout';
+import { ProfileLayout } from '../components/Layout/Layout';
 import { isSuperAdmin } from '../services/authService';
 import { USER_ROLES } from '../constants/roles';
 import { FaShieldAlt } from 'react-icons/fa';
+import { themeClasses } from '../utils/themeClasses';
+
+// Profile Posts Header Component - Following home page pattern
+const ProfilePostsHeader = ({ isOwner, profile, username, isAdmin }) => (
+  <section className={themeClasses.spacing.section}>
+    <header className={`text-center lg:text-left ${themeClasses.spacing.gap}`}>
+      <h2 className={`${themeClasses.typography.h2} mb-3`}>
+        {isOwner ? 'Bài viết của tôi' : `Bài viết của ${profile?.name || username}`}
+      </h2>
+      <p className={`${themeClasses.typography.bodyLarge} text-medium-text-secondary max-w-2xl mx-auto lg:mx-0`}>
+        {isOwner 
+          ? 'Quản lý và xem tất cả bài viết đã đăng của bạn' 
+          : `Xem tất cả bài viết của ${profile?.name || username}`
+        }
+      </p>
+      {isAdmin && !isOwner && (
+        <div className="mt-4 inline-flex items-center space-x-2 px-3 py-1 bg-medium-accent-green/10 border border-medium-accent-green/30 rounded-medium">
+          <FaShieldAlt className="w-3 h-3 text-medium-accent-green" />
+          <span className="text-xs text-medium-accent-green font-medium">Quyền quản trị</span>
+        </div>
+      )}
+    </header>
+  </section>
+);
 
 const UserProfilePage = () => {
   const router = useRouter();
@@ -102,7 +126,7 @@ const UserProfilePage = () => {
   }
 
   return (
-    <Layout maxWidth="wide" showSidebar={false}>
+    <ProfileLayout>
       {/* Profile Header */}
       <ProfileHeader
         avatarUrl={profile?.avatar_url}
@@ -117,34 +141,21 @@ const UserProfilePage = () => {
       />
 
       {/* Posts Section */}
-      <section>
-        <header className="text-center lg:text-left">
-          <h2 className="font-serif font-bold text-2xl sm:text-3xl lg:text-4xl text-medium-text-primary mb-2 lg:mb-3">
-            {isOwner ? 'Bài viết của tôi' : `Bài viết của ${profile?.name || username}`}
-          </h2>
-          <p className="text-base sm:text-lg text-medium-text-secondary max-w-2xl mx-auto lg:mx-0">
-            {isOwner 
-              ? 'Quản lý và xem tất cả bài viết đã đăng của bạn' 
-              : `Xem tất cả bài viết của ${profile?.name || username}`
-            }
-          </p>
-          {isAdmin && !isOwner && (
-            <div className="mt-4 inline-flex items-center space-x-2 px-3 py-1 bg-medium-accent-green/10 border border-medium-accent-green/30 rounded-medium">
-              <FaShieldAlt className="w-3 h-3 text-medium-accent-green" />
-              <span className="text-xs text-medium-accent-green font-medium">Quyền quản trị</span>
-            </div>
-          )}
-        </header>
+      <ProfilePostsHeader 
+        isOwner={isOwner}
+        profile={profile}
+        username={username}
+        isAdmin={isAdmin}
+      />
 
-        <UserPostsSection
-          posts={infinitePosts}
-          isLoading={isLoadingPosts}
-          isError={isErrorPosts}
-          setSize={setSizePosts}
-          isReachingEnd={isReachingEndPosts}
-          isOwner={isOwner}
-        />
-      </section>
+      <UserPostsSection
+        posts={infinitePosts}
+        isLoading={isLoadingPosts}
+        isError={isErrorPosts}
+        setSize={setSizePosts}
+        isReachingEnd={isReachingEndPosts}
+        isOwner={isOwner}
+      />
 
       {/* Profile Update Modal */}
       {showPopup && (
@@ -154,7 +165,7 @@ const UserProfilePage = () => {
           onCancel={() => setShowPopup(false)}
         />
       )}
-    </Layout>
+    </ProfileLayout>
   );
 };
 

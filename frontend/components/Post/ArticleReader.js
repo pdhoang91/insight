@@ -57,7 +57,7 @@ const ArticleReader = ({ post }) => {
         />
       </div>
 
-      <article className="max-w-article mx-auto">
+      <article className={themeClasses.layout.reading}>
         {/* Article Header - Mobile Optimized */}
         <header className="mb-8 sm:mb-10 lg:mb-12">
           {/* Title */}
@@ -148,12 +148,12 @@ const ArticleReader = ({ post }) => {
       </article>
 
       {/* Related Articles - Mobile Optimized */}
-      <div className="max-w-article mx-auto mt-12 sm:mt-14 lg:mt-16">
+      <div className={`${themeClasses.layout.reading} mt-12 sm:mt-14 lg:mt-16`}>
         <RelatedArticles currentPost={post} />
       </div>
 
       {/* Comments Section - Mobile Optimized */}
-      <div className="max-w-article mx-auto mt-12 sm:mt-14 lg:mt-16">
+      <div className={`${themeClasses.layout.reading} mt-12 sm:mt-14 lg:mt-16`}>
         <CommentSection 
           postId={post.id}
         />
@@ -221,7 +221,7 @@ const AuthorBioCard = ({ author, isFollowing, onFollow }) => {
 // Loading skeleton
 const ArticleReaderSkeleton = () => (
   <ArticleLayout>
-    <div className="max-w-article mx-auto animate-pulse">
+    <div className={`${themeClasses.layout.reading} animate-pulse`}>
       {/* Title skeleton */}
       <div className="mb-12">
         <div className="h-12 bg-medium-bg-secondary rounded mb-4"></div>

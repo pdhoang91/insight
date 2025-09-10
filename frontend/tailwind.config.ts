@@ -113,27 +113,30 @@ module.exports = {
         '30': '7.5rem',   // 120px
       },
       maxWidth: {
-        // Medium 2024 Layout Widths
+        // Medium 2024 Layout Widths - Optimized for large screens
         'article': '680px',       // Medium's optimal reading width
-        'container': '1200px',    // Main container
+        'container': '1140px',    // Main container (reduced from 1200px)
         'sidebar': '320px',       // Sidebar width
         'content': '800px',       // Content area (article + padding)
-        'wide': '1400px',         // Wide container for special layouts
+        'wide': '1280px',         // Wide container (reduced from 1400px)
+        'reading': '720px',       // Reading-optimized width
+        'compact': '960px',       // Compact layout for forms/profiles
       },
       
-      // Standardized responsive breakpoints
+      // Standardized responsive breakpoints - Optimized for better scaling
       screens: {
         'sm': '640px',   // Mobile landscape / small tablets
         'md': '768px',   // Tablets
         'lg': '1024px',  // Desktop
         'xl': '1280px',  // Large desktop
-        '2xl': '1536px', // Extra large desktop
+        '2xl': '1440px', // Extra large desktop (reduced from 1536px)
         
         // Custom breakpoints for specific needs
         'mobile': {'max': '767px'},      // Mobile only
         'tablet': {'min': '768px', 'max': '1023px'}, // Tablet only
         'desktop': {'min': '1024px'},    // Desktop and up
         'touch': {'max': '1023px'},      // Touch devices (mobile + tablet)
+        'large': {'min': '1440px'},      // Very large screens
       },
       
       animation: {

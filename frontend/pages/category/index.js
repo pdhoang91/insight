@@ -1,6 +1,6 @@
 // pages/category/index.js
 import React from 'react';
-import { PageLayout } from '../../components/layout';
+import { PageLayout } from '../../components/Layout';
 import { CategoryList } from '../../components/Category';
 
 const CategoryPage = () => {

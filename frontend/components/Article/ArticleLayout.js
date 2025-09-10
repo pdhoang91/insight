@@ -3,6 +3,7 @@ import React from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import ReadingProgressBar from '../Post/ReadingProgressBar';
 import ArticleReader from '../Post/ArticleReader';
+import { themeClasses } from '../../utils/themeClasses';
 
 const MediumArticleLayout = ({ post, children }) => {
   const { isDark } = useTheme();
@@ -13,7 +14,7 @@ const MediumArticleLayout = ({ post, children }) => {
       <ReadingProgressBar />
       
       {/* Article Container */}
-      <article className="max-w-article mx-auto px-6 py-12">
+      <article className={`${themeClasses.layout.reading} py-12`}>
         {/* Article Header */}
         <header className="mb-12">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold text-medium-text-primary leading-tight mb-6">

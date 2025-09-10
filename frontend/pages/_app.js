@@ -33,7 +33,7 @@ function MyApp({ Component, pageProps }) {
             <LoginModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
             
             {/* Main Application Content */}
-            <main className="pt-16" role="main">
+            <main role="main">
               <Component {...pageProps} />
             </main>
             </div>

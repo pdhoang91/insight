@@ -2,6 +2,7 @@
 import React from 'react';
 import { FaList } from 'react-icons/fa';
 import TableOfContents from '../Shared/TableOfContents';
+import { themeClasses } from '../../utils/themeClasses';
 
 const ThreeColumnLayout = ({ 
   children, 

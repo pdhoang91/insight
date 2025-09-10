@@ -7,19 +7,20 @@ import { themeClasses, combineClasses } from '../../utils/themeClasses';
 const Layout = ({ 
   children, 
   sidebar = null,
-  variant = 'container', // 'container', 'article', 'wide', 'full'
+  variant = 'container', // 'container', 'article', 'reading', 'wide', 'compact', 'full'
   showSidebar = true,
   sidebarPosition = 'right', // 'right', 'left'
   className = '',
   ...props 
 }) => {
-  // Container variants using our standardized layout patterns
+  // Container variants - minimal mobile padding, heavy desktop padding
   const containerVariants = {
     container: themeClasses.layout.container,
     article: themeClasses.layout.article,
     reading: themeClasses.layout.reading,
     wide: themeClasses.layout.containerWide,
-    full: 'w-full px-4 md:px-6 lg:px-8',
+    compact: themeClasses.layout.containerSmall,
+    full: 'w-full px-3 md:px-4 lg:px-8 xl:px-20 2xl:px-32',
   };
 
   const containerClass = containerVariants[variant] || containerVariants.container;
@@ -33,21 +34,21 @@ const Layout = ({
       <main className="pt-16 md:pt-20" role="main" {...props}>
         <div className={containerClass}>
           {showSidebar && sidebar ? (
-            /* Layout with Sidebar - Mobile-first responsive */
-            <div className={combineClasses('flex flex-col lg:flex-row gap-4 lg:gap-6', themeClasses.spacing.section)}>
+            /* Layout with Sidebar - Enhanced responsive behavior */
+            <div className={combineClasses('flex flex-col lg:flex-row', themeClasses.spacing.gap, themeClasses.spacing.section)}>
               {/* Main Content Area - Always first on mobile */}
               <div className="flex-1 min-w-0 order-first">
-                <div className={combineClasses('space-y-4 lg:space-y-6', className)}>
+                <div className={combineClasses('space-y-4 lg:space-y-6 xl:space-y-5', className)}>
                   {children}
                 </div>
               </div>
               
-              {/* Sidebar - Responsive positioning */}
+              {/* Sidebar - Increased width by 30% */}
               <aside className={combineClasses(
-                'order-last w-full lg:w-80 lg:flex-shrink-0',
-                sidebarPosition === 'left' ? 'lg:order-first lg:mr-xl' : ''
+                'order-last w-full lg:w-96 xl:w-80 2xl:w-72 lg:flex-shrink-0',
+                sidebarPosition === 'left' ? 'lg:order-first' : ''
               )}>
-                <div className="lg:sticky lg:top-24">
+                <div className="lg:sticky lg:top-24 xl:top-20">
                   {/* Mobile: Condensed sidebar */}
                   <div className="lg:hidden">
                     <MobileSidebarContent sidebar={sidebar} />
@@ -60,9 +61,9 @@ const Layout = ({
               </aside>
             </div>
           ) : (
-            /* Single Column Layout */
+            /* Single Column Layout - Enhanced spacing */
             <div className={combineClasses(themeClasses.spacing.section, className)}>
-              <div className="space-y-4 lg:space-y-6">
+              <div className="space-y-4 lg:space-y-6 xl:space-y-5">
                 {children}
               </div>
             </div>
@@ -114,7 +115,7 @@ const MobileSidebarContent = ({ sidebar }) => {
   );
 };
 
-// Specialized layouts for different page types with responsive optimization
+// Specialized layouts for different page types with enhanced responsive optimization
 export const ArticleLayout = ({ children, ...props }) => (
   <Layout variant="reading" showSidebar={false} {...props}>
     <article className="prose prose-lg max-w-none reading-content">
@@ -130,13 +131,19 @@ export const HomeLayout = ({ children, sidebar, ...props }) => (
 );
 
 export const ProfileLayout = ({ children, ...props }) => (
-  <Layout variant="wide" showSidebar={false} {...props}>
+  <Layout variant="container" showSidebar={false} {...props}>
     {children}
   </Layout>
 );
 
 export const ReadingLayout = ({ children, sidebar, ...props }) => (
-  <Layout variant="reading" sidebar={sidebar} sidebarPosition="right" {...props}>
+  <Layout variant="container" sidebar={sidebar} sidebarPosition="right" {...props}>
+    {children}
+  </Layout>
+);
+
+export const WriteLayout = ({ children, ...props }) => (
+  <Layout variant="container" showSidebar={false} {...props}>
     {children}
   </Layout>
 );

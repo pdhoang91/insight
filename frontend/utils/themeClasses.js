@@ -82,30 +82,31 @@ export const themeClasses = {
     subtitle: 'font-sans font-normal text-lg md:text-xl leading-relaxed text-medium-text-secondary',
   },
 
-  // Layout - Mobile-first responsive with consistent spacing
+  // Layout - Mobile-first with minimal padding on small screens, heavy padding on large screens
   layout: {
-    // Container patterns - Standardized spacing
-    container: 'max-w-container mx-auto px-4 md:px-6 lg:px-8',        // 16px -> 24px -> 32px
-    containerSmall: 'max-w-content mx-auto px-3 md:px-4 lg:px-6',     // 12px -> 16px -> 24px  
-    containerWide: 'max-w-wide mx-auto px-4 md:px-6 lg:px-8',         // Same as container
+    // Container patterns - Minimal padding on mobile, increasing dramatically on large screens
+    container: 'max-w-container mx-auto px-3 md:px-4 lg:px-8 xl:px-20 2xl:px-32',        // Minimal mobile, heavy desktop
+    containerSmall: 'max-w-compact mx-auto px-2 md:px-3 lg:px-6 xl:px-16',              // Very minimal mobile
+    containerWide: 'max-w-wide mx-auto px-3 md:px-4 lg:px-8 xl:px-20 2xl:px-32',         // Same strategy as container
     
-    // Content patterns - Consistent with container
-    article: 'max-w-container mx-auto px-4 md:px-6 lg:px-8',            // Same as container
-    reading: 'max-w-container mx-auto px-4 md:px-6 lg:px-8',            // Same as container
+    // Content patterns - Prioritize width on mobile, constrain on desktop
+    article: 'max-w-reading mx-auto px-3 md:px-4 lg:px-8 xl:px-20',                     // Minimal mobile padding
+    reading: 'max-w-reading mx-auto px-3 md:px-4 lg:px-8 xl:px-20',                     // Same as article
     
     // Layout utilities
     fullHeight: 'min-h-screen',
     sticky: 'sticky top-16 md:top-20 lg:top-24',
     stickyNav: 'sticky top-0 z-50',
     
-    // Responsive grid layouts
-    mainWithSidebar: 'grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6 items-start',
-    twoColumn: 'grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6',
-    threeColumn: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6',
+    // Responsive grid layouts - Better scaling
+    mainWithSidebar: 'grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6 xl:gap-8 items-start',
+    twoColumn: 'grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 xl:gap-8',
+    threeColumn: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 xl:gap-8',
+    fourColumn: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 xl:gap-8',
     
-    // Flex layouts
-    flexColumn: 'flex flex-col gap-4 lg:gap-6',
-    flexRow: 'flex flex-col lg:flex-row gap-4 lg:gap-6',
+    // Flex layouts - Enhanced responsive behavior
+    flexColumn: 'flex flex-col gap-4 lg:gap-6 xl:gap-8',
+    flexRow: 'flex flex-col lg:flex-row gap-4 lg:gap-6 xl:gap-8',
   },
 
   // Interactive states with enhanced touch targets and accessibility
@@ -182,30 +183,30 @@ export const themeClasses = {
 
   // Spacing - Mobile-first approach with enhanced consistency
   spacing: {
-    // Section spacing - Consistent vertical rhythm
-    section: 'py-6 md:py-8 lg:py-12',          // 24px -> 32px -> 48px
-    sectionLarge: 'py-8 md:py-12 lg:py-16',    // 32px -> 48px -> 64px
-    sectionSmall: 'py-4 md:py-6 lg:py-8',      // 16px -> 24px -> 32px
+    // Section spacing - Consistent vertical rhythm with large screen optimization
+    section: 'py-6 md:py-8 lg:py-12 xl:py-10 2xl:py-8',          // Reduced on very large screens
+    sectionLarge: 'py-8 md:py-12 lg:py-16 xl:py-14 2xl:py-12',   // Controlled growth
+    sectionSmall: 'py-4 md:py-6 lg:py-8 xl:py-6',                // Compact spacing
     
     // Card spacing - Consistent internal padding
-    card: 'p-4 md:p-6 lg:p-8',                 // 16px -> 24px -> 32px
-    cardSmall: 'p-3 md:p-4 lg:p-5',            // 12px -> 16px -> 20px
-    cardLarge: 'p-6 md:p-8 lg:p-10',           // 24px -> 32px -> 40px
+    card: 'p-4 md:p-6 lg:p-8 xl:p-6 2xl:p-5',                   // Optimized for readability
+    cardSmall: 'p-3 md:p-4 lg:p-5 xl:p-4',                      // Compact cards
+    cardLarge: 'p-6 md:p-8 lg:p-10 xl:p-8 2xl:p-6',             // Large but controlled
     
-    // Gap spacing - For flex/grid layouts
-    gap: 'gap-4 md:gap-6 lg:gap-8',            // 16px -> 24px -> 32px
-    gapSmall: 'gap-2 md:gap-3 lg:gap-4',       // 8px -> 12px -> 16px
-    gapLarge: 'gap-6 md:gap-8 lg:gap-12',      // 24px -> 32px -> 48px
+    // Gap spacing - For flex/grid layouts with better scaling
+    gap: 'gap-4 md:gap-6 lg:gap-8 xl:gap-6 2xl:gap-5',          // Controlled spacing
+    gapSmall: 'gap-2 md:gap-3 lg:gap-4 xl:gap-3',               // Tight layouts
+    gapLarge: 'gap-6 md:gap-8 lg:gap-12 xl:gap-10 2xl:gap-8',   // Spacious but not excessive
     
     // Stack spacing - For vertical layouts
     stack: 'space-y-4 md:space-y-6 lg:space-y-8',
     stackSmall: 'space-y-2 md:space-y-3 lg:space-y-4',
     stackLarge: 'space-y-6 md:space-y-8 lg:space-y-12',
     
-    // Container spacing - Horizontal padding (STANDARDIZED)
-    container: 'px-4 md:px-6 lg:px-8',         // 16px -> 24px -> 32px (MAIN STANDARD)
-    containerSmall: 'px-3 md:px-4 lg:px-6',    // 12px -> 16px -> 24px (Compact areas)
-    containerLarge: 'px-6 md:px-8 lg:px-12',   // 24px -> 32px -> 48px (Special cases only)
+    // Container spacing - Minimal mobile padding, heavy desktop padding
+    container: 'px-3 md:px-4 lg:px-8 xl:px-20 2xl:px-32',         // Minimal mobile, heavy desktop
+    containerSmall: 'px-2 md:px-3 lg:px-6 xl:px-16',             // Very minimal mobile
+    containerLarge: 'px-4 md:px-6 lg:px-12 xl:px-24 2xl:px-40',  // Progressive increase to desktop
     
     // Margin utilities
     marginTop: 'mt-4 md:mt-6 lg:mt-8',
@@ -241,10 +242,11 @@ export const themeClasses = {
     desktopOnly: 'hidden lg:block',
     touchOnly: 'block lg:hidden',
     
-    // Sizing
+    // Sizing - Enhanced sidebar width
     fullMobile: 'w-full',
     autoDesktop: 'w-full lg:w-auto',
-    sidebarWidth: 'w-full lg:w-sidebar lg:flex-shrink-0',
+    sidebarWidth: 'w-full lg:w-96 xl:w-80 2xl:w-72 lg:flex-shrink-0',
+    sidebarWidthLarge: 'w-full lg:w-80 xl:w-72 2xl:w-64 lg:flex-shrink-0',
   },
 
   // Shadows and effects

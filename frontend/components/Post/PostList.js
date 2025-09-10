@@ -51,7 +51,7 @@ const PostList = ({
     return (
       <div className={`space-y-8 ${className}`}>
         {[...Array(3)].map((_, index) => (
-          <div key={index} className="animate-pulse bg-medium-bg-secondary h-48 rounded-card border border-medium-border p-6">
+          <div key={index} className="animate-pulse bg-medium-bg-secondary h-48 rounded-card p-6">
             <div className="flex flex-col lg:flex-row lg:items-start gap-6">
               <div className="flex-1 space-y-4">
                 <div className="h-6 bg-medium-bg-secondary rounded w-3/4"></div>
@@ -102,7 +102,7 @@ const PostList = ({
         loader={
           <div className="space-y-8 mt-8">
             {[...Array(2)].map((_, index) => (
-              <div key={`loading-${index}`} className="animate-pulse bg-medium-bg-card h-48 rounded-card border border-medium-border p-6">
+              <div key={`loading-${index}`} className="animate-pulse bg-medium-bg-secondary h-48 rounded-card p-6">
                 <div className="flex flex-col lg:flex-row lg:items-start gap-6">
                   <div className="flex-1 space-y-4">
                     <div className="h-6 bg-medium-bg-secondary rounded w-3/4"></div>
