@@ -52,7 +52,7 @@ const MobileReadingBar = ({
       <div className={`fixed bottom-0 left-0 right-0 z-50 md:hidden ${className}`}>
         {/* Expanded Actions */}
         {showActions && (
-          <div className="bg-medium-bg-card p-6 space-y-4 shadow-lg">
+          <div className="p-6 space-y-4 shadow-lg">
             {/* Clap Action */}
             <button
               onClick={handleClapClick}
@@ -91,7 +91,7 @@ const MobileReadingBar = ({
         )}
 
         {/* Main Bar */}
-        <div className="bg-medium-bg-card px-6 py-4 shadow-lg">
+        <div className="px-6 py-4 shadow-lg">
           <div className="flex items-center justify-between">
             {/* Left: Quick Clap */}
             <button

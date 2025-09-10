@@ -6,7 +6,7 @@ export const themeClasses = {
   bg: {
     primary: 'bg-medium-bg-primary',
     secondary: 'bg-medium-bg-secondary', 
-    card: 'bg-medium-bg-card',
+    card: '',
     accent: 'bg-medium-accent-green',
     accentHover: 'hover:bg-medium-accent-green',
     accentLight: 'bg-medium-accent-green/20',
@@ -132,10 +132,10 @@ export const themeClasses = {
     inputLarge: 'px-4 py-3 min-h-[48px] text-base',
     inputMedium: 'px-3 py-2 min-h-[44px] text-sm',
     inputSmall: 'px-2 py-1.5 min-h-[36px] text-xs',
-    input: 'bg-medium-bg-card border-medium-border text-medium-text-primary placeholder-medium-text-muted',
+    input: 'border-medium-border text-medium-text-primary placeholder-medium-text-muted',
     
     // Card interactions with hover states
-    cardBase: 'bg-medium-bg-card rounded-lg shadow-sm transition-all duration-200',
+    cardBase: 'rounded-lg shadow-sm transition-all duration-200',
     cardHover: 'hover:shadow-md hover:-translate-y-0.5',
     cardClickable: 'cursor-pointer hover:shadow-lg hover:-translate-y-1 active:scale-[0.98]',
     
@@ -189,9 +189,9 @@ export const themeClasses = {
     sectionSmall: 'py-4 md:py-6 lg:py-8 xl:py-6',                // Compact spacing
     
     // Card spacing - Consistent internal padding
-    card: 'p-4 md:p-6 lg:p-8 xl:p-6 2xl:p-5',                   // Optimized for readability
-    cardSmall: 'p-3 md:p-4 lg:p-5 xl:p-4',                      // Compact cards
-    cardLarge: 'p-6 md:p-8 lg:p-10 xl:p-8 2xl:p-6',             // Large but controlled
+    card: 'py-4 md:py-6 lg:py-8 xl:py-6 2xl:py-5',                   // Optimized for readability
+    cardSmall: 'py-3 md:py-4 lg:py-5 xl:py-4',                      // Compact cards
+    cardLarge: 'py-6 md:py-8 lg:py-10 xl:py-8 2xl:py-6',             // Large but controlled
     
     // Gap spacing - For flex/grid layouts with better scaling
     gap: 'gap-4 md:gap-6 lg:gap-8 xl:gap-6 2xl:gap-5',          // Controlled spacing

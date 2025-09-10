@@ -115,7 +115,7 @@ export const SwipeableCard = ({
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
         animate={controls}
-        className="relative z-10 bg-medium-bg-card"
+        className="relative z-10 "
       >
         {children}
       </motion.div>

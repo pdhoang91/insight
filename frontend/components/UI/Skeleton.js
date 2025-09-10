@@ -82,7 +82,7 @@ export const SkeletonText = ({ lines = 1, className = '', ...props }) => (
 
 export const SkeletonCard = ({ className = '', showImage = true, showMeta = true, ...props }) => (
   <div className={combineClasses('animate-fade-in', className)} {...props}>
-    <div className="p-4 bg-medium-bg-card rounded-lg border border-medium-border space-y-4">
+    <div className="p-4  rounded-lg border border-medium-border space-y-4">
       {showImage && (
         <Skeleton variant="image" className="w-full" />
       )}
@@ -105,7 +105,7 @@ export const SkeletonCard = ({ className = '', showImage = true, showMeta = true
 
 export const SkeletonPost = ({ className = '', ...props }) => (
   <div className={combineClasses('animate-slide-up', className)} {...props}>
-    <div className="p-card bg-medium-bg-card rounded-card border border-medium-border">
+    <div className="p-card  rounded-card border border-medium-border">
       <div className="flex flex-col lg:flex-row gap-4">
         {/* Main content */}
         <div className="flex-1 space-y-4">
@@ -138,7 +138,7 @@ export const SkeletonPost = ({ className = '', ...props }) => (
 
 export const SkeletonComment = ({ className = '', showReplies = false, ...props }) => (
   <div className={combineClasses('animate-fade-in', className)} {...props}>
-    <div className="p-card bg-medium-bg-card rounded-card border border-medium-border">
+    <div className="p-card  rounded-card border border-medium-border">
       <div className="flex gap-md">
         <Skeleton variant="avatar" />
         <div className="flex-1 space-y-md">

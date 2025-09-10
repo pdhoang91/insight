@@ -309,7 +309,7 @@ const BookmarkItem = ({ post }) => {
   const { toggleBookmark } = useBookmark(post.id);
 
   return (
-    <div className="flex items-start justify-between p-4 bg-medium-bg-card border border-medium-border rounded-card">
+    <div className="flex items-start justify-between p-4  border border-medium-border rounded-card">
       <div className="flex-1">
         <h3 className="font-serif font-medium text-medium-text-primary mb-2">
           {post.title || `Post ${post.id}`}

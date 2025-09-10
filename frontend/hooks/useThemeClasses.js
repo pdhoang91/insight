@@ -71,7 +71,7 @@ export const useThemeClasses = () => {
     // Simple class utilities (compatible with ThemeWrapper version)
     bgPrimary: 'bg-medium-bg-primary',
     bgSecondary: 'bg-medium-bg-secondary', 
-    bgCard: 'bg-medium-bg-card',
+    bgCard: '',
     textPrimary: 'text-medium-text-primary',
     textSecondary: 'text-medium-text-secondary',
     textMuted: 'text-medium-text-muted',
@@ -92,7 +92,7 @@ export const useThemeClasses = () => {
     // Legacy support for ThemeWrapper usage
     bgPrimary: 'bg-medium-bg-primary',
     bgSecondary: 'bg-medium-bg-secondary', 
-    bgCard: 'bg-medium-bg-card',
+    bgCard: '',
     textPrimary: 'text-medium-text-primary',
     textSecondary: 'text-medium-text-secondary',
     textMuted: 'text-medium-text-muted',
@@ -100,7 +100,7 @@ export const useThemeClasses = () => {
     divider: 'border-medium-divider',
     accent: 'text-medium-accent-green',
     accentBg: 'bg-medium-accent-green',
-    card: 'bg-medium-bg-card border border-medium-border rounded-lg',
+    card: 'border border-medium-border rounded-lg',
     button: 'bg-medium-accent-green text-white hover:bg-medium-accent-green/90 transition-colors',
     input: 'bg-medium-bg-secondary border border-medium-border text-medium-text-primary',
   };

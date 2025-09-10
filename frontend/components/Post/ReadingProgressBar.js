@@ -72,7 +72,7 @@ const ReadingProgressBar = ({ contentRef, className = '' }) => {
       <div className={`hidden lg:block fixed bottom-6 right-6 z-40 transition-all duration-300 ${
         isVisible && progress > 5 && progress < 95 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
       }`}>
-        <div className="bg-medium-bg-card border border-medium-border rounded-card shadow-elevated px-4 py-3">
+        <div className="border border-medium-border rounded-card shadow-elevated px-4 py-3">
           <div className="flex items-center space-x-4 text-sm">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 relative">
@@ -116,7 +116,7 @@ const ReadingProgressBar = ({ contentRef, className = '' }) => {
       <div className={`lg:hidden fixed bottom-4 left-4 right-4 z-40 transition-all duration-300 ${
         isVisible && progress > 10 && progress < 90 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
       }`}>
-        <div className="bg-medium-bg-card/95 backdrop-blur-sm border border-medium-border rounded-button px-4 py-2">
+        <div className="/95 backdrop-blur-sm border border-medium-border rounded-button px-4 py-2">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center space-x-2">
               <div className="w-6 h-6 relative">

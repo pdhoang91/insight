@@ -33,7 +33,7 @@ const CategoryList = () => {
         <Link
           key={category.id}
           href={`/category/${category.name.toLowerCase()}`}
-          className="bg-medium-bg-card rounded-card border border-medium-border p-6 hover:shadow-card-hover transition-all group"
+          className="rounded-card border border-medium-border p-6 hover:shadow-card-hover transition-all group"
         >
           <h3 className="text-lg font-serif font-bold text-medium-text-primary group-hover:text-medium-accent-green transition-colors mb-2">
             {category.name}

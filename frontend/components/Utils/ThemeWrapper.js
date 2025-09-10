@@ -49,7 +49,7 @@ const ThemeWrapper = ({
  * Component for theme-aware cards
  */
 export const ThemeCard = ({ children, className = '', ...props }) => {
-  const cardClasses = 'bg-medium-bg-card border border-medium-border rounded-lg';
+  const cardClasses = ' border border-medium-border rounded-lg';
   
   return (
     <div className={`${cardClasses} ${className}`} {...props}>

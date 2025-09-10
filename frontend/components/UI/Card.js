@@ -9,7 +9,7 @@ const Card = ({
   className = '',
   ...props 
 }) => {
-  const baseClasses = 'bg-medium-bg-card transition-all duration-200';
+  const baseClasses = 'transition-all duration-200';
 
   const variants = {
     default: 'rounded-card shadow-card',

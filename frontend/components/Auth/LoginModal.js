@@ -104,7 +104,7 @@ const LoginModal = ({ isOpen, onClose }) => {
           onClick={(e) => e.stopPropagation()}
         >
           {/* Ultra Transparent Modal */}
-          <div className="bg-medium-bg-card backdrop-blur-lg rounded-card border border-medium-border p-8 space-y-6 relative shadow-card">
+          <div className="backdrop-blur-lg rounded-card border border-medium-border p-8 space-y-6 relative shadow-card">
             {/* Close Button */}
             <button
               onClick={onClose}

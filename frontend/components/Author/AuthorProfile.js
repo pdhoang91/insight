@@ -59,7 +59,7 @@ const AuthorProfile = ({
   };
 
   return (
-    <div className={`bg-medium-bg-card rounded-lg border border-medium-border overflow-hidden ${className}`}>
+    <div className={` rounded-lg border border-medium-border overflow-hidden ${className}`}>
       {/* Cover/Header Section */}
       <div className="h-24 bg-gradient-to-r from-medium-accent-green/10 to-medium-accent-green/5"></div>
       

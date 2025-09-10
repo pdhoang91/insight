@@ -55,7 +55,7 @@ const MobileSidebar = ({
             {/* Content */}
             <div className="p-4 space-y-6">
               {/* Author Profile - Compact Version */}
-              <div className="bg-medium-bg-card rounded-lg p-4 border border-medium-border">
+              <div className="rounded-lg p-4 border border-medium-border">
                 <AuthorProfile 
                   author={author}
                   showFullBio={false}
@@ -66,19 +66,19 @@ const MobileSidebar = ({
 
               {/* Quick Stats */}
               <div className="grid grid-cols-3 gap-4">
-                <div className="text-center p-3 bg-medium-bg-card rounded-lg border border-medium-border">
+                <div className="text-center p-3  rounded-lg border border-medium-border">
                   <div className="text-xl font-bold text-medium-text-primary">
                     {posts.length}
                   </div>
                   <div className="text-xs text-medium-text-muted">Posts</div>
                 </div>
-                <div className="text-center p-3 bg-medium-bg-card rounded-lg border border-medium-border">
+                <div className="text-center p-3  rounded-lg border border-medium-border">
                   <div className="text-xl font-bold text-medium-text-primary">
                     {categories.length}
                   </div>
                   <div className="text-xs text-medium-text-muted">Topics</div>
                 </div>
-                <div className="text-center p-3 bg-medium-bg-card rounded-lg border border-medium-border">
+                <div className="text-center p-3  rounded-lg border border-medium-border">
                   <div className="text-xl font-bold text-medium-text-primary">
                     1.2K
                   </div>
@@ -87,7 +87,7 @@ const MobileSidebar = ({
               </div>
 
               {/* Popular Posts - Mobile Optimized */}
-              <div className="bg-medium-bg-card rounded-lg p-4 border border-medium-border">
+              <div className="rounded-lg p-4 border border-medium-border">
                 <h3 className="text-lg font-serif font-bold text-medium-text-primary mb-3 flex items-center">
                   <FaFire className={themeClasses.icons.accentSm + " mr-2"} />
                   Popular Posts
@@ -100,7 +100,7 @@ const MobileSidebar = ({
               </div>
 
               {/* Categories - Compact */}
-              <div className="bg-medium-bg-card rounded-lg p-4 border border-medium-border">
+              <div className="rounded-lg p-4 border border-medium-border">
                 <h3 className="text-lg font-serif font-bold text-medium-text-primary mb-3 flex items-center">
                   <FaTag className={themeClasses.icons.accentSm + " mr-2"} />
                   Topics
@@ -118,7 +118,7 @@ const MobileSidebar = ({
               </div>
 
               {/* Newsletter - Mobile Optimized */}
-              <div className="bg-medium-bg-card rounded-lg p-4 border border-medium-border">
+              <div className="rounded-lg p-4 border border-medium-border">
                 <h3 className="text-lg font-serif font-bold text-medium-text-primary mb-3 flex items-center">
                   <FaEnvelope className={themeClasses.icons.accentSm + " mr-2"} />
                   Newsletter
@@ -127,7 +127,7 @@ const MobileSidebar = ({
               </div>
 
               {/* Archive - Compact */}
-              <div className="bg-medium-bg-card rounded-lg p-4 border border-medium-border">
+              <div className="rounded-lg p-4 border border-medium-border">
                 <h3 className="text-lg font-serif font-bold text-medium-text-primary mb-3 flex items-center">
                   <FaCalendar className={themeClasses.icons.accentSm + " mr-2"} />
                   Archive

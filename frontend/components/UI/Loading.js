@@ -73,7 +73,7 @@ export const Skeleton = ({
 // Loading Card Skeleton
 export const CardSkeleton = ({ className = '' }) => {
   return (
-    <div className={`bg-medium-bg-card rounded-card border border-medium-border p-6 ${className}`}>
+    <div className={` rounded-card border border-medium-border p-6 ${className}`}>
       <div className="animate-pulse">
         {/* Header */}
         <div className="flex items-center space-x-4 mb-4">
@@ -104,7 +104,7 @@ export const CardSkeleton = ({ className = '' }) => {
 // Post Item Skeleton
 export const PostSkeleton = ({ className = '' }) => {
   return (
-    <div className={`bg-medium-bg-card rounded-card border border-medium-border p-6 ${className}`}>
+    <div className={` rounded-card border border-medium-border p-6 ${className}`}>
       <div className="animate-pulse">
         {/* Title */}
         <div className="mb-4">

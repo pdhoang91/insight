@@ -18,7 +18,7 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-[200px] flex items-center justify-center bg-medium-bg-card rounded-lg border border-medium-border p-8">
+        <div className="min-h-[200px] flex items-center justify-center  rounded-lg border border-medium-border p-8">
           <div className="text-center">
             <div className="w-16 h-16 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
               <svg 

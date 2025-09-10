@@ -49,7 +49,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
 
   return (
     <motion.div
-      className="bg-medium-bg-card border border-medium-border rounded-card p-card shadow-card"
+      className="border border-medium-border rounded-card p-card shadow-card"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
