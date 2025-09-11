@@ -594,7 +594,7 @@ a:hover {
   color: var(--medium-text-primary);
 }
 
-/* Editor Styles - Medium 2024 */
+/* Editor Styles - Medium 2024 Enhanced */
 .editor-content {
   @apply content;
   min-height: 300px;
@@ -603,24 +603,89 @@ a:hover {
   -ms-overflow-style: none;
   background: var(--medium-bg-card);
   border: 1px solid var(--medium-border);
-  border-radius: var(--border-radius-lg);
+  border-radius: 0.5rem; /* 8px - consistent with theme */
   padding: 1rem;
+  transition: all 0.2s ease-out;
+}
+
+.editor-content:hover {
+  border-color: var(--medium-border);
+}
+
+.editor-content:focus-within {
+  border-color: var(--medium-accent-green);
+  box-shadow: 0 0 0 3px rgba(26, 137, 23, 0.1);
 }
 
 .editor-content::-webkit-scrollbar {
   display: none;
 }
 
-/* ProseMirror Customizations - Clean Theme */
+/* ProseMirror Customizations - Enhanced Medium 2024 */
 .ProseMirror {
   border: none !important;
   outline: none !important;
-  color: var(--text-primary);
+  color: var(--medium-text-primary);
   line-height: 1.7;
-  font-family: var(--font-primary);
+  font-family: Charter, Georgia, Cambria, 'Times New Roman', serif;
   font-size: 1rem;
   padding: 1rem;
   min-height: 300px;
+  font-feature-settings: 'kern' 1, 'liga' 1;
+  -webkit-font-smoothing: subpixel-antialiased;
+  -moz-osx-font-smoothing: auto;
+}
+
+/* Enhanced ProseMirror headings with consistent typography - Smaller desktop sizes */
+.ProseMirror h1 {
+  font-family: Charter, Georgia, Cambria, 'Times New Roman', serif;
+  font-size: 1.5rem; /* Further reduced for desktop */
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.002em;
+  color: var(--medium-text-primary);
+  margin: 1.5rem 0 0.75rem 0;
+}
+
+.ProseMirror h2 {
+  font-family: Charter, Georgia, Cambria, 'Times New Roman', serif;
+  font-size: 1.25rem; /* Further reduced for desktop */
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.002em;
+  color: var(--medium-text-primary);
+  margin: 1.25rem 0 0.75rem 0;
+}
+
+.ProseMirror h3 {
+  font-family: Charter, Georgia, Cambria, 'Times New Roman', serif;
+  font-size: 1.125rem; /* Further reduced for desktop */
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.001em;
+  color: var(--medium-text-primary);
+  margin: 1rem 0 0.5rem 0;
+}
+
+.ProseMirror p {
+  color: var(--medium-text-primary);
+  margin: 0 0 1rem 0;
+  line-height: 1.7;
+}
+
+/* Enhanced responsive typography for mobile */
+@media (max-width: 768px) {
+  .ProseMirror h1 {
+    font-size: 1.25rem; /* Smaller for mobile */
+  }
+  
+  .ProseMirror h2 {
+    font-size: 1.125rem; /* Smaller for mobile */
+  }
+  
+  .ProseMirror h3 {
+    font-size: 1rem; /* Smaller for mobile */
+  }
 }
 
 /* ProseMirror Image Styles - Full Width */

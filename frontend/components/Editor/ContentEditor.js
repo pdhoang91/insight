@@ -1,6 +1,7 @@
 // components/Editor/ContentEditor.js
 import React from 'react';
 import { EditorContent } from '@tiptap/react';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 import LoadingSpinner from '../Shared/LoadingSpinner';
 
 const ContentEditor = ({
@@ -9,13 +10,28 @@ const ContentEditor = ({
   isUploading,
 }) => {
   return (
-    <div className="relative transition-all duration-300 px-4 min-h-[500px]">
+    <div className={combineClasses(
+      'relative min-h-[500px]',
+      themeClasses.spacing.container,
+      themeClasses.animations.smooth
+    )}>
       
       {isUploading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-surface/50 backdrop-blur-sm rounded-lg z-10">
+        <div className={combineClasses(
+          'absolute inset-0 flex items-center justify-center z-10',
+          'bg-medium-bg-primary/50',
+          themeClasses.effects.blur,
+          themeClasses.effects.rounded
+        )}>
           <div className="text-center">
             <LoadingSpinner size="lg" />
-            <p className="mt-2 text-sm text-secondary">Uploading image...</p>
+            <p className={combineClasses(
+              'mt-2',
+              themeClasses.typography.bodySmall,
+              themeClasses.text.secondary
+            )}>
+              Uploading image...
+            </p>
           </div>
         </div>
       )}
@@ -24,7 +40,11 @@ const ContentEditor = ({
         <div className="h-full">
           <EditorContent 
             editor={editor} 
-            className="prose-editor editor-scroll min-h-[400px] outline-none focus:outline-none"
+            className={combineClasses(
+              'prose-editor editor-scroll min-h-[400px]',
+              'outline-none focus:outline-none',
+              themeClasses.typography.bodyMedium
+            )}
           />
         </div>
       )}

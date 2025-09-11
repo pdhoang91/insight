@@ -61,13 +61,13 @@ const ArticleReader = ({ post }) => {
         {/* Article Header - Mobile Optimized */}
         <header className="mb-8 sm:mb-10 lg:mb-12">
           {/* Title */}
-          <h1 className="font-serif font-bold text-2xl sm:text-3xl lg:text-4xl xl:text-5xl text-medium-text-primary mb-4 sm:mb-6 leading-tight">
+          <h1 className="font-serif font-bold text-lg sm:text-xl lg:text-2xl text-medium-text-primary mb-4 sm:mb-6 leading-tight">
             {post.title}
           </h1>
 
           {/* Subtitle */}
           {post.subtitle && (
-            <h2 className="text-lg sm:text-xl lg:text-2xl text-medium-text-secondary mb-6 sm:mb-8 leading-relaxed">
+            <h2 className="text-sm sm:text-base lg:text-lg text-medium-text-secondary mb-6 sm:mb-8 leading-relaxed">
               {post.subtitle}
             </h2>
           )}

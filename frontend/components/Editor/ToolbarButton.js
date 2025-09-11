@@ -1,6 +1,7 @@
 // components/Editor/ToolbarButton.js
 import React, { useState, useRef, useEffect } from 'react';
 import Tippy from '@tippyjs/react';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 import 'tippy.js/dist/tippy.css';
 
 const ToolbarButton = ({ icon: Icon, onClick, isActive, tooltip, disabled, children, compact = false }) => {
@@ -20,17 +21,29 @@ const ToolbarButton = ({ icon: Icon, onClick, isActive, tooltip, disabled, child
     };
   }, []);
 
-  const buttonClasses = `
-    ${compact ? 'p-1' : 'p-1.5'} 
-    rounded-md transition-all duration-200 
-    flex items-center justify-center
-    ${isActive 
-      ? 'bg-primary text-white shadow-sm' 
-      : 'text-secondary hover:text-primary hover:bg-elevated/50'
-    } 
-    ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-    focus:outline-none
-  `;
+  const buttonClasses = combineClasses(
+    // Base styles với consistent sizing
+    compact ? 'p-1' : 'p-1.5',
+    'rounded-md flex items-center justify-center',
+    themeClasses.interactive.base,
+    themeClasses.interactive.touchTarget,
+    
+    // State-based styling với theme classes
+    isActive 
+      ? combineClasses(
+          'bg-medium-accent-green text-white',
+          themeClasses.effects.shadow,
+          themeClasses.interactions.buttonPress
+        )
+      : combineClasses(
+          themeClasses.text.secondary,
+          'hover:text-medium-accent-green hover:bg-medium-hover',
+          themeClasses.interactions.buttonHoverSubtle
+        ),
+    
+    // Disabled state
+    disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+  );
 
   if (children) {
     // Dropdown menu button
@@ -44,11 +57,16 @@ const ToolbarButton = ({ icon: Icon, onClick, isActive, tooltip, disabled, child
             aria-label={tooltip}
             title={tooltip}
           >
-            <Icon className={compact ? 'w-3 h-3' : 'w-3.5 h-3.5'} />
+            <Icon className={compact ? themeClasses.icons.xs : themeClasses.icons.sm} />
           </button>
         </Tippy>
         {isOpen && (
-          <div className="absolute left-0 mt-2 w-48 bg-surface border border-border-primary rounded-lg shadow-xl z-20 overflow-hidden">
+          <div className={combineClasses(
+            'absolute left-0 mt-2 w-48 z-20 overflow-hidden',
+            'bg-medium-bg-card border border-medium-border',
+            themeClasses.effects.rounded,
+            themeClasses.effects.shadowLayeredLg
+          )}>
             <div className="py-1">
               {children}
             </div>
@@ -68,7 +86,7 @@ const ToolbarButton = ({ icon: Icon, onClick, isActive, tooltip, disabled, child
         aria-label={tooltip}
         title={tooltip}
       >
-        <Icon className={compact ? 'w-3 h-3' : 'w-3.5 h-3.5'} />
+        <Icon className={compact ? themeClasses.icons.xs : themeClasses.icons.sm} />
       </button>
     </Tippy>
   );

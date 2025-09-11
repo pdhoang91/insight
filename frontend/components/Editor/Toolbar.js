@@ -1,5 +1,6 @@
 // components/Editor/Toolbar.js
 import React from 'react';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 import ToolbarButton from './ToolbarButton';
 
 const Toolbar = ({ menuBar, editor, compact = false }) => {
@@ -10,12 +11,19 @@ const Toolbar = ({ menuBar, editor, compact = false }) => {
     : menuBar;
 
   return (
-    <div className={`sticky top-0 z-10  backdrop-blur-sm  rounded-md transition-all duration-300 ${
+    <div className={combineClasses(
+      'sticky top-0 z-10 rounded-md',
+      'bg-medium-bg-primary/80',
+      themeClasses.effects.blur,
+      themeClasses.animations.smooth,
       compact ? 'p-2' : 'p-2.5'
-    }`}>
+    )}>
       <div className="flex items-center justify-center">
         {/* Main Toolbar */}
-        <div className={`flex items-center ${compact ? 'space-x-0.5' : 'space-x-1'} flex-wrap`}>
+        <div className={combineClasses(
+          'flex items-center flex-wrap',
+          compact ? 'space-x-0.5' : 'space-x-1'
+        )}>
           {filteredMenuBar.map((item, index) => {
             if (item.children) {
               // Dropdown menu button

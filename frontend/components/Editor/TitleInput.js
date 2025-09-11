@@ -1,6 +1,7 @@
 // components/Editor/TitleInput.js
 import React from 'react';
 import { FaImage } from 'react-icons/fa';
+import { themeClasses, combineClasses, componentClasses } from '../../utils/themeClasses';
 import LoadingSpinner from '../Shared/LoadingSpinner';
 
 const TitleInput = ({
@@ -21,16 +22,30 @@ const TitleInput = ({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
-          className={`w-full bg-transparent border-0 border-b border-medium-border focus:border-medium-accent-green outline-none transition-all duration-200 resize-none text-xl md:text-2xl py-3 placeholder-medium-text-muted text-medium-text-primary font-serif font-bold leading-tight`}
+          className={combineClasses(
+            'w-full bg-transparent border-0 border-b py-3',
+            'border-medium-border focus:border-medium-accent-green',
+            'outline-none resize-none',
+            themeClasses.typography.h3,
+            themeClasses.text.primary,
+            'placeholder-medium-text-muted',
+            themeClasses.animations.smooth
+          )}
           placeholder="Tiêu đề bài viết của bạn..."
-          style={{ fontFamily: 'var(--font-primary)' }}
         />
         
         {/* Upload Button */}
         <button
           type="button"
           onClick={handleImageTitleUpload}
-          className={`absolute right-0 top-1/2 transform -translate-y-1/2 p-2 text-medium-text-secondary hover:text-medium-accent-green rounded-lg transition-colors`}
+          className={combineClasses(
+            'absolute right-0 top-1/2 transform -translate-y-1/2',
+            themeClasses.interactive.touchTarget,
+            'p-2 rounded-lg',
+            themeClasses.text.secondary,
+            'hover:text-medium-accent-green',
+            themeClasses.animations.smooth
+          )}
           aria-label="Tải lên ảnh bìa"
           title="Tải lên ảnh bìa"
         >
@@ -43,12 +58,15 @@ const TitleInput = ({
                 alt="Ảnh bìa"
                 className="w-6 h-6 object-cover rounded"
               />
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-medium-accent-green rounded-full flex items-center justify-center">
-                <FaImage className="w-1.5 h-1.5 text-white" />
+              <div className={combineClasses(
+                'absolute -top-1 -right-1 w-3 h-3 rounded-full flex items-center justify-center',
+                'bg-medium-accent-green text-white'
+              )}>
+                <FaImage className="w-1.5 h-1.5" />
               </div>
             </div>
           ) : (
-            <FaImage className="w-4 h-4" />
+            <FaImage className={themeClasses.icons.sm} />
           )}
         </button>
       </div>
@@ -59,11 +77,21 @@ const TitleInput = ({
           <img
             src={imageTitle}
             alt="Xem trước ảnh bìa"
-            className="w-full max-h-64 object-cover rounded-lg border border-medium-border"
+            className={combineClasses(
+              'w-full max-h-64 object-cover border border-medium-border',
+              themeClasses.effects.rounded
+            )}
           />
           <button
             onClick={() => setImageTitle(null)}
-            className="absolute top-2 right-2 p-1 /80 backdrop-blur-sm text-medium-text-secondary hover:text-red-500 rounded-full transition-colors"
+            className={combineClasses(
+              'absolute top-2 right-2 p-1 rounded-full',
+              'bg-medium-bg-primary/80',
+              themeClasses.effects.blur,
+              themeClasses.text.secondary,
+              'hover:text-red-500',
+              themeClasses.animations.smooth
+            )}
             title="Xóa ảnh bìa"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

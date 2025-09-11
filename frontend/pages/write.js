@@ -8,15 +8,25 @@ import { createPost } from '../services/postService';
 import { usePostContext } from '../context/PostContext';
 import { FaTimes } from 'react-icons/fa';
 import { WriteLayout } from '../components/Layout/Layout';
-import { themeClasses } from '../utils/themeClasses';
+import { themeClasses, combineClasses, componentClasses } from '../utils/themeClasses';
 
 // Write Page Header Component - Following home page pattern
 const WritePageHeader = () => (
-  <header className={`text-center lg:text-left ${themeClasses.spacing.gap}`}>
-    <h1 className={`${themeClasses.typography.h1} mb-3`}>
+  <header className={combineClasses(
+    'text-center lg:text-left',
+    themeClasses.spacing.gap
+  )}>
+    <h1 className={combineClasses(
+      componentClasses.heading.h3,
+      'mb-3'
+    )}>
       Tạo bài viết mới
     </h1>
-    <p className={`${themeClasses.typography.bodyLarge} text-medium-text-secondary max-w-2xl mx-auto lg:mx-0`}>
+    <p className={combineClasses(
+      componentClasses.text.bodySmall,
+      themeClasses.text.secondary,
+      'max-w-2xl mx-auto lg:mx-0'
+    )}>
       Chia sẻ kiến thức và ý tưởng của bạn
     </p>
   </header>
@@ -187,10 +197,18 @@ const Write = () => {
       {isFullscreen && (
         <button
           onClick={() => setIsFullscreen(false)}
-          className="fixed top-4 right-4 z-50 p-2 /80 backdrop-blur-sm text-medium-text-secondary hover:text-medium-text-primary rounded-lg transition-colors"
+          className={combineClasses(
+            'fixed top-4 right-4 z-50 rounded-lg',
+            'bg-medium-bg-primary/80',
+            themeClasses.effects.blur,
+            themeClasses.interactive.touchTarget,
+            themeClasses.text.secondary,
+            'hover:text-medium-text-primary',
+            themeClasses.animations.smooth
+          )}
           title="Thoát toàn màn hình"
         >
-          <FaTimes className="w-5 h-5" />
+          <FaTimes className={themeClasses.icons.md} />
         </button>
       )}
 

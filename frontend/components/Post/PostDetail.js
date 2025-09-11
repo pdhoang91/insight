@@ -36,7 +36,7 @@ export const PostDetail = ({ post, onScrollToComments }) => {
     <article>
       {/* Title Section */}
       <header className="mb-8">
-        <h1 className="text-article-title font-serif font-bold text-medium-text-primary mb-4 leading-tight text-balance">
+        <h1 className="font-serif font-bold text-medium-text-primary mb-4 leading-tight text-balance text-lg md:text-xl lg:text-2xl">
           {post.title}
         </h1>
 

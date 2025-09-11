@@ -34,7 +34,7 @@ import {
 import Toolbar from './Toolbar';
 import TitleInput from './TitleInput';
 import ContentEditor from './ContentEditor';
-import { insertTOCIntoContent, removeTOCFromContent, hasTOC } from '../../utils/tocGenerator';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 import 'tippy.js/dist/tippy.css';
 
 const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTitle, isFullscreen = false }) => {
@@ -304,10 +304,13 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
   };
 
   return (
-    <div className={`w-full transition-all duration-300 max-w-6xl mx-auto`}>
-      <div className={`p-1`}>
+    <div className={combineClasses(
+      'w-full max-w-6xl mx-auto',
+      themeClasses.animations.smooth
+    )}>
+      <div className={themeClasses.spacing.cardSmall}>
         {/* Title Input Section */}
-        <div className="mb-6">
+        <div className={themeClasses.spacing.marginBottom}>
           <TitleInput
             title={title}
             setTitle={setTitle}
@@ -319,9 +322,15 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         </div>
 
         {/* Editor Section */}
-        <div className={`transition-all duration-300 ${isFullscreen ? 'h-[calc(100vh-8rem)]' : 'min-h-[70vh]'}`}>
-          {/* Toolbar - Only show in non-focus mode or on hover in focus mode */}
-          <div className={`transition-all duration-300 mb-4`}>
+        <div className={combineClasses(
+          themeClasses.animations.smooth,
+          isFullscreen ? 'h-[calc(100vh-8rem)]' : 'min-h-[70vh]'
+        )}>
+          {/* Toolbar */}
+          <div className={combineClasses(
+            themeClasses.animations.smooth,
+            themeClasses.spacing.marginBottom
+          )}>
             <Toolbar 
               menuBar={menuBar} 
               editor={editor} 
@@ -329,7 +338,11 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
           </div>
 
           {/* Content Editor */}
-          <div className={`transition-all duration-300 ${isFullscreen ? 'h-[calc(100%-4rem)]' : ''} overflow-y-auto`}>
+          <div className={combineClasses(
+            themeClasses.animations.smooth,
+            isFullscreen ? 'h-[calc(100%-4rem)]' : '',
+            'overflow-y-auto'
+          )}>
             <ContentEditor
               editor={editor}
               content={content}
@@ -338,7 +351,6 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
           </div>
         </div>
       </div>
-
     </div>
   );
 };
