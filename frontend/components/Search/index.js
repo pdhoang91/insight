@@ -1,3 +1,3 @@
-// components/search/index.js
+// components/Search/index.js
 export { default as SearchBar } from '../Shared/SimpleSearchBar';
-export { default as SearchResults } from '../Search/SearchResults';
+export { default as SearchResults } from './SearchResults';

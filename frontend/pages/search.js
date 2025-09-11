@@ -2,7 +2,7 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import { HomeLayout } from '../components/Layout/Layout';
-import { SearchResults } from '../components/search';
+import { SearchResults } from '../components/Search';
 import PersonalBlogSidebar from '../components/Shared/PersonalBlogSidebar';
 import { themeClasses } from '../utils/themeClasses';
 
