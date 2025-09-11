@@ -73,46 +73,48 @@ const PostItemProfile = ({ post, isOwner }) => {
   };
 
   return (
-    <article className="bg-medium-bg-card pb-8 mb-8">
+    <article className="group relative bg-medium-bg-card rounded-xl mb-8 transition-all duration-300">
       <div className={`${themeClasses.responsive.flexDesktopRow} ${themeClasses.spacing.gap} items-start`}>
         {/* Image Section - First on mobile, second on desktop */}
         {post.image_title && (
           <div className="w-full lg:w-80 flex-shrink-0 order-1 lg:order-2">
             <Link href={`/p/${post.title_name}`} className="block">
-              <div className="relative overflow-hidden rounded-lg ">
-                <img
-                  src={post.image_title}
-                  alt={post.title}
-                  className="w-full h-48 lg:h-40 object-cover"
-                  loading="lazy"
-                />
+              <div className="relative overflow-hidden rounded-xl bg-medium-bg-secondary">
+                <div className="aspect-[16/10]">
+                  <img
+                    src={post.image_title}
+                    alt={post.title}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                </div>
               </div>
             </Link>
           </div>
         )}
 
         {/* Main Content Section - Second on mobile, first on desktop */}
-        <div className="flex-1 min-w-0 order-2 lg:order-1 border-b border-medium-border pb-4">
+        <div className="flex-1 min-w-0 order-2 lg:order-1 py-6">
 
           {/* Post Title */}
           <Link href={`/p/${post.title_name}`} className={`block ${themeClasses.spacing.marginBottom}`}>
-            <h2 className={`${componentClasses.heading.h3} ${themeClasses.interactive.link} line-clamp-2 text-balance`}>
+            <h2 className="text-xl lg:text-2xl font-bold text-medium-text-primary mb-3 line-clamp-2 text-balance group-hover:text-medium-accent-green transition-colors duration-300">
               {post.title}
             </h2>
           </Link>
 
           {/* Post Preview Content */}
-          <div className={themeClasses.spacing.marginBottom}>
-            <p className="text-body text-medium-text-secondary line-clamp-3 leading-relaxed text-pretty">
+          <div className="mb-6">
+            <p className="text-medium-text-secondary line-clamp-3 leading-relaxed text-base lg:text-lg">
               <TextUtils html={post.preview_content} maxLength={280} />
             </p>
           </div>
 
 
-          {/* Meta Information & Actions */}
-          <div className={`${themeClasses.responsive.flexTabletRow} items-center justify-between ${themeClasses.spacing.gap}`}>
+          {/* Meta Information & Actions - Hidden by default, show on hover */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
             {/* Left side - Meta info */}
-            <div className={`flex items-center ${themeClasses.spacing.gap} ${componentClasses.text.bodyTiny}`}>
+            <div className="flex items-center gap-4 text-body-small">
               <TimeAgo timestamp={post.created_at} className="text-medium-text-muted" />
               <span className="w-1 h-1 bg-medium-text-muted rounded-full"></span>
               <span className="text-medium-text-muted">
@@ -121,52 +123,52 @@ const PostItemProfile = ({ post, isOwner }) => {
             </div>
 
             {/* Right side - Interaction buttons */}
-            <div className={`flex items-center ${themeClasses.spacing.gapLarge}`}>
+            <div className="flex items-center gap-6">
               {/* Clap Button */}
               <button
                 onClick={handleClap}
                 disabled={clapsLoading}
-                className={`${themeClasses.interactive.touchTarget} ${themeClasses.spacing.gapSmall} ${themeClasses.interactive.link} group`}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-medium-hover text-medium-text-secondary hover:text-medium-accent-green transition-all duration-200 min-h-[44px]"
                 aria-label={`Clap for this post. Current claps: ${clapsCount}`}
-                role="button"
-                tabIndex={0}
               >
-                <FaHandsClapping className={`${themeClasses.icons.buttonSm}`} />
-                <span className={componentClasses.text.labelSmall}>{clapsCount}</span>
+                <FaHandsClapping className="w-4 h-4" />
+                <span className="font-medium text-sm">{clapsCount}</span>
               </button>
 
               {/* Comment Button */}
               <button
                 onClick={toggleCommentPopup}
-                className={`${themeClasses.interactive.touchTarget} ${themeClasses.spacing.gapSmall} ${themeClasses.interactive.link} group`}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-medium-hover text-medium-text-secondary hover:text-medium-accent-green transition-all duration-200 min-h-[44px]"
                 aria-label={`View comments. ${totalCommentReply || 0} comments`}
-                role="button"
-                tabIndex={0}
               >
-                <FaComment className={`${themeClasses.icons.buttonSm}`} />
-                <span className={componentClasses.text.labelSmall}>{totalCommentReply || 0}</span>
+                <FaComment className="w-4 h-4" />
+                <span className="font-medium text-sm">{totalCommentReply || 0}</span>
               </button>
 
               {/* View Count */}
-              <div className={`flex items-center ${themeClasses.spacing.gapSmall} ${themeClasses.text.muted}`}>
-                <FaEye className={themeClasses.icons.sm} />
-                <span className={componentClasses.text.labelSmall}>{post.views || 0}</span>
+              <div className="flex items-center gap-2 text-medium-text-muted">
+                <FaEye className="w-4 h-4" />
+                <span className="font-medium text-sm">{post.views || 0}</span>
               </div>
 
               {/* Action buttons for owner */}
               {isOwner && (
-                <div className={`flex items-center ${themeClasses.spacing.gap}`}>
-                  <Link href={`/edit/${post.title_name}`} className={`${themeClasses.interactive.touchTarget} ${themeClasses.spacing.gapTiny} ${themeClasses.interactive.link}`} aria-label="Edit post">
-                    <FaEdit className={themeClasses.icons.sm} />
-                    <span className={componentClasses.text.labelSmall}>Edit</span>
+                <div className="flex items-center gap-2">
+                  <Link 
+                    href={`/edit/${post.title_name}`} 
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-medium-hover text-medium-text-secondary hover:text-medium-accent-green transition-all duration-200 min-h-[44px]"
+                    aria-label="Edit post"
+                  >
+                    <FaEdit className="w-4 h-4" />
+                    <span className="font-medium text-sm">Edit</span>
                   </Link>
                   <button
                     onClick={handleDelete}
-                    className={`${themeClasses.interactive.touchTarget} ${themeClasses.spacing.gapTiny} text-medium-text-secondary hover:text-error transition-colors`}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-red-50 text-medium-text-secondary hover:text-red-600 transition-all duration-200 min-h-[44px]"
                     aria-label="Delete post"
                   >
-                    <FaTrash className={themeClasses.icons.sm} />
-                    <span className={componentClasses.text.labelSmall}>Delete</span>
+                    <FaTrash className="w-4 h-4" />
+                    <span className="font-medium text-sm">Delete</span>
                   </button>
                 </div>
               )}
@@ -178,7 +180,7 @@ const PostItemProfile = ({ post, isOwner }) => {
 
       {/* Comments Section - Full Width */}
       {isCommentsOpen && (
-        <div className="mt-8 pt-6 border-t border-medium-border">
+        <div className="mt-8 pt-6 px-6">
           <div className="space-y-6">
             <AddCommentForm 
               postId={post.id} 
