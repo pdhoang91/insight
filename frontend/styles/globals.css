@@ -96,7 +96,7 @@ body {
 [data-theme="dark"] {
   --medium-bg-primary: #0D1117;          /* GitHub dark inspired */
   --medium-bg-secondary: #161B22;
-  --medium-bg-card: #21262D;
+  --medium-bg-card: transparent;
   --medium-bg-elevated: #2D333B;
   --medium-bg-overlay: rgba(13, 17, 23, 0.95);
   
