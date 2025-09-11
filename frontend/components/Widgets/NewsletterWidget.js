@@ -1,8 +1,9 @@
 // components/Widgets/NewsletterWidget.js
 import React, { useState } from 'react';
 import { FaEnvelope, FaCheck, FaTimes } from 'react-icons/fa';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
-const NewsletterWidget = ({ className = '' }) => {
+const NewsletterWidget = ({ compact = false, className = '' }) => {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle'); // 'idle', 'loading', 'success', 'error'
   const [message, setMessage] = useState('');
@@ -60,7 +61,14 @@ const NewsletterWidget = ({ className = '' }) => {
   };
 
   return (
-    <div className={`bg-gradient-to-br from-medium-accent-green/5 to-medium-accent-green/10 rounded-lg p-6 border border-medium-accent-green/20 ${className}`}>
+    <div className={combineClasses(
+      themeClasses.bg.accentLight,
+      themeClasses.border.accentLight,
+      themeClasses.effects.rounded,
+      compact ? 'p-4' : themeClasses.spacing.card,
+      'bg-gradient-to-br from-medium-accent-green/5 to-medium-accent-green/10 border',
+      className
+    )}>
       {/* Header */}
       <div className="text-center mb-4">
         <div className="w-12 h-12 bg-medium-accent-green/10 rounded-full flex items-center justify-center mx-auto mb-3">

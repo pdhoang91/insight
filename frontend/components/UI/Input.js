@@ -1,5 +1,6 @@
 // components/UI/Input.js - Medium 2024 Design
 import React from 'react';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const Input = ({ 
   type = 'text',
@@ -15,28 +16,31 @@ const Input = ({
   className = '',
   ...props 
 }) => {
-  const baseClasses = 'font-ui bg-medium-bg-card border border-medium-border text-medium-text-primary placeholder-medium-text-muted transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-medium-accent-green focus:border-medium-accent-green disabled:opacity-50 disabled:cursor-not-allowed';
-  
   const sizes = {
-    sm: 'px-3 py-1.5 text-body-small rounded-lg',
-    md: 'px-4 py-2 text-body rounded-lg',
-    lg: 'px-6 py-3 text-body-large rounded-lg',
+    sm: combineClasses(themeClasses.interactive.inputSmall, themeClasses.effects.rounded),
+    md: combineClasses(themeClasses.interactive.inputMedium, themeClasses.effects.rounded),
+    lg: combineClasses(themeClasses.interactive.inputLarge, themeClasses.effects.rounded),
   };
   
-  const errorClasses = error ? 'border-error focus:border-error focus:ring-error' : '';
+  const errorClasses = error ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '';
   
-  const inputClasses = [
-    baseClasses,
+  const inputClasses = combineClasses(
+    themeClasses.interactive.inputBase,
+    themeClasses.interactive.input,
     sizes[size],
     errorClasses,
     fullWidth ? 'w-full' : '',
     className
-  ].filter(Boolean).join(' ');
+  );
 
   return (
     <div className={fullWidth ? 'w-full' : ''}>
       {label && (
-        <label className="block text-label font-medium text-medium-text-primary mb-sm">
+        <label className={combineClasses(
+          'block mb-2',
+          themeClasses.typography.labelMedium,
+          themeClasses.text.primary
+        )}>
           {label}
         </label>
       )}
@@ -50,7 +54,11 @@ const Input = ({
         {...props}
       />
       {(helperText || error) && (
-        <p className={`mt-sm text-body-small ${error ? 'text-error' : 'text-medium-text-muted'}`}>
+        <p className={combineClasses(
+          'mt-2',
+          themeClasses.typography.bodyTiny,
+          error ? themeClasses.text.error : themeClasses.text.muted
+        )}>
           {error || helperText}
         </p>
       )}

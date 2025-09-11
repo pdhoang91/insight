@@ -6,7 +6,7 @@ import AuthorProfile from '../Author/AuthorProfile';
 import PopularPostsWidget from '../Widgets/PopularPostsWidget';
 import ArchiveWidget from '../Archive/ArchiveWidget';
 import NewsletterWidget from '../Widgets/NewsletterWidget';
-import { themeClasses } from '../../utils/themeClasses';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const MobileSidebar = ({ 
   isOpen, 
@@ -26,7 +26,11 @@ const MobileSidebar = ({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-0 bg-medium-bg-primary/80 backdrop-blur-sm z-50 md:hidden"
+            className={combineClasses(
+              'fixed inset-0 z-50 md:hidden',
+              themeClasses.bg.primary + '/80',
+              themeClasses.effects.blur
+            )}
             onClick={onClose}
           />
 
@@ -36,26 +40,51 @@ const MobileSidebar = ({
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'tween', duration: 0.2, ease: 'easeOut' }}
-            className={`fixed top-0 right-0 bottom-0 w-80 max-w-[90vw] bg-medium-bg-primary border-l border-medium-border z-50 overflow-y-auto overscroll-contain ${className}`}
+            className={combineClasses(
+              'fixed top-0 right-0 bottom-0 w-80 max-w-[90vw] z-50 overflow-y-auto overscroll-contain',
+              themeClasses.bg.primary,
+              themeClasses.border.primary,
+              'border-l',
+              className
+            )}
             style={{ WebkitOverflowScrolling: 'touch' }}
           >
             {/* Header */}
-            <div className="sticky top-0 bg-medium-bg-primary border-b border-medium-border p-4 flex items-center justify-between">
-              <h2 className="text-lg font-serif font-bold text-medium-text-primary">
+            <div className={combineClasses(
+              'sticky top-0 p-4 flex items-center justify-between',
+              themeClasses.bg.primary,
+              themeClasses.border.primary,
+              'border-b'
+            )}>
+              <h2 className={combineClasses(
+                themeClasses.typography.h5,
+                themeClasses.text.primary
+              )}>
                 About & More
               </h2>
               <button
                 onClick={onClose}
-                className="p-2 hover: rounded-full transition-colors"
+                className={combineClasses(
+                  'p-2 rounded-full transition-colors',
+                  themeClasses.interactive.base,
+                  'hover:bg-medium-hover'
+                )}
               >
-                <FaTimes className="w-5 h-5 text-medium-text-secondary" />
+                <FaTimes className={combineClasses(
+                  themeClasses.icons.md,
+                  themeClasses.icons.secondary
+                )} />
               </button>
             </div>
 
             {/* Content */}
             <div className="p-4 space-y-6">
               {/* Author Profile - Compact Version */}
-              <div className="rounded-lg p-4 border border-medium-border">
+              <div className={combineClasses(
+                themeClasses.effects.rounded,
+                themeClasses.border.primary,
+                'p-4 border'
+              )}>
                 <AuthorProfile 
                   author={author}
                   showFullBio={false}
