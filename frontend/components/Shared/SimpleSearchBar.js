@@ -4,16 +4,24 @@ import { useRouter } from 'next/router';
 import { FaSearch, FaTimes } from 'react-icons/fa';
 import { useThemeClasses } from '../../hooks/useThemeClasses';
 
-const SimpleSearchBar = ({ onClose, autoFocus = false, className = '' }) => {
+const SimpleSearchBar = ({ onClose, autoFocus = false, className = '', placeholder = 'Search articles...' }) => {
   const [query, setQuery] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { classes, combineClasses } = useThemeClasses();
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
-    if (query.trim()) {
-      router.push(`/search?q=${encodeURIComponent(query.trim())}`);
-      if (onClose) onClose();
+    if (query.trim() && !isLoading) {
+      setIsLoading(true);
+      try {
+        await router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+        if (onClose) onClose();
+      } catch (error) {
+        console.error('Search navigation failed:', error);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -31,7 +39,7 @@ const SimpleSearchBar = ({ onClose, autoFocus = false, className = '' }) => {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder="Search articles..."
+          placeholder={placeholder}
           autoFocus={autoFocus}
           className={combineClasses(classes.input, 'pl-10 pr-10 py-2 rounded-full')}
         />

@@ -1,228 +1,127 @@
 // components/Shared/TableOfContents.js
-import React, { useState, useEffect, useRef } from 'react';
-import { FaList, FaTimes, FaChevronRight } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaList, FaChevronUp, FaChevronDown } from 'react-icons/fa';
 
-const TableOfContents = ({ content, className = '', isHorizontalLayout = false, renderOnlyList = false }) => {
-  const [headings, setHeadings] = useState([]);
-  const [activeHeading, setActiveHeading] = useState('');
-  const [isVisible, setIsVisible] = useState(false);
-  const tocRef = useRef(null);
-  const observerRef = useRef(null);
+const TableOfContents = ({ content, className = '' }) => {
+  const [toc, setToc] = useState([]);
+  const [activeId, setActiveId] = useState('');
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
-  // Extract headings from HTML content and add IDs to DOM elements
+  // Extract headings from HTML content
   useEffect(() => {
     if (!content) return;
 
-    // Wait for DOM to be updated with the content
-    setTimeout(() => {
-      const headingElements = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
-      const extractedHeadings = [];
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(content, 'text/html');
+    const headings = doc.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    
+    const tocItems = Array.from(headings).map((heading, index) => {
+      const id = heading.id || `heading-${index}`;
+      const level = parseInt(heading.tagName.charAt(1));
+      const text = heading.textContent.trim();
+      
+      // Add ID to heading if it doesn't have one
+      if (!heading.id) {
+        heading.id = id;
+      }
+      
+      return {
+        id,
+        text,
+        level,
+        element: heading
+      };
+    });
 
-      headingElements.forEach((heading, index) => {
-        const level = parseInt(heading.tagName.charAt(1));
-        const text = heading.textContent.trim();
-        const id = heading.id || `heading-${index}-${text.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-')}`;
-        
-        // Add ID to heading if it doesn't exist
-        if (!heading.id) {
-          heading.id = id;
-        }
-        
-        extractedHeadings.push({
-          id,
-          text,
-          level,
-          element: heading
-        });
-      });
-
-      setHeadings(extractedHeadings);
-    }, 100);
+    setToc(tocItems);
   }, [content]);
 
-  // Intersection Observer for active heading detection
+  // Handle scroll to update active heading
   useEffect(() => {
-    if (headings.length === 0) return;
-
-    const headingElements = headings.map(h => document.getElementById(h.id)).filter(Boolean);
-    
-    if (headingElements.length === 0) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visibleEntries = entries.filter(entry => entry.isIntersecting);
-        if (visibleEntries.length > 0) {
-          // Get the first visible heading
-          const firstVisible = visibleEntries[0];
-          setActiveHeading(firstVisible.target.id);
+    const handleScroll = () => {
+      const headings = toc.map(item => {
+        const element = document.getElementById(item.id);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          return {
+            id: item.id,
+            top: rect.top,
+            element
+          };
         }
-      },
-      {
-        rootMargin: '-20% 0% -35% 0%',
-        threshold: 0
-      }
-    );
+        return null;
+      }).filter(Boolean);
 
-    headingElements.forEach(el => observer.observe(el));
-    observerRef.current = observer;
+      // Find the heading that's currently in view
+      const current = headings.find((heading, index) => {
+        const next = headings[index + 1];
+        return heading.top <= 100 && (!next || next.top > 100);
+      });
 
-    return () => {
-      if (observerRef.current) {
-        observerRef.current.disconnect();
+      if (current) {
+        setActiveId(current.id);
       }
     };
-  }, [headings]);
 
-  const scrollToHeading = (headingId) => {
-    const element = document.getElementById(headingId);
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Call once to set initial active heading
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [toc]);
+
+  const scrollToHeading = (id) => {
+    const element = document.getElementById(id);
     if (element) {
-      const offset = 100; // Account for fixed navbar
-      const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
-      const offsetPosition = elementPosition - offset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
+      const yOffset = -80; // Account for fixed navbar
+      const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
     }
   };
 
-  const generateTOC = () => {
-    if (headings.length === 0) return null;
+  if (toc.length === 0) return null;
 
-    return headings.map((heading) => {
-      const isActive = activeHeading === heading.id;
-      const indentLevel = Math.max(0, heading.level - 1);
-      
-      return (
-        <li key={heading.id} className="mb-1">
-          <button
-            onClick={() => scrollToHeading(heading.id)}
-            className={`
-              w-full text-left py-2 px-2 text-sm transition-all duration-200 rounded-md
-              hover:text-matrix-green hover:bg-matrix-green/10
-              ${isActive 
-                ? 'text-matrix-green bg-matrix-green/20' 
-                : 'text-text-secondary hover:text-matrix-green'
-              }
-            `}
-            style={{ marginLeft: `${indentLevel * 12}px` }}
-          >
-            <span className="flex items-center gap-2">
-              {indentLevel > 0 && <span className="text-xs opacity-60"></span>}
-              <span className="truncate leading-relaxed">{heading.text}</span>
-            </span>
-          </button>
-        </li>
-      );
-    });
-  };
-
-  if (headings.length === 0) {
-    return null;
-  }
-
-  // Render only the list (for custom containers)
-  if (renderOnlyList) {
-    return (
-      <nav className={className}>
-        <ul className="space-y-0.5">
-          {generateTOC()}
-        </ul>
-      </nav>
-    );
-  }
-
-  // Horizontal layout (sidebar) version
-  if (isHorizontalLayout) {
-    return (
-      <div className={`w-full toc-custom-sidebar ${className}`}>
-        {/* TOC Sidebar Content */}
-        <div className="bg-terminal-black/30 backdrop-blur-sm rounded-lg p-4">
-          {/* Header */}
-          <div className="mb-4 pb-3">
-            <h3 className="text-sm font-semibold text-matrix-green font-mono flex items-center gap-2">
-              MỤC LỤC
-            </h3>
-          </div>
-
-          {/* TOC Content */}
-          <div className="custom-scrollbar max-h-[calc(100vh-12rem)]">
-            <nav>
-              <ul className="space-y-0.5">
-                {generateTOC()}
-              </ul>
-            </nav>
-          </div>
-          
-
-        </div>
-      </div>
-    );
-  }
-
-  // Original floating version (for mobile)
   return (
-    <>
-      {/* TOC Toggle Button */}
-      <button
-        onClick={() => setIsVisible(!isVisible)}
-        className={`
-          fixed top-16 right-6 z-40 p-3 rounded-lg transition-all duration-300
-          bg-terminal-gray/90 backdrop-blur-sm border border-matrix-green/30
-          text-text-secondary hover:text-matrix-green hover:border-matrix-green
-          shadow-lg hover:shadow-neon-green
-          ${isVisible ? 'text-matrix-green border-matrix-green' : ''}
-        `}
-        title="Table of Contents"
-      >
-        <FaList className="w-4 h-4" />
-      </button>
-
-      {/* TOC Sidebar */}
-      <div
-        ref={tocRef}
-        className={`
-          fixed top-16 right-6 z-30 w-80 max-h-[calc(100vh-4rem)]
-          bg-terminal-dark/95 backdrop-blur-sm border border-matrix-green/30 rounded-lg
-          transform transition-all duration-300 shadow-xl
-          ${isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0 pointer-events-none'}
-          ${className}
-        `}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-terminal-border">
-          <h3 className="text-sm font-semibold text-matrix-green font-mono">
-            MỤC LỤC
-          </h3>
-          <button
-            onClick={() => setIsVisible(false)}
-            className="p-1 text-text-secondary hover:text-matrix-green transition-colors"
-          >
-            <FaTimes className="w-3 h-3" />
-          </button>
-        </div>
-
-        {/* TOC Content */}
-        <div className="p-4 custom-scrollbar max-h-[calc(100vh-10rem)]">
-          <nav>
-            <ul className="space-y-0">
-              {generateTOC()}
-            </ul>
-          </nav>
-        </div>
-
-
+    <div className={`table-of-contents ${className}`}>
+      {/* Header */}
+      <div className="toc-header">
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="flex items-center justify-between w-full text-left"
+          aria-expanded={!isCollapsed}
+          aria-controls="toc-list"
+          aria-label={`${isCollapsed ? 'Expand' : 'Collapse'} table of contents`}
+        >
+          <div className="flex items-center gap-2">
+            <FaList className="w-4 h-4" aria-hidden="true" />
+            <span>Table of Contents</span>
+          </div>
+          {isCollapsed ? (
+            <FaChevronDown className="w-4 h-4" aria-hidden="true" />
+          ) : (
+            <FaChevronUp className="w-4 h-4" aria-hidden="true" />
+          )}
+        </button>
       </div>
 
-      {/* Backdrop */}
-      {isVisible && (
-        <div
-          className="fixed inset-0 z-20 bg-black/20 backdrop-blur-sm"
-          onClick={() => setIsVisible(false)}
-        />
+      {/* TOC List */}
+      {!isCollapsed && (
+        <ul className="toc-list p-4" id="toc-list" role="navigation" aria-label="Table of contents">
+          {toc.map((item, index) => (
+            <li key={index} className="toc-item">
+              <button
+                onClick={() => scrollToHeading(item.id)}
+                className={`toc-link ${activeId === item.id ? 'active' : ''}`}
+                style={{ paddingLeft: `${(item.level - 1) * 1}rem` }}
+                aria-label={`Navigate to section: ${item.text}`}
+                aria-current={activeId === item.id ? 'location' : undefined}
+              >
+                {item.text}
+              </button>
+            </li>
+          ))}
+        </ul>
       )}
-    </>
+    </div>
   );
 };
 

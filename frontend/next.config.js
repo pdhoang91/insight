@@ -106,14 +106,38 @@ module.exports = {
     // Enable dangerous allow all for development (remove in production)
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    // Disable optimization for external images to avoid Docker network issues
-    unoptimized: true,
+    // Enable optimization for better performance (disable only if needed)
+    unoptimized: process.env.NODE_ENV === 'development',
+    // Image formats for better compression
+    formats: ['image/webp', 'image/avif'],
+    // Device sizes for responsive images
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    // Image sizes for different breakpoints
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+  },
+  // Performance optimizations
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
   },
   // Add experimental flag to handle SSL issues in development
   experimental: {
     ...(process.env.NODE_ENV === 'development' && {
       serverComponentsExternalPackages: [],
     }),
+    // Enable modern bundling
+    esmExternals: true,
+    // Remove optimizeCss as it causes critters module error
+  },
+  // Webpack optimizations
+  webpack: (config, { isServer }) => {
+    // Optimize bundle size
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+      };
+    }
+    return config;
   },
 };
   

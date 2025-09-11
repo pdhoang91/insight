@@ -134,12 +134,10 @@ const Navbar = () => {
               ) : (
                 <button
                   onClick={() => setIsSearchOpen(true)}
-                  className={`p-2 text-medium-text-secondary hover:text-medium-text-primary hover:bg-medium-hover rounded-medium transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) hover:scale-105 ${themeClasses.interactive.touchTarget}`}
+                  className="p-3 text-medium-text-secondary hover:text-medium-text-primary hover:bg-medium-hover rounded-lg transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center"
                   aria-label="Open search"
-                  role="button"
-                  tabIndex={0}
                 >
-                  <FaSearch className={`${themeClasses.icons.sm} ${themeClasses.text.secondary}`} />
+                  <FaSearch className="w-4 h-4" />
                 </button>
               )}
             </div>
@@ -280,7 +278,7 @@ const Navbar = () => {
           <div className="md:hidden">
             <button
               onClick={toggleMobileMenu}
-              className={`p-2 ${classes.text.secondary} hover:${classes.text.primary} transition-colors`}
+              className="p-3 text-medium-text-secondary hover:text-medium-text-primary hover:bg-medium-hover rounded-lg transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center"
               aria-label="Toggle menu"
             >
               {isMobileMenuOpen ? (
