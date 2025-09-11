@@ -11,26 +11,26 @@ import { WriteLayout } from '../components/Layout/Layout';
 import { themeClasses, combineClasses, componentClasses } from '../utils/themeClasses';
 
 // Write Page Header Component - Following home page pattern
-const WritePageHeader = () => (
-  <header className={combineClasses(
-    'text-center lg:text-left',
-    themeClasses.spacing.gap
-  )}>
-    <h1 className={combineClasses(
-      componentClasses.heading.h3,
-      'mb-3'
-    )}>
-      Tạo bài viết mới
-    </h1>
-    <p className={combineClasses(
-      componentClasses.text.bodySmall,
-      themeClasses.text.secondary,
-      'max-w-2xl mx-auto lg:mx-0'
-    )}>
-      Chia sẻ kiến thức và ý tưởng của bạn
-    </p>
-  </header>
-);
+// const WritePageHeader = () => (
+//   <header className={combineClasses(
+//     'text-center lg:text-left',
+//     themeClasses.spacing.gap
+//   )}>
+//     <h1 className={combineClasses(
+//       componentClasses.heading.h3,
+//       'mb-3'
+//     )}>
+//       Tạo bài viết mới
+//     </h1>
+//     <p className={combineClasses(
+//       componentClasses.text.bodySmall,
+//       themeClasses.text.secondary,
+//       'max-w-2xl mx-auto lg:mx-0'
+//     )}>
+//       Chia sẻ kiến thức và ý tưởng của bạn
+//     </p>
+//   </header>
+// );
 
 const Write = () => {
   const router = useRouter();
@@ -230,7 +230,6 @@ const Write = () => {
       ) : (
         /* Normal Mode - Use optimized WriteLayout */
         <WriteLayout>
-          <WritePageHeader />
           
           <PostForm
             title={title}

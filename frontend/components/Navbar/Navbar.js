@@ -194,9 +194,13 @@ const Navbar = () => {
                       exit={{ opacity: 0, scale: 0.95, y: -10 }}
                       className={`absolute right-0 mt-2 w-64 ${classes.bg.card} shadow-lg rounded-lg overflow-hidden backdrop-blur-md`}
                     >
-                      {/* User Info */}
+                      {/* User Info - Clickable to profile */}
                       <div className="px-4 py-3">
-                        <div className="flex items-center gap-3">
+                        <Link
+                          href={`/${user.username}`}
+                          className="flex items-center gap-3 hover:bg-medium-hover rounded-lg p-2 -m-2 transition-colors duration-200"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
                           {user.avatar_url ? (
                             <img
                               src={user.avatar_url}
@@ -209,38 +213,42 @@ const Navbar = () => {
                             </div>
                           )}
                           <div>
-                            <div className={`font-medium ${classes.text.primary}`}>
+                            <div className={`font-medium ${classes.text.primary} hover:text-medium-accent-green transition-colors`}>
                               {user.name}
                             </div>
                             <div className={`text-sm ${classes.text.secondary}`}>
                               {user.email}
                             </div>
                           </div>
-                        </div>
-                      </div>
-
-                      {/* Menu Items */}
-                      <div className="py-2">
-                        <Link
-                          href={`/${user.username}`}
-                          className={`flex items-center px-4 py-2 text-sm ${classes.text.secondary} hover:bg-medium-hover hover:${classes.text.primary} transition-colors rounded-md mx-2`}
-                          onClick={() => setIsUserMenuOpen(false)}
-                        >
-                          <FaUser className="w-4 h-4 mr-3" />
-                          Profile
                         </Link>
                       </div>
 
-                      {/* Theme Toggle */}
-                      <div className="px-4 py-3">
-                        <ThemeToggle />
-                      </div>
+                      {/* Divider */}
+                      <div className="border-t border-medium-border my-2"></div>
 
-                      {/* Logout */}
-                      <div>
+                      {/* Menu Items */}
+                      <div className="px-2 py-2 space-y-1">
+                        {/* Write Button - if user can write */}
+                        {canWritePosts(user) && (
+                          <button
+                            onClick={() => {
+                              handleWriteClick();
+                              setIsUserMenuOpen(false);
+                            }}
+                            className={`w-full flex items-center px-4 py-2 text-sm ${classes.text.secondary} hover:bg-medium-hover hover:${classes.text.primary} transition-colors rounded-md`}
+                          >
+                            <FaEdit className="w-4 h-4 mr-3" />
+                            Write
+                          </button>
+                        )}
+
+                        {/* Theme Toggle Button */}
+                        <ThemeToggle variant="simple" className="w-full justify-start px-4 py-2 text-sm hover:bg-medium-hover transition-colors rounded-md" />
+
+                        {/* Sign out */}
                         <button
                           onClick={handleLogout}
-                          className={`w-full flex items-center px-4 py-3 text-sm ${classes.text.secondary} hover:bg-medium-hover hover:${classes.text.primary} transition-colors rounded-md mx-2`}
+                          className={`w-full flex items-center px-4 py-2 text-sm ${classes.text.secondary} hover:bg-medium-hover hover:${classes.text.primary} transition-colors rounded-md`}
                         >
                           <FaSignOutAlt className="w-4 h-4 mr-3" />
                           Sign out
@@ -304,36 +312,64 @@ const Navbar = () => {
               {/* Mobile Navigation */}
               {user ? (
                 <div className="space-y-3">
+                  {/* User Profile Link */}
                   <Link
                     href={`/${user.username}`}
-                    className={`flex items-center py-2 ${classes.text.secondary}`}
+                    className="flex items-center gap-3 p-3 hover:bg-medium-hover rounded-lg transition-colors duration-200"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <FaUser className="w-4 h-4 mr-3" />
-                    Profile
+                    {user.avatar_url ? (
+                      <img
+                        src={user.avatar_url}
+                        alt={user.name}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className={`w-10 h-10 ${classes.bg.accent} rounded-full flex items-center justify-center`}>
+                        <FaUser className="w-5 h-5 text-white" />
+                      </div>
+                    )}
+                    <div>
+                      <div className={`font-medium ${classes.text.primary}`}>
+                        {user.name}
+                      </div>
+                      <div className={`text-sm ${classes.text.secondary}`}>
+                        View Profile
+                      </div>
+                    </div>
                   </Link>
                   
-                  {canWritePosts(user) && (
+                  {/* Menu Items with consistent styling */}
+                  <div className="space-y-1">
+                    {canWritePosts(user) && (
+                      <button
+                        onClick={() => {
+                          handleWriteClick();
+                          setIsMobileMenuOpen(false);
+                        }}
+                        className={`w-full flex items-center px-3 py-2 text-sm ${classes.text.secondary} hover:bg-medium-hover hover:${classes.text.primary} transition-colors rounded-md`}
+                      >
+                        <FaEdit className="w-4 h-4 mr-3" />
+                        Write
+                      </button>
+                    )}
+                    
+                    {/* Theme Toggle */}
+                    <div className="px-3 py-2">
+                      <div className="flex items-center justify-between">
+                        <span className={`text-sm ${classes.text.secondary}`}>Theme</span>
+                        <ThemeToggle variant="simple" />
+                      </div>
+                    </div>
+                    
                     <button
-                      onClick={handleWriteClick}
-                      className={`flex items-center py-2 ${classes.text.secondary}`}
+                      onClick={handleLogout}
+                      className={`w-full flex items-center px-3 py-2 text-sm ${classes.text.secondary} hover:bg-medium-hover hover:${classes.text.primary} transition-colors rounded-md`}
                     >
-                      <FaEdit className="w-4 h-4 mr-3" />
-                      Write
+                      <FaSignOutAlt className="w-4 h-4 mr-3" />
+                      Sign out
                     </button>
-                  )}
-                  
-                  <div className="py-2">
-                    <ThemeToggle />
                   </div>
-                  
-                  <button
-                    onClick={handleLogout}
-                    className={`flex items-center py-2 ${classes.text.secondary}`}
-                  >
-                    <FaSignOutAlt className="w-4 h-4 mr-3" />
-                    Sign out
-                  </button>
                 </div>
               ) : (
                 <div className="space-y-3">

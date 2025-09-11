@@ -9,26 +9,26 @@ import { WriteLayout } from '../../components/Layout/Layout';
 import { themeClasses, combineClasses, componentClasses } from '../../utils/themeClasses';
 
 // Edit Page Header Component - Following home page pattern
-const EditPageHeader = () => (
-  <header className={combineClasses(
-    'text-center lg:text-left',
-    themeClasses.spacing.gap
-  )}>
-    <h1 className={combineClasses(
-      componentClasses.heading.h3,
-      'mb-3'
-    )}>
-      Chỉnh sửa bài viết
-    </h1>
-    <p className={combineClasses(
-      componentClasses.text.bodySmall,
-      themeClasses.text.secondary,
-      'max-w-2xl mx-auto lg:mx-0'
-    )}>
-      Cập nhật nội dung và thông tin bài viết
-    </p>
-  </header>
-);
+// const EditPageHeader = () => (
+//   <header className={combineClasses(
+//     'text-center lg:text-left',
+//     themeClasses.spacing.gap
+//   )}>
+//     <h1 className={combineClasses(
+//       componentClasses.heading.h3,
+//       'mb-3'
+//     )}>
+//       Chỉnh sửa bài viết
+//     </h1>
+//     <p className={combineClasses(
+//       componentClasses.text.bodySmall,
+//       themeClasses.text.secondary,
+//       'max-w-2xl mx-auto lg:mx-0'
+//     )}>
+//       Cập nhật nội dung và thông tin bài viết
+//     </p>
+//   </header>
+// );
 import { updatePost } from '../../services/postService';
 import { usePostName } from '../../hooks/usePost';
 import { usePostContext } from '../../context/PostContext';
@@ -258,7 +258,6 @@ const EditPost = () => {
       ) : (
         /* Normal Mode - Use optimized WriteLayout */
         <WriteLayout>
-          <EditPageHeader />
           
           <PostForm
             title={title}

@@ -137,17 +137,7 @@
     border-color: var(--medium-border);
   }
   
-  /* Better contrast for interactive elements in dark mode mobile */
-  [data-theme="dark"] button,
-  [data-theme="dark"] .touch-target {
-    background-color: var(--medium-bg-elevated);
-    color: var(--medium-text-primary);
-  }
-  
-  [data-theme="dark"] button:hover,
-  [data-theme="dark"] .touch-target:hover {
-    background-color: var(--medium-hover);
-  }
+  /* Removed dark mode button overrides for better theme consistency */
 }
 
 /* Performance optimizations */

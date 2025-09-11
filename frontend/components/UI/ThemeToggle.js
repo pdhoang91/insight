@@ -20,14 +20,24 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
     return (
       <button
         onClick={toggleTheme}
-        className={`p-2 rounded-medium hover:bg-medium-hover transition-all duration-200 ${className}`}
+        className={`flex items-center gap-3 p-2 rounded-medium hover:bg-medium-hover transition-all duration-200 ${className}`}
         aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
         title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
       >
         {isDark ? (
-        <FaSun className={`${themeClasses.icons.sm} ${themeClasses.text.accent}`} />
-      ) : (
-        <FaMoon className={`${themeClasses.icons.sm} ${themeClasses.text.accent}`} />
+          <>
+            <FaSun className={`${themeClasses.icons.sm} ${themeClasses.text.accent}`} />
+            {className?.includes('justify-start') && (
+              <span className="text-sm text-medium-text-secondary">Light Mode</span>
+            )}
+          </>
+        ) : (
+          <>
+            <FaMoon className={`${themeClasses.icons.sm} ${themeClasses.text.accent}`} />
+            {className?.includes('justify-start') && (
+              <span className="text-sm text-medium-text-secondary">Dark Mode</span>
+            )}
+          </>
         )}
       </button>
     );
