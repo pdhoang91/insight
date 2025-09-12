@@ -1,37 +1,14 @@
 // components/Shared/PersonalBlogSidebar.js - Clean Medium 2024 Design
-import React, { useState } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { useCategories } from '../../hooks/useCategories';
 import { useRecentPosts } from '../../hooks/useRecentPosts';
 import PopularPosts from '../Post/PopularPosts';
 import Archive from '../Archive/Archive';
-import Button from '../UI/Button';
-import Input from '../UI/Input';
 
 const PersonalBlogSidebar = () => {
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { posts: recentPosts, isLoading: postsLoading } = useRecentPosts(50);
-  const [email, setEmail] = useState('');
-  const [isSubscribing, setIsSubscribing] = useState(false);
-
-  const handleSubscribe = async (e) => {
-    e.preventDefault();
-    if (!email) return;
-    
-    setIsSubscribing(true);
-    // TODO: Implement newsletter subscription
-    try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      console.log('Newsletter subscription:', email);
-      setEmail('');
-      // Show success message
-    } catch (error) {
-      console.error('Subscription failed:', error);
-    } finally {
-      setIsSubscribing(false);
-    }
-  };
 
   return (
     <div className="space-y-8">
@@ -74,38 +51,6 @@ const PersonalBlogSidebar = () => {
               ))}
             </div>
           )}
-        </div>
-
-        {/* Newsletter Signup */}
-        <div className="space-y-4">
-          <h3 className="font-serif font-bold text-heading-3 text-medium-text-primary">
-            Stay Updated
-          </h3>
-          <div className="bg-medium-bg-card rounded-medium p-4 border border-medium-border">
-            <p className="text-body-small text-medium-text-secondary mb-4">
-              Get the latest posts delivered right to your inbox.
-            </p>
-            
-            <form onSubmit={handleSubscribe} className="space-y-3">
-              <Input
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                fullWidth
-                size="sm"
-              />
-              <Button
-                type="submit"
-                fullWidth
-                size="sm"
-                loading={isSubscribing}
-                disabled={!email}
-              >
-                Subscribe
-              </Button>
-            </form>
-          </div>
         </div>
 
         {/* Archive */}

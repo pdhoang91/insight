@@ -240,23 +240,6 @@ const PopularPosts = ({
         )}
       </div>
 
-      {/* View All Link */}
-      <div className={combineClasses(
-        'mt-4 pt-4',
-        themeClasses.border.primary,
-        'border-t'
-      )}>
-        <Link
-          href="/popular"
-          className={combineClasses(
-            themeClasses.typography.bodySmall,
-            themeClasses.interactive.link,
-            themeClasses.interactive.linkUnderline
-          )}
-        >
-          View all popular posts →
-        </Link>
-      </div>
     </div>
   );
 };

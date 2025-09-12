@@ -32,9 +32,6 @@ export { default as PersonalBlogSidebar } from './Sidebar/PersonalBlogSidebar';
 // Post components
 export { default as PopularPosts } from './Post/PopularPosts';
 
-// Newsletter components
-export { default as Newsletter } from './Newsletter/Newsletter';
-
 // Archive components
 export { default as Archive } from './Archive/Archive';
 
