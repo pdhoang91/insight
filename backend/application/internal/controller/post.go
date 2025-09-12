@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/pdhoang91/blog/internal/dto"
@@ -624,5 +625,59 @@ func (c *Controller) ClapPost(ctx *gin.Context) {
 		"clapped":    isClapped,
 		"clap_count": postResponse.ClapCount,
 		"message":    "Post clapped successfully",
+	})
+}
+
+// GetPostsByYearMonth retrieves posts by year and month for archive
+func (c *Controller) GetPostsByYearMonth(ctx *gin.Context) {
+	yearStr := ctx.Param("year")
+	monthStr := ctx.Param("month")
+
+	// Parse year and month
+	var year, month int
+	var err error
+
+	if year, err = strconv.Atoi(yearStr); err != nil || year < 1900 || year > 2100 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid year"})
+		return
+	}
+
+	if month, err = strconv.Atoi(monthStr); err != nil || month < 1 || month > 12 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid month"})
+		return
+	}
+
+	var req dto.PaginationRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
+		return
+	}
+
+	// Convert page-based pagination to offset-based
+	if req.Page > 0 && req.Limit > 0 {
+		req.Offset = (req.Page - 1) * req.Limit
+	}
+	if req.Limit == 0 {
+		req.Limit = 20 // Default limit for archive
+	}
+
+	responses, total, err := c.service.GetPostsByYearMonth(year, month, &req)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Ensure data is never null - use empty array if nil
+	if responses == nil {
+		responses = []*dto.PostResponse{}
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"data":        responses,
+		"total_count": total,
+		"year":        year,
+		"month":       month,
+		"limit":       req.Limit,
+		"offset":      req.Offset,
 	})
 }

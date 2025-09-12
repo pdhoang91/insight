@@ -206,6 +206,26 @@ func (p *Post) CalculateCounts(db *gorm.DB) error {
 	return nil
 }
 
+// FindByYearMonth finds posts by year and month
+func (*Post) FindByYearMonth(db *gorm.DB, year, month int, limit, offset int) ([]*Post, error) {
+	var posts []*Post
+	err := db.Preload("User").Preload("Categories").Preload("Tags").
+		Where("EXTRACT(YEAR FROM created_at) = ? AND EXTRACT(MONTH FROM created_at) = ?", year, month).
+		Order("created_at DESC").
+		Limit(limit).Offset(offset).
+		Find(&posts).Error
+	return posts, err
+}
+
+// CountByYearMonth counts posts by year and month
+func (*Post) CountByYearMonth(db *gorm.DB, year, month int) (int64, error) {
+	var count int64
+	err := db.Model(&Post{}).
+		Where("EXTRACT(YEAR FROM created_at) = ? AND EXTRACT(MONTH FROM created_at) = ?", year, month).
+		Count(&count).Error
+	return count, err
+}
+
 // CalculateCountsForPosts calculates counts for multiple posts efficiently
 func CalculateCountsForPosts(db *gorm.DB, posts []*Post) error {
 	if len(posts) == 0 {

@@ -36,6 +36,9 @@ func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
 		public.GET("/posts/:id/comments", controller.GetPostComments) // Public comment reading
 		public.GET("/p/:titleName", controller.GetPostByTitleName)    // Frontend compatibility
 
+		// Archive routes
+		public.GET("/archive/:year/:month", controller.GetPostsByYearMonth) // Get posts by year/month
+
 		// Search routes
 		public.GET("/search/posts", controller.SearchPosts)
 

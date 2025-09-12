@@ -777,6 +777,43 @@ func (s *InsightService) GetTopPosts(limit int) ([]*dto.PostResponse, error) {
 	return s.GetPopularPosts(limit)
 }
 
+// GetPostsByYearMonth retrieves posts by year and month
+func (s *InsightService) GetPostsByYearMonth(year, month int, req *dto.PaginationRequest) ([]*dto.PostResponse, int64, error) {
+	if req.Limit == 0 {
+		req.Limit = 20
+	}
+
+	// Use read replica for better performance
+	posts, err := s.Post.FindByYearMonth(s.DBR2, year, month, req.Limit, req.Offset)
+	if err != nil {
+		return nil, 0, errors.New("internal server error")
+	}
+
+	// Get total count for this year/month
+	total, err := s.Post.CountByYearMonth(s.DBR2, year, month)
+	if err != nil {
+		return nil, 0, errors.New("internal server error")
+	}
+
+	// Calculate counts for all posts efficiently
+	if err := entities.CalculateCountsForPosts(s.DBR2, posts); err != nil {
+		// Log error but don't fail the request
+		// TODO: Use proper logger
+	}
+
+	var responses []*dto.PostResponse
+	for _, post := range posts {
+		responses = append(responses, dto.NewPostResponse(post))
+	}
+
+	// Ensure we return empty array instead of nil
+	if responses == nil {
+		responses = []*dto.PostResponse{}
+	}
+
+	return responses, total, nil
+}
+
 // GetPostsByCategory retrieves posts by category name
 func (s *InsightService) GetPostsByCategory(categoryName string, req *dto.PaginationRequest) ([]*dto.PostResponse, int64, error) {
 	if req.Limit == 0 {
