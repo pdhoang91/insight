@@ -27,6 +27,19 @@ export const deletePost = async (id) => {
   return response.data;
 };
 
+export const getPostsByYearMonth = async (year, month, page = 1, limit = 20) => {
+  const response = await axiosPublicInstance.get(`/archive/${year}/${month}`, {
+    params: { page, limit }
+  });
+  return {
+    posts: response.data.data,
+    totalCount: response.data.total_count,
+    year: response.data.year,
+    month: response.data.month,
+    hasMore: response.data.data.length === limit
+  };
+};
+
 export const getPosts = async (page = 1, limit = 10) => {
   try {
     const response = await axiosPublicInstance.get('/posts', {
