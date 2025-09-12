@@ -92,7 +92,6 @@ const TableOfContents = ({ content, className = '' }) => {
           aria-label={`${isCollapsed ? 'Expand' : 'Collapse'} table of contents`}
         >
           <div className="flex items-center gap-2">
-            <FaList className="w-4 h-4" aria-hidden="true" />
             <span>Table of Contents</span>
           </div>
           {isCollapsed ? (

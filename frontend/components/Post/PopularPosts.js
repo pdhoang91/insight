@@ -13,18 +13,6 @@ const PopularPostItem = ({ post, rank, showImages }) => {
     <article className="group">
       <Link href={`/p/${post.title_name}`} className={themeClasses.interactive.base}>
         <div className={combineClasses('flex items-start', themeClasses.spacing.gapSmall)}>
-          {/* Rank Number */}
-          <div className={combineClasses(
-            'flex-shrink-0 w-6 h-6 flex items-center justify-center'
-          )}>
-            <span className={combineClasses(
-              themeClasses.typography.labelSmall,
-              themeClasses.typography.weightBold,
-              rank <= 3 ? themeClasses.text.accent : themeClasses.text.muted
-            )}>
-              {rank}
-            </span>
-          </div>
 
           {/* Post Image */}
           {showImages && post.featured_image && (
@@ -71,13 +59,6 @@ const PopularPostItem = ({ post, rank, showImages }) => {
                 </div>
               )}
 
-              {/* Claps */}
-              {post.clap_count > 0 && (
-                <div className="flex items-center gap-1">
-                  <FaHeart className={themeClasses.icons.xs} />
-                  <span>{post.clap_count}</span>
-                </div>
-              )}
 
               {/* Comments */}
               {post.comment_count > 0 && (

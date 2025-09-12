@@ -934,17 +934,17 @@ button, a, [role="button"] {
 /* Table of Contents Styles - Medium 2024 */
 .table-of-contents {
   background: var(--medium-bg-card);
-  border: 1px solid var(--medium-border);
-  border-radius: var(--border-radius-lg);
+  /* border: 1px solid var(--medium-border);
+  border-radius: var(--border-radius-lg); */
   box-shadow: var(--shadow-sm);
   position: relative;
   overflow: hidden;
 }
 
 .table-of-contents .toc-header {
-  background: var(--medium-bg-secondary);
+  /* background: var(--medium-bg-secondary); */
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--medium-border);
+  /* border-bottom: 1px solid var(--medium-border); */
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 0.875rem;
   color: var(--medium-text-primary);

@@ -48,7 +48,7 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
         category={post.category}
         url={`${process.env.NEXT_PUBLIC_SITE_URL || ''}/p/${post.title_name}`}
       />
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Main Content */}
         <article className="lg:col-span-3">
@@ -142,49 +142,6 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
           <div className="sticky top-24 space-y-8">
             {/* Table of Contents */}
             <TableOfContents content={post.content} />
-            
-            {/* Author Info Card */}
-            <div className="bg-medium-bg-card rounded-xl p-6">
-              <h3 className="font-bold text-medium-text-primary mb-4">About the Author</h3>
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-medium-accent-green rounded-full flex items-center justify-center text-white font-bold">
-                  {post.author?.name?.charAt(0) || 'A'}
-                </div>
-                <div>
-                  <p className="font-semibold text-medium-text-primary">{post.author?.name || 'Author'}</p>
-                  <p className="text-sm text-medium-text-secondary mt-1">
-                    Sharing insights and experiences through writing.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Share Options */}
-            <div className="bg-medium-bg-card rounded-xl p-6">
-              <h3 className="font-bold text-medium-text-primary mb-4">Share this article</h3>
-              <div className="flex flex-col gap-3">
-                <button className="flex items-center gap-3 p-3 rounded-lg hover:bg-medium-hover transition-colors duration-200 text-left">
-                  <FaTwitter className="w-5 h-5 text-blue-400" />
-                  <span className="text-medium-text-primary">Share on Twitter</span>
-                </button>
-                <button className="flex items-center gap-3 p-3 rounded-lg hover:bg-medium-hover transition-colors duration-200 text-left">
-                  <FaLinkedin className="w-5 h-5 text-blue-600" />
-                  <span className="text-medium-text-primary">Share on LinkedIn</span>
-                </button>
-                <button className="flex items-center gap-3 p-3 rounded-lg hover:bg-medium-hover transition-colors duration-200 text-left">
-                  <FaBookmark className="w-5 h-5 text-medium-text-secondary" />
-                  <span className="text-medium-text-primary">Bookmark</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Related Posts */}
-            {relatedPosts.length > 0 && (
-              <RelatedPosts 
-                posts={relatedPosts} 
-                currentPostId={post.id}
-              />
-            )}
           </div>
         </aside>
       </div>
