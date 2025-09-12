@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useCategories } from '../../hooks/useCategories';
 import { useRecentPosts } from '../../hooks/useRecentPosts';
-import PopularPostsWidget from '../Widgets/PopularPostsWidget';
-import ArchiveWidget from '../Archive/ArchiveWidget';
+import PopularPosts from '../Post/PopularPosts';
+import Archive from '../Archive/Archive';
 import Button from '../UI/Button';
 import Input from '../UI/Input';
 
@@ -38,12 +38,12 @@ const PersonalBlogSidebar = () => {
       {/* Sticky container for better UX */}
       <div className="sticky top-24 space-y-8">
         
-        {/* Popular Posts Widget */}
+        {/* Popular Posts */}
         <div className="space-y-4">
           <h3 className="font-serif font-bold text-heading-3 text-medium-text-primary">
             Trending
           </h3>
-          <PopularPostsWidget limit={5} showImages={false} />
+          <PopularPosts limit={5} showImages={false} />
         </div>
 
         {/* Categories */}
@@ -108,12 +108,12 @@ const PersonalBlogSidebar = () => {
           </div>
         </div>
 
-        {/* Archive Widget */}
+        {/* Archive */}
         <div className="space-y-4">
           <h3 className="font-serif font-bold text-heading-3 text-medium-text-primary">
             Archive
           </h3>
-          <ArchiveWidget posts={recentPosts} isLoading={postsLoading} />
+          <Archive posts={recentPosts} isLoading={postsLoading} />
         </div>
 
       </div>

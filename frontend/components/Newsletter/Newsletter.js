@@ -1,9 +1,9 @@
-// components/Widgets/NewsletterWidget.js
+// components/Newsletter/Newsletter.js
 import React, { useState } from 'react';
 import { FaEnvelope, FaCheck, FaTimes } from 'react-icons/fa';
 import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
-const NewsletterWidget = ({ compact = false, className = '' }) => {
+const Newsletter = ({ compact = false, className = '' }) => {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('idle'); // 'idle', 'loading', 'success', 'error'
   const [message, setMessage] = useState('');
@@ -70,20 +70,34 @@ const NewsletterWidget = ({ compact = false, className = '' }) => {
       className
     )}>
       {/* Header */}
-      <div className="text-center mb-4">
-        <div className="w-12 h-12 bg-medium-accent-green/10 rounded-full flex items-center justify-center mx-auto mb-3">
-          <FaEnvelope className="w-6 h-6 text-medium-accent-green" />
+      <div className={combineClasses('text-center mb-4')}>
+        <div className={combineClasses(
+          'w-12 h-12 mx-auto mb-3 flex items-center justify-center',
+          themeClasses.bg.accentLight,
+          themeClasses.effects.roundedFull
+        )}>
+          <FaEnvelope className={combineClasses(themeClasses.icons.lg, themeClasses.text.accent)} />
         </div>
-        <h3 className="text-lg font-serif font-bold text-medium-text-primary mb-2">
+        <h3 className={combineClasses(
+          themeClasses.typography.h4,
+          themeClasses.typography.serif,
+          themeClasses.typography.weightBold,
+          themeClasses.text.primary,
+          'mb-2'
+        )}>
           Stay Updated
         </h3>
-        <p className="text-sm text-medium-text-secondary leading-relaxed">
+        <p className={combineClasses(
+          themeClasses.typography.bodySmall,
+          themeClasses.text.secondary,
+          'leading-relaxed'
+        )}>
           Get notified when I publish new articles. No spam, unsubscribe at any time.
         </p>
       </div>
 
       {/* Subscription Form */}
-      <form onSubmit={handleSubmit} className="space-y-3">
+      <form onSubmit={handleSubmit} className={themeClasses.spacing.stackSmall}>
         <div className="relative">
           <input
             type="email"
@@ -91,27 +105,30 @@ const NewsletterWidget = ({ compact = false, className = '' }) => {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Enter your email"
             disabled={status === 'loading' || status === 'success'}
-            className={`w-full px-4 py-3 text-sm border rounded-lg bg-medium-bg-primary text-medium-text-primary placeholder-medium-text-muted focus:outline-none focus:ring-2 transition-colors ${
+            className={combineClasses(
+              themeClasses.interactive.inputBase,
+              themeClasses.interactive.inputMedium,
+              themeClasses.interactive.input,
+              themeClasses.bg.primary,
               status === 'error' 
                 ? 'border-red-300 focus:ring-red-200 focus:border-red-500' 
-                : 'border-medium-border focus:ring-medium-accent-green/20 focus:border-medium-accent-green'
-            } ${
+                : themeClasses.interactive.inputFocus,
               status === 'success' 
                 ? 'bg-green-500/20 border-green-500/40' 
                 : ''
-            }`}
+            )}
           />
           
           {/* Status Icon */}
           {status === 'success' && (
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-              <FaCheck className="w-4 h-4 text-green-500" />
+              <FaCheck className={combineClasses(themeClasses.icons.sm, themeClasses.text.success)} />
             </div>
           )}
           
           {status === 'error' && (
             <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-              <FaTimes className="w-4 h-4 text-red-500" />
+              <FaTimes className={combineClasses(themeClasses.icons.sm, themeClasses.text.error)} />
             </div>
           )}
         </div>
@@ -120,22 +137,28 @@ const NewsletterWidget = ({ compact = false, className = '' }) => {
         <button
           type="submit"
           disabled={status === 'loading' || status === 'success'}
-          className={`w-full px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+          className={combineClasses(
+            themeClasses.interactive.buttonBase,
+            themeClasses.interactive.buttonMedium,
+            'w-full',
             status === 'loading'
-              ? 'bg-medium-text-muted text-white cursor-not-allowed'
+              ? combineClasses(themeClasses.bg.secondary, themeClasses.text.white, 'cursor-not-allowed')
               : status === 'success'
               ? 'bg-green-500/80 text-white cursor-not-allowed'
-              : 'bg-medium-accent-green text-white hover:bg-medium-accent-green/90'
-          }`}
+              : combineClasses(themeClasses.interactive.buttonPrimary, themeClasses.interactions.buttonHover)
+          )}
         >
           {status === 'loading' ? (
-            <div className="flex items-center justify-center space-x-2">
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <div className={combineClasses('flex items-center justify-center', themeClasses.spacing.gapSmall)}>
+              <div className={combineClasses(
+                themeClasses.icons.sm,
+                'border-2 border-white border-t-transparent rounded-full animate-spin'
+              )}></div>
               <span>Subscribing...</span>
             </div>
           ) : status === 'success' ? (
-            <div className="flex items-center justify-center space-x-2">
-              <FaCheck className="w-4 h-4" />
+            <div className={combineClasses('flex items-center justify-center', themeClasses.spacing.gapSmall)}>
+              <FaCheck className={themeClasses.icons.sm} />
               <span>Subscribed!</span>
             </div>
           ) : (
@@ -145,31 +168,53 @@ const NewsletterWidget = ({ compact = false, className = '' }) => {
 
         {/* Status Message */}
         {message && (
-          <div className={`text-xs text-center p-2 rounded ${
+          <div className={combineClasses(
+            themeClasses.typography.bodyTiny,
+            'text-center p-2',
+            themeClasses.effects.rounded,
             status === 'success' 
-              ? 'text-green-600 bg-green-500/20' 
+              ? combineClasses(themeClasses.text.success, 'bg-green-500/20')
               : status === 'error'
-              ? 'text-red-600 bg-red-500/20'
+              ? combineClasses(themeClasses.text.error, 'bg-red-500/20')
               : ''
-          }`}>
+          )}>
             {message}
           </div>
         )}
       </form>
 
       {/* Features */}
-      <div className="mt-4 pt-4 border-t border-medium-accent-green/20">
-        <div className="space-y-2 text-xs text-medium-text-muted">
-          <div className="flex items-center space-x-2">
-            <FaCheck className="w-3 h-3 text-medium-accent-green flex-shrink-0" />
+      <div className={combineClasses(
+        'mt-4 pt-4 border-t',
+        themeClasses.border.accentLight
+      )}>
+        <div className={combineClasses(
+          themeClasses.spacing.stackSmall,
+          themeClasses.typography.bodyTiny,
+          themeClasses.text.muted
+        )}>
+          <div className={combineClasses('flex items-center', themeClasses.spacing.gapSmall)}>
+            <FaCheck className={combineClasses(
+              themeClasses.icons.xs,
+              themeClasses.text.accent,
+              'flex-shrink-0'
+            )} />
             <span>Weekly digest of new articles</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <FaCheck className="w-3 h-3 text-medium-accent-green flex-shrink-0" />
+          <div className={combineClasses('flex items-center', themeClasses.spacing.gapSmall)}>
+            <FaCheck className={combineClasses(
+              themeClasses.icons.xs,
+              themeClasses.text.accent,
+              'flex-shrink-0'
+            )} />
             <span>Exclusive content and insights</span>
           </div>
-          <div className="flex items-center space-x-2">
-            <FaCheck className="w-3 h-3 text-medium-accent-green flex-shrink-0" />
+          <div className={combineClasses('flex items-center', themeClasses.spacing.gapSmall)}>
+            <FaCheck className={combineClasses(
+              themeClasses.icons.xs,
+              themeClasses.text.accent,
+              'flex-shrink-0'
+            )} />
             <span>No spam, unsubscribe anytime</span>
           </div>
         </div>
@@ -178,4 +223,4 @@ const NewsletterWidget = ({ compact = false, className = '' }) => {
   );
 };
 
-export default NewsletterWidget;
+export default Newsletter;

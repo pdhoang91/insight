@@ -1,10 +1,10 @@
-// components/Archive/ArchiveWidget.js
+// components/Archive/Archive.js
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { FaCalendarAlt, FaChevronDown, FaChevronRight } from 'react-icons/fa';
 import { themeClasses, componentClasses } from '../../utils/themeClasses';
 
-const ArchiveWidget = ({ posts = [], className = '' }) => {
+const Archive = ({ posts = [], className = '' }) => {
   const [expandedYears, setExpandedYears] = useState(new Set([new Date().getFullYear()]));
 
   // Group posts by year and month
@@ -62,11 +62,6 @@ const ArchiveWidget = ({ posts = [], className = '' }) => {
 
   return (
     <div className={` rounded-lg p-6 border border-medium-border ${className}`}>
-      {/* Header */}
-      <h3 className={`${componentClasses.heading.h3} mb-4 flex items-center`}>
-        <FaCalendarAlt className={`${themeClasses.icons.sm} ${themeClasses.text.accent} mr-2`} />
-        Archive
-      </h3>
 
       {/* Archive Tree */}
       <div className="space-y-2">
@@ -143,4 +138,4 @@ const ArchiveWidget = ({ posts = [], className = '' }) => {
   );
 };
 
-export default ArchiveWidget;
+export default Archive;

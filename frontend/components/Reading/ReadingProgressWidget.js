@@ -1,10 +1,10 @@
-// components/Reading/ReadingProgress.js
+// components/Reading/ReadingProgressWidget.js
 import React from 'react';
 import { FaEye } from 'react-icons/fa';
 import { useThemeClasses } from '../../hooks/useThemeClasses';
 
-// Reading Progress Component
-export const ReadingProgress = ({ progress = 0, readingTime = 0 }) => {
+// Reading Progress Widget
+export const ReadingProgressWidget = ({ progress = 0, readingTime = 0 }) => {
   const { classes, combineClasses } = useThemeClasses();
 
   return (
@@ -47,4 +47,4 @@ export const ReadingProgress = ({ progress = 0, readingTime = 0 }) => {
   );
 };
 
-export default ReadingProgress;
+export default ReadingProgressWidget;
