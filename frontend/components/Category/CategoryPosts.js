@@ -20,7 +20,7 @@ const CategoryPosts = ({
   }
 
   return (
-    <>
+    <div className="space-y-6 lg:space-y-8">
       {/* Category Header */}
       <header className="text-center lg:text-left">
         <h1 className="font-serif font-bold text-3xl sm:text-4xl lg:text-5xl text-medium-text-primary mb-3 lg:mb-4">
@@ -42,7 +42,7 @@ const CategoryPosts = ({
         showImages={true}
         showExcerpts={true}
       />
-    </>
+    </div>
   );
 };
 

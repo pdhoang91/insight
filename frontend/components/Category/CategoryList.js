@@ -28,12 +28,12 @@ const CategoryList = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
       {categories.map((category) => (
         <Link
           key={category.id}
           href={`/category/${category.name.toLowerCase()}`}
-          className="bg-medium-bg-card rounded-card border border-medium-border p-6 hover:shadow-card-hover transition-all group"
+          className="bg-medium-bg-card rounded-xl border border-medium-border p-6 hover:shadow-lg hover:border-medium-accent-green/20 transition-all duration-200 group"
         >
           <h3 className="text-lg font-serif font-bold text-medium-text-primary group-hover:text-medium-accent-green transition-colors mb-2">
             {category.name}

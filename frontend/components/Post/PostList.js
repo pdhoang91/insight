@@ -163,10 +163,10 @@ const PostList = ({
         }
         refreshFunction={() => window.location.reload()}
         pullDownToRefresh={false}
-        className="space-y-gap"
+        className="space-y-6 lg:space-y-8"
       >
         {flatPosts.map((post, index) => (
-          <div key={`${post.id}-${index}`} className="mb-gap">
+          <div key={`${post.id}-${index}`} className="mb-6 lg:mb-8">
             <PostItem
               post={post}
               variant={variant}

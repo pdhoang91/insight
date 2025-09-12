@@ -11,28 +11,28 @@ const PersonalBlogSidebar = () => {
   const { posts: recentPosts, isLoading: postsLoading } = useRecentPosts(50);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* Sticky container for better UX */}
-      <div className="sticky top-24 space-y-8">
+      <div className="sticky top-24 space-y-10">
         
         {/* Popular Posts */}
-        <div className="space-y-4">
-          <h3 className="font-serif font-bold text-heading-3 text-medium-text-primary">
+        <div className="space-y-5">
+          <h3 className="font-serif font-medium text-lg text-medium-text-primary">
             Trending
           </h3>
-          <PopularPosts limit={5} showImages={false} />
+          <PopularPosts limit={5} showImages={false} className="!border-0 !shadow-none !bg-transparent !p-0" />
         </div>
 
         {/* Categories */}
-        <div className="space-y-4">
-          <h3 className="font-serif font-bold text-heading-3 text-medium-text-primary">
-            Topics
+        <div className="space-y-5">
+          <h3 className="font-serif font-medium text-lg text-medium-text-primary">
+            Categories
           </h3>
           
           {categoriesLoading ? (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-8  animate-pulse rounded"></div>
+                <div key={i} className="h-6 bg-medium-text-muted/10 animate-pulse rounded"></div>
               ))}
             </div>
           ) : (
@@ -41,12 +41,9 @@ const PersonalBlogSidebar = () => {
                 <Link
                   key={category.id}
                   href={`/category/${category.name}`}
-                  className="inline-flex items-center px-3 py-1.5 rounded-full text-body-small  text-medium-text-secondary hover:bg-medium-accent-green hover:text-white transition-all duration-200"
+                  className="inline-flex items-center px-3 py-1.5 rounded-full text-sm text-medium-text-secondary hover:text-medium-accent-green hover:bg-medium-accent-green/10 transition-all duration-200"
                 >
                   {category.name}
-                  <span className="ml-2 text-xs opacity-75">
-                    {category.post_count || 0}
-                  </span>
                 </Link>
               ))}
             </div>
@@ -54,11 +51,11 @@ const PersonalBlogSidebar = () => {
         </div>
 
         {/* Archive */}
-        <div className="space-y-4">
-          <h3 className="font-serif font-bold text-heading-3 text-medium-text-primary">
+        <div className="space-y-5">
+          <h3 className="font-serif font-medium text-lg text-medium-text-primary">
             Archive
           </h3>
-          <Archive posts={recentPosts} isLoading={postsLoading} />
+          <Archive posts={recentPosts} className="!border-0 !shadow-none !bg-transparent !p-0" />
         </div>
 
       </div>

@@ -1,7 +1,6 @@
 // components/Layout/Layout.js - Unified Responsive Layout
 import React, { useState } from 'react';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
-import Navbar from '../Navbar/Navbar';
 import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const Layout = ({ 
@@ -27,9 +26,6 @@ const Layout = ({
 
   return (
     <div className={combineClasses(themeClasses.layout.fullHeight, themeClasses.bg.primary)}>
-      {/* Navigation */}
-      <Navbar />
-      
       {/* Main Content */}
       <main className="pt-16 md:pt-20" role="main" {...props}>
         <div className={containerClass}>

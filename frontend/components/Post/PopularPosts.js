@@ -50,7 +50,7 @@ const PopularPostItem = ({ post, rank, showImages }) => {
               themeClasses.typography.bodySmall,
               themeClasses.typography.weightMedium,
               themeClasses.text.primary,
-              'group-hover:' + themeClasses.text.accent.replace('text-', ''),
+              'group-hover:text-medium-accent-green',
               themeClasses.animations.smooth,
               'leading-snug mb-1 line-clamp-2'
             )}>
@@ -65,7 +65,7 @@ const PopularPostItem = ({ post, rank, showImages }) => {
             )}>
               {/* Views */}
               {post.view_count > 0 && (
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center gap-1">
                   <FaEye className={themeClasses.icons.xs} />
                   <span>{post.view_count}</span>
                 </div>
@@ -73,7 +73,7 @@ const PopularPostItem = ({ post, rank, showImages }) => {
 
               {/* Claps */}
               {post.clap_count > 0 && (
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center gap-1">
                   <FaHeart className={themeClasses.icons.xs} />
                   <span>{post.clap_count}</span>
                 </div>
@@ -81,7 +81,7 @@ const PopularPostItem = ({ post, rank, showImages }) => {
 
               {/* Comments */}
               {post.comment_count > 0 && (
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center gap-1">
                   <FaComment className={themeClasses.icons.xs} />
                   <span>{post.comment_count}</span>
                 </div>
@@ -159,15 +159,6 @@ const PopularPosts = ({
           'flex items-center mb-4',
           themeClasses.spacing.gapSmall
         )}>
-          <FaFire className={combineClasses(themeClasses.icons.sm, themeClasses.text.accent)} />
-          <h3 className={combineClasses(
-            themeClasses.typography.h5,
-            themeClasses.typography.serif,
-            themeClasses.typography.weightBold,
-            themeClasses.text.primary
-          )}>
-            Popular Posts
-          </h3>
         </div>
         <p className={combineClasses(
           themeClasses.typography.bodySmall,
@@ -186,34 +177,6 @@ const PopularPosts = ({
       themeClasses.effects.shadow,
       className
     )}>
-      {/* Header */}
-      <div className={combineClasses(
-        'flex items-center justify-between mb-4'
-      )}>
-        <div className={combineClasses(
-          'flex items-center',
-          themeClasses.spacing.gapSmall
-        )}>
-          <FaFire className={combineClasses(themeClasses.icons.sm, themeClasses.text.accent)} />
-          <h3 className={combineClasses(
-            themeClasses.typography.h5,
-            themeClasses.typography.serif,
-            themeClasses.typography.weightBold,
-            themeClasses.text.primary
-          )}>
-            Popular Posts
-          </h3>
-        </div>
-        <span className={combineClasses(
-          themeClasses.typography.bodyTiny,
-          themeClasses.text.muted,
-          themeClasses.patterns.tag,
-          themeClasses.effects.rounded
-        )}>
-          {getTimeframeLabel()}
-        </span>
-      </div>
-
       {/* Posts List */}
       <div className={themeClasses.spacing.stackSmall}>
         {displayPosts && displayPosts.length > 0 ? (
