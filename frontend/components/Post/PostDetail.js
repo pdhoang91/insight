@@ -8,7 +8,6 @@ import { clapPost } from '../../services/activityService';
 import { useComments } from '../../hooks/useComments';
 import TableOfContents from '../Shared/TableOfContents';
 import SEOHead from '../SEO/SEOHead';
-import ReadingProgress from '../Reading/ReadingProgress';
 import RelatedPosts from './RelatedPosts';
 
 export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
@@ -49,7 +48,6 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
         category={post.category}
         url={`${process.env.NEXT_PUBLIC_SITE_URL || ''}/p/${post.title_name}`}
       />
-      <ReadingProgress />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Main Content */}

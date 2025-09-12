@@ -7,7 +7,6 @@ import Avatar from '../UI/Avatar';
 import Button from '../UI/Button';
 import AuthorInfo from './AuthorInfo';
 import EngagementActions, { FloatingEngagementActions } from './EngagementActions';
-import ReadingProgressBar from './ReadingProgressBar';
 import TextHighlighter from './TextHighlighter';
 import RelatedArticles from '../Article/RelatedArticles';
 import CommentSection from '../Comment/CommentSection';
@@ -26,14 +25,6 @@ const ArticleReader = ({ post }) => {
     return <ArticleReaderSkeleton />;
   }
 
-  // Calculate reading time
-  const calculateReadingTime = (content) => {
-    const wordsPerMinute = 200;
-    const words = content ? content.split(' ').length : 0;
-    return Math.ceil(words / wordsPerMinute);
-  };
-
-  const readingTime = calculateReadingTime(post.content);
 
   const handleFollow = () => {
     if (!user) {
@@ -46,9 +37,6 @@ const ArticleReader = ({ post }) => {
 
   return (
     <ArticleLayout>
-      {/* Reading Progress Bar */}
-      <ReadingProgressBar contentRef={contentRef} />
-      
       {/* Floating Engagement Actions (Desktop) */}
       <div className="hidden lg:block">
         <FloatingEngagementActions 
@@ -74,10 +62,9 @@ const ArticleReader = ({ post }) => {
 
           {/* Author Info & Meta - Mobile Optimized */}
           <div className="mb-6 sm:mb-8">
-            <AuthorInfo
+            <AuthorInfo 
               author={post.user}
               publishedAt={post.created_at}
-              readingTime={readingTime}
               variant="detailed"
               showFollowButton={user && user.id !== post.user?.id}
             />

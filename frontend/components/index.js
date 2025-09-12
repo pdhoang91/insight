@@ -38,10 +38,8 @@ export { default as Newsletter } from './Newsletter/Newsletter';
 // Archive components
 export { default as Archive } from './Archive/Archive';
 
-// Reading components
-export { default as ReadingProgress } from './Reading/ReadingProgress';
+// Post components
 export { default as BookmarkButton } from './Post/BookmarkButton';
-export { default as ReadingProgressBar } from './Post/ReadingProgressBar';
 export { default as TextHighlighter } from './Post/TextHighlighter';
 
 // Article components

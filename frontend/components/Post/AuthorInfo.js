@@ -8,7 +8,6 @@ import TimeAgo from '../Utils/TimeAgo';
 const AuthorInfo = ({ 
   author, 
   publishedAt,
-  readingTime,
   variant = 'compact',
   showFollowButton = false,
   className = ''
@@ -57,12 +56,6 @@ const AuthorInfo = ({
                 <span>•</span>
               </>
             )}
-            {readingTime && (
-              <>
-                <span>{readingTime} min read</span>
-                <span>•</span>
-              </>
-            )}
             <span>{author.followers_count || 0} followers</span>
           </div>
         </div>
@@ -99,8 +92,6 @@ const AuthorInfo = ({
         
         <div className="flex items-center space-x-2 text-sm text-medium-text-muted">
           {publishedAt && <TimeAgo timestamp={publishedAt} />}
-          {publishedAt && readingTime && <span>•</span>}
-          {readingTime && <span>{readingTime} min read</span>}
         </div>
       </div>
     </div>

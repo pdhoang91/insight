@@ -1,14 +1,14 @@
 // components/Post/PopularPosts.js
 import React from 'react';
 import Link from 'next/link';
-import { FaFire, FaEye, FaComment, FaClock, FaHeart } from 'react-icons/fa';
+import { FaFire, FaEye, FaComment, FaHeart } from 'react-icons/fa';
 import { usePopularPosts, useRecentPosts } from '../../hooks/useRecentPosts';
 import { themeClasses, combineClasses } from '../../utils/themeClasses';
 import TimeAgo from '../Utils/TimeAgo';
 import SafeImage from '../Utils/SafeImage';
 
 // Individual Popular Post Item
-const PopularPostItem = ({ post, rank, showImages, readingTime }) => {
+const PopularPostItem = ({ post, rank, showImages }) => {
   return (
     <article className="group">
       <Link href={`/p/${post.title_name}`} className={themeClasses.interactive.base}>
@@ -63,12 +63,6 @@ const PopularPostItem = ({ post, rank, showImages, readingTime }) => {
               themeClasses.typography.bodyTiny,
               themeClasses.text.muted
             )}>
-              {/* Reading Time */}
-              <div className="flex items-center space-x-1">
-                <FaClock className={themeClasses.icons.xs} />
-                <span>{readingTime} min read</span>
-              </div>
-
               {/* Views */}
               {post.view_count > 0 && (
                 <div className="flex items-center space-x-1">
@@ -111,12 +105,6 @@ const PopularPosts = ({
   
   // Fallback to recent posts if popular posts fail
   const displayPosts = isError ? recentPosts : popularPosts;
-
-  const calculateReadingTime = (content) => {
-    if (!content) return 1;
-    const wordCount = content.replace(/<[^>]*>/g, '').split(/\s+/).length;
-    return Math.ceil(wordCount / 200);
-  };
 
   const getTimeframeLabel = () => {
     switch (timeframe) {
@@ -231,11 +219,10 @@ const PopularPosts = ({
         {displayPosts && displayPosts.length > 0 ? (
           displayPosts.slice(0, limit).map((post, index) => (
             <PopularPostItem 
-              key={post.id} 
+              key={post.id}
               post={post} 
               rank={index + 1}
               showImages={showImages}
-              readingTime={calculateReadingTime(post.content || post.preview_content)}
             />
           ))
         ) : (

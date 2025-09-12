@@ -1,7 +1,7 @@
 // components/Article/RelatedArticles.js
 import React from 'react';
 import Link from 'next/link';
-import { FaUser, FaClock } from 'react-icons/fa';
+import { FaUser } from 'react-icons/fa';
 import { useRecentPosts } from '../../hooks/useRecentPosts';
 import TimeAgo from '../Utils/TimeAgo';
 import SafeImage from '../Utils/SafeImage';
@@ -66,14 +66,6 @@ const RelatedArticles = ({ currentPostId, categories = [], tags = [], limit = 3 
 
 // Individual Related Article Card
 const RelatedArticleCard = ({ post }) => {
-  // Calculate reading time
-  const calculateReadingTime = (content) => {
-    if (!content) return 1;
-    const wordCount = content.replace(/<[^>]*>/g, '').split(/\s+/).length;
-    return Math.ceil(wordCount / 200);
-  };
-
-  const readingTime = calculateReadingTime(post.content || post.preview_content);
 
   return (
     <article className="group cursor-pointer">
@@ -129,11 +121,6 @@ const RelatedArticleCard = ({ post }) => {
 
           {/* Meta Info */}
           <div className="flex items-center justify-between text-xs text-medium-text-muted">
-            <div className="flex items-center space-x-1">
-              <FaClock className="w-3 h-3" />
-              <span>{readingTime} min read</span>
-            </div>
-
             {/* Category */}
             {post.categories && post.categories.length > 0 && (
               <span className="px-2 py-1  rounded-full">
