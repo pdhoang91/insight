@@ -43,7 +43,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
       mutate(); // Refresh comments
     } catch (err) {
       console.error('Failed to add reply:', err);
-      alert('Failed to add reply. Please try again.');
+      alert('Không thể thêm phản hồi. Vui lòng thử lại.');
     }
   };
 

@@ -177,10 +177,10 @@ const EditPost = () => {
 
   const getSaveStatusText = () => {
     switch (saveStatus) {
-      case 'saving': return 'Saving...';
-      case 'saved': return 'Saved';
-      case 'error': return 'Error';
-      default: return 'Save Draft';
+      case 'saving': return 'Đang lưu...';
+      case 'saved': return 'Đã lưu';
+      case 'error': return 'Lỗi';
+      default: return 'Lưu bản nháp';
     }
   };
 

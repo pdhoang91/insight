@@ -138,22 +138,22 @@ const TextHighlighter = ({ children, className = '' }) => {
           <ToolbarButton
             icon={<FaHighlighter className="w-4 h-4" />}
             onClick={handleHighlight}
-            tooltip="Highlight"
+            tooltip="Nôi bật"
           />
           <ToolbarButton
             icon={<FaComment className="w-4 h-4" />}
             onClick={handleComment}
-            tooltip="Comment"
+            tooltip="Bình luận"
           />
           <ToolbarButton
             icon={<FaCopy className="w-4 h-4" />}
             onClick={handleCopy}
-            tooltip="Copy"
+            tooltip="Sao chép"
           />
           <ToolbarButton
             icon={<FaShareAlt className="w-4 h-4" />}
             onClick={handleShare}
-            tooltip="Share"
+            tooltip="Chia sẻ"
           />
           <ToolbarButton
             icon={<FaTwitter className="w-4 h-4" />}

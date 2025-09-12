@@ -157,7 +157,7 @@ const PostItemProfile = ({ post, isOwner }) => {
                   <Link 
                     href={`/edit/${post.title_name}`} 
                     className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-medium-hover text-medium-text-secondary hover:text-medium-accent-green transition-all duration-200 min-h-[44px]"
-                    aria-label="Edit post"
+                    aria-label="Chỉnh sửa bài viết"
                   >
                     <FaEdit className="w-4 h-4" />
                     <span className="font-medium text-sm">Edit</span>
@@ -165,7 +165,7 @@ const PostItemProfile = ({ post, isOwner }) => {
                   <button
                     onClick={handleDelete}
                     className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-red-50 text-medium-text-secondary hover:text-red-600 transition-all duration-200 min-h-[44px]"
-                    aria-label="Delete post"
+                    aria-label="Xóa bài viết"
                   >
                     <FaTrash className="w-4 h-4" />
                     <span className="font-medium text-sm">Delete</span>

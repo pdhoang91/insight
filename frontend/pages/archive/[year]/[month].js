@@ -39,8 +39,8 @@ const ArchivePage = () => {
     return (
       <HomeLayout sidebar={<PersonalBlogSidebar />}>
         <div className="text-center py-12 text-medium-text-secondary">
-          <h3 className="text-lg font-medium mb-2">Invalid Archive Date</h3>
-          <p>Please provide a valid year and month.</p>
+          <h3 className="text-lg font-medium mb-2">Ngày lưu trữ không hợp lệ</h3>
+          <p>Vui lòng cung cấp năm và tháng hợp lệ.</p>
         </div>
       </HomeLayout>
     );
@@ -61,8 +61,8 @@ const ArchivePage = () => {
     return (
       <HomeLayout sidebar={<PersonalBlogSidebar />}>
         <div className="text-center py-12 text-medium-text-secondary">
-          <h3 className="text-lg font-medium mb-2">Error Loading Archive</h3>
-          <p>Unable to load posts for this archive.</p>
+          <h3 className="text-lg font-medium mb-2">Lỗi tải Archive</h3>
+          <p>Không thể tải bài viết cho archive này.</p>
         </div>
       </HomeLayout>
     );

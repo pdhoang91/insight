@@ -12,7 +12,7 @@ export const timeAgo = (date) => {
   // Kiểm tra nếu thời gian đã vượt quá 1 ngày
   if (seconds >= 86400) {
     const dateObj = new Date(date);
-    const month = dateObj.toLocaleString('en-US', { month: 'short' });
+    const month = dateObj.toLocaleString('vi-VN', { month: 'short' });
     const day = dateObj.getDate();
     return `${month} ${day}`; // Ensures the date is rendered in one line
   }
@@ -20,15 +20,15 @@ export const timeAgo = (date) => {
   // Các khoảng thời gian khác (theo giờ, phút, giây)
   if (seconds >= 3600) {
     const hours = Math.floor(seconds / 3600);
-    return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+    return `${hours} giờ trước`;
   }
 
   if (seconds >= 60) {
     const minutes = Math.floor(seconds / 60);
-    return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+    return `${minutes} phút trước`;
   }
 
-  return 'just now';
+  return 'vừa xong';
 };
 
 // Component TimeAgo

@@ -139,7 +139,7 @@ export const PostSkeleton = ({ className = '' }) => {
 
 // Loading Screen
 export const LoadingScreen = ({ 
-  message = "Loading...",
+  message = "Đang tải...",
   className = '' 
 }) => {
   return (
@@ -152,7 +152,7 @@ export const LoadingScreen = ({
 
 // Inline Loading
 export const InlineLoading = ({ 
-  message = "Loading...",
+  message = "Đang tải...",
   size = 'sm',
   className = '' 
 }) => {

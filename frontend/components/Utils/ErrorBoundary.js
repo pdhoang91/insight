@@ -36,16 +36,16 @@ class ErrorBoundary extends React.Component {
               </svg>
             </div>
             <h3 className="text-lg font-serif font-bold text-medium-text-primary mb-2">
-              Something went wrong
+              Đã xảy ra lỗi
             </h3>
             <p className="text-medium-text-secondary mb-4">
-              We encountered an error while loading this component.
+              Chúng tôi gặp lỗi khi tải component này.
             </p>
             <button
               onClick={() => this.setState({ hasError: false, error: null })}
               className="px-4 py-2 bg-medium-accent-green text-white rounded-md hover:bg-medium-accent-green/90 transition-colors"
             >
-              Try again
+              Thử lại
             </button>
           </div>
         </div>

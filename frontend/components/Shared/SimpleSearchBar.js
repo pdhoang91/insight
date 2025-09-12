@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { FaSearch, FaTimes } from 'react-icons/fa';
 import { useThemeClasses } from '../../hooks/useThemeClasses';
 
-const SimpleSearchBar = ({ onClose, autoFocus = false, className = '', placeholder = 'Search articles...' }) => {
+const SimpleSearchBar = ({ onClose, autoFocus = false, className = '', placeholder = 'Tìm kiếm bài viết...' }) => {
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();

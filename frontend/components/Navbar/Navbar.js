@@ -135,7 +135,7 @@ const Navbar = () => {
                 <button
                   onClick={() => setIsSearchOpen(true)}
                   className="p-3 text-medium-text-secondary hover:text-medium-text-primary hover:bg-medium-hover rounded-lg transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center"
-                  aria-label="Open search"
+                  aria-label="Mở tìm kiếm"
                 >
                   <FaSearch className="w-4 h-4" />
                 </button>
@@ -150,7 +150,7 @@ const Navbar = () => {
                     onClick={handlePublishClick}
                     className="px-6 py-2 bg-medium-accent-green hover:bg-medium-accent-green/90 text-white rounded-button text-sm font-medium transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) shadow-sm hover:shadow-[0_8px_25px_rgba(26,137,23,0.25)] hover:-translate-y-0.5 hover:scale-[1.02]"
                   >
-                    Publish
+                    Đăng
                   </button>
                 ) : (
                   <button
@@ -249,7 +249,7 @@ const Navbar = () => {
                           className={`w-full flex items-center px-4 py-2 text-sm ${classes.text.secondary} hover:bg-medium-hover hover:${classes.text.primary} transition-colors rounded-md`}
                         >
                           <FaSignOutAlt className="w-4 h-4 mr-3" />
-                          Sign out
+                          Đăng xuất
                         </button>
                       </div>
                     </motion.div>
@@ -262,13 +262,13 @@ const Navbar = () => {
                   onClick={() => setModalOpen(true)}
                   className="text-medium-text-secondary hover:text-medium-text-primary hover:bg-medium-hover px-3 py-2 rounded-medium transition-all duration-200"
                 >
-                  Sign in
+                  Đăng nhập
                 </button>
                 <button
                   onClick={handleWriteClick}
                   className="px-6 py-2 bg-medium-accent-green hover:bg-medium-accent-green/90 text-white rounded-button text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
                 >
-                  Get started
+                  Bắt đầu
                 </button>
               </div>
             )}
@@ -279,7 +279,7 @@ const Navbar = () => {
             <button
               onClick={toggleMobileMenu}
               className="p-3 text-medium-text-secondary hover:text-medium-text-primary hover:bg-medium-hover rounded-lg transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center"
-              aria-label="Toggle menu"
+              aria-label="Mở menu"
             >
               {isMobileMenuOpen ? (
                 <FaTimes className="w-5 h-5" />
@@ -304,7 +304,7 @@ const Navbar = () => {
             <div className="px-6 py-4 space-y-4">
               {/* Mobile Search */}
               <div>
-                <SimpleSearchBar placeholder="Search articles..." />
+                <SimpleSearchBar placeholder="Tìm kiếm bài viết..." />
               </div>
 
               {/* Mobile Navigation */}
@@ -332,7 +332,7 @@ const Navbar = () => {
                         {user.name}
                       </div>
                       <div className={`text-sm ${classes.text.secondary}`}>
-                        View Profile
+                        Xem hồ sơ
                       </div>
                     </div>
                   </Link>
@@ -355,7 +355,7 @@ const Navbar = () => {
                     {/* Theme Toggle */}
                     <div className="px-3 py-2">
                       <div className="flex items-center justify-between">
-                        <span className={`text-sm ${classes.text.secondary}`}>Theme</span>
+                        <span className={`text-sm ${classes.text.secondary}`}>Giao diện</span>
                         <ThemeToggle variant="simple" />
                       </div>
                     </div>
@@ -365,7 +365,7 @@ const Navbar = () => {
                       className={`w-full flex items-center px-3 py-2 text-sm ${classes.text.secondary} hover:bg-medium-hover hover:${classes.text.primary} transition-colors rounded-md`}
                     >
                       <FaSignOutAlt className="w-4 h-4 mr-3" />
-                      Sign out
+                      Đăng xuất
                     </button>
                   </div>
                 </div>
@@ -378,13 +378,13 @@ const Navbar = () => {
                     }}
                     className={`block w-full py-2 text-left ${classes.text.secondary}`}
                   >
-                    Sign in
+                    Đăng nhập
                   </button>
                   <button
                     onClick={handleWriteClick}
                     className={`block w-full py-2 px-4 ${classes.button.primary} rounded-full text-center font-medium`}
                   >
-                    Get started
+                    Bắt đầu
                   </button>
                 </div>
               )}

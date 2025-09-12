@@ -31,16 +31,16 @@ const PostList = ({
           </svg>
         </div>
         <h3 className="text-lg font-medium text-medium-text-primary mb-2">
-          Something went wrong
+          Đã xảy ra lỗi
         </h3>
         <p className="text-medium-text-secondary mb-4">
-          We couldn't load the posts. Please try again.
+          Không thể tải bài viết. Vui lòng thử lại.
         </p>
         <button 
           onClick={() => window.location.reload()}
           className={componentClasses.button.primary}
         >
-          Try again
+          Thử lại
         </button>
       </div>
     );

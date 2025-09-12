@@ -108,10 +108,10 @@ const PopularPosts = ({
 
   const getTimeframeLabel = () => {
     switch (timeframe) {
-      case 'week': return 'This Week';
-      case 'month': return 'This Month';
-      case 'all': return 'All Time';
-      default: return 'Popular';
+      case 'week': return 'Tuần này';
+      case 'month': return 'Tháng này';
+      case 'all': return 'Tất cả';
+      default: return 'Phổ biến';
     }
   };
 
@@ -164,7 +164,7 @@ const PopularPosts = ({
           themeClasses.typography.bodySmall,
           themeClasses.text.secondary
         )}>
-          No popular posts available at the moment.
+          Hiện tại chưa có bài viết phổ biến nào.
         </p>
       </div>
     );
@@ -197,7 +197,7 @@ const PopularPosts = ({
               themeClasses.typography.bodySmall,
               themeClasses.text.muted
             )}>
-              No popular posts available
+              Không có bài viết phổ biến
             </p>
           </div>
         )}

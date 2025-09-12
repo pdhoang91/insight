@@ -3,8 +3,8 @@ import React from 'react';
 import Link from 'next/link';
 
 const ErrorState = ({ 
-  title = "Something went wrong", 
-  message = "An error occurred. Please try again.", 
+  title = "Đã xảy ra lỗi", 
+  message = "Có lỗi xảy ra. Vui lòng thử lại.", 
   action = null 
 }) => {
   return (

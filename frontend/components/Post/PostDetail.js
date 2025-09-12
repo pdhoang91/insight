@@ -83,7 +83,7 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
                       ? 'text-medium-accent-green bg-medium-accent-green/10' 
                       : 'text-medium-text-secondary hover:text-medium-accent-green hover:bg-medium-hover'
                   }`}
-                  aria-label="Clap for this post"
+                  aria-label="Thích bài viết này"
                 >
                   <FaHandsClapping className="w-4 h-4" />
                   <span className="font-medium">{postClapsCount}</span>
@@ -93,7 +93,7 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
                 <button 
                   onClick={onScrollToComments}
                   className="flex items-center space-x-2 px-3 py-2 rounded-full text-medium-text-secondary hover:text-medium-accent-green hover:bg-medium-hover transition-all duration-200 min-h-[44px]"
-                  aria-label="Go to comments"
+                  aria-label="Đi tới bình luận"
                 >
                   <FaComment className="w-4 h-4" />
                   <span className="font-medium">{totalCommentReply || 0}</span>
@@ -102,7 +102,7 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
                 {/* Share Button */}
                 <button 
                   className="flex items-center space-x-2 px-3 py-2 rounded-full text-medium-text-secondary hover:text-medium-accent-green hover:bg-medium-hover transition-all duration-200 min-h-[44px]"
-                  aria-label="Share this post"
+                  aria-label="Chia sẻ bài viết này"
                 >
                   <FaShare className="w-4 h-4" />
                 </button>

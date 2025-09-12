@@ -3,8 +3,8 @@ import React from 'react';
 import Link from 'next/link';
 
 const EmptyState = ({ 
-  title = "Nothing here yet", 
-  message = "Be the first to add content.", 
+  title = "Chưa có nội dung", 
+  message = "Hãy là người đầu tiên thêm nội dung.", 
   action = null,
   icon = null 
 }) => {

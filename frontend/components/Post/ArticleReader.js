@@ -181,7 +181,7 @@ const AuthorBioCard = ({ author, isFollowing, onFollow }) => {
               size="sm"
               onClick={onFollow}
             >
-              {isFollowing ? "Following" : "Follow"}
+              {isFollowing ? "Đang theo dõi" : "Theo dõi"}
             </Button>
           </div>
           

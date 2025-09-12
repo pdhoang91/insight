@@ -17,11 +17,11 @@ const RecommendedPost = () => {
 
   // Thêm kiểm tra nếu `data` hoặc `data.posts` là `undefined`
   if (error) {
-    return <div>Failed to load popular posts.</div>;
+    return <div>Không thể tải bài viết phổ biến.</div>;
   }
 
   if (!data) {
-    return <div>Loading...</div>;
+    return <div>Đang tải...</div>;
   }
 
   const { posts, totalCount } = data;

@@ -90,7 +90,7 @@ const EngagementActions = ({
         <button
           onClick={handleClap}
           className={`${buttonClasses} group/clap`}
-          aria-label="Clap for this post"
+          aria-label="Thích bài viết này"
           disabled={clapsLoading}
         >
           <FaHandsClapping className={`${iconSizes[size]} group-hover/clap:scale-110 transition-transform`} />
@@ -102,11 +102,11 @@ const EngagementActions = ({
         <Link
           href={`/p/${post.title_name}#comments`}
           className={buttonClasses}
-          aria-label="View comments"
+          aria-label="Xem bình luận"
         >
           <FaComment className={iconSizes[size]} />
           <span className={sizeClasses[size]}>{commentsCount}</span>
-          {showLabels && <span className={sizeClasses[size]}>Comment</span>}
+          {showLabels && <span className={sizeClasses[size]}>Bình luận</span>}
         </Link>
       </div>
 
@@ -118,10 +118,10 @@ const EngagementActions = ({
           className={`${buttonClasses} ${
             isBookmarked ? 'text-medium-accent-green' : ''
           }`}
-          aria-label="Bookmark this post"
+          aria-label="Đánh dấu bài viết này"
         >
           <FaBookmark className={iconSizes[size]} />
-          {showLabels && <span className={sizeClasses[size]}>Save</span>}
+          {showLabels && <span className={sizeClasses[size]}>Lưu</span>}
         </button>
 
 
@@ -130,7 +130,7 @@ const EngagementActions = ({
           <button
             onClick={handleMoreOptions}
             className={buttonClasses}
-            aria-label="More options"
+            aria-label="Thêm tùy chọn"
           >
             <FaEllipsisH className={iconSizes[size]} />
           </button>

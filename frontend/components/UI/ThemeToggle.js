@@ -21,21 +21,21 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
       <button
         onClick={toggleTheme}
         className={`flex items-center gap-3 p-2 rounded-medium hover:bg-medium-hover transition-all duration-200 ${className}`}
-        aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
-        title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+        aria-label={`Chuyển sang chế độ ${isDark ? 'sáng' : 'tối'}`}
+        title={`Chuyển sang chế độ ${isDark ? 'sáng' : 'tối'}`}
       >
         {isDark ? (
           <>
             <FaSun className={`${themeClasses.icons.sm} ${themeClasses.text.accent}`} />
             {className?.includes('justify-start') && (
-              <span className="text-sm text-medium-text-secondary">Light Mode</span>
+              <span className="text-sm text-medium-text-secondary">Chế độ sáng</span>
             )}
           </>
         ) : (
           <>
             <FaMoon className={`${themeClasses.icons.sm} ${themeClasses.text.accent}`} />
             {className?.includes('justify-start') && (
-              <span className="text-sm text-medium-text-secondary">Dark Mode</span>
+              <span className="text-sm text-medium-text-secondary">Chế độ tối</span>
             )}
           </>
         )}
@@ -52,7 +52,7 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-medium-accent-green focus:ring-offset-2 ${
           isDark ? 'bg-medium-accent-green' : 'bg-medium-border'
         }`}
-        aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+        aria-label={`Chuyển sang chế độ ${isDark ? 'sáng' : 'tối'}`}
       >
         <span
           className={`inline-block h-4 w-4 transform rounded-full bg-medium-bg-card transition-transform ${
@@ -69,7 +69,7 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
   return (
     <div className={`space-y-1 ${className}`}>
       <div className="text-body-small font-medium text-medium-text-secondary mb-2">
-        Theme
+        Giao diện
       </div>
       
       <button
@@ -81,7 +81,7 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
         }`}
       >
         <FaSun className={`${themeClasses.icons.sm} mr-3`} />
-        Light Mode
+        Chế độ sáng
       </button>
       
       <button
@@ -93,7 +93,7 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
         }`}
       >
         <FaMoon className={`${themeClasses.icons.sm} mr-3`} />
-        Dark Mode
+        Chế độ tối
       </button>
     </div>
   );
