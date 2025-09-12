@@ -1,15 +1,19 @@
 // components/Post/RecommendedTopicsSection.js
 import React from 'react';
-import { useRecommendedTopics } from '../../hooks/useRecommendedTopics';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import ViewMoreButton from '../../components/Utils/ViewMoreButton';
 
 const RecommendedTopicsSection = () => {
-  const { recommendedTopics, isLoading, isError } = useRecommendedTopics();
   const router = useRouter();
-  if (isError) return <div className="text-medium-text-accent">Không thể tải chủ đề được đề xuất</div>;
-  if (isLoading) return <div className="text-medium-text-secondary">Đang tải...</div>;
+  
+  // Mock data - replace with actual API call when ready
+  const recommendedTopics = [
+    { id: 1, name: 'Technology' },
+    { id: 2, name: 'Programming' },
+    { id: 3, name: 'Web Development' },
+    { id: 4, name: 'React' },
+    { id: 5, name: 'JavaScript' }
+  ];
 
   const handleSeeMore = () => {
     router.push(`/suggestion`);
@@ -30,7 +34,12 @@ const RecommendedTopicsSection = () => {
         ))}
       </div>
       {recommendedTopics.length > 5 && (
-       <ViewMoreButton onClick={handleSeeMore} />
+        <button 
+          onClick={handleSeeMore}
+          className="mt-4 px-4 py-2 text-sm font-medium text-medium-accent-green hover:text-medium-text-primary transition-colors duration-200"
+        >
+          Xem thêm
+        </button>
       )}
     </div>
   );

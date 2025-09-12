@@ -35,8 +35,6 @@ export { default as PopularPosts } from './Post/PopularPosts';
 // Archive components
 export { default as Archive } from './Archive/Archive';
 
-// Post components
-export { default as BookmarkButton } from './Post/BookmarkButton';
 export { default as TextHighlighter } from './Post/TextHighlighter';
 
 // Article components
@@ -44,7 +42,6 @@ export { default as RelatedArticles } from './Article/RelatedArticles';
 
 // Utils
 export { default as TextUtils } from './Utils/TextUtils';
-export { default as ThemeWrapper } from './Utils/ThemeWrapper';
 export { default as TableOfContents } from './Shared/TableOfContents';
 
 // Shared Components

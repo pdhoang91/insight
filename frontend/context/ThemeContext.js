@@ -1,7 +1,7 @@
 // context/ThemeContext.js
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-const ThemeContext = createContext();
+export const ThemeContext = createContext();
 
 export const useTheme = () => {
   const context = useContext(ThemeContext);
