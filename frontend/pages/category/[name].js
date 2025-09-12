@@ -6,7 +6,7 @@ import { HomeLayout } from '../../components/Layout/Layout';
 import { CategoryPosts } from '../../components/Category';
 import { useInfinitePostByCategory } from '../../hooks/useInfinitePostByCategory';
 import { LoadingSpinner } from '../../components/UI';
-import PersonalBlogSidebar from '../../components/Shared/PersonalBlogSidebar';
+import PersonalBlogSidebar from '../../components/Sidebar/PersonalBlogSidebar';
 import { componentClasses } from '../../utils/themeClasses';
 
 const CategoryPage = () => {

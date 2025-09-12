@@ -1,7 +1,7 @@
 // components/layout/PageLayout.js - Standard page layout with sidebar
 import React from 'react';
 import { useThemeClasses } from '../../hooks/useThemeClasses';
-import Sidebar from './Sidebar';
+import Sidebar from '../Sidebar';
 
 const PageLayout = ({ 
   children, 

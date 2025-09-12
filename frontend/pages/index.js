@@ -3,7 +3,7 @@ import React from 'react';
 import { useInfinitePosts } from '../hooks/useInfinitePosts';
 import { HomeLayout } from '../components/Layout/Layout';
 import PostList from '../components/Post/PostList';
-import PersonalBlogSidebar from '../components/Shared/PersonalBlogSidebar';
+import PersonalBlogSidebar from '../components/Sidebar/PersonalBlogSidebar';
 const Home = () => {
   const {
     posts,

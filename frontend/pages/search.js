@@ -3,7 +3,7 @@ import React from 'react';
 import { useRouter } from 'next/router';
 import { HomeLayout } from '../components/Layout/Layout';
 import { SearchResults } from '../components/Search';
-import PersonalBlogSidebar from '../components/Shared/PersonalBlogSidebar';
+import PersonalBlogSidebar from '../components/Sidebar/PersonalBlogSidebar';
 import { themeClasses } from '../utils/themeClasses';
 
 // Search Header Component - Following home page pattern

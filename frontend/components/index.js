@@ -26,9 +26,8 @@ export { default as TitleInput } from './Editor/TitleInput';
 export { default as Toolbar } from './Editor/Toolbar';
 export { default as ToolbarButton } from './Editor/ToolbarButton';
 
-// Mobile components
-export { default as MobileSidebar } from './Mobile/MobileSidebar';
-export { default as MobileReadingBar } from './Mobile/MobileReadingBar';
+// Sidebar components
+export { default as PersonalBlogSidebar } from './Sidebar/PersonalBlogSidebar';
 
 // Reading components
 export { default as BookmarkButton } from './Post/BookmarkButton';
