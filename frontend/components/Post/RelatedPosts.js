@@ -47,13 +47,11 @@ const RelatedPosts = ({ posts = [], currentPostId, className = '' }) => {
                   </h4>
                   <div className="flex items-center gap-2 text-xs text-medium-text-muted">
                     <time dateTime={post.created_at}>
-                      {new Date(post.created_at).toLocaleDateString('vi-VN', {
+                      {new Date(post.created_at).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric'
                       })}
                     </time>
-                    <span className="w-1 h-1 bg-medium-text-muted rounded-full"></span>
-                    <span>{Math.ceil((post.content?.length || 0) / 1000)} min read</span>
                   </div>
                 </div>
                 

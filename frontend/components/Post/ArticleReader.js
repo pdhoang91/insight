@@ -76,7 +76,7 @@ const ArticleReader = ({ post }) => {
               <img
                 src={post.image_title}
                 alt={post.title}
-                className="w-full h-auto sm:rounded-lg border border-medium-border"
+                className="w-full h-auto sm:rounded-lg"
               />
               {post.image_caption && (
                 <p className="text-center text-sm text-medium-text-muted mt-3 sm:mt-4 italic px-4 sm:px-0">
@@ -98,7 +98,7 @@ const ArticleReader = ({ post }) => {
         </div>
 
         {/* Article Footer - Mobile Optimized */}
-        <footer className="mt-12 sm:mt-14 lg:mt-16 pt-6 sm:pt-8 border-t border-medium-divider">
+        <footer className="mt-12 sm:mt-14 lg:mt-16 pt-6 sm:pt-8">
           {/* Tags */}
           {post.tags && post.tags.length > 0 && (
             <div className="mb-6 sm:mb-8">
@@ -107,7 +107,7 @@ const ArticleReader = ({ post }) => {
                   <Link
                     key={index}
                     href={`/tag/${tag}`}
-                    className="px-3 py-1 bg-medium-bg-secondary text-medium-text-secondary hover:bg-medium-accent-green hover:text-white rounded-button text-sm transition-colors"
+                    className={`${themeClasses.patterns.tag} ${themeClasses.interactive.base} hover:bg-medium-accent-green hover:text-white`}
                   >
                     {tag}
                   </Link>

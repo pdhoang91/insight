@@ -156,7 +156,7 @@ const PostList = ({
           flatPosts.length > 0 && (
             <div className="text-center py-8 border-t border-medium-divider mt-8">
               <p className="text-medium-text-muted">
-                You've reached the end! 🎉
+                You've reached the end!
               </p>
             </div>
           )

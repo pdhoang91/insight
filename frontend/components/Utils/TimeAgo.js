@@ -12,7 +12,7 @@ export const timeAgo = (date) => {
   // Kiểm tra nếu thời gian đã vượt quá 1 ngày
   if (seconds >= 86400) {
     const dateObj = new Date(date);
-    const month = dateObj.toLocaleString('vi-VN', { month: 'short' });
+    const month = dateObj.toLocaleString('en-US', { month: 'short' });
     const day = dateObj.getDate();
     return `${month} ${day}`; // Ensures the date is rendered in one line
   }

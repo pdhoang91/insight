@@ -18,7 +18,7 @@ import { useThemeClasses } from '../../hooks/useThemeClasses';
 import ThemeToggle from '../UI/ThemeToggle';
 import SimpleSearchBar from '../Shared/SimpleSearchBar';
 import { canWritePosts } from '../../services/authService';
-import { themeClasses } from '../../utils/themeClasses';
+import { themeClasses, componentClasses } from '../../utils/themeClasses';
 
 const Navbar = () => {
   const { user, setUser, setModalOpen } = useUser();
@@ -397,7 +397,7 @@ const Navbar = () => {
                   </button>
                   <button
                     onClick={handleWriteClick}
-                    className={`block w-full py-2 px-4 ${classes.button.primary} rounded-full text-center font-medium`}
+                    className={`block w-full py-2 px-4 ${componentClasses.button.primary} rounded-full text-center font-medium`}
                   >
                     Bắt đầu
                   </button>

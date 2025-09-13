@@ -162,7 +162,7 @@ const MoreOptionsMenu = ({ post, onClose }) => {
   };
 
   return (
-    <div className="absolute right-0 mt-2 w-48 bg-medium-bg-card shadow-elevated border border-medium-border rounded-card overflow-hidden z-50">
+    <div className="absolute right-0 mt-2 w-48 bg-medium-bg-card shadow-elevated rounded-card overflow-hidden z-50">
       <div className="py-2">
         <button
           onClick={handleCopyLink}
@@ -188,7 +188,7 @@ const MoreOptionsMenu = ({ post, onClose }) => {
 export const FloatingEngagementActions = ({ post, commentsCount, className = '' }) => {
   return (
     <div className={`fixed left-6 top-1/2 transform -translate-y-1/2 z-40 ${className}`}>
-      <div className="bg-medium-bg-card border border-medium-border rounded-card shadow-elevated p-2">
+      <div className="bg-medium-bg-card rounded-card shadow-elevated p-2">
         <EngagementActions
           post={post}
           commentsCount={commentsCount}
