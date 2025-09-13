@@ -46,21 +46,21 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
   if (variant === 'toggle') {
     return (
       <div className={`flex items-center space-x-3 ${className}`}>
-      <FaSun className={`${themeClasses.icons.sm} transition-colors ${isLight ? themeClasses.text.accent : themeClasses.text.muted}`} />
-      <button
-        onClick={toggleTheme}
-        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-medium-accent-green focus:ring-offset-2 ${
-          isDark ? 'bg-medium-accent-green' : 'bg-medium-border'
-        }`}
-        aria-label={`Chuyển sang chế độ ${isDark ? 'sáng' : 'tối'}`}
-      >
-        <span
-          className={`inline-block h-4 w-4 transform rounded-full bg-medium-bg-card transition-transform ${
-            isDark ? 'translate-x-6' : 'translate-x-1'
+        <FaSun className={`${themeClasses.icons.sm} transition-colors ${isLight ? themeClasses.text.accent : themeClasses.text.muted}`} />
+        <button
+          onClick={toggleTheme}
+          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-medium-accent-green focus:ring-offset-2 ${
+            isDark ? 'bg-medium-accent-green' : 'bg-medium-border'
           }`}
-        />
-      </button>
-      <FaMoon className={`${themeClasses.icons.sm} transition-colors ${isDark ? themeClasses.text.accent : themeClasses.text.muted}`} />
+          aria-label={`Chuyển sang chế độ ${isDark ? 'sáng' : 'tối'}`}
+        >
+          <span
+            className={`inline-block h-4 w-4 transform rounded-full bg-medium-bg-card transition-transform ${
+              isDark ? 'translate-x-6' : 'translate-x-1'
+            }`}
+          />
+        </button>
+        <FaMoon className={`${themeClasses.icons.sm} transition-colors ${isDark ? themeClasses.text.accent : themeClasses.text.muted}`} />
       </div>
     );
   }
@@ -77,7 +77,7 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
         className={`w-full flex items-center px-3 py-2 text-body-small rounded-medium transition-colors ${
           isLight
             ? 'bg-medium-accent-green text-white'
-            : 'text-medium-text-secondary hover:'
+            : 'text-medium-text-secondary hover:bg-medium-hover'
         }`}
       >
         <FaSun className={`${themeClasses.icons.sm} mr-3`} />
@@ -89,7 +89,7 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
         className={`w-full flex items-center px-3 py-2 text-body-small rounded-medium transition-colors ${
           isDark
             ? 'bg-medium-accent-green text-white'
-            : 'text-medium-text-secondary hover:'
+            : 'text-medium-text-secondary hover:bg-medium-hover'
         }`}
       >
         <FaMoon className={`${themeClasses.icons.sm} mr-3`} />

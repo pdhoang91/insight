@@ -158,7 +158,7 @@ const Navbar = () => {
                     className="flex items-center px-6 py-2 bg-medium-accent-green hover:bg-medium-accent-green/90 text-white rounded-button text-sm font-medium transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) shadow-sm hover:shadow-[0_8px_25px_rgba(26,137,23,0.25)] hover:-translate-y-0.5 hover:scale-[1.02]"
                   >
                     <FaEdit className={`${themeClasses.icons.sm} mr-2 text-white`} />
-                    Write
+                    Viết bài
                   </button>
                 )}
               </>
@@ -236,7 +236,7 @@ const Navbar = () => {
                             className={`w-full flex items-center px-4 py-2 text-sm ${classes.text.secondary} hover:bg-medium-hover hover:${classes.text.primary} transition-colors rounded-md`}
                           >
                             <FaEdit className="w-4 h-4 mr-3" />
-                            Write
+                            Viết bài
                           </button>
                         )}
 
@@ -340,16 +340,31 @@ const Navbar = () => {
                   {/* Menu Items with consistent styling */}
                   <div className="space-y-1">
                     {canWritePosts(user) && (
-                      <button
-                        onClick={() => {
-                          handleWriteClick();
-                          setIsMobileMenuOpen(false);
-                        }}
-                        className={`w-full flex items-center px-3 py-2 text-sm ${classes.text.secondary} hover:bg-medium-hover hover:${classes.text.primary} transition-colors rounded-md`}
-                      >
-                        <FaEdit className="w-4 h-4 mr-3" />
-                        Write
-                      </button>
+                      <>
+                        {isWritePage ? (
+                          <button
+                            onClick={() => {
+                              handlePublishClick();
+                              setIsMobileMenuOpen(false);
+                            }}
+                            className={`w-full flex items-center px-3 py-2 text-sm ${classes.text.secondary} hover:bg-medium-hover hover:${classes.text.primary} transition-colors rounded-md`}
+                          >
+                            <FaEdit className="w-4 h-4 mr-3" />
+                            Đăng
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => {
+                              handleWriteClick();
+                              setIsMobileMenuOpen(false);
+                            }}
+                            className={`w-full flex items-center px-3 py-2 text-sm ${classes.text.secondary} hover:bg-medium-hover hover:${classes.text.primary} transition-colors rounded-md`}
+                          >
+                            <FaEdit className="w-4 h-4 mr-3" />
+                            Viết bài
+                          </button>
+                        )}
+                      </>
                     )}
                     
                     {/* Theme Toggle */}

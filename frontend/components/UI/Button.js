@@ -8,7 +8,7 @@ const Button = forwardRef(({
   size = 'md', 
   disabled = false, 
   loading = false,
-  loadingText = 'Loading...',
+  loadingText = 'Đang tải...',
   onClick,
   className = '',
   type = 'button',

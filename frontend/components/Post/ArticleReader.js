@@ -107,7 +107,7 @@ const ArticleReader = ({ post }) => {
                   <Link
                     key={index}
                     href={`/tag/${tag}`}
-                    className="px-3 py-1  text-medium-text-secondary hover:bg-medium-accent-green hover:text-white rounded-button text-sm transition-colors"
+                    className="px-3 py-1 bg-medium-bg-secondary text-medium-text-secondary hover:bg-medium-accent-green hover:text-white rounded-button text-sm transition-colors"
                   >
                     {tag}
                   </Link>

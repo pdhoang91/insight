@@ -101,7 +101,7 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
                   disabled={isUploading}
                   className="text-matrix-green text-sm font-mono hover:text-matrix-green/80 transition-colors disabled:opacity-50"
                 >
-                  {isUploading ? 'uploading...' : 'change_avatar()'}
+                  {isUploading ? 'đang tải...' : 'đổi_avatar()'}
                 </button>
                 <input
                   type="file"
@@ -118,8 +118,8 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 bg-transparent text-white placeholder-gray-400 border-b border-matrix-green/30 focus:border-matrix-green font-mono focus:outline-none transition-colors"
-                  placeholder="your_name"
+                  className="w-full px-3 py-2 bg-transparent text-medium-text-primary placeholder-medium-text-muted border-b border-matrix-green/30 focus:border-matrix-green font-mono focus:outline-none transition-colors"
+                  placeholder="tên_của_bạn"
                   required
                 />
               </div>
@@ -129,8 +129,8 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
                 <textarea
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
-                  className="w-full px-3 py-2 bg-transparent text-white placeholder-gray-400 border-b border-matrix-green/30 focus:border-matrix-green font-mono resize-none focus:outline-none transition-colors"
-                  placeholder="your_bio"
+                  className="w-full px-3 py-2 bg-transparent text-medium-text-primary placeholder-medium-text-muted border-b border-matrix-green/30 focus:border-matrix-green font-mono resize-none focus:outline-none transition-colors"
+                  placeholder="tiểu_sử_của_bạn"
                   rows={3}
                   maxLength={500}
                 />

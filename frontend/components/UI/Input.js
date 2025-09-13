@@ -22,7 +22,7 @@ const Input = ({
     lg: combineClasses(themeClasses.interactive.inputLarge, themeClasses.effects.rounded),
   };
   
-  const errorClasses = error ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : '';
+  const errorClasses = error ? 'border-error focus:border-error focus:ring-error' : '';
   
   const inputClasses = combineClasses(
     themeClasses.interactive.inputBase,
