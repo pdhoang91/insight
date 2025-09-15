@@ -18,7 +18,7 @@ import { useThemeClasses } from '../../hooks/useThemeClasses';
 import ThemeToggle from '../UI/ThemeToggle';
 import SimpleSearchBar from '../Shared/SimpleSearchBar';
 import { canWritePosts } from '../../services/authService';
-import { themeClasses, componentClasses } from '../../utils/themeClasses';
+import { themeClasses, componentClasses, combineClasses } from '../../utils/themeClasses';
 
 const Navbar = () => {
   const { user, setUser, setModalOpen } = useUser();
@@ -88,11 +88,17 @@ const Navbar = () => {
   // Don't render navbar until theme is mounted to prevent hydration mismatch
   if (!mounted) {
     return (
-      <nav className={`fixed top-0 left-0 right-0 z-50 ${classes.bg.primary}/80`}>
+      <nav className={combineClasses(
+        'fixed top-0 left-0 right-0 z-50',
+        themeClasses.bg.primary + '/80'
+      )}>
         <div className={themeClasses.layout.container}>
           <div className="flex items-center justify-between h-16">
             <div className="animate-pulse">
-              <div className={`h-8 w-32 ${classes.skeleton} rounded`}></div>
+              <div className={combineClasses(
+                'h-8 w-32 rounded',
+                themeClasses.animations.skeleton
+              )}></div>
             </div>
           </div>
         </div>
@@ -101,11 +107,16 @@ const Navbar = () => {
   }
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+    <nav className={combineClasses(
+      'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
       scrolled 
-        ? `${classes.bg.primary} border-b ${classes.border.primary} shadow-sm` 
-        : `${classes.bg.primary}/90`
-    }`}>
+        ? combineClasses(
+            themeClasses.bg.primary,
+            'border-b shadow-sm',
+            themeClasses.border.primary
+          )
+        : themeClasses.bg.primary + '/90'
+    )}>
       <div className={themeClasses.layout.container}>
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -114,7 +125,12 @@ const Navbar = () => {
             className="flex items-center group"
             onClick={() => setIsMobileMenuOpen(false)}
           >
-            <div className="text-2xl font-serif font-bold text-medium-text-primary group-hover:text-medium-accent-green transition-colors duration-200">
+            <div className={combineClasses(
+              'text-2xl font-serif font-bold',
+              themeClasses.text.primary,
+              'group-hover:text-medium-accent-green',
+              themeClasses.animations.smooth
+            )}>
               Insight
             </div>
           </Link>
@@ -174,13 +190,23 @@ const Navbar = () => {
                       initial={{ opacity: 0, scale: 0.95, y: -10 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                      className={`absolute right-0 mt-2 w-64 ${classes.bg.card} shadow-lg rounded-lg overflow-hidden backdrop-blur-md`}
+                      className={combineClasses(
+                        'absolute right-0 mt-2 w-64 shadow-lg rounded-lg overflow-hidden',
+                        themeClasses.bg.elevated,
+                        themeClasses.effects.blur,
+                        themeClasses.border.primary,
+                        'border'
+                      )}
                     >
                       {/* User Info - Clickable to profile */}
                       <div className="px-4 py-3">
                         <Link
                           href={`/${user.username}`}
-                          className="flex items-center gap-3 hover:bg-medium-hover rounded-lg p-2 -m-2 transition-colors duration-200"
+                          className={combineClasses(
+                            'flex items-center gap-3 rounded-lg p-2 -m-2',
+                            'hover:bg-medium-hover',
+                            themeClasses.animations.smooth
+                          )}
                           onClick={() => setIsUserMenuOpen(false)}
                         >
                           {user.avatar_url ? (
@@ -195,10 +221,18 @@ const Navbar = () => {
                             </div>
                           )}
                           <div>
-                            <div className={`font-medium ${classes.text.primary} hover:text-medium-accent-green transition-colors`}>
+                            <div className={combineClasses(
+                              'font-medium',
+                              themeClasses.text.primary,
+                              'hover:text-medium-accent-green',
+                              themeClasses.animations.smooth
+                            )}>
                               {user.name}
                             </div>
-                            <div className={`text-sm ${classes.text.secondary}`}>
+                            <div className={combineClasses(
+                              'text-sm',
+                              themeClasses.text.secondary
+                            )}>
                               {user.email}
                             </div>
                           </div>
@@ -206,19 +240,35 @@ const Navbar = () => {
                       </div>
 
                       {/* Divider */}
-                      <div className="border-t border-medium-border my-2"></div>
+                      <div className={combineClasses(
+                        'border-t my-2',
+                        themeClasses.border.primary
+                      )}></div>
 
                       {/* Menu Items */}
                       <div className="px-2 py-2 space-y-1">
                         {/* Theme Toggle Button */}
-                        <ThemeToggle variant="simple" className="w-full justify-start px-4 py-2 text-sm hover:bg-medium-hover transition-colors rounded-md" />
+                        <ThemeToggle 
+                          variant="simple" 
+                          className={combineClasses(
+                            'w-full justify-start px-4 py-2 text-sm rounded-md',
+                            'hover:bg-medium-hover',
+                            themeClasses.animations.smooth
+                          )} 
+                        />
 
                         {/* Sign out */}
                         <button
                           onClick={handleLogout}
-                          className={`w-full flex items-center px-4 py-2 text-sm ${classes.text.secondary} hover:bg-medium-hover hover:${classes.text.primary} transition-colors rounded-md`}
+                          className={combineClasses(
+                            'w-full flex items-center px-4 py-2 text-sm rounded-md',
+                            themeClasses.text.secondary,
+                            'hover:bg-medium-hover',
+                            'hover:text-medium-text-primary',
+                            themeClasses.animations.smooth
+                          )}
                         >
-                          <FaSignOutAlt className="w-4 h-4 mr-3" />
+                          <FaSignOutAlt className={combineClasses(themeClasses.icons.sm, 'mr-3')} />
                           Đăng xuất
                         </button>
                       </div>
@@ -230,13 +280,23 @@ const Navbar = () => {
                 <div className="flex items-center gap-4">
                 <button
                   onClick={() => setModalOpen(true)}
-                  className="text-medium-text-secondary hover:text-medium-text-primary hover:bg-medium-hover px-3 py-2 rounded-medium transition-all duration-200"
+                  className={combineClasses(
+                    'px-3 py-2 rounded-md',
+                    themeClasses.text.secondary,
+                    'hover:text-medium-text-primary hover:bg-medium-hover',
+                    themeClasses.animations.smooth
+                  )}
                 >
                   Đăng nhập
                 </button>
                 <button
                   onClick={handleWriteClick}
-                  className="px-6 py-2 bg-medium-accent-green hover:bg-medium-accent-green/90 text-white rounded-button text-sm font-medium transition-all duration-200 shadow-sm hover:shadow-md"
+                  className={combineClasses(
+                    'px-6 py-2 text-white rounded-button text-sm font-medium shadow-sm hover:shadow-md',
+                    themeClasses.bg.accent,
+                    'hover:bg-medium-accent-green/90',
+                    themeClasses.animations.smooth
+                  )}
                 >
                   Bắt đầu
                 </button>
@@ -257,16 +317,26 @@ const Navbar = () => {
                 {isWritePage ? (
                   <button
                     onClick={handlePublishClick}
-                    className="px-3 py-2 bg-medium-accent-green hover:bg-medium-accent-green/90 text-white rounded-button text-sm font-medium transition-all duration-200"
+                    className={combineClasses(
+                      'px-3 py-2 text-white rounded-button text-sm font-medium',
+                      themeClasses.bg.accent,
+                      'hover:bg-medium-accent-green/90',
+                      themeClasses.animations.smooth
+                    )}
                   >
                     Đăng
                   </button>
                 ) : (
                   <button
                     onClick={handleWriteClick}
-                    className="p-2 bg-medium-accent-green hover:bg-medium-accent-green/90 text-white rounded-button transition-all duration-200"
+                    className={combineClasses(
+                      'p-2 text-white rounded-button',
+                      themeClasses.bg.accent,
+                      'hover:bg-medium-accent-green/90',
+                      themeClasses.animations.smooth
+                    )}
                   >
-                    <FaEdit className="w-4 h-4" />
+                    <FaEdit className={themeClasses.icons.sm} />
                   </button>
                 )}
               </>
@@ -275,7 +345,12 @@ const Navbar = () => {
             {/* Mobile Menu Button */}
             <button
               onClick={toggleMobileMenu}
-              className="p-2 text-medium-text-secondary hover:text-medium-text-primary hover:bg-medium-hover rounded-lg transition-all duration-200 flex items-center justify-center"
+              className={combineClasses(
+                'p-2 rounded-lg flex items-center justify-center',
+                themeClasses.text.secondary,
+                'hover:text-medium-text-primary hover:bg-medium-hover',
+                themeClasses.animations.smooth
+              )}
               aria-label="Mở menu"
             >
               {isMobileMenuOpen ? (
@@ -296,7 +371,13 @@ const Navbar = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className={`md:hidden backdrop-blur-md rounded-b-lg shadow-lg`}
+            className={combineClasses(
+              'md:hidden rounded-b-lg shadow-lg',
+              themeClasses.bg.elevated,
+              themeClasses.effects.blur,
+              themeClasses.border.primary,
+              'border border-t-0'
+            )}
           >
             <div className="px-6 py-4 space-y-4">
               {/* Mobile Navigation */}
@@ -305,7 +386,11 @@ const Navbar = () => {
                   {/* User Profile Link */}
                   <Link
                     href={`/${user.username}`}
-                    className="flex items-center gap-3 p-3 hover:bg-medium-hover rounded-lg transition-colors duration-200"
+                    className={combineClasses(
+                      'flex items-center gap-3 p-3 rounded-lg',
+                      'hover:bg-medium-hover',
+                      themeClasses.animations.smooth
+                    )}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {user.avatar_url ? (
@@ -320,10 +405,16 @@ const Navbar = () => {
                       </div>
                     )}
                     <div>
-                      <div className={`font-medium ${classes.text.primary}`}>
+                      <div className={combineClasses(
+                        'font-medium',
+                        themeClasses.text.primary
+                      )}>
                         {user.name}
                       </div>
-                      <div className={`text-sm ${classes.text.secondary}`}>
+                      <div className={combineClasses(
+                        'text-sm',
+                        themeClasses.text.secondary
+                      )}>
                         Xem hồ sơ
                       </div>
                     </div>
@@ -334,16 +425,24 @@ const Navbar = () => {
                     {/* Theme Toggle */}
                     <div className="px-3 py-2">
                       <div className="flex items-center justify-between">
-                        <span className={`text-sm ${classes.text.secondary}`}>Giao diện</span>
+                        <span className={combineClasses(
+                          'text-sm',
+                          themeClasses.text.secondary
+                        )}>Giao diện</span>
                         <ThemeToggle variant="simple" />
                       </div>
                     </div>
                     
                     <button
                       onClick={handleLogout}
-                      className={`w-full flex items-center px-3 py-2 text-sm ${classes.text.secondary} hover:bg-medium-hover hover:${classes.text.primary} transition-colors rounded-md`}
+                      className={combineClasses(
+                        'w-full flex items-center px-3 py-2 text-sm rounded-md',
+                        themeClasses.text.secondary,
+                        'hover:bg-medium-hover hover:text-medium-text-primary',
+                        themeClasses.animations.smooth
+                      )}
                     >
-                      <FaSignOutAlt className="w-4 h-4 mr-3" />
+                      <FaSignOutAlt className={combineClasses(themeClasses.icons.sm, 'mr-3')} />
                       Đăng xuất
                     </button>
                   </div>
@@ -355,13 +454,21 @@ const Navbar = () => {
                       setModalOpen(true);
                       setIsMobileMenuOpen(false);
                     }}
-                    className={`block w-full py-2 text-left ${classes.text.secondary}`}
+                    className={combineClasses(
+                      'block w-full py-2 text-left',
+                      themeClasses.text.secondary
+                    )}
                   >
                     Đăng nhập
                   </button>
                   <button
                     onClick={handleWriteClick}
-                    className={`block w-full py-2 px-4 ${componentClasses.button.primary} rounded-full text-center font-medium`}
+                    className={combineClasses(
+                      'block w-full py-2 px-4 rounded-full text-center font-medium',
+                      themeClasses.bg.accent,
+                      'text-white hover:bg-medium-accent-green/90',
+                      themeClasses.animations.smooth
+                    )}
                   >
                     Bắt đầu
                   </button>

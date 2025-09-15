@@ -5,8 +5,9 @@ export const themeClasses = {
   // Background colors
   bg: {
     primary: 'bg-medium-bg-primary',
-    secondary: '', 
-    card: '',
+    secondary: 'bg-medium-bg-secondary', 
+    card: 'bg-medium-bg-card',
+    elevated: 'bg-medium-bg-elevated',
     accent: 'bg-medium-accent-green',
     accentHover: 'hover:bg-medium-accent-green',
     accentLight: 'bg-medium-accent-green/20',
