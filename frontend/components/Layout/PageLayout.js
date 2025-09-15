@@ -1,6 +1,6 @@
-// components/layout/PageLayout.js - Standard page layout with sidebar
+// components/layout/PageLayout.js - Fully theme-based layout
 import React from 'react';
-import { useThemeClasses } from '../../hooks/useThemeClasses';
+import { themeClasses, componentClasses, combineClasses } from '../../utils/themeClasses';
 import Sidebar from '../Sidebar';
 
 const PageLayout = ({ 
@@ -11,25 +11,34 @@ const PageLayout = ({
   mainClassName = "lg:col-span-3",
   sidebarClassName = "lg:col-span-1"
 }) => {
-  const { classes } = useThemeClasses();
-
   return (
-    <section className={classes.page}>
-      <div className={classes.section}>
-        <div className={classes.container}>
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 items-start">
+    <section className={componentClasses.page}>
+      <div className={themeClasses.spacing.section}>
+        <div className={themeClasses.layout.container}>
+          <div className={combineClasses(
+            themeClasses.layout.mainWithSidebar,
+            'items-start'
+          )}>
             {/* Main Content */}
             <section className={mainClassName} role="main">
-              <div className="space-y-6 lg:space-y-8">
+              <div className={themeClasses.spacing.stackLarge}>
                 {(title || description) && (
-                  <header className="text-center lg:text-left">
+                  <header className={themeClasses.responsive.textMobileCenter}>
                     {title && (
-                      <h1 className="font-serif font-bold text-3xl sm:text-4xl lg:text-5xl text-medium-text-primary mb-3 lg:mb-4">
+                      <h1 className={combineClasses(
+                        themeClasses.typography.displayMedium,
+                        themeClasses.text.primary,
+                        themeClasses.utils.sectionSmall
+                      )}>
                         {title}
                       </h1>
                     )}
                     {description && (
-                      <p className="text-base sm:text-lg text-medium-text-secondary max-w-2xl mx-auto lg:mx-0">
+                      <p className={combineClasses(
+                        themeClasses.typography.bodyLarge,
+                        themeClasses.text.secondary,
+                        'max-w-2xl mx-auto lg:mx-0'
+                      )}>
                         {description}
                       </p>
                     )}
@@ -42,7 +51,7 @@ const PageLayout = ({
             {/* Sidebar */}
             {showSidebar && (
               <aside className={sidebarClassName} role="complementary">
-                <div className={classes.sticky}>
+                <div className={themeClasses.responsive.sidebarDesktopSticky}>
                   <Sidebar />
                 </div>
               </aside>

@@ -574,4 +574,234 @@ export const componentClasses = {
   ),
 };
 
+// Enhanced theme classes for comprehensive CSS management
+export const enhancedThemeClasses = {
+  // Error states for forms and validation
+  error: {
+    text: 'text-red-500',
+    textLight: 'text-red-400',
+    border: 'border-red-500',
+    borderLight: 'border-red-300',
+    bg: 'bg-red-50',
+    bgDark: 'bg-red-100',
+    ring: 'ring-red-500',
+    ringLight: 'ring-red-300',
+    focus: 'focus:border-red-500 focus:ring-red-500',
+  },
+
+  // Success states
+  success: {
+    text: 'text-green-500',
+    textLight: 'text-green-400', 
+    border: 'border-green-500',
+    borderLight: 'border-green-300',
+    bg: 'bg-green-50',
+    bgDark: 'bg-green-100',
+    ring: 'ring-green-500',
+    ringLight: 'ring-green-300',
+  },
+
+  // Warning states
+  warning: {
+    text: 'text-yellow-500',
+    textLight: 'text-yellow-400',
+    border: 'border-yellow-500', 
+    borderLight: 'border-yellow-300',
+    bg: 'bg-yellow-50',
+    bgDark: 'bg-yellow-100',
+    ring: 'ring-yellow-500',
+    ringLight: 'ring-yellow-300',
+  },
+
+  // Form-specific classes
+  form: {
+    label: combineClasses('block mb-2', themeClasses.typography.labelMedium, themeClasses.text.primary),
+    labelRequired: combineClasses('block mb-2', themeClasses.typography.labelMedium, themeClasses.text.primary, 'after:content-["*"] after:ml-0.5 after:text-red-500'),
+    helperText: combineClasses('mt-2', themeClasses.typography.bodyTiny, themeClasses.text.muted),
+    errorText: combineClasses('mt-2', themeClasses.typography.bodyTiny, 'text-red-500'),
+    successText: combineClasses('mt-2', themeClasses.typography.bodyTiny, 'text-green-500'),
+    fieldset: combineClasses('space-y-4'),
+    fieldsetLarge: combineClasses('space-y-6'),
+    group: combineClasses('space-y-2'),
+    groupInline: combineClasses('flex items-center space-x-3'),
+  },
+
+  // Content/Prose styling for articles
+  prose: {
+    small: 'prose prose-sm max-w-none prose-slate dark:prose-invert',
+    base: 'prose prose-base max-w-none prose-slate dark:prose-invert',
+    large: 'prose prose-lg max-w-none prose-slate dark:prose-invert',
+    xl: 'prose prose-xl max-w-none prose-slate dark:prose-invert',
+    // Custom prose variants
+    compact: 'prose prose-sm max-w-none prose-slate dark:prose-invert prose-p:my-2 prose-headings:my-3',
+    relaxed: 'prose prose-base max-w-none prose-slate dark:prose-invert prose-p:my-4 prose-headings:my-6',
+  },
+
+  // Utility classes for common patterns
+  utils: {
+    // Dividers
+    divider: combineClasses('border-t', themeClasses.border.primary, 'my-4'),
+    dividerVertical: combineClasses('border-l', themeClasses.border.primary, 'mx-4'),
+    dividerDashed: combineClasses('border-t border-dashed', themeClasses.border.primary, 'my-4'),
+    
+    // Common spacing patterns
+    section: 'mb-6 sm:mb-8',
+    sectionLarge: 'mb-8 sm:mb-12 lg:mb-16',
+    sectionSmall: 'mb-4 sm:mb-6',
+    
+    // Display utilities with theme awareness
+    hidden: 'hidden',
+    block: 'block',
+    flex: 'flex',
+    grid: 'grid',
+    inlineBlock: 'inline-block',
+    inlineFlex: 'inline-flex',
+    
+    // Position utilities
+    relative: 'relative',
+    absolute: 'absolute',
+    fixed: 'fixed',
+    sticky: 'sticky',
+    
+    // Overflow utilities
+    overflowHidden: 'overflow-hidden',
+    overflowAuto: 'overflow-auto',
+    overflowScroll: 'overflow-scroll',
+    
+    // Truncate text
+    truncate: 'truncate',
+    textEllipsis: 'text-ellipsis overflow-hidden',
+    
+    // Screen reader only
+    srOnly: 'sr-only',
+    notSrOnly: 'not-sr-only',
+    
+    // Full width/height
+    full: 'w-full h-full',
+    fullWidth: 'w-full',
+    fullHeight: 'h-full',
+    fullScreen: 'w-screen h-screen',
+  },
+
+  // Modal and overlay patterns
+  modal: {
+    overlay: combineClasses(
+      'fixed inset-0 z-50 flex items-center justify-center',
+      themeClasses.bg.primary + '/80',
+      themeClasses.effects.blur
+    ),
+    content: combineClasses(
+      'relative w-full max-w-md mx-4 p-6',
+      themeClasses.bg.elevated,
+      themeClasses.effects.rounded,
+      themeClasses.effects.shadowLayeredLg,
+      themeClasses.border.primary,
+      'border'
+    ),
+    contentLarge: combineClasses(
+      'relative w-full max-w-2xl mx-4 p-8',
+      themeClasses.bg.elevated,
+      themeClasses.effects.rounded,
+      themeClasses.effects.shadowLayeredLg,
+      themeClasses.border.primary,
+      'border'
+    ),
+    header: combineClasses('pb-4 border-b', themeClasses.border.primary),
+    footer: combineClasses('pt-4 border-t', themeClasses.border.primary, 'flex justify-end space-x-3'),
+    closeButton: combineClasses(
+      'absolute top-4 right-4 p-1 rounded-full',
+      themeClasses.text.muted,
+      'hover:text-medium-text-primary hover:bg-medium-hover',
+      themeClasses.animations.smooth
+    ),
+  },
+
+  // Tag and badge patterns
+  tag: {
+    base: combineClasses(
+      'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium',
+      themeClasses.animations.smooth
+    ),
+    primary: combineClasses(
+      'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium',
+      themeClasses.bg.accent,
+      themeClasses.text.white,
+      'hover:bg-medium-accent-green/90'
+    ),
+    secondary: combineClasses(
+      'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium',
+      themeClasses.bg.secondary,
+      themeClasses.text.secondary,
+      'hover:bg-medium-hover'
+    ),
+    outline: combineClasses(
+      'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium border',
+      themeClasses.border.primary,
+      themeClasses.text.secondary,
+      'hover:bg-medium-hover'
+    ),
+  },
+
+  // List patterns
+  list: {
+    base: 'space-y-2',
+    compact: 'space-y-1',
+    relaxed: 'space-y-4',
+    horizontal: 'flex flex-wrap gap-2',
+    horizontalSpaced: 'flex flex-wrap gap-4',
+    grid: 'grid grid-cols-1 gap-4',
+    gridResponsive: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4',
+  },
+
+  // Avatar patterns
+  avatar: {
+    xs: 'w-6 h-6 rounded-full',
+    sm: 'w-8 h-8 rounded-full',
+    md: 'w-10 h-10 rounded-full',
+    lg: 'w-12 h-12 rounded-full',
+    xl: 'w-16 h-16 rounded-full',
+    '2xl': 'w-20 h-20 rounded-full',
+    square: 'rounded-lg',
+    squareSmall: 'w-8 h-8 rounded-md',
+    squareLarge: 'w-16 h-16 rounded-lg',
+  },
+
+  // Loading states
+  loading: {
+    spinner: 'animate-spin rounded-full border-2 border-gray-300 border-t-medium-accent-green',
+    pulse: combineClasses('animate-pulse', themeClasses.bg.secondary),
+    skeleton: combineClasses(
+      'animate-pulse rounded',
+      'bg-gradient-to-r from-medium-bg-secondary via-medium-hover to-medium-bg-secondary',
+      'bg-[length:200%_100%]'
+    ),
+    skeletonText: combineClasses(
+      'animate-pulse rounded h-4',
+      'bg-gradient-to-r from-medium-bg-secondary via-medium-hover to-medium-bg-secondary',
+      'bg-[length:200%_100%]'
+    ),
+    skeletonAvatar: combineClasses(
+      'animate-pulse rounded-full',
+      'bg-gradient-to-r from-medium-bg-secondary via-medium-hover to-medium-bg-secondary',
+      'bg-[length:200%_100%]'
+    ),
+  },
+
+  // Focus and accessibility
+  focus: {
+    ring: 'focus:outline-none focus:ring-2 focus:ring-medium-accent-green focus:ring-offset-2',
+    ringInset: 'focus:outline-none focus:ring-2 focus:ring-inset focus:ring-medium-accent-green',
+    visible: 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-medium-accent-green focus-visible:ring-offset-2',
+  },
+};
+
+// Merge enhanced classes with existing theme classes
+Object.keys(enhancedThemeClasses).forEach(key => {
+  if (themeClasses[key]) {
+    themeClasses[key] = { ...themeClasses[key], ...enhancedThemeClasses[key] };
+  } else {
+    themeClasses[key] = enhancedThemeClasses[key];
+  }
+});
+
 export default themeClasses;

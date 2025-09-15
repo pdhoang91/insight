@@ -93,11 +93,7 @@ const LoginModal = ({ isOpen, onClose }) => {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
-        className={combineClasses(
-          'fixed inset-0 flex items-center justify-center z-50',
-          themeClasses.bg.primary + '/80',
-          themeClasses.effects.blur
-        )}
+        className={themeClasses.modal.overlay}
         onClick={onClose}
       >
         <motion.div
@@ -105,29 +101,24 @@ const LoginModal = ({ isOpen, onClose }) => {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
-          className="relative w-full max-w-sm mx-4"
+          className={themeClasses.modal.content}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Ultra Transparent Modal */}
-          <div className={combineClasses(
-            'p-8 space-y-6 relative',
-            themeClasses.bg.card || themeClasses.bg.primary,
-            themeClasses.effects.blur,
-            themeClasses.effects.rounded,
-            themeClasses.border.primary,
-            'border backdrop-blur-lg shadow-lg'
-          )}>
+          <div className={themeClasses.form.fieldsetLarge}>
             {/* Close Button */}
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 text-medium-text-muted hover:text-medium-accent-green transition-colors"
+              className={themeClasses.modal.closeButton}
             >
-              <FaTimes className="w-4 h-4" />
+              <FaTimes className={themeClasses.icons.sm} />
             </button>
 
             {/* Simple Header */}
-            <div className="text-center space-y-2">
-              <h2 className="text-2xl font-serif font-bold text-medium-text-primary">
+            <div className={combineClasses('text-center', themeClasses.spacing.stackSmall)}>
+              <h2 className={combineClasses(
+                themeClasses.typography.h2,
+                themeClasses.text.primary
+              )}>
                 {isSignUp ? 'Đăng Ký' : 'Đăng Nhập'}
               </h2>
             </div>

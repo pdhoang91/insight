@@ -1,4 +1,4 @@
-// components/UI/Input.js - Medium 2024 Design
+// components/UI/Input.js - Fully theme-based design
 import React from 'react';
 import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
@@ -13,6 +13,7 @@ const Input = ({
   helperText,
   size = 'md',
   fullWidth = false,
+  required = false,
   className = '',
   ...props 
 }) => {
@@ -22,25 +23,19 @@ const Input = ({
     lg: combineClasses(themeClasses.interactive.inputLarge, themeClasses.effects.rounded),
   };
   
-  const errorClasses = error ? 'border-error focus:border-error focus:ring-error' : '';
-  
   const inputClasses = combineClasses(
     themeClasses.interactive.inputBase,
     themeClasses.interactive.input,
     sizes[size],
-    errorClasses,
-    fullWidth ? 'w-full' : '',
+    error ? themeClasses.error.focus : themeClasses.focus.ring,
+    fullWidth ? themeClasses.utils.fullWidth : '',
     className
   );
 
   return (
-    <div className={fullWidth ? 'w-full' : ''}>
+    <div className={fullWidth ? themeClasses.utils.fullWidth : ''}>
       {label && (
-        <label className={combineClasses(
-          'block mb-2',
-          themeClasses.typography.labelMedium,
-          themeClasses.text.primary
-        )}>
+        <label className={required ? themeClasses.form.labelRequired : themeClasses.form.label}>
           {label}
         </label>
       )}
@@ -51,15 +46,17 @@ const Input = ({
         value={value}
         onChange={onChange}
         disabled={disabled}
+        required={required}
         {...props}
       />
-      {(helperText || error) && (
-        <p className={combineClasses(
-          'mt-2',
-          themeClasses.typography.bodyTiny,
-          error ? themeClasses.text.error : themeClasses.text.muted
-        )}>
-          {error || helperText}
+      {error && typeof error === 'string' && (
+        <p className={themeClasses.form.errorText}>
+          {error}
+        </p>
+      )}
+      {helperText && !error && (
+        <p className={themeClasses.form.helperText}>
+          {helperText}
         </p>
       )}
     </div>

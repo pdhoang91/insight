@@ -27,30 +27,34 @@ const Layout = ({
   return (
     <div className={combineClasses(themeClasses.layout.fullHeight, themeClasses.bg.primary)}>
       {/* Main Content */}
-      <main className="pt-16 md:pt-20" role="main" {...props}>
+      <main className={combineClasses('pt-16 md:pt-20', themeClasses.utils.relative)} role="main" {...props}>
         <div className={containerClass}>
           {showSidebar && sidebar ? (
             /* Layout with Sidebar - Enhanced responsive behavior */
-            <div className={combineClasses('flex flex-col lg:flex-row', themeClasses.spacing.gap, themeClasses.spacing.section)}>
+            <div className={combineClasses(
+              themeClasses.responsive.flexDesktopRow,
+              themeClasses.spacing.gap,
+              themeClasses.spacing.section
+            )}>
               {/* Main Content Area - Always first on mobile */}
-              <div className="flex-1 min-w-0 order-first">
-                <div className={combineClasses('space-y-4 lg:space-y-6 xl:space-y-5', className)}>
+              <div className={combineClasses('flex-1 min-w-0', themeClasses.utils.relative)}>
+                <div className={combineClasses(themeClasses.spacing.stackLarge, className)}>
                   {children}
                 </div>
               </div>
               
               {/* Sidebar - Increased width by 30% */}
               <aside className={combineClasses(
-                'order-last w-full lg:w-96 xl:w-80 2xl:w-72 lg:flex-shrink-0',
+                themeClasses.responsive.sidebarWidth,
                 sidebarPosition === 'left' ? 'lg:order-first' : ''
               )}>
-                <div className="lg:sticky lg:top-24 xl:top-20">
+                <div className={themeClasses.responsive.sidebarDesktopSticky}>
                   {/* Mobile: Condensed sidebar */}
-                  <div className="lg:hidden">
+                  <div className={themeClasses.responsive.touchOnly}>
                     <MobileSidebarContent sidebar={sidebar} />
                   </div>
                   {/* Desktop: Full sidebar */}
-                  <div className="hidden lg:block">
+                  <div className={themeClasses.responsive.desktopOnly}>
                     {sidebar}
                   </div>
                 </div>
@@ -59,7 +63,7 @@ const Layout = ({
           ) : (
             /* Single Column Layout - Enhanced spacing */
             <div className={combineClasses(themeClasses.spacing.section, className)}>
-              <div className="space-y-4 lg:space-y-6 xl:space-y-5">
+              <div className={themeClasses.spacing.stackLarge}>
                 {children}
               </div>
             </div>

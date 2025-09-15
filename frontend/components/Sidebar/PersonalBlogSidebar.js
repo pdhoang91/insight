@@ -15,7 +15,7 @@ const PersonalBlogSidebar = () => {
     <div className={themeClasses.spacing.stackLarge}>
       {/* Sticky container for better UX */}
       <div className={combineClasses(
-        'sticky top-24',
+        themeClasses.responsive.sidebarDesktopSticky,
         themeClasses.spacing.stackLarge
       )}>
         
@@ -24,14 +24,14 @@ const PersonalBlogSidebar = () => {
           <h3 className={combineClasses(
             themeClasses.typography.h3,
             themeClasses.text.primary,
-            'mb-4'
+            themeClasses.utils.sectionSmall
           )}>
             Popular
           </h3>
           <PopularPosts 
             limit={5} 
             showImages={false} 
-            className="!border-0 !shadow-none !bg-transparent !p-0" 
+            className=""
           />
         </div>
 
@@ -40,34 +40,42 @@ const PersonalBlogSidebar = () => {
           <h3 className={combineClasses(
             themeClasses.typography.h3,
             themeClasses.text.primary,
-            'mb-4'
+            themeClasses.utils.sectionSmall
           )}>
             Categories
           </h3>
           
           {categoriesLoading ? (
-            <div className="flex flex-wrap gap-2">
+            <div className={themeClasses.list.horizontal}>
               {[...Array(5)].map((_, i) => (
                 <div 
                   key={i} 
                   className={combineClasses(
-                    'h-8 w-16 rounded-button',
-                    themeClasses.patterns.skeleton
+                    'h-8 w-16',
+                    themeClasses.effects.rounded,
+                    themeClasses.loading.skeleton
                   )}
                 ></div>
               ))}
             </div>
           ) : (
-            <div className="flex flex-wrap gap-2">
+            <div className={themeClasses.list.horizontal}>
               {categories?.slice(0, 10).map((category) => (
                 <Link
                   key={category.id}
                   href={`/category/${category.name}`}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-button bg-medium-bg-secondary text-sm lg:text-base text-medium-text-secondary hover:bg-medium-accent-green hover:text-white transition-all duration-200"
+                  className={combineClasses(
+                    themeClasses.tag.secondary,
+                    'gap-1',
+                    themeClasses.typography.bodySmall
+                  )}
                 >
                   <span>{category.name}</span>
                   {category.post_count && (
-                    <span className="text-xs opacity-75">
+                    <span className={combineClasses(
+                      themeClasses.typography.captionText,
+                      'opacity-75'
+                    )}>
                       {category.post_count}
                     </span>
                   )}
@@ -82,13 +90,13 @@ const PersonalBlogSidebar = () => {
           <h3 className={combineClasses(
             themeClasses.typography.h3,
             themeClasses.text.primary,
-            'mb-4'
+            themeClasses.utils.sectionSmall
           )}>
             Archive
           </h3>
           <Archive 
             posts={recentPosts} 
-            className="!border-0 !shadow-none !bg-transparent !p-0" 
+            className=""
           />
         </div>
 

@@ -1,4 +1,4 @@
-// components/Post/EngagementActions.js - Medium 2024 Design
+// components/Post/EngagementActions.js - Fully theme-based design
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { FaComment, FaBookmark, FaEllipsisH, FaFlag, FaCopy } from 'react-icons/fa';
@@ -6,6 +6,7 @@ import { FaHandsClapping } from "react-icons/fa6";
 import { useUser } from '../../context/UserContext';
 import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapPost } from '../../services/activityService';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const EngagementActions = ({ 
   post,
@@ -62,38 +63,51 @@ const EngagementActions = ({
   };
 
   const sizeClasses = {
-    sm: 'text-sm',
-    md: 'text-base',
-    lg: 'text-lg'
+    sm: themeClasses.typography.captionText,
+    md: themeClasses.typography.bodySmall,
+    lg: themeClasses.typography.bodyMedium
   };
 
   const iconSizes = {
-    sm: 'w-3 h-3',
-    md: 'w-4 h-4',
-    lg: 'w-5 h-5'
+    sm: themeClasses.icons.xs,
+    md: themeClasses.icons.sm,
+    lg: themeClasses.icons.md
   };
 
-  const buttonClasses = `
-    flex items-center space-x-1 text-medium-text-muted hover:text-medium-accent-green 
-    transition-colors p-2 rounded-medium hover:bg-medium-hover
-  `;
+  const buttonClasses = combineClasses(
+    'flex items-center',
+    themeClasses.spacing.gapSmall,
+    themeClasses.text.muted,
+    themeClasses.text.accentHover,
+    themeClasses.animations.smooth,
+    'p-2',
+    themeClasses.effects.rounded,
+    'hover:bg-medium-hover'
+  );
 
   const layoutClasses = layout === 'vertical' 
-    ? 'flex flex-col space-y-2' 
+    ? combineClasses('flex flex-col', themeClasses.spacing.stackSmall)
     : 'flex items-center justify-between';
 
   return (
-    <div className={`${layoutClasses} ${className}`}>
+    <div className={combineClasses(layoutClasses, className)}>
       {/* Left side actions */}
-      <div className={layout === 'vertical' ? 'space-y-2' : 'flex items-center space-x-4'}>
+      <div className={layout === 'vertical' 
+        ? themeClasses.spacing.stackSmall 
+        : combineClasses('flex items-center', themeClasses.spacing.gapLarge)
+      }>
         {/* Clap Button */}
         <button
           onClick={handleClap}
-          className={`${buttonClasses} group/clap`}
+          className={combineClasses(buttonClasses, 'group/clap')}
           aria-label="Thích bài viết này"
           disabled={clapsLoading}
         >
-          <FaHandsClapping className={`${iconSizes[size]} group-hover/clap:scale-110 transition-transform`} />
+          <FaHandsClapping className={combineClasses(
+            iconSizes[size], 
+            'group-hover/clap:scale-110',
+            themeClasses.animations.smooth
+          )} />
           <span className={sizeClasses[size]}>{clapsCount}</span>
           {showLabels && <span className={sizeClasses[size]}>Clap</span>}
         </button>
@@ -111,22 +125,25 @@ const EngagementActions = ({
       </div>
 
       {/* Right side actions */}
-      <div className={layout === 'vertical' ? 'space-y-2' : 'flex items-center space-x-2'}>
+      <div className={layout === 'vertical' 
+        ? themeClasses.spacing.stackSmall 
+        : combineClasses('flex items-center', themeClasses.spacing.gap)
+      }>
         {/* Bookmark Button */}
         <button
           onClick={handleBookmark}
-          className={`${buttonClasses} ${
-            isBookmarked ? 'text-medium-accent-green' : ''
-          }`}
+          className={combineClasses(
+            buttonClasses,
+            isBookmarked ? themeClasses.text.accent : ''
+          )}
           aria-label="Đánh dấu bài viết này"
         >
           <FaBookmark className={iconSizes[size]} />
           {showLabels && <span className={sizeClasses[size]}>Lưu</span>}
         </button>
 
-
         {/* More Options */}
-        <div ref={moreMenuRef} className="relative">
+        <div ref={moreMenuRef} className={themeClasses.utils.relative}>
           <button
             onClick={handleMoreOptions}
             className={buttonClasses}
