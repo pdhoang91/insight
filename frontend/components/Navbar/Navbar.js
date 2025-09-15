@@ -29,7 +29,6 @@ const Navbar = () => {
   const isWritePage = router.pathname === '/write' || router.pathname.startsWith('/edit/');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const userMenuRef = useRef();
   const mobileMenuRef = useRef();
@@ -121,41 +120,26 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-6">
-            {/* Search */}
-            <div className="relative">
-              {isSearchOpen ? (
-                <div className="w-80">
-                  <SimpleSearchBar 
-                    onClose={() => setIsSearchOpen(false)}
-                    autoFocus={true}
-                  />
-                </div>
-              ) : (
-                <button
-                  onClick={() => setIsSearchOpen(true)}
-                  className="p-3 text-medium-text-secondary hover:text-medium-text-primary hover:bg-medium-hover rounded-lg transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center"
-                  aria-label="Mở tìm kiếm"
-                >
-                  <FaSearch className="w-4 h-4" />
-                </button>
-              )}
+          <div className="hidden md:flex items-center gap-4">
+            {/* Search - Always visible */}
+            <div className="w-64">
+              <SimpleSearchBar placeholder="Tìm kiếm..." />
             </div>
 
-            {/* Write Button */}
+            {/* Write/Publish Button */}
             {(user && canWritePosts(user)) && (
               <>
                 {isWritePage ? (
                   <button
                     onClick={handlePublishClick}
-                    className="px-6 py-2 bg-medium-accent-green hover:bg-medium-accent-green/90 text-white rounded-button text-sm font-medium transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) shadow-sm hover:shadow-[0_8px_25px_rgba(26,137,23,0.25)] hover:-translate-y-0.5 hover:scale-[1.02]"
+                    className="px-4 py-2 bg-medium-accent-green hover:bg-medium-accent-green/90 text-white rounded-button text-sm font-medium transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) shadow-sm hover:shadow-[0_8px_25px_rgba(26,137,23,0.25)] hover:-translate-y-0.5 hover:scale-[1.02]"
                   >
                     Đăng
                   </button>
                 ) : (
                   <button
                     onClick={handleWriteClick}
-                    className="flex items-center px-6 py-2 bg-medium-accent-green hover:bg-medium-accent-green/90 text-white rounded-button text-sm font-medium transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) shadow-sm hover:shadow-[0_8px_25px_rgba(26,137,23,0.25)] hover:-translate-y-0.5 hover:scale-[1.02]"
+                    className="flex items-center px-4 py-2 bg-medium-accent-green hover:bg-medium-accent-green/90 text-white rounded-button text-sm font-medium transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) shadow-sm hover:shadow-[0_8px_25px_rgba(26,137,23,0.25)] hover:-translate-y-0.5 hover:scale-[1.02]"
                   >
                     <FaEdit className={`${themeClasses.icons.sm} mr-2 text-white`} />
                     Viết bài
@@ -226,20 +210,6 @@ const Navbar = () => {
 
                       {/* Menu Items */}
                       <div className="px-2 py-2 space-y-1">
-                        {/* Write Button - if user can write */}
-                        {canWritePosts(user) && (
-                          <button
-                            onClick={() => {
-                              handleWriteClick();
-                              setIsUserMenuOpen(false);
-                            }}
-                            className={`w-full flex items-center px-4 py-2 text-sm ${classes.text.secondary} hover:bg-medium-hover hover:${classes.text.primary} transition-colors rounded-md`}
-                          >
-                            <FaEdit className="w-4 h-4 mr-3" />
-                            Viết bài
-                          </button>
-                        )}
-
                         {/* Theme Toggle Button */}
                         <ThemeToggle variant="simple" className="w-full justify-start px-4 py-2 text-sm hover:bg-medium-hover transition-colors rounded-md" />
 
@@ -274,11 +244,38 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden">
+          {/* Mobile Navigation */}
+          <div className="md:hidden flex items-center gap-2">
+            {/* Mobile Search */}
+            <div className="flex-1 max-w-48">
+              <SimpleSearchBar placeholder="Tìm kiếm..." />
+            </div>
+            
+            {/* Mobile Write/Publish Button */}
+            {(user && canWritePosts(user)) && (
+              <>
+                {isWritePage ? (
+                  <button
+                    onClick={handlePublishClick}
+                    className="px-3 py-2 bg-medium-accent-green hover:bg-medium-accent-green/90 text-white rounded-button text-sm font-medium transition-all duration-200"
+                  >
+                    Đăng
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleWriteClick}
+                    className="p-2 bg-medium-accent-green hover:bg-medium-accent-green/90 text-white rounded-button transition-all duration-200"
+                  >
+                    <FaEdit className="w-4 h-4" />
+                  </button>
+                )}
+              </>
+            )}
+            
+            {/* Mobile Menu Button */}
             <button
               onClick={toggleMobileMenu}
-              className="p-3 text-medium-text-secondary hover:text-medium-text-primary hover:bg-medium-hover rounded-lg transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="p-2 text-medium-text-secondary hover:text-medium-text-primary hover:bg-medium-hover rounded-lg transition-all duration-200 flex items-center justify-center"
               aria-label="Mở menu"
             >
               {isMobileMenuOpen ? (
@@ -302,11 +299,6 @@ const Navbar = () => {
             className={`md:hidden backdrop-blur-md rounded-b-lg shadow-lg`}
           >
             <div className="px-6 py-4 space-y-4">
-              {/* Mobile Search */}
-              <div>
-                <SimpleSearchBar placeholder="Tìm kiếm bài viết..." />
-              </div>
-
               {/* Mobile Navigation */}
               {user ? (
                 <div className="space-y-3">
@@ -339,34 +331,6 @@ const Navbar = () => {
                   
                   {/* Menu Items with consistent styling */}
                   <div className="space-y-1">
-                    {canWritePosts(user) && (
-                      <>
-                        {isWritePage ? (
-                          <button
-                            onClick={() => {
-                              handlePublishClick();
-                              setIsMobileMenuOpen(false);
-                            }}
-                            className={`w-full flex items-center px-3 py-2 text-sm ${classes.text.secondary} hover:bg-medium-hover hover:${classes.text.primary} transition-colors rounded-md`}
-                          >
-                            <FaEdit className="w-4 h-4 mr-3" />
-                            Đăng
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => {
-                              handleWriteClick();
-                              setIsMobileMenuOpen(false);
-                            }}
-                            className={`w-full flex items-center px-3 py-2 text-sm ${classes.text.secondary} hover:bg-medium-hover hover:${classes.text.primary} transition-colors rounded-md`}
-                          >
-                            <FaEdit className="w-4 h-4 mr-3" />
-                            Viết bài
-                          </button>
-                        )}
-                      </>
-                    )}
-                    
                     {/* Theme Toggle */}
                     <div className="px-3 py-2">
                       <div className="flex items-center justify-between">

@@ -18,7 +18,7 @@ const PersonalBlogSidebar = () => {
         {/* Popular Posts */}
         <div className="space-y-5">
           <h3 className="font-serif font-medium text-lg text-medium-text-primary">
-            Thịnh hành
+            Popular
           </h3>
           <PopularPosts limit={5} showImages={false} className="!border-0 !shadow-none !bg-transparent !p-0" />
         </div>
@@ -26,7 +26,7 @@ const PersonalBlogSidebar = () => {
         {/* Categories */}
         <div className="space-y-5">
           <h3 className="font-serif font-medium text-lg text-medium-text-primary">
-            Danh mục
+            Categories
           </h3>
           
           {categoriesLoading ? (
@@ -53,7 +53,7 @@ const PersonalBlogSidebar = () => {
         {/* Archive */}
         <div className="space-y-5">
           <h3 className="font-serif font-medium text-lg text-medium-text-primary">
-            Lưu trữ
+            Archive
           </h3>
           <Archive posts={recentPosts} className="!border-0 !shadow-none !bg-transparent !p-0" />
         </div>
