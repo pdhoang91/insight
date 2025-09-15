@@ -1,56 +1,51 @@
 // components/Archive/Archive.js - Fully theme-based design
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { FaCalendarAlt, FaChevronDown, FaChevronRight } from 'react-icons/fa';
+import { FaCalendarAlt } from 'react-icons/fa';
 import { themeClasses, componentClasses, combineClasses } from '../../utils/themeClasses';
 
-const Archive = ({ posts = [], className = '', showAll = false }) => {
-  const [expandedYears, setExpandedYears] = useState(new Set([new Date().getFullYear()]));
-  const [isShowingAll, setIsShowingAll] = useState(showAll);
+const Archive = ({ posts = [], className = '', limit = 12 }) => {
+  const [isShowingAll, setIsShowingAll] = useState(false);
 
-  // Group posts by year and month
-  const groupPostsByDate = (posts) => {
+  // Group posts by month and year, then create a flat list
+  const createArchiveList = (posts) => {
     const grouped = {};
     
     posts.forEach(post => {
       const date = new Date(post.created_at);
       const year = date.getFullYear();
       const month = date.getMonth();
+      const key = `${year}-${month.toString().padStart(2, '0')}`;
       
-      if (!grouped[year]) {
-        grouped[year] = {};
+      if (!grouped[key]) {
+        grouped[key] = {
+          year,
+          month,
+          posts: []
+        };
       }
       
-      if (!grouped[year][month]) {
-        grouped[year][month] = [];
-      }
-      
-      grouped[year][month].push(post);
+      grouped[key].posts.push(post);
     });
     
-    return grouped;
+    // Convert to array and sort by date (newest first)
+    return Object.keys(grouped)
+      .sort((a, b) => b.localeCompare(a))
+      .map(key => ({
+        key,
+        year: grouped[key].year,
+        month: grouped[key].month,
+        count: grouped[key].posts.length
+      }));
   };
 
-  const groupedPosts = groupPostsByDate(posts);
-  const allYears = Object.keys(groupedPosts).sort((a, b) => b - a);
-  
-  // Limit to recent years if not showing all
-  const years = isShowingAll ? allYears : allYears.slice(0, 2);
+  const archiveList = createArchiveList(posts);
+  const displayList = isShowingAll ? archiveList : archiveList.slice(0, limit);
 
   const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
-
-  const toggleYear = (year) => {
-    const newExpanded = new Set(expandedYears);
-    if (newExpanded.has(year)) {
-      newExpanded.delete(year);
-    } else {
-      newExpanded.add(year);
-    }
-    setExpandedYears(newExpanded);
-  };
 
   if (!posts.length) {
     return (
@@ -65,103 +60,35 @@ const Archive = ({ posts = [], className = '', showAll = false }) => {
 
   return (
     <div className={className}>
-      {/* Archive Content - Always Visible */}
+      {/* Archive List - Simple Month Year (count) format */}
       <div className={themeClasses.spacing.stackSmall}>
-              {years.map(year => {
-                const yearInt = parseInt(year);
-                const isExpanded = expandedYears.has(yearInt);
-                const yearPosts = groupedPosts[year];
-                const totalYearPosts = Object.values(yearPosts).reduce((sum, monthPosts) => sum + monthPosts.length, 0);
+        {displayList.map(({ key, year, month, count }) => {
+          const monthName = monthNames[month];
+          
+          return (
+            <Link
+              key={key}
+              href={`/archive/${year}/${month + 1}`}
+              className={combineClasses(
+                'block py-1 px-2 group',
+                themeClasses.effects.rounded,
+                'hover:bg-medium-accent-green/5',
+                themeClasses.animations.smooth
+              )}
+            >
+              <span className={combineClasses(
+                themeClasses.typography.bodySmall,
+                themeClasses.text.secondary,
+                'group-hover:text-medium-accent-green'
+              )}>
+                {monthName} {year} ({count})
+              </span>
+            </Link>
+          );
+        })}
 
-                return (
-                  <div key={year}>
-                    {/* Year Header */}
-                    <button
-                      onClick={() => toggleYear(yearInt)}
-                      className={combineClasses(
-                        themeClasses.utils.fullWidth,
-                        'flex items-center justify-between py-2 text-left group',
-                        themeClasses.text.accentHover,
-                        themeClasses.animations.smooth
-                      )}
-                    >
-                      <div className={combineClasses('flex items-center', themeClasses.spacing.gap)}>
-                        {isExpanded ? (
-                          <FaChevronDown className={combineClasses(
-                            themeClasses.icons.xs,
-                            themeClasses.text.muted,
-                            'group-hover:text-medium-accent-green'
-                          )} />
-                        ) : (
-                          <FaChevronRight className={combineClasses(
-                            themeClasses.icons.xs,
-                            themeClasses.text.muted,
-                            'group-hover:text-medium-accent-green'
-                          )} />
-                        )}
-                        <span className={combineClasses(
-                          themeClasses.typography.weightMedium,
-                          themeClasses.text.primary,
-                          'group-hover:text-medium-accent-green'
-                        )}>
-                          {year}
-                        </span>
-                      </div>
-                      <span className={combineClasses(
-                        themeClasses.typography.captionText,
-                        'px-2 py-1 rounded-full',
-                        themeClasses.text.muted
-                      )}>
-                        {totalYearPosts}
-                      </span>
-                    </button>
-
-                    {/* Months */}
-                    {isExpanded && (
-                      <div className={combineClasses('ml-6', themeClasses.spacing.stackSmall)}>
-                        {Object.keys(yearPosts)
-                          .sort((a, b) => b - a) // Sort months descending
-                          .slice(0, isShowingAll ? undefined : 6) // Limit months if not showing all
-                          .map(month => {
-                            const monthInt = parseInt(month);
-                            const monthPosts = yearPosts[month];
-                            const monthName = monthNames[monthInt];
-
-                            return (
-                              <Link
-                                key={month}
-                                href={`/archive/${year}/${monthInt + 1}`}
-                                className={combineClasses(
-                                  'flex items-center justify-between py-1 px-2 group',
-                                  themeClasses.effects.rounded,
-                                  'hover:bg-medium-accent-green/5',
-                                  themeClasses.animations.smooth
-                                )}
-                              >
-                                <span className={combineClasses(
-                                  themeClasses.typography.bodySmall,
-                                  themeClasses.text.secondary,
-                                  'group-hover:text-medium-accent-green'
-                                )}>
-                                  {monthName}
-                                </span>
-                                <span className={combineClasses(
-                                  themeClasses.typography.captionText,
-                                  themeClasses.text.muted
-                                )}>
-                                  {monthPosts.length}
-                                </span>
-                              </Link>
-                            );
-                          })}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-
-        {/* Toggle View All / View Less */}
-        {allYears.length > 2 && (
+        {/* Toggle Show All / Show Less */}
+        {archiveList.length > limit && (
           <div className={combineClasses('mt-4 pt-2')}>
             {!isShowingAll ? (
               <button
@@ -173,7 +100,7 @@ const Archive = ({ posts = [], className = '', showAll = false }) => {
                   themeClasses.focus.visible
                 )}
               >
-                Show all years ({allYears.length}) →
+                Show all ({archiveList.length}) →
               </button>
             ) : (
               <button
