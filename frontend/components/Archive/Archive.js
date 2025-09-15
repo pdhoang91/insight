@@ -109,7 +109,7 @@ const Archive = ({ posts = [], className = '', showAll = false }) => {
                                 href={`/archive/${year}/${monthInt + 1}`}
                                 className="flex items-center justify-between py-1 px-2 rounded hover:bg-medium-accent-green/5 transition-colors group"
                               >
-                                <span className="text-sm text-medium-text-secondary group-hover:text-medium-accent-green">
+                                <span className="text-sm lg:text-base text-medium-text-secondary group-hover:text-medium-accent-green">
                                   {monthName}
                                 </span>
                                 <span className="text-xs text-medium-text-muted">

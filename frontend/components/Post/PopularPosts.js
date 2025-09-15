@@ -10,65 +10,29 @@ import SafeImage from '../Utils/SafeImage';
 // Individual Popular Post Item
 const PopularPostItem = ({ post, rank, showImages }) => {
   return (
-    <article className="group">
-      <Link href={`/p/${post.title_name}`} className={themeClasses.interactive.base}>
-        <div className={combineClasses('flex items-start', themeClasses.spacing.gapSmall)}>
-
-          {/* Post Image */}
-          {showImages && post.featured_image && (
-            <div className={combineClasses(
-              'flex-shrink-0 w-16 h-12 overflow-hidden',
-              themeClasses.effects.rounded
-            )}>
-              <SafeImage
-                src={post.featured_image}
-                alt={post.title}
-                className={combineClasses(
-                  'w-full h-full object-cover',
-                  'group-hover:scale-105',
-                  themeClasses.animations.smooth
-                )}
-              />
+    <article>
+      <Link 
+        href={`/p/${post.title_name}`} 
+        className="flex items-center justify-between py-1 px-2 rounded hover:bg-medium-accent-green/5 transition-colors group"
+      >
+        <span className="text-sm lg:text-base text-medium-text-secondary group-hover:text-medium-accent-green line-clamp-2">
+          {post.title}
+        </span>
+        <div className="flex items-center gap-2 text-xs text-medium-text-muted flex-shrink-0 ml-2">
+          {/* Views */}
+          {post.view_count > 0 && (
+            <div className="flex items-center gap-1">
+              <FaEye className={themeClasses.icons.xs} />
+              <span>{post.view_count}</span>
             </div>
           )}
-
-          {/* Post Content */}
-          <div className="flex-1 min-w-0">
-            <h4 className={combineClasses(
-              themeClasses.typography.bodySmall,
-              themeClasses.typography.weightMedium,
-              themeClasses.text.primary,
-              'group-hover:text-medium-accent-green',
-              themeClasses.animations.smooth,
-              'leading-snug mb-1 line-clamp-2'
-            )}>
-              {post.title}
-            </h4>
-            
-            <div className={combineClasses(
-              'flex items-center',
-              themeClasses.spacing.gapSmall,
-              themeClasses.typography.bodyTiny,
-              themeClasses.text.muted
-            )}>
-              {/* Views */}
-              {post.view_count > 0 && (
-                <div className="flex items-center gap-1">
-                  <FaEye className={themeClasses.icons.xs} />
-                  <span>{post.view_count}</span>
-                </div>
-              )}
-
-
-              {/* Comments */}
-              {post.comment_count > 0 && (
-                <div className="flex items-center gap-1">
-                  <FaComment className={themeClasses.icons.xs} />
-                  <span>{post.comment_count}</span>
-                </div>
-              )}
+          {/* Comments */}
+          {post.comment_count > 0 && (
+            <div className="flex items-center gap-1">
+              <FaComment className={themeClasses.icons.xs} />
+              <span>{post.comment_count}</span>
             </div>
-          </div>
+          )}
         </div>
       </Link>
     </article>
@@ -159,7 +123,7 @@ const PopularPosts = ({
       className
     )}>
       {/* Posts List */}
-      <div className={themeClasses.spacing.stackSmall}>
+      <div className="space-y-1">
         {displayPosts && displayPosts.length > 0 ? (
           displayPosts.slice(0, limit).map((post, index) => (
             <PopularPostItem 

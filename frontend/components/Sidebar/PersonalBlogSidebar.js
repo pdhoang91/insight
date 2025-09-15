@@ -5,45 +5,74 @@ import { useCategories } from '../../hooks/useCategories';
 import { useRecentPosts } from '../../hooks/useRecentPosts';
 import PopularPosts from '../Post/PopularPosts';
 import Archive from '../Archive/Archive';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const PersonalBlogSidebar = () => {
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { posts: recentPosts, isLoading: postsLoading } = useRecentPosts(50);
 
   return (
-    <div className="space-y-10">
+    <div className={themeClasses.spacing.stackLarge}>
       {/* Sticky container for better UX */}
-      <div className="sticky top-24 space-y-10">
+      <div className={combineClasses(
+        'sticky top-24',
+        themeClasses.spacing.stackLarge
+      )}>
         
         {/* Popular Posts */}
-        <div className="space-y-5">
-          <h3 className="font-serif font-medium text-lg text-medium-text-primary">
+        <div className={themeClasses.spacing.stack}>
+          <h3 className={combineClasses(
+            themeClasses.typography.h3,
+            themeClasses.text.primary,
+            'mb-4'
+          )}>
             Popular
           </h3>
-          <PopularPosts limit={5} showImages={false} className="!border-0 !shadow-none !bg-transparent !p-0" />
+          <PopularPosts 
+            limit={5} 
+            showImages={false} 
+            className="!border-0 !shadow-none !bg-transparent !p-0" 
+          />
         </div>
 
         {/* Categories */}
-        <div className="space-y-5">
-          <h3 className="font-serif font-medium text-lg text-medium-text-primary">
+        <div className={themeClasses.spacing.stack}>
+          <h3 className={combineClasses(
+            themeClasses.typography.h3,
+            themeClasses.text.primary,
+            'mb-4'
+          )}>
             Categories
           </h3>
           
           {categoriesLoading ? (
-            <div className="space-y-2">
+            <div className={themeClasses.spacing.stackSmall}>
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-6 bg-medium-text-muted/10 animate-pulse rounded"></div>
+                <div 
+                  key={i} 
+                  className={combineClasses(
+                    'h-6 rounded',
+                    themeClasses.patterns.skeleton
+                  )}
+                ></div>
               ))}
             </div>
           ) : (
-            <div className="flex flex-wrap gap-2">
+            <div className="space-y-1">
               {categories?.slice(0, 10).map((category) => (
                 <Link
                   key={category.id}
                   href={`/category/${category.name}`}
-                  className="inline-flex items-center px-3 py-1.5 rounded-full text-sm text-medium-text-secondary hover:text-medium-accent-green hover:bg-medium-accent-green/10 transition-all duration-200"
+                  className="flex items-center justify-between py-1 px-2 rounded hover:bg-medium-accent-green/5 transition-colors group"
                 >
-                  {category.name}
+                  <span className="text-sm lg:text-base text-medium-text-secondary group-hover:text-medium-accent-green">
+                    {category.name}
+                  </span>
+                  {category.post_count && (
+                    <span className="text-xs text-medium-text-muted">
+                      {category.post_count}
+                    </span>
+                  )}
                 </Link>
               ))}
             </div>
@@ -51,11 +80,18 @@ const PersonalBlogSidebar = () => {
         </div>
 
         {/* Archive */}
-        <div className="space-y-5">
-          <h3 className="font-serif font-medium text-lg text-medium-text-primary">
+        <div className={themeClasses.spacing.stack}>
+          <h3 className={combineClasses(
+            themeClasses.typography.h3,
+            themeClasses.text.primary,
+            'mb-4'
+          )}>
             Archive
           </h3>
-          <Archive posts={recentPosts} className="!border-0 !shadow-none !bg-transparent !p-0" />
+          <Archive 
+            posts={recentPosts} 
+            className="!border-0 !shadow-none !bg-transparent !p-0" 
+          />
         </div>
 
       </div>
