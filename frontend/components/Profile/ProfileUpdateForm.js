@@ -4,6 +4,7 @@ import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaTimes } from 'react-icons/fa';
 import { updateProfileWithAvatar } from '../../services/imageService';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
   const [name, setName] = useState(userProfile.name || '');
@@ -52,7 +53,11 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50 p-2"
+        className={combineClasses(
+          'fixed inset-0 flex items-center justify-center z-50 p-2',
+          'bg-black/60',
+          themeClasses.effects.blur
+        )}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -60,7 +65,11 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
         onClick={onCancel}
       >
         <motion.div 
-          className="bg-medium-bg-card backdrop-blur-sm rounded-lg w-full max-w-sm mx-2 relative"
+          className={combineClasses(
+            'w-full max-w-sm mx-2 relative',
+            themeClasses.bg.card || themeClasses.bg.primary,
+            'backdrop-blur-sm rounded-lg'
+          )}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
@@ -69,12 +78,20 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
         >
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3">
-            <h2 className="text-lg font-mono text-matrix-green">$ edit_profile</h2>
+            <h2 className={combineClasses(
+              themeClasses.typography.h4,
+              themeClasses.text.accent,
+              'font-mono'
+            )}>$ edit_profile</h2>
             <button
-              className="text-medium-text-muted hover:text-medium-text-primary transition-colors"
+              className={combineClasses(
+                themeClasses.text.muted,
+                'hover:text-medium-text-primary',
+                themeClasses.animations.smooth
+              )}
               onClick={onCancel}
             >
-              <FaTimes className="w-4 h-4" />
+              <FaTimes className={themeClasses.icons.sm} />
             </button>
           </div>
 

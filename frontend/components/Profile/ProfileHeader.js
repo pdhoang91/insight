@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { FaEdit, FaShieldAlt, FaCamera } from 'react-icons/fa';
 import { getRoleDisplayName, USER_ROLES } from '../../constants/roles';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = true, isAdmin = false, userRole = USER_ROLES.USER }) => {
   const [imageError, setImageError] = useState(false);
@@ -41,14 +42,19 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
             {onUpdate && (isOwner || isAdmin) && (
               <motion.button
                 onClick={onUpdate}
-                className="absolute -bottom-1 -right-1 w-8 h-8 bg-matrix-green text-black rounded-full flex items-center justify-center hover:bg-matrix-green/90 transition-colors shadow-lg"
+                className={combineClasses(
+                  'absolute -bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center shadow-lg',
+                  themeClasses.bg.accent,
+                  'text-black hover:bg-medium-accent-green/90',
+                  themeClasses.animations.smooth
+                )}
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.4 }}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <FaCamera className="w-3 h-3" />
+                <FaCamera className={themeClasses.icons.xs} />
               </motion.button>
             )}
           </motion.div>
@@ -60,21 +66,32 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
             transition={{ delay: 0.3 }}
             className="space-y-2"
           >
-            <h1 className="text-xl font-bold text-medium-text-primary">
+            <h1 className={combineClasses(
+              themeClasses.typography.h3,
+              themeClasses.text.primary
+            )}>
               {name}
             </h1>
             
             {/* Role Badge */}
             {isAdmin && !isOwner && (
-              <div className="inline-flex items-center space-x-1 px-2 py-1 bg-matrix-green/10 text-matrix-green rounded text-xs">
-                <FaShieldAlt className="w-3 h-3" />
+              <div className={combineClasses(
+                'inline-flex items-center space-x-1 px-2 py-1 rounded text-xs',
+                themeClasses.bg.accentLight,
+                themeClasses.text.accent
+              )}>
+                <FaShieldAlt className={themeClasses.icons.xs} />
                 <span>{getRoleDisplayName(userRole)}</span>
               </div>
             )}
 
             {/* Bio */}
             {bio && (
-              <p className="text-sm text-medium-text-secondary leading-relaxed max-w-xs">
+              <p className={combineClasses(
+                themeClasses.typography.bodySmall,
+                themeClasses.text.secondary,
+                'leading-relaxed max-w-xs'
+              )}>
                 {bio}
               </p>
             )}
@@ -104,14 +121,19 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
           {onUpdate && (isOwner || isAdmin) && (
             <motion.button
               onClick={onUpdate}
-              className="absolute -bottom-1 -right-1 w-10 h-10 bg-matrix-green text-black rounded-full flex items-center justify-center hover:bg-matrix-green/90 transition-colors shadow-lg"
+              className={combineClasses(
+                'absolute -bottom-1 -right-1 w-10 h-10 rounded-full flex items-center justify-center shadow-lg',
+                themeClasses.bg.accent,
+                'text-black hover:bg-medium-accent-green/90',
+                themeClasses.animations.smooth
+              )}
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.4 }}
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
             >
-              <FaCamera className="w-4 h-4" />
+              <FaCamera className={themeClasses.icons.sm} />
             </motion.button>
           )}
         </motion.div>
@@ -126,14 +148,21 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
           <div className="flex items-start justify-between">
             <div className="space-y-3">
               <div>
-                <h1 className="text-2xl lg:text-3xl font-bold text-medium-text-primary">
+                <h1 className={combineClasses(
+                  themeClasses.typography.h2,
+                  themeClasses.text.primary
+                )}>
                   {name}
                 </h1>
                 
                 {/* Role Badge */}
                 {isAdmin && !isOwner && (
-                  <div className="mt-2 inline-flex items-center space-x-2 px-3 py-1 bg-medium-accent-green/10 text-medium-accent-green rounded-md text-sm">
-                    <FaShieldAlt className="w-4 h-4" />
+                  <div className={combineClasses(
+                    'mt-2 inline-flex items-center space-x-2 px-3 py-1 rounded-md text-sm',
+                    themeClasses.bg.accentLight,
+                    themeClasses.text.accent
+                  )}>
+                    <FaShieldAlt className={themeClasses.icons.sm} />
                     <span>{getRoleDisplayName(userRole)}</span>
                   </div>
                 )}
@@ -141,7 +170,10 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
 
               {/* Bio */}
               {bio && (
-                <p className="text-medium-text-secondary leading-relaxed max-w-2xl">
+                <p className={combineClasses(
+                  themeClasses.text.secondary,
+                  'leading-relaxed max-w-2xl'
+                )}>
                   {bio}
                 </p>
               )}

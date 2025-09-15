@@ -1,5 +1,6 @@
 // components/Utils/ErrorBoundary.js
 import React from 'react';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -18,7 +19,13 @@ class ErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-[200px] flex items-center justify-center bg-medium-bg-card rounded-lg border border-medium-border p-8">
+        <div className={combineClasses(
+          'min-h-[200px] flex items-center justify-center p-8',
+          themeClasses.bg.card || themeClasses.bg.primary,
+          themeClasses.effects.rounded,
+          themeClasses.border.primary,
+          'border'
+        )}>
           <div className="text-center">
             <div className="w-16 h-16 mx-auto mb-4 bg-red-500/20 rounded-full flex items-center justify-center">
               <svg 
@@ -35,15 +42,27 @@ class ErrorBoundary extends React.Component {
                 />
               </svg>
             </div>
-            <h3 className="text-lg font-serif font-bold text-medium-text-primary mb-2">
+            <h3 className={combineClasses(
+              themeClasses.typography.h4,
+              themeClasses.text.primary,
+              'mb-2'
+            )}>
               Đã xảy ra lỗi
             </h3>
-            <p className="text-medium-text-secondary mb-4">
+            <p className={combineClasses(
+              themeClasses.text.secondary,
+              'mb-4'
+            )}>
               Chúng tôi gặp lỗi khi tải component này.
             </p>
             <button
               onClick={() => this.setState({ hasError: false, error: null })}
-              className="px-4 py-2 bg-medium-accent-green text-white rounded-md hover:bg-medium-accent-green/90 transition-colors"
+              className={combineClasses(
+                'px-4 py-2 rounded-md text-white',
+                themeClasses.bg.accent,
+                'hover:bg-medium-accent-green/90',
+                themeClasses.animations.smooth
+              )}
             >
               Thử lại
             </button>

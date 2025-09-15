@@ -7,6 +7,7 @@ import { loginWithEmailAndPassword, registerUser, loginWithGoogle } from '../../
 import { getUserProfile } from '../../services/userService';
 import { useLoginModal } from '../../hooks/useLoginModal';
 import { useUser } from '../../context/UserContext';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const LoginModal = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState('');
@@ -92,7 +93,11 @@ const LoginModal = ({ isOpen, onClose }) => {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
-        className="fixed inset-0 flex items-center justify-center bg-medium-bg-primary/80 backdrop-blur-sm z-50"
+        className={combineClasses(
+          'fixed inset-0 flex items-center justify-center z-50',
+          themeClasses.bg.primary + '/80',
+          themeClasses.effects.blur
+        )}
         onClick={onClose}
       >
         <motion.div
@@ -104,7 +109,14 @@ const LoginModal = ({ isOpen, onClose }) => {
           onClick={(e) => e.stopPropagation()}
         >
           {/* Ultra Transparent Modal */}
-          <div className="bg-medium-bg-card backdrop-blur-lg rounded-card border border-medium-border p-8 space-y-6 relative shadow-card">
+          <div className={combineClasses(
+            'p-8 space-y-6 relative',
+            themeClasses.bg.card || themeClasses.bg.primary,
+            themeClasses.effects.blur,
+            themeClasses.effects.rounded,
+            themeClasses.border.primary,
+            'border backdrop-blur-lg shadow-lg'
+          )}>
             {/* Close Button */}
             <button
               onClick={onClose}

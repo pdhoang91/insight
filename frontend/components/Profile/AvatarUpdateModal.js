@@ -3,6 +3,7 @@ import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaTimes, FaCamera } from 'react-icons/fa';
 import { updateProfileWithAvatar } from '../../services/imageService';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const AvatarUpdateModal = ({ userProfile, onUpdate, onCancel }) => {
   const [avatarUrl, setAvatarUrl] = useState(userProfile.avatar_url || '');
@@ -72,22 +73,38 @@ const AvatarUpdateModal = ({ userProfile, onUpdate, onCancel }) => {
 
         {/* Modal */}
         <motion.div
-          className="relative w-full max-w-md bg-medium-bg-primary border border-matrix-green/20 rounded-lg shadow-2xl overflow-hidden"
+          className={combineClasses(
+            'relative w-full max-w-md overflow-hidden',
+            themeClasses.bg.primary,
+            themeClasses.border.primary,
+            'border rounded-lg shadow-2xl'
+          )}
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 20 }}
           transition={{ type: "spring", duration: 0.5 }}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-matrix-green/20">
-            <h3 className="text-lg font-mono text-matrix-green">
+          <div className={combineClasses(
+            'flex items-center justify-between p-4 border-b',
+            themeClasses.border.primary
+          )}>
+            <h3 className={combineClasses(
+              themeClasses.typography.h4,
+              themeClasses.text.accent,
+              'font-mono'
+            )}>
               cập_nhật_avatar()
             </h3>
             <button
               onClick={onCancel}
-              className="text-medium-text-muted hover:text-matrix-green transition-colors"
+              className={combineClasses(
+                themeClasses.text.muted,
+                themeClasses.text.accentHover,
+                themeClasses.animations.smooth
+              )}
             >
-              <FaTimes className="w-5 h-5" />
+              <FaTimes className={themeClasses.icons.md} />
             </button>
           </div>
 
@@ -100,11 +117,17 @@ const AvatarUpdateModal = ({ userProfile, onUpdate, onCancel }) => {
                   <img 
                     src={avatarUrl || '/images/placeholder.svg'} 
                     alt="Avatar Preview" 
-                    className="w-24 h-24 rounded-full object-cover border-2 border-matrix-green/30" 
+                    className={combineClasses(
+                      'w-24 h-24 rounded-full object-cover border-2',
+                      themeClasses.border.accentLight
+                    )}
                   />
                   {isUploading && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
-                      <div className="w-6 h-6 border-2 border-matrix-green border-t-transparent rounded-full animate-spin"></div>
+                      <div className={combineClasses(
+                        'w-6 h-6 border-2 border-t-transparent rounded-full animate-spin',
+                        themeClasses.border.accent
+                      )}></div>
                     </div>
                   )}
                 </div>
@@ -113,9 +136,17 @@ const AvatarUpdateModal = ({ userProfile, onUpdate, onCancel }) => {
                   type="button"
                   onClick={handleAvatarUploadClick}
                   disabled={isUploading}
-                  className="flex items-center space-x-2 px-4 py-2 bg-matrix-green/10 text-matrix-green border border-matrix-green/30 rounded-lg hover:bg-matrix-green/20 transition-colors disabled:opacity-50 font-mono"
+                  className={combineClasses(
+                    'flex items-center space-x-2 px-4 py-2 rounded-lg font-mono',
+                    themeClasses.bg.accentLight,
+                    themeClasses.text.accent,
+                    themeClasses.border.accentLight,
+                    'border hover:bg-medium-accent-green/20',
+                    themeClasses.animations.smooth,
+                    'disabled:opacity-50'
+                  )}
                 >
-                  <FaCamera className="w-4 h-4" />
+                  <FaCamera className={themeClasses.icons.sm} />
                   <span>{isUploading ? 'đang_tải...' : 'chọn_ảnh()'}</span>
                 </button>
                 
@@ -133,14 +164,26 @@ const AvatarUpdateModal = ({ userProfile, onUpdate, onCancel }) => {
                 <button
                   type="button"
                   onClick={onCancel}
-                  className="flex-1 px-4 py-2 text-medium-text-muted border border-medium-border rounded-lg hover:bg-medium-bg-elevated transition-colors font-mono"
+                  className={combineClasses(
+                    'flex-1 px-4 py-2 rounded-lg font-mono',
+                    themeClasses.text.muted,
+                    themeClasses.border.primary,
+                    'border hover:bg-medium-hover',
+                    themeClasses.animations.smooth
+                  )}
                 >
                   hủy()
                 </button>
                 <button
                   type="submit"
                   disabled={isUploading || !avatarFile}
-                  className="flex-1 px-4 py-2 bg-matrix-green text-black rounded-lg hover:bg-matrix-green/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-mono font-medium"
+                  className={combineClasses(
+                    'flex-1 px-4 py-2 rounded-lg font-mono font-medium',
+                    themeClasses.bg.accent,
+                    'text-black hover:bg-medium-accent-green/90',
+                    themeClasses.animations.smooth,
+                    'disabled:opacity-50 disabled:cursor-not-allowed'
+                  )}
                 >
                   {isUploading ? 'đang_lưu...' : 'lưu()'}
                 </button>

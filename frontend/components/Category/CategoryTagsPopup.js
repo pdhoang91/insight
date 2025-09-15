@@ -195,7 +195,7 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
                       className={combineClasses(
                         'w-full flex items-center space-x-3 p-4 rounded-xl border-2 border-dashed transition-all duration-200',
                         selectedCategories.length >= 3
-                          ? 'opacity-50 cursor-not-allowed border-gray-300'
+                          ? combineClasses('opacity-50 cursor-not-allowed', themeClasses.border.primary)
                           : combineClasses(
                               'border-medium-accent-green/50 hover:border-medium-accent-green hover:bg-medium-accent-green/5',
                               themeClasses.text.accent
