@@ -108,12 +108,14 @@ const Navbar = () => {
 
   return (
     <nav className={combineClasses(
-      'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
+      'fixed top-0 left-0 right-0 z-50',
+      themeClasses.animations.smooth,
       scrolled 
         ? combineClasses(
             themeClasses.bg.primary,
-            'border-b shadow-sm',
-            themeClasses.border.primary
+            'border-b',
+            themeClasses.border.primary,
+            themeClasses.effects.shadow
           )
         : themeClasses.bg.primary + '/90'
     )}>
@@ -126,9 +128,9 @@ const Navbar = () => {
             onClick={() => setIsMobileMenuOpen(false)}
           >
             <div className={combineClasses(
-              'text-2xl font-serif font-bold',
+              themeClasses.typography.h2,
               themeClasses.text.primary,
-              'group-hover:text-medium-accent-green',
+              themeClasses.text.accentHover,
               themeClasses.animations.smooth
             )}>
               Insight
@@ -148,16 +150,25 @@ const Navbar = () => {
                 {isWritePage ? (
                   <button
                     onClick={handlePublishClick}
-                    className="px-4 py-2 group-hover:text-medium-accent-green rounded-button text-sm font-medium transition-all duration-300"
+                    className={componentClasses.button.primary}
+                    aria-label="Đăng bài viết"
                   >
                     Đăng
                   </button>
                 ) : (
                   <button
                     onClick={handleWriteClick}
-                    className="flex items-center px-4 py-2 group-hover:text-medium-accent-green text-sm font-medium transition-all duration-300"
+                    className={combineClasses(
+                      componentClasses.button.ghost,
+                      'flex items-center'
+                    )}
+                    aria-label="Viết bài mới"
                   >
-                    <FaEdit className={`${themeClasses.icons.sm} mr-2 text-white`} />
+                    <FaEdit className={combineClasses(
+                      themeClasses.icons.sm, 
+                      'mr-2',
+                      themeClasses.text.accent
+                    )} />
                     Viết bài
                   </button>
                 )}
@@ -169,7 +180,13 @@ const Navbar = () => {
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={toggleUserMenu}
-                  className="flex items-center gap-2 p-1 rounded-full hover:bg-medium-hover transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) hover:scale-105"
+                  className={combineClasses(
+                    'flex items-center gap-2 p-1 rounded-full',
+                    'hover:bg-medium-hover',
+                    themeClasses.interactions.iconHover
+                  )}
+                  aria-label="Mở menu người dùng"
+                  aria-expanded={isUserMenuOpen}
                 >
                   {user.avatar_url ? (
                     <img
@@ -178,8 +195,14 @@ const Navbar = () => {
                       className="w-8 h-8 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="w-8 h-8 bg-medium-accent-green rounded-full flex items-center justify-center">
-                      <FaUser className="w-4 h-4 text-white" />
+                    <div className={combineClasses(
+                      'w-8 h-8 rounded-full flex items-center justify-center',
+                      themeClasses.bg.accent
+                    )}>
+                      <FaUser className={combineClasses(
+                        themeClasses.icons.sm,
+                        themeClasses.text.white
+                      )} />
                     </div>
                   )}
                 </button>
@@ -216,21 +239,27 @@ const Navbar = () => {
                               className="w-10 h-10 rounded-full object-cover"
                             />
                           ) : (
-                            <div className={`w-10 h-10 ${classes.bg.accent} rounded-full flex items-center justify-center`}>
-                              <FaUser className="w-5 h-5 text-white" />
+                            <div className={combineClasses(
+                              'w-10 h-10 rounded-full flex items-center justify-center',
+                              themeClasses.bg.accent
+                            )}>
+                              <FaUser className={combineClasses(
+                                themeClasses.icons.md,
+                                themeClasses.text.white
+                              )} />
                             </div>
                           )}
                           <div>
                             <div className={combineClasses(
-                              'font-medium',
+                              themeClasses.typography.weightMedium,
                               themeClasses.text.primary,
-                              'hover:text-medium-accent-green',
+                              themeClasses.text.accentHover,
                               themeClasses.animations.smooth
                             )}>
                               {user.name}
                             </div>
                             <div className={combineClasses(
-                              'text-sm',
+                              themeClasses.typography.bodySmall,
                               themeClasses.text.secondary
                             )}>
                               {user.email}
@@ -261,12 +290,13 @@ const Navbar = () => {
                         <button
                           onClick={handleLogout}
                           className={combineClasses(
-                            'w-full flex items-center px-4 py-2 text-sm rounded-md',
+                            'w-full flex items-center px-4 py-2 rounded-md',
+                            themeClasses.typography.bodySmall,
                             themeClasses.text.secondary,
-                            'hover:bg-medium-hover',
-                            'hover:text-medium-text-primary',
+                            'hover:bg-medium-hover hover:text-medium-text-primary',
                             themeClasses.animations.smooth
                           )}
+                          aria-label="Đăng xuất khỏi tài khoản"
                         >
                           <FaSignOutAlt className={combineClasses(themeClasses.icons.sm, 'mr-3')} />
                           Đăng xuất
@@ -280,23 +310,15 @@ const Navbar = () => {
                 <div className="flex items-center gap-4">
                 <button
                   onClick={() => setModalOpen(true)}
-                  className={combineClasses(
-                    'px-3 py-2 rounded-md',
-                    themeClasses.text.secondary,
-                    'hover:text-medium-text-primary hover:bg-medium-hover',
-                    themeClasses.animations.smooth
-                  )}
+                  className={componentClasses.button.ghost}
+                  aria-label="Đăng nhập vào tài khoản"
                 >
                   Đăng nhập
                 </button>
                 <button
                   onClick={handleWriteClick}
-                  className={combineClasses(
-                    'px-6 py-2 text-white rounded-button text-sm font-medium shadow-sm hover:shadow-md',
-                    themeClasses.bg.accent,
-                    'hover:bg-medium-accent-green/90',
-                    themeClasses.animations.smooth
-                  )}
+                  className={componentClasses.button.primary}
+                  aria-label="Bắt đầu viết bài"
                 >
                   Bắt đầu
                 </button>
@@ -317,12 +339,8 @@ const Navbar = () => {
                 {isWritePage ? (
                   <button
                     onClick={handlePublishClick}
-                    className={combineClasses(
-                      'px-3 py-2 text-white rounded-button text-sm font-medium',
-                      themeClasses.bg.accent,
-                      'hover:bg-medium-accent-green/90',
-                      themeClasses.animations.smooth
-                    )}
+                    className={componentClasses.button.primarySmall}
+                    aria-label="Đăng bài viết"
                   >
                     Đăng
                   </button>
@@ -330,13 +348,15 @@ const Navbar = () => {
                   <button
                     onClick={handleWriteClick}
                     className={combineClasses(
-                      'p-2 text-white rounded-button',
-                      themeClasses.bg.accent,
-                      'hover:bg-medium-accent-green/90',
-                      themeClasses.animations.smooth
+                      componentClasses.button.primarySmall,
+                      'p-2'
                     )}
+                    aria-label="Viết bài mới"
                   >
-                    <FaEdit className={themeClasses.icons.sm} />
+                    <FaEdit className={combineClasses(
+                      themeClasses.icons.sm,
+                      themeClasses.text.white
+                    )} />
                   </button>
                 )}
               </>
@@ -351,12 +371,13 @@ const Navbar = () => {
                 'hover:text-medium-text-primary hover:bg-medium-hover',
                 themeClasses.animations.smooth
               )}
-              aria-label="Mở menu"
+              aria-label={isMobileMenuOpen ? "Đóng menu" : "Mở menu"}
+              aria-expanded={isMobileMenuOpen}
             >
               {isMobileMenuOpen ? (
-                <FaTimes className="w-5 h-5" />
+                <FaTimes className={themeClasses.icons.md} />
               ) : (
-                <FaBars className="w-5 h-5" />
+                <FaBars className={themeClasses.icons.md} />
               )}
             </button>
           </div>
@@ -400,19 +421,25 @@ const Navbar = () => {
                         className="w-10 h-10 rounded-full object-cover"
                       />
                     ) : (
-                      <div className={`w-10 h-10 ${classes.bg.accent} rounded-full flex items-center justify-center`}>
-                        <FaUser className="w-5 h-5 text-white" />
+                      <div className={combineClasses(
+                        'w-10 h-10 rounded-full flex items-center justify-center',
+                        themeClasses.bg.accent
+                      )}>
+                        <FaUser className={combineClasses(
+                          themeClasses.icons.md,
+                          themeClasses.text.white
+                        )} />
                       </div>
                     )}
                     <div>
                       <div className={combineClasses(
-                        'font-medium',
+                        themeClasses.typography.weightMedium,
                         themeClasses.text.primary
                       )}>
                         {user.name}
                       </div>
                       <div className={combineClasses(
-                        'text-sm',
+                        themeClasses.typography.bodySmall,
                         themeClasses.text.secondary
                       )}>
                         Xem hồ sơ
@@ -426,7 +453,7 @@ const Navbar = () => {
                     <div className="px-3 py-2">
                       <div className="flex items-center justify-between">
                         <span className={combineClasses(
-                          'text-sm',
+                          themeClasses.typography.bodySmall,
                           themeClasses.text.secondary
                         )}>Giao diện</span>
                         <ThemeToggle variant="simple" />
@@ -436,11 +463,13 @@ const Navbar = () => {
                     <button
                       onClick={handleLogout}
                       className={combineClasses(
-                        'w-full flex items-center px-3 py-2 text-sm rounded-md',
+                        'w-full flex items-center px-3 py-2 rounded-md',
+                        themeClasses.typography.bodySmall,
                         themeClasses.text.secondary,
                         'hover:bg-medium-hover hover:text-medium-text-primary',
                         themeClasses.animations.smooth
                       )}
+                      aria-label="Đăng xuất khỏi tài khoản"
                     >
                       <FaSignOutAlt className={combineClasses(themeClasses.icons.sm, 'mr-3')} />
                       Đăng xuất
@@ -455,20 +484,20 @@ const Navbar = () => {
                       setIsMobileMenuOpen(false);
                     }}
                     className={combineClasses(
-                      'block w-full py-2 text-left',
-                      themeClasses.text.secondary
+                      componentClasses.button.ghost,
+                      'w-full text-left justify-start'
                     )}
+                    aria-label="Đăng nhập vào tài khoản"
                   >
                     Đăng nhập
                   </button>
                   <button
                     onClick={handleWriteClick}
                     className={combineClasses(
-                      'block w-full py-2 px-4 rounded-full text-center font-medium',
-                      themeClasses.bg.accent,
-                      'text-white hover:bg-medium-accent-green/90',
-                      themeClasses.animations.smooth
+                      componentClasses.button.primary,
+                      'w-full rounded-full text-center'
                     )}
+                    aria-label="Bắt đầu viết bài"
                   >
                     Bắt đầu
                   </button>
