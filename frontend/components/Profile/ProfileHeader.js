@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { FaEdit, FaShieldAlt } from 'react-icons/fa';
+import { FaEdit, FaShieldAlt, FaCamera } from 'react-icons/fa';
 import { getRoleDisplayName, USER_ROLES } from '../../constants/roles';
 
 const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = true, isAdmin = false, userRole = USER_ROLES.USER }) => {
@@ -37,6 +37,20 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
                 className="w-full h-full object-cover"
               />
             </div>
+            {/* Avatar Edit Icon */}
+            {onUpdate && (isOwner || isAdmin) && (
+              <motion.button
+                onClick={onUpdate}
+                className="absolute -bottom-1 -right-1 w-8 h-8 bg-matrix-green text-black rounded-full flex items-center justify-center hover:bg-matrix-green/90 transition-colors shadow-lg"
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.4 }}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <FaCamera className="w-3 h-3" />
+              </motion.button>
+            )}
           </motion.div>
 
           {/* User Info */}
@@ -66,19 +80,6 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
             )}
           </motion.div>
 
-          {/* Edit Button */}
-          {onUpdate && (isOwner || isAdmin) && (
-            <motion.button
-              onClick={onUpdate}
-              className="flex items-center space-x-2 px-4 py-2 text-medium-accent-green hover:bg-medium-accent-green/10 rounded-lg transition-colors"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-            >
-              <FaEdit className="w-4 h-4" />
-              <span className="text-sm font-medium">Chỉnh sửa hồ sơ</span>
-            </motion.button>
-          )}
         </div>
       </div>
 
@@ -86,7 +87,7 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
       <div className="hidden sm:flex items-start space-x-6">
         {/* Avatar */}
         <motion.div 
-          className="flex-shrink-0"
+          className="flex-shrink-0 relative"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
@@ -99,6 +100,20 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
               className="w-full h-full object-cover"
             />
           </div>
+          {/* Avatar Edit Icon */}
+          {onUpdate && (isOwner || isAdmin) && (
+            <motion.button
+              onClick={onUpdate}
+              className="absolute -bottom-1 -right-1 w-10 h-10 bg-matrix-green text-black rounded-full flex items-center justify-center hover:bg-matrix-green/90 transition-colors shadow-lg"
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4 }}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <FaCamera className="w-4 h-4" />
+            </motion.button>
+          )}
         </motion.div>
 
         {/* User Info */}
@@ -132,21 +147,6 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
               )}
             </div>
 
-            {/* Edit Button */}
-            {onUpdate && (isOwner || isAdmin) && (
-              <motion.button
-                onClick={onUpdate}
-                className="flex items-center space-x-2 px-4 py-2 text-medium-accent-green hover:bg-medium-accent-green/10 rounded-lg transition-colors flex-shrink-0"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <FaEdit className="w-4 h-4" />
-                <span className="text-sm font-medium">Chỉnh sửa hồ sơ</span>
-              </motion.button>
-            )}
           </div>
         </motion.div>
       </div>

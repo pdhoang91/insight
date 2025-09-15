@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { useUser } from '../context/UserContext';
 import useProfile from '../hooks/useProfile';
 import { useInfiniteUserPosts } from '../hooks/useInfiniteUserPosts';
-import ProfileUpdateForm from '../components/Profile/ProfileUpdateForm';
+import AvatarUpdateModal from '../components/Profile/AvatarUpdateModal';
 import ProfileHeader from '../components/Profile/ProfileHeader';
 import UserPostsSection from '../components/Profile/UserPostsSection';
 import LoadingSpinner from '../components/Shared/LoadingSpinner';
@@ -157,9 +157,9 @@ const UserProfilePage = () => {
         isOwner={isOwner}
       />
 
-      {/* Profile Update Modal */}
+      {/* Avatar Update Modal */}
       {showPopup && (
-        <ProfileUpdateForm
+        <AvatarUpdateModal
           userProfile={profile}
           onUpdate={handleUpdateProfile}
           onCancel={() => setShowPopup(false)}
