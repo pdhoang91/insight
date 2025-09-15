@@ -1,8 +1,8 @@
-// components/Archive/Archive.js
+// components/Archive/Archive.js - Fully theme-based design
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { FaCalendarAlt, FaChevronDown, FaChevronRight } from 'react-icons/fa';
-import { themeClasses, componentClasses } from '../../utils/themeClasses';
+import { themeClasses, componentClasses, combineClasses } from '../../utils/themeClasses';
 
 const Archive = ({ posts = [], className = '', showAll = false }) => {
   const [expandedYears, setExpandedYears] = useState(new Set([new Date().getFullYear()]));
@@ -55,7 +55,10 @@ const Archive = ({ posts = [], className = '', showAll = false }) => {
   if (!posts.length) {
     return (
       <div className={className}>
-        <p className="text-sm text-medium-text-muted">No posts yet.</p>
+        <p className={combineClasses(
+          themeClasses.typography.bodySmall,
+          themeClasses.text.muted
+        )}>No posts yet.</p>
       </div>
     );
   }
@@ -63,7 +66,7 @@ const Archive = ({ posts = [], className = '', showAll = false }) => {
   return (
     <div className={className}>
       {/* Archive Content - Always Visible */}
-      <div className="space-y-2">
+      <div className={themeClasses.spacing.stackSmall}>
               {years.map(year => {
                 const yearInt = parseInt(year);
                 const isExpanded = expandedYears.has(yearInt);
@@ -75,26 +78,47 @@ const Archive = ({ posts = [], className = '', showAll = false }) => {
                     {/* Year Header */}
                     <button
                       onClick={() => toggleYear(yearInt)}
-                      className="w-full flex items-center justify-between py-2 text-left hover:text-medium-accent-green transition-colors group"
+                      className={combineClasses(
+                        themeClasses.utils.fullWidth,
+                        'flex items-center justify-between py-2 text-left group',
+                        themeClasses.text.accentHover,
+                        themeClasses.animations.smooth
+                      )}
                     >
-                      <div className="flex items-center gap-2">
+                      <div className={combineClasses('flex items-center', themeClasses.spacing.gap)}>
                         {isExpanded ? (
-                          <FaChevronDown className="w-3 h-3 text-medium-text-muted group-hover:text-medium-accent-green" />
+                          <FaChevronDown className={combineClasses(
+                            themeClasses.icons.xs,
+                            themeClasses.text.muted,
+                            'group-hover:text-medium-accent-green'
+                          )} />
                         ) : (
-                          <FaChevronRight className="w-3 h-3 text-medium-text-muted group-hover:text-medium-accent-green" />
+                          <FaChevronRight className={combineClasses(
+                            themeClasses.icons.xs,
+                            themeClasses.text.muted,
+                            'group-hover:text-medium-accent-green'
+                          )} />
                         )}
-                        <span className="font-medium text-medium-text-primary group-hover:text-medium-accent-green">
+                        <span className={combineClasses(
+                          themeClasses.typography.weightMedium,
+                          themeClasses.text.primary,
+                          'group-hover:text-medium-accent-green'
+                        )}>
                           {year}
                         </span>
                       </div>
-                      <span className="text-xs px-2 py-1 rounded-full text-medium-text-muted">
+                      <span className={combineClasses(
+                        themeClasses.typography.captionText,
+                        'px-2 py-1 rounded-full',
+                        themeClasses.text.muted
+                      )}>
                         {totalYearPosts}
                       </span>
                     </button>
 
                     {/* Months */}
                     {isExpanded && (
-                      <div className="ml-6 space-y-1">
+                      <div className={combineClasses('ml-6', themeClasses.spacing.stackSmall)}>
                         {Object.keys(yearPosts)
                           .sort((a, b) => b - a) // Sort months descending
                           .slice(0, isShowingAll ? undefined : 6) // Limit months if not showing all
@@ -107,12 +131,24 @@ const Archive = ({ posts = [], className = '', showAll = false }) => {
                               <Link
                                 key={month}
                                 href={`/archive/${year}/${monthInt + 1}`}
-                                className="flex items-center justify-between py-1 px-2 rounded hover:bg-medium-accent-green/5 transition-colors group"
+                                className={combineClasses(
+                                  'flex items-center justify-between py-1 px-2 group',
+                                  themeClasses.effects.rounded,
+                                  'hover:bg-medium-accent-green/5',
+                                  themeClasses.animations.smooth
+                                )}
                               >
-                                <span className="text-sm lg:text-base text-medium-text-secondary group-hover:text-medium-accent-green">
+                                <span className={combineClasses(
+                                  themeClasses.typography.bodySmall,
+                                  themeClasses.text.secondary,
+                                  'group-hover:text-medium-accent-green'
+                                )}>
                                   {monthName}
                                 </span>
-                                <span className="text-xs text-medium-text-muted">
+                                <span className={combineClasses(
+                                  themeClasses.typography.captionText,
+                                  themeClasses.text.muted
+                                )}>
                                   {monthPosts.length}
                                 </span>
                               </Link>
@@ -126,18 +162,28 @@ const Archive = ({ posts = [], className = '', showAll = false }) => {
 
         {/* Toggle View All / View Less */}
         {allYears.length > 2 && (
-          <div className="mt-4 pt-2">
+          <div className={combineClasses('mt-4 pt-2')}>
             {!isShowingAll ? (
               <button
                 onClick={() => setIsShowingAll(true)}
-                className="text-xs text-medium-accent-green hover:underline focus:outline-none"
+                className={combineClasses(
+                  themeClasses.typography.captionText,
+                  themeClasses.text.accent,
+                  'hover:underline',
+                  themeClasses.focus.visible
+                )}
               >
                 Show all years ({allYears.length}) →
               </button>
             ) : (
               <button
                 onClick={() => setIsShowingAll(false)}
-                className="text-xs text-medium-accent-green hover:underline focus:outline-none"
+                className={combineClasses(
+                  themeClasses.typography.captionText,
+                  themeClasses.text.accent,
+                  'hover:underline',
+                  themeClasses.focus.visible
+                )}
               >
                 ← Show recent only
               </button>

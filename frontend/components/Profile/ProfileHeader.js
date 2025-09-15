@@ -21,21 +21,30 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
       transition={{ duration: 0.6, ease: "easeOut" }}
     >
       {/* Mobile Layout */}
-      <div className="block sm:hidden">
-        <div className="flex flex-col items-center text-center space-y-4">
+      <div className={themeClasses.responsive.mobileOnly}>
+        <div className={combineClasses(
+          'flex flex-col items-center text-center',
+          themeClasses.spacing.stackLarge
+        )}>
           {/* Avatar */}
           <motion.div 
-            className="relative"
+            className={themeClasses.utils.relative}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2 }}
           >
-            <div className="w-20 h-20 rounded-full overflow-hidden">
+            <div className={combineClasses(
+              themeClasses.avatar.xl,
+              themeClasses.utils.overflowHidden
+            )}>
               <img
                 src={imageError ? '/images/placeholder.svg' : `${avatarUrl || '/images/placeholder.svg'}?t=${new Date().getTime()}`}
                 alt={`${name}'s avatar`}
                 onError={handleImageError}
-                className="w-full h-full object-cover"
+                className={combineClasses(
+                  themeClasses.utils.full,
+                  'object-cover'
+                )}
               />
             </div>
             {/* Avatar Edit Icon */}
@@ -43,9 +52,12 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
               <motion.button
                 onClick={onUpdate}
                 className={combineClasses(
-                  'absolute -bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center shadow-lg',
+                  themeClasses.utils.absolute,
+                  '-bottom-1 -right-1 w-8 h-8 rounded-full flex items-center justify-center',
+                  themeClasses.effects.shadowLarge,
                   themeClasses.bg.accent,
-                  'text-black hover:bg-medium-accent-green/90',
+                  themeClasses.text.white,
+                  'hover:bg-medium-accent-green/90',
                   themeClasses.animations.smooth
                 )}
                 initial={{ opacity: 0, scale: 0 }}
@@ -64,7 +76,7 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="space-y-2"
+            className={themeClasses.spacing.stackSmall}
           >
             <h1 className={combineClasses(
               themeClasses.typography.h3,
@@ -76,9 +88,9 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
             {/* Role Badge */}
             {isAdmin && !isOwner && (
               <div className={combineClasses(
-                'inline-flex items-center space-x-1 px-2 py-1 rounded text-xs',
-                themeClasses.bg.accentLight,
-                themeClasses.text.accent
+                themeClasses.tag.primary,
+                'inline-flex items-center',
+                themeClasses.spacing.gapSmall
               )}>
                 <FaShieldAlt className={themeClasses.icons.xs} />
                 <span>{getRoleDisplayName(userRole)}</span>
