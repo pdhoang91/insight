@@ -2,7 +2,7 @@
 import React from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import PostItem from '../Post/PostItem';
-import { componentClasses } from '../../utils/themeClasses';
+import { themeClasses, componentClasses, combineClasses } from '../../utils/themeClasses';
 
 const PostList = ({ 
   posts, 
@@ -24,16 +24,25 @@ const PostList = ({
   // Error state
   if (isError) {
     return (
-      <div className="text-center py-12">
+      <div className={combineClasses(
+        'text-center py-12'
+      )}>
         <div className="text-medium-text-muted mb-4">
           <svg className="w-16 h-16 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
         </div>
-        <h3 className="text-lg font-medium text-medium-text-primary mb-2">
+        <h3 className={combineClasses(
+          themeClasses.typography.h3,
+          themeClasses.text.primary,
+          'mb-2'
+        )}>
           Đã xảy ra lỗi
         </h3>
-        <p className="text-medium-text-secondary mb-4">
+        <p className={combineClasses(
+          themeClasses.text.secondary,
+          'mb-4'
+        )}>
           Không thể tải bài viết. Vui lòng thử lại.
         </p>
         <button 
@@ -90,16 +99,23 @@ const PostList = ({
   // Empty state
   if (!posts || posts.length === 0) {
     return (
-      <div className="text-center py-16">
+      <div className={combineClasses(
+        'text-center py-16'
+      )}>
         <div className="text-medium-text-muted mb-4">
           <svg className="w-16 h-16 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
           </svg>
         </div>
-        <h3 className="text-xl font-serif font-medium text-medium-text-primary mb-2">
+        <h3 className={combineClasses(
+          themeClasses.typography.h2,
+          themeClasses.typography.serif,
+          themeClasses.text.primary,
+          'mb-2'
+        )}>
           No stories yet
         </h3>
-        <p className="text-medium-text-secondary">
+        <p className={themeClasses.text.secondary}>
           Be the first to share your thoughts and experiences.
         </p>
       </div>
@@ -154,8 +170,11 @@ const PostList = ({
         }
         endMessage={
           flatPosts.length > 0 && (
-            <div className="text-center py-8 border-t border-medium-divider mt-8">
-              <p className="text-medium-text-muted">
+            <div className={combineClasses(
+              'text-center py-8 border-t mt-8',
+              themeClasses.border.primary
+            )}>
+              <p className={themeClasses.text.muted}>
                 You've reached the end!
               </p>
             </div>
@@ -163,10 +182,10 @@ const PostList = ({
         }
         refreshFunction={() => window.location.reload()}
         pullDownToRefresh={false}
-        className="space-y-6 lg:space-y-8"
+        className={themeClasses.spacing.stackLarge}
       >
         {flatPosts.map((post, index) => (
-          <div key={`${post.id}-${index}`} className="mb-6 lg:mb-8">
+          <div key={`${post.id}-${index}`} className={themeClasses.spacing.marginBottom}>
             <PostItem
               post={post}
               variant={variant}

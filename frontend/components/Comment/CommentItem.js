@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaHeart, FaComment, FaUser } from "react-icons/fa";
 import { useCommentClap } from '../../hooks/useCommentClap';
 import { useUser } from '../../context/UserContext';
-import { useThemeClasses } from '../../hooks/useThemeClasses';
 import { addReply } from '../../services/commentService';
 import AddCommentForm from './AddCommentForm';
 import CommentContent from './CommentContent';
@@ -15,7 +14,6 @@ import { themeClasses, componentClasses } from '../../utils/themeClasses';
 const CommentItem = ({ comment, postId, mutate }) => {
   const [showReplyForm, setShowReplyForm] = useState(false);
   const { user } = useUser();
-  const { classes } = useThemeClasses();
   const repliesCount = comment.replies ? comment.replies.length : 0;
 
   // Use reusable clap hook
@@ -49,47 +47,47 @@ const CommentItem = ({ comment, postId, mutate }) => {
 
   return (
     <motion.div
-      className="bg-medium-bg-card border border-medium-border rounded-card p-card shadow-card"
+      className={`${themeClasses.bg.card} border ${themeClasses.border.primary} ${themeClasses.effects.rounded} ${themeClasses.spacing.card} ${themeClasses.effects.shadow}`}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
     >
       {/* Author Info */}
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-8 h-8 bg-medium-bg-secondary rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
+      <div className={`flex items-center ${themeClasses.spacing.gapSmall} mb-4`}>
+        <div className={`${themeClasses.avatar.sm} ${themeClasses.bg.secondary} flex items-center justify-center flex-shrink-0 ${themeClasses.effects.shadow}`}>
           {comment.user?.avatar_url ? (
             <img
               src={comment.user.avatar_url}
               alt={comment.user.name}
-              className="w-full h-full rounded-full object-cover"
+              className={`${themeClasses.utils.full} rounded-full object-cover`}
             />
           ) : (
             <FaUser className={`${themeClasses.icons.sm} ${themeClasses.text.accent}`} />
           )}
         </div>
-        <div className="flex items-center gap-sm">
-          <span className={`${componentClasses.text.label} text-medium-text-primary`}>
+        <div className={`flex items-center ${themeClasses.spacing.gapSmall}`}>
+          <span className={`${themeClasses.text.labelMedium} ${themeClasses.text.primary}`}>
             {comment.user?.name || 'Anonymous'}
           </span>
-          <span className="text-medium-text-muted text-body-small">
+          <span className={`${themeClasses.text.muted} ${themeClasses.text.bodySmall}`}>
             <TimeAgo timestamp={comment.created_at} />
           </span>
         </div>
       </div>
 
       {/* Comment Content */}
-      <div className="mb-4 pl-11">
-        <div className="text-medium-text-secondary leading-relaxed text-body">
+      <div className={`${themeClasses.spacing.marginBottom} pl-11`}>
+        <div className={`${themeClasses.text.secondary} leading-relaxed ${themeClasses.text.body}`}>
           <CommentContent content={comment.content} />
         </div>
       </div>
 
       {/* Action Bar */}
-      <div className="flex items-center gap-6 pl-11">
+      <div className={`flex items-center ${themeClasses.spacing.gap} pl-11`}>
         <button
           onClick={handleClap}
-          className={`${themeClasses.interactive.touchTarget} gap-sm text-body-small transition-all duration-200 ${
-            hasClapped ? 'text-medium-accent-green' : 'text-medium-text-muted hover:text-medium-accent-green'
+          className={`${themeClasses.interactive.touchTarget} ${themeClasses.spacing.gapSmall} ${themeClasses.text.bodySmall} ${themeClasses.animations.smooth} ${
+            hasClapped ? themeClasses.text.accent : `${themeClasses.text.muted} ${themeClasses.text.accentHover}`
           }`}
           aria-label="Clap for this comment"
         >
@@ -99,7 +97,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
 
         <button
           onClick={handleToggleReply}
-          className={`${themeClasses.interactive.touchTarget} gap-sm text-body-small text-medium-text-muted hover:text-medium-accent-green transition-all duration-200`}
+          className={`${themeClasses.interactive.touchTarget} ${themeClasses.spacing.gapSmall} ${themeClasses.text.bodySmall} ${themeClasses.text.muted} ${themeClasses.text.accentHover} ${themeClasses.animations.smooth}`}
           aria-label="Reply to this comment"
         >
           <FaComment className={themeClasses.icons.sm} />
@@ -118,7 +116,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
             transition={{ duration: 0.2 }}
           >
             {/* Reply Form */}
-            <div className="mb-4">
+            <div className={themeClasses.spacing.marginBottom}>
               <AddCommentForm 
                 onAddComment={(content) => handleReply(content, comment.id)} 
                 parentId={comment.id}
@@ -128,8 +126,8 @@ const CommentItem = ({ comment, postId, mutate }) => {
 
             {/* Replies List */}
             {comment.replies && comment.replies.length > 0 && (
-              <div className="space-y-3">
-                <div className="text-body-small text-medium-text-secondary mb-sm font-serif font-bold">
+              <div className={themeClasses.spacing.stackSmall}>
+                <div className={`${themeClasses.text.bodySmall} ${themeClasses.text.secondary} ${themeClasses.spacing.marginBottom} ${themeClasses.typography.serif} ${themeClasses.typography.weightBold}`}>
                   Replies ({comment.replies.length}):
                 </div>
                 <ReplyList replies={comment.replies} commentId={comment.id} mutate={mutate} />

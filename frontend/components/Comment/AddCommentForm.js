@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { FaPaperPlane } from 'react-icons/fa';
 import { addComment } from '../../services/commentService';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId = null, placeholder }) => {
   const [content, setContent] = useState('');
@@ -42,9 +43,22 @@ const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId =
   };
 
   return (
-    <form onSubmit={handleSubmit} className="relative">
+    <form onSubmit={handleSubmit} className={themeClasses.utils.relative}>
       <textarea
-        className="w-full bg-medium-bg-card border border-medium-border rounded-lg text-medium-text-primary placeholder-medium-text-muted p-3 pr-12 resize-none focus:outline-none focus:ring-2 focus:ring-medium-accent-green/50 focus:border-medium-accent-green transition-all duration-200 shadow-sm focus:shadow-card text-body"
+        className={combineClasses(
+          'w-full p-3 pr-12 resize-none',
+          themeClasses.bg.card,
+          'border',
+          themeClasses.border.primary,
+          themeClasses.effects.rounded,
+          themeClasses.text.primary,
+          'placeholder:text-medium-text-muted',
+          'focus:outline-none focus:ring-2 focus:ring-medium-accent-green/50 focus:border-medium-accent-green',
+          themeClasses.animations.smooth,
+          themeClasses.effects.shadow,
+          'focus:shadow-card',
+          themeClasses.text.body
+        )}
         placeholder={placeholder || defaultPlaceholder}
         value={content}
         onChange={(e) => setContent(e.target.value)}
@@ -56,15 +70,23 @@ const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId =
       {/* Submit Button */}
       <button
         type="submit"
-        className={`absolute right-3 bottom-3 p-2 rounded-lg transition-all duration-200 ${
+        className={combineClasses(
+          themeClasses.utils.absolute,
+          'right-3 bottom-3 p-2',
+          themeClasses.effects.rounded,
+          themeClasses.animations.smooth,
           isSubmitting 
-            ? 'bg-medium-bg-primary text-medium-text-muted cursor-not-allowed' 
-            : 'bg-medium-accent-green/20 text-medium-accent-green hover:bg-medium-accent-green hover:text-white hover:scale-105'
-        }`}
+            ? combineClasses(themeClasses.bg.primary, themeClasses.text.muted, 'cursor-not-allowed')
+            : combineClasses(
+                'bg-medium-accent-green/20',
+                themeClasses.text.accent,
+                'hover:bg-medium-accent-green hover:text-white hover:scale-105'
+              )
+        )}
         disabled={isSubmitting || !content.trim()}
         aria-label="Gửi bình luận"
       >
-        <FaPaperPlane className="w-3 h-3" />
+        <FaPaperPlane className={themeClasses.icons.xs} />
       </button>
     </form>
   );

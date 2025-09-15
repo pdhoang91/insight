@@ -2,7 +2,7 @@
 import React from 'react';
 import { FaSun, FaMoon } from 'react-icons/fa';
 import { useTheme } from '../../context/ThemeContext';
-import { themeClasses } from '../../utils/themeClasses';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const ThemeToggle = ({ variant = 'simple', className = '' }) => {
   const { theme, isDark, isLight, toggleTheme, setLightTheme, setDarkTheme, mounted } = useTheme();
@@ -10,8 +10,15 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
   // Don't render until mounted to prevent hydration mismatch
   if (!mounted) {
     return (
-      <div className={`animate-pulse ${className}`}>
-        <div className="w-8 h-8 bg-medium-border rounded-lg"></div>
+      <div className={combineClasses(
+        'animate-pulse',
+        className
+      )}>
+        <div className={combineClasses(
+          'w-8 h-8',
+          themeClasses.border.primary,
+          themeClasses.effects.rounded
+        )}></div>
       </div>
     );
   }
@@ -20,22 +27,41 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
     return (
       <button
         onClick={toggleTheme}
-        className={`flex items-center gap-3 p-2 rounded-medium hover:bg-medium-hover transition-all duration-200 ${className}`}
+        className={combineClasses(
+          'flex items-center p-2',
+          themeClasses.spacing.gapSmall,
+          themeClasses.effects.rounded,
+          'hover:bg-medium-hover',
+          themeClasses.animations.smooth,
+          className
+        )}
         aria-label={`Chuyển sang chế độ ${isDark ? 'sáng' : 'tối'}`}
         title={`Chuyển sang chế độ ${isDark ? 'sáng' : 'tối'}`}
       >
         {isDark ? (
           <>
-            <FaSun className={`${themeClasses.icons.sm} ${themeClasses.text.accent}`} />
+            <FaSun className={combineClasses(
+              themeClasses.icons.sm,
+              themeClasses.text.accent
+            )} />
             {className?.includes('justify-start') && (
-              <span className="text-sm text-medium-text-secondary">Chế độ sáng</span>
+              <span className={combineClasses(
+                themeClasses.text.bodySmall,
+                themeClasses.text.secondary
+              )}>Chế độ sáng</span>
             )}
           </>
         ) : (
           <>
-            <FaMoon className={`${themeClasses.icons.sm} ${themeClasses.text.accent}`} />
+            <FaMoon className={combineClasses(
+              themeClasses.icons.sm,
+              themeClasses.text.accent
+            )} />
             {className?.includes('justify-start') && (
-              <span className="text-sm text-medium-text-secondary">Chế độ tối</span>
+              <span className={combineClasses(
+                themeClasses.text.bodySmall,
+                themeClasses.text.secondary
+              )}>Chế độ tối</span>
             )}
           </>
         )}
@@ -45,54 +71,94 @@ const ThemeToggle = ({ variant = 'simple', className = '' }) => {
 
   if (variant === 'toggle') {
     return (
-      <div className={`flex items-center space-x-3 ${className}`}>
-        <FaSun className={`${themeClasses.icons.sm} transition-colors ${isLight ? themeClasses.text.accent : themeClasses.text.muted}`} />
+      <div className={combineClasses(
+        'flex items-center',
+        themeClasses.spacing.gapSmall,
+        className
+      )}>
+        <FaSun className={combineClasses(
+          themeClasses.icons.sm,
+          themeClasses.animations.smooth,
+          isLight ? themeClasses.text.accent : themeClasses.text.muted
+        )} />
         <button
           onClick={toggleTheme}
-          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-medium-accent-green focus:ring-offset-2 ${
-            isDark ? 'bg-medium-accent-green' : 'bg-medium-border'
-          }`}
+          className={combineClasses(
+            'relative inline-flex h-6 w-11 items-center rounded-full',
+            themeClasses.animations.smooth,
+            themeClasses.focus.ring,
+            isDark ? themeClasses.bg.accent : themeClasses.bg.secondary
+          )}
           aria-label={`Chuyển sang chế độ ${isDark ? 'sáng' : 'tối'}`}
         >
           <span
-            className={`inline-block h-4 w-4 transform rounded-full bg-medium-bg-card transition-transform ${
+            className={combineClasses(
+              'inline-block h-4 w-4 transform rounded-full',
+              themeClasses.bg.card,
+              themeClasses.animations.smooth,
               isDark ? 'translate-x-6' : 'translate-x-1'
-            }`}
+            )}
           />
         </button>
-        <FaMoon className={`${themeClasses.icons.sm} transition-colors ${isDark ? themeClasses.text.accent : themeClasses.text.muted}`} />
+        <FaMoon className={combineClasses(
+          themeClasses.icons.sm,
+          themeClasses.animations.smooth,
+          isDark ? themeClasses.text.accent : themeClasses.text.muted
+        )} />
       </div>
     );
   }
 
   // Dropdown variant
   return (
-    <div className={`space-y-1 ${className}`}>
-      <div className="text-body-small font-medium text-medium-text-secondary mb-2">
+    <div className={combineClasses(
+      themeClasses.spacing.stackTiny,
+      className
+    )}>
+      <div className={combineClasses(
+        themeClasses.text.bodySmall,
+        themeClasses.typography.weightMedium,
+        themeClasses.text.secondary,
+        'mb-2'
+      )}>
         Giao diện
       </div>
       
       <button
         onClick={setLightTheme}
-        className={`w-full flex items-center px-3 py-2 text-body-small rounded-medium transition-colors ${
+        className={combineClasses(
+          'w-full flex items-center px-3 py-2',
+          themeClasses.text.bodySmall,
+          themeClasses.effects.rounded,
+          themeClasses.animations.smooth,
           isLight
-            ? 'bg-medium-accent-green text-white'
-            : 'text-medium-text-secondary hover:bg-medium-hover'
-        }`}
+            ? combineClasses(themeClasses.bg.accent, 'text-white')
+            : combineClasses(themeClasses.text.secondary, 'hover:bg-medium-hover')
+        )}
       >
-        <FaSun className={`${themeClasses.icons.sm} mr-3`} />
+        <FaSun className={combineClasses(
+          themeClasses.icons.sm,
+          'mr-3'
+        )} />
         Chế độ sáng
       </button>
       
       <button
         onClick={setDarkTheme}
-        className={`w-full flex items-center px-3 py-2 text-body-small rounded-medium transition-colors ${
+        className={combineClasses(
+          'w-full flex items-center px-3 py-2',
+          themeClasses.text.bodySmall,
+          themeClasses.effects.rounded,
+          themeClasses.animations.smooth,
           isDark
-            ? 'bg-medium-accent-green text-white'
-            : 'text-medium-text-secondary hover:bg-medium-hover'
-        }`}
+            ? combineClasses(themeClasses.bg.accent, 'text-white')
+            : combineClasses(themeClasses.text.secondary, 'hover:bg-medium-hover')
+        )}
       >
-        <FaMoon className={`${themeClasses.icons.sm} mr-3`} />
+        <FaMoon className={combineClasses(
+          themeClasses.icons.sm,
+          'mr-3'
+        )} />
         Chế độ tối
       </button>
     </div>

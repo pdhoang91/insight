@@ -52,13 +52,13 @@ const PostItem = ({ post }) => {
 
 
   return (
-    <article className="group relative bg-medium-bg-card rounded-xl mb-8 transition-all duration-300">
-      <div className={`${themeClasses.responsive.flexDesktopRow} ${themeClasses.spacing.gap} items-start`}>
+    <article className={`group relative ${themeClasses.bg.card} ${themeClasses.effects.rounded} ${themeClasses.spacing.marginBottom} ${themeClasses.animations.smooth}`}>
+      <div className={`${themeClasses.layout.flexRow} ${themeClasses.spacing.gap} items-start`}>
         {/* Image Section - First on mobile, second on desktop */}
         {post.image_title && (
           <div className="w-full lg:w-80 flex-shrink-0 order-1 lg:order-2">
             <Link href={`/p/${post.title_name}`} className="block">
-              <div className="relative overflow-hidden rounded-xl bg-medium-bg-secondary">
+              <div className={`relative overflow-hidden ${themeClasses.effects.rounded} ${themeClasses.bg.secondary}`}>
                 <div className="aspect-[16/10]">
                   <img
                     src={post.image_title}
@@ -76,56 +76,56 @@ const PostItem = ({ post }) => {
         <div className="flex-1 min-w-0 order-2 lg:order-1">
           {/* Post Title */}
           <Link href={`/p/${post.title_name}`} className={`block ${themeClasses.spacing.marginBottom}`}>
-            <h2 className="text-xl lg:text-2xl font-bold text-medium-text-primary mb-3 line-clamp-2 text-balance group-hover:text-medium-accent-green transition-colors duration-300">
+            <h2 className={`${themeClasses.typography.h2} ${themeClasses.text.primary} mb-3 line-clamp-2 text-balance ${themeClasses.text.accentHover} ${themeClasses.animations.smooth}`}>
               {post.title}
             </h2>
           </Link>
 
           {/* Post Preview Content */}
-          <div className="mb-6">
-            <p className="text-medium-text-secondary line-clamp-3 leading-relaxed text-base lg:text-lg">
+          <div className={themeClasses.spacing.marginBottom}>
+            <p className={`${themeClasses.text.bodyLarge} ${themeClasses.text.secondary} line-clamp-3 leading-relaxed`}>
               <TextUtils html={post.preview_content} maxLength={280} />
             </p>
           </div>
 
           {/* Meta Information & Actions - All hidden by default, show on hover */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className={`${themeClasses.responsive.flexTabletRow} items-center justify-between ${themeClasses.spacing.gapSmall} opacity-0 group-hover:opacity-100 ${themeClasses.animations.smooth}`}>
             {/* Left side - Meta info */}
-            <div className="flex items-center gap-4 text-body-small">
-              <TimeAgo timestamp={post.created_at} className="text-medium-text-muted" />
-              <span className="w-1 h-1 bg-medium-text-muted rounded-full"></span>
-              <span className="text-medium-text-muted">
+            <div className={`flex items-center ${themeClasses.spacing.gapSmall} ${themeClasses.text.bodySmall}`}>
+              <TimeAgo timestamp={post.created_at} className={themeClasses.text.muted} />
+              <span className={`w-1 h-1 ${themeClasses.bg.primary} rounded-full`}></span>
+              <span className={themeClasses.text.muted}>
                 {Math.ceil((post.preview_content?.length || 0) / 200)} min read
               </span>
             </div>
 
             {/* Right side - Interaction buttons */}
-            <div className="flex items-center gap-6">
+            <div className={`flex items-center ${themeClasses.spacing.gap}`}>
               {/* Clap Button */}
               <button
                 onClick={handleClap}
                 disabled={clapsLoading}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-medium-hover text-medium-text-secondary hover:text-medium-accent-green transition-all duration-200 min-h-[44px]"
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${themeClasses.text.secondary} ${themeClasses.text.accentHover} hover:bg-medium-hover ${themeClasses.animations.smooth} ${themeClasses.interactive.touchTarget}`}
                 aria-label={`Clap for this post. Current claps: ${clapsCount}`}
               >
-                <FaHandsClapping className="w-4 h-4" />
-                <span className="font-medium text-sm">{clapsCount}</span>
+                <FaHandsClapping className={themeClasses.icons.sm} />
+                <span className={`${themeClasses.typography.weightMedium} ${themeClasses.typography.bodySmall}`}>{clapsCount}</span>
               </button>
 
               {/* Comment Button */}
               <button
                 onClick={toggleCommentPopup}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-medium-hover text-medium-text-secondary hover:text-medium-accent-green transition-all duration-200 min-h-[44px]"
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${themeClasses.text.secondary} ${themeClasses.text.accentHover} hover:bg-medium-hover ${themeClasses.animations.smooth} ${themeClasses.interactive.touchTarget}`}
                 aria-label={`View comments. ${totalCount || 0} comments`}
               >
-                <FaComment className="w-4 h-4" />
-                <span className="font-medium text-sm">{totalCount || 0}</span>
+                <FaComment className={themeClasses.icons.sm} />
+                <span className={`${themeClasses.typography.weightMedium} ${themeClasses.typography.bodySmall}`}>{totalCount || 0}</span>
               </button>
 
               {/* View Count */}
-              <div className="flex items-center gap-2 text-medium-text-muted">
-                <FaEye className="w-4 h-4" />
-                <span className="font-medium text-sm">{post.views || 0}</span>
+              <div className={`flex items-center gap-2 ${themeClasses.text.muted}`}>
+                <FaEye className={themeClasses.icons.sm} />
+                <span className={`${themeClasses.typography.weightMedium} ${themeClasses.typography.bodySmall}`}>{post.views || 0}</span>
               </div>
             </div>
           </div>
@@ -135,8 +135,8 @@ const PostItem = ({ post }) => {
 
       {/* Comments Section - Full Width */}
       {isCommentsOpen && (
-        <div className="mt-8 pt-6 border-t border-medium-border">
-          <div className="space-y-6">
+        <div className={`mt-8 pt-6 border-t ${themeClasses.border.primary}`}>
+          <div className={themeClasses.spacing.stack}>
             <AddCommentForm 
               postId={post.id} 
               user={user} 

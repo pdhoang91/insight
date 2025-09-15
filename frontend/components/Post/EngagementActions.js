@@ -167,7 +167,7 @@ const EngagementActions = ({
 // More options dropdown menu
 const MoreOptionsMenu = ({ post, onClose }) => {
   const handleCopyLink = () => {
-    const url = `${BASE_FE_URL}/p/${post.title_name}`;
+    const url = `${window.location.origin}/p/${post.title_name}`;
     navigator.clipboard.writeText(url);
     onClose();
     // TODO: Show toast notification
@@ -179,21 +179,41 @@ const MoreOptionsMenu = ({ post, onClose }) => {
   };
 
   return (
-    <div className="absolute right-0 mt-2 w-48 bg-medium-bg-card shadow-elevated rounded-card overflow-hidden z-50">
+    <div className={combineClasses(
+      themeClasses.utils.absolute,
+      'right-0 mt-2 w-48 overflow-hidden z-50',
+      themeClasses.bg.card,
+      themeClasses.effects.shadowLayeredMd,
+      themeClasses.effects.rounded
+    )}>
       <div className="py-2">
         <button
           onClick={handleCopyLink}
-          className="w-full flex items-center px-4 py-2 text-sm text-medium-text-secondary hover:bg-medium-hover hover:text-medium-text-primary transition-colors"
+          className={combineClasses(
+            'w-full flex items-center px-4 py-2',
+            themeClasses.text.bodySmall,
+            themeClasses.text.secondary,
+            'hover:bg-medium-hover',
+            themeClasses.text.accentHover,
+            themeClasses.animations.smooth
+          )}
         >
-          <FaCopy className="w-4 h-4 mr-3" />
+          <FaCopy className={combineClasses(themeClasses.icons.sm, 'mr-3')} />
           Copy link
         </button>
         
         <button
           onClick={handleReport}
-          className="w-full flex items-center px-4 py-2 text-sm text-medium-text-secondary hover:bg-medium-hover hover:text-medium-text-primary transition-colors"
+          className={combineClasses(
+            'w-full flex items-center px-4 py-2',
+            themeClasses.text.bodySmall,
+            themeClasses.text.secondary,
+            'hover:bg-medium-hover',
+            themeClasses.text.accentHover,
+            themeClasses.animations.smooth
+          )}
         >
-          <FaFlag className="w-4 h-4 mr-3" />
+          <FaFlag className={combineClasses(themeClasses.icons.sm, 'mr-3')} />
           Report story
         </button>
       </div>
@@ -204,8 +224,16 @@ const MoreOptionsMenu = ({ post, onClose }) => {
 // Floating engagement actions for article pages
 export const FloatingEngagementActions = ({ post, commentsCount, className = '' }) => {
   return (
-    <div className={`fixed left-6 top-1/2 transform -translate-y-1/2 z-40 ${className}`}>
-      <div className="bg-medium-bg-card rounded-card shadow-elevated p-2">
+    <div className={combineClasses(
+      'fixed left-6 top-1/2 transform -translate-y-1/2 z-40',
+      className
+    )}>
+      <div className={combineClasses(
+        themeClasses.bg.card,
+        themeClasses.effects.rounded,
+        themeClasses.effects.shadowLayeredMd,
+        'p-2'
+      )}>
         <EngagementActions
           post={post}
           commentsCount={commentsCount}

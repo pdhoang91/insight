@@ -13,7 +13,7 @@ import { useInfiniteComments } from '../../hooks/useInfiniteComments';
 import useCommentActions from '../../hooks/useCommentActions';
 import { deletePost } from '../../services/postService';
 import { BASE_FE_URL } from '../../config/api';
-import { themeClasses, componentClasses } from '../../utils/themeClasses';
+import { themeClasses, componentClasses, combineClasses } from '../../utils/themeClasses';
 
 const BasePostItem = ({ 
   post, 
@@ -58,7 +58,7 @@ const BasePostItem = ({
   };
 
   const handleShare = () => {
-    const url = `${BASE_FE_URL}/p/${post.title_name}`;
+    const url = `${window.location.origin}/p/${post.title_name}`;
     navigator.clipboard.writeText(url);
     alert('Đã sao chép link bài viết!');
   };
@@ -66,9 +66,15 @@ const BasePostItem = ({
   // Small variant - minimal display
   if (variant === 'small') {
     return (
-      <article className="bg-medium-bg-card pb-4 mb-6">
+      <article className={combineClasses(
+        themeClasses.bg.card,
+        'pb-4 mb-6'
+      )}>
         <div className={`${themeClasses.responsive.flexTabletRow} items-start ${themeClasses.spacing.gap}`}>
-          <div className="flex-1 min-w-0 border-b border-medium-border pb-3">
+          <div className={combineClasses(
+            'flex-1 min-w-0 pb-3 border-b',
+            themeClasses.border.primary
+          )}>
             <Link href={`/p/${post.title_name}`} className={`block ${themeClasses.spacing.marginBottomSmall}`}>
               <h3 className={`${componentClasses.heading.h4} ${themeClasses.interactive.link} line-clamp-2 text-balance`}>
                 {post.title}
@@ -82,7 +88,10 @@ const BasePostItem = ({
             </p>
           </div>
           <div className="flex-shrink-0">
-            <FaChevronRight className={`${themeClasses.icons.sm} text-medium-accent-blue`} />
+            <FaChevronRight className={combineClasses(
+              themeClasses.icons.sm,
+              'text-medium-accent-blue'
+            )} />
           </div>
         </div>
       </article>
@@ -91,8 +100,19 @@ const BasePostItem = ({
 
   // Default and Profile variants - full display
   return (
-    <article className="bg-medium-bg-card p-6 mb-6 rounded-lg shadow-sm border border-medium-border">
-      <div className={`${themeClasses.responsive.flexDesktopRow} ${themeClasses.spacing.gap} items-start`}>
+    <article className={combineClasses(
+      themeClasses.bg.card,
+      'p-6 mb-6',
+      themeClasses.effects.rounded,
+      themeClasses.effects.shadow,
+      'border',
+      themeClasses.border.primary
+    )}>
+      <div className={combineClasses(
+        themeClasses.layout.flexRow,
+        themeClasses.spacing.gap,
+        'items-start'
+      )}>
         
         {/* Author Avatar */}
         <div className="flex-shrink-0">
@@ -100,7 +120,12 @@ const BasePostItem = ({
             <img
               src={post.author?.avatar_url || '/author-avatar.svg'}
               alt={post.author?.display_name || 'Author'}
-              className="w-12 h-12 rounded-full object-cover border-2 border-medium-border hover:border-medium-accent-blue transition-colors"
+              className={combineClasses(
+                'w-12 h-12 rounded-full object-cover border-2',
+                themeClasses.border.primary,
+                'hover:border-medium-accent-blue',
+                themeClasses.animations.smooth
+              )}
             />
           </Link>
         </div>
@@ -118,7 +143,10 @@ const BasePostItem = ({
             <Link href={`/${post.author?.username || 'unknown'}`} className={themeClasses.interactive.link}>
               {post.author?.display_name || 'Unknown Author'}
             </Link>
-            <span className="mx-2 text-medium-text-muted">·</span>
+            <span className={combineClasses(
+              'mx-2',
+              themeClasses.text.muted
+            )}>·</span>
             <TimeAgo timestamp={post.created_at} className="text-medium-text-muted" />
           </div>
 
@@ -144,14 +172,22 @@ const BasePostItem = ({
 
           {/* Actions */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
+            <div className={combineClasses(
+              'flex items-center',
+              themeClasses.spacing.gapSmall
+            )}>
               
               {/* Clap Button */}
               {showClaps && (
                 <button
                   onClick={handleClap}
                   disabled={clapsLoading}
-                  className={`flex items-center space-x-1 ${themeClasses.interactive.buttonSecondary} px-3 py-1 rounded-full transition-all hover:bg-medium-accent-green/10`}
+                  className={combineClasses(
+                    'flex items-center space-x-1 px-3 py-1 rounded-full',
+                    themeClasses.interactive.buttonSecondary,
+                    themeClasses.animations.smooth,
+                    'hover:bg-medium-accent-green/10'
+                  )}
                 >
                   <FaHandsClapping className={`${themeClasses.icons.sm} ${clapsLoading ? 'animate-pulse' : ''}`} />
                   <span className={componentClasses.text.bodySmall}>{clapsCount || 0}</span>
@@ -162,7 +198,12 @@ const BasePostItem = ({
               {showComments && (
                 <button
                   onClick={toggleCommentPopup}
-                  className={`flex items-center space-x-1 ${themeClasses.interactive.buttonSecondary} px-3 py-1 rounded-full transition-all hover:bg-medium-accent-blue/10`}
+                  className={combineClasses(
+                    'flex items-center space-x-1 px-3 py-1 rounded-full',
+                    themeClasses.interactive.buttonSecondary,
+                    themeClasses.animations.smooth,
+                    'hover:bg-medium-accent-blue/10'
+                  )}
                 >
                   <FaRegComments className={themeClasses.icons.sm} />
                   <span className={componentClasses.text.bodySmall}>{totalCount || 0}</span>
@@ -170,7 +211,10 @@ const BasePostItem = ({
               )}
 
               {/* View Count */}
-              <div className="flex items-center space-x-1 text-medium-text-muted">
+              <div className={combineClasses(
+                'flex items-center space-x-1',
+                themeClasses.text.muted
+              )}>
                 <FaEye className={themeClasses.icons.sm} />
                 <span className={componentClasses.text.bodySmall}>{post.view_count || 0}</span>
               </div>
@@ -178,16 +222,25 @@ const BasePostItem = ({
 
             {/* Owner Actions */}
             {showActions && isOwner && (
-              <div className="flex items-center space-x-2">
+              <div className={combineClasses(
+                'flex items-center',
+                themeClasses.spacing.gapSmall
+              )}>
                 <Link
                   href={`/edit/${post.id}`}
-                  className={`${themeClasses.interactive.buttonSecondary} p-2 rounded-full hover:bg-medium-accent-blue/10`}
+                  className={combineClasses(
+                    themeClasses.interactive.buttonSecondary,
+                    'p-2 rounded-full hover:bg-medium-accent-blue/10'
+                  )}
                 >
                   <FaEdit className={themeClasses.icons.sm} />
                 </Link>
                 <button
                   onClick={handleDelete}
-                  className={`${themeClasses.interactive.buttonSecondary} p-2 rounded-full hover:bg-red-500/10 text-red-500`}
+                  className={combineClasses(
+                    themeClasses.interactive.buttonSecondary,
+                    'p-2 rounded-full hover:bg-red-500/10 text-red-500'
+                  )}
                 >
                   <FaTrash className={themeClasses.icons.sm} />
                 </button>
@@ -199,8 +252,11 @@ const BasePostItem = ({
 
       {/* Comments Section */}
       {showComments && isCommentsOpen && (
-        <div className="mt-6 pt-6 border-t border-medium-border">
-          <div className="mb-4">
+        <div className={combineClasses(
+          'mt-6 pt-6 border-t',
+          themeClasses.border.primary
+        )}>
+          <div className={themeClasses.spacing.marginBottom}>
             <AddCommentForm 
               postId={post.id} 
               onCommentAdded={() => {

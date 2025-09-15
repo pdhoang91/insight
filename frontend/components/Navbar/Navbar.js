@@ -14,7 +14,6 @@ import {
 import { useUser } from '../../context/UserContext';
 import { useTheme } from '../../context/ThemeContext';
 import { usePostContext } from '../../context/PostContext';
-import { useThemeClasses } from '../../hooks/useThemeClasses';
 import ThemeToggle from '../UI/ThemeToggle';
 import SimpleSearchBar from '../Shared/SimpleSearchBar';
 import { canWritePosts } from '../../services/authService';
@@ -24,7 +23,6 @@ const Navbar = () => {
   const { user, setUser, setModalOpen } = useUser();
   const { theme, mounted } = useTheme();
   const { handlePublish } = usePostContext();
-  const { classes } = useThemeClasses();
   const router = useRouter();
   const isWritePage = router.pathname === '/write' || router.pathname.startsWith('/edit/');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -192,12 +190,13 @@ const Navbar = () => {
                     <img
                       src={user.avatar_url}
                       alt={user.name}
-                      className="w-8 h-8 rounded-full object-cover"
+                      className={themeClasses.avatar.sm}
                     />
                   ) : (
                     <div className={combineClasses(
-                      'w-8 h-8 rounded-full flex items-center justify-center',
-                      themeClasses.bg.accent
+                      themeClasses.avatar.sm,
+                      themeClasses.bg.accent,
+                      'flex items-center justify-center'
                     )}>
                       <FaUser className={combineClasses(
                         themeClasses.icons.sm,
@@ -214,11 +213,8 @@ const Navbar = () => {
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95, y: -10 }}
                       className={combineClasses(
-                        'absolute right-0 mt-2 w-64 shadow-lg rounded-lg overflow-hidden',
-                        themeClasses.bg.elevated,
-                        themeClasses.effects.blur,
-                        themeClasses.border.primary,
-                        'border'
+                        'absolute right-0 mt-2 w-64 overflow-hidden',
+                        themeClasses.menu.container
                       )}
                     >
                       {/* User Info - Clickable to profile */}
@@ -236,12 +232,13 @@ const Navbar = () => {
                             <img
                               src={user.avatar_url}
                               alt={user.name}
-                              className="w-10 h-10 rounded-full object-cover"
+                              className={themeClasses.avatar.md}
                             />
                           ) : (
                             <div className={combineClasses(
-                              'w-10 h-10 rounded-full flex items-center justify-center',
-                              themeClasses.bg.accent
+                              themeClasses.avatar.md,
+                              themeClasses.bg.accent,
+                              'flex items-center justify-center'
                             )}>
                               <FaUser className={combineClasses(
                                 themeClasses.icons.md,
@@ -269,10 +266,7 @@ const Navbar = () => {
                       </div>
 
                       {/* Divider */}
-                      <div className={combineClasses(
-                        'border-t my-2',
-                        themeClasses.border.primary
-                      )}></div>
+                      <div className={themeClasses.menu.divider}></div>
 
                       {/* Menu Items */}
                       <div className="px-2 py-2 space-y-1">
@@ -290,11 +284,8 @@ const Navbar = () => {
                         <button
                           onClick={handleLogout}
                           className={combineClasses(
-                            'w-full flex items-center px-4 py-2 rounded-md',
-                            themeClasses.typography.bodySmall,
-                            themeClasses.text.secondary,
-                            'hover:bg-medium-hover hover:text-medium-text-primary',
-                            themeClasses.animations.smooth
+                            themeClasses.menu.item,
+                            'w-full'
                           )}
                           aria-label="Đăng xuất khỏi tài khoản"
                         >
@@ -329,7 +320,10 @@ const Navbar = () => {
           {/* Mobile Navigation */}
           <div className="md:hidden flex items-center gap-2">
             {/* Mobile Search */}
-            <div className="flex-1 max-w-48">
+            <div className={combineClasses(
+              'flex-1 max-w-48',
+              themeClasses.responsive.touchOnly
+            )}>
               <SimpleSearchBar placeholder="Tìm kiếm..." />
             </div>
             
@@ -365,12 +359,12 @@ const Navbar = () => {
             {/* Mobile Menu Button */}
             <button
               onClick={toggleMobileMenu}
-              className={combineClasses(
-                'p-2 rounded-lg flex items-center justify-center',
-                themeClasses.text.secondary,
-                'hover:text-medium-text-primary hover:bg-medium-hover',
-                themeClasses.animations.smooth
-              )}
+            className={combineClasses(
+              themeClasses.interactive.touchTarget,
+              'rounded-lg',
+              themeClasses.text.secondary,
+              themeClasses.interactions.iconHover
+            )}
               aria-label={isMobileMenuOpen ? "Đóng menu" : "Mở menu"}
               aria-expanded={isMobileMenuOpen}
             >
@@ -393,11 +387,8 @@ const Navbar = () => {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             className={combineClasses(
-              'md:hidden rounded-b-lg shadow-lg',
-              themeClasses.bg.elevated,
-              themeClasses.effects.blur,
-              themeClasses.border.primary,
-              'border border-t-0'
+              'md:hidden rounded-b-lg border border-t-0',
+              themeClasses.menu.container
             )}
           >
             <div className="px-6 py-4 space-y-4">
@@ -408,9 +399,8 @@ const Navbar = () => {
                   <Link
                     href={`/${user.username}`}
                     className={combineClasses(
-                      'flex items-center gap-3 p-3 rounded-lg',
-                      'hover:bg-medium-hover',
-                      themeClasses.animations.smooth
+                      themeClasses.menu.item,
+                      'gap-3 p-3 rounded-lg'
                     )}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
@@ -418,12 +408,13 @@ const Navbar = () => {
                       <img
                         src={user.avatar_url}
                         alt={user.name}
-                        className="w-10 h-10 rounded-full object-cover"
+                        className={themeClasses.avatar.md}
                       />
                     ) : (
                       <div className={combineClasses(
-                        'w-10 h-10 rounded-full flex items-center justify-center',
-                        themeClasses.bg.accent
+                        themeClasses.avatar.md,
+                        themeClasses.bg.accent,
+                        'flex items-center justify-center'
                       )}>
                         <FaUser className={combineClasses(
                           themeClasses.icons.md,
@@ -463,11 +454,8 @@ const Navbar = () => {
                     <button
                       onClick={handleLogout}
                       className={combineClasses(
-                        'w-full flex items-center px-3 py-2 rounded-md',
-                        themeClasses.typography.bodySmall,
-                        themeClasses.text.secondary,
-                        'hover:bg-medium-hover hover:text-medium-text-primary',
-                        themeClasses.animations.smooth
+                        themeClasses.menu.item,
+                        'w-full px-3 py-2 rounded-md'
                       )}
                       aria-label="Đăng xuất khỏi tài khoản"
                     >
@@ -485,7 +473,8 @@ const Navbar = () => {
                     }}
                     className={combineClasses(
                       componentClasses.button.ghost,
-                      'w-full text-left justify-start'
+                      'w-full text-left justify-start',
+                      themeClasses.interactive.touchTarget
                     )}
                     aria-label="Đăng nhập vào tài khoản"
                   >
@@ -495,7 +484,8 @@ const Navbar = () => {
                     onClick={handleWriteClick}
                     className={combineClasses(
                       componentClasses.button.primary,
-                      'w-full rounded-full text-center'
+                      'w-full text-center',
+                      themeClasses.interactive.touchTarget
                     )}
                     aria-label="Bắt đầu viết bài"
                   >

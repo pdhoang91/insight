@@ -793,6 +793,102 @@ export const enhancedThemeClasses = {
     ringInset: 'focus:outline-none focus:ring-2 focus:ring-inset focus:ring-medium-accent-green',
     visible: 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-medium-accent-green focus-visible:ring-offset-2',
   },
+
+  // Status indicators
+  status: {
+    online: combineClasses('bg-green-500', 'w-2 h-2 rounded-full'),
+    offline: combineClasses('bg-gray-400', 'w-2 h-2 rounded-full'),
+    pending: combineClasses('bg-yellow-500', 'w-2 h-2 rounded-full'),
+    error: combineClasses('bg-red-500', 'w-2 h-2 rounded-full'),
+    success: combineClasses('bg-green-500', 'w-2 h-2 rounded-full'),
+  },
+
+  // Badge components
+  badge: {
+    primary: combineClasses(
+      themeClasses.bg.accent,
+      themeClasses.text.white,
+      'px-2 py-1 rounded-full text-xs font-medium',
+      themeClasses.animations.smooth
+    ),
+    secondary: combineClasses(
+      themeClasses.bg.secondary,
+      themeClasses.text.secondary,
+      'px-2 py-1 rounded-full text-xs font-medium',
+      themeClasses.animations.smooth
+    ),
+    outline: combineClasses(
+      'border',
+      themeClasses.border.primary,
+      themeClasses.text.secondary,
+      'px-2 py-1 rounded-full text-xs font-medium bg-transparent',
+      themeClasses.animations.smooth
+    ),
+    count: combineClasses(
+      'bg-red-500 text-white',
+      'px-1.5 py-0.5 rounded-full text-xs font-medium',
+      'min-w-[1.25rem] h-5 flex items-center justify-center',
+      themeClasses.animations.smooth
+    ),
+    notification: combineClasses(
+      themeClasses.bg.accent,
+      themeClasses.text.white,
+      'w-2 h-2 rounded-full absolute -top-1 -right-1',
+      'animate-pulse'
+    ),
+  },
+
+  // Menu and dropdown components
+  menu: {
+    container: combineClasses(
+      themeClasses.bg.elevated,
+      themeClasses.border.primary,
+      themeClasses.effects.shadowLayeredMd,
+      'border rounded-lg py-2 min-w-[12rem]',
+      themeClasses.animations.smooth
+    ),
+    item: combineClasses(
+      'px-4 py-2 text-sm cursor-pointer flex items-center gap-3',
+      themeClasses.text.primary,
+      'hover:bg-medium-hover',
+      themeClasses.animations.smooth
+    ),
+    itemDanger: combineClasses(
+      'px-4 py-2 text-sm cursor-pointer flex items-center gap-3',
+      'text-red-600 hover:bg-red-50 hover:text-red-700',
+      themeClasses.animations.smooth
+    ),
+    divider: combineClasses(
+      'my-2 border-t',
+      themeClasses.border.primary
+    ),
+  },
+
+  // Search and input enhancements
+  search: {
+    container: combineClasses(
+      'relative flex items-center',
+      themeClasses.animations.smooth
+    ),
+    input: combineClasses(
+      themeClasses.interactive.inputBase,
+      themeClasses.interactive.inputMedium,
+      themeClasses.interactive.input,
+      'pl-10 pr-4'
+    ),
+    icon: combineClasses(
+      'absolute left-3 top-1/2 transform -translate-y-1/2',
+      themeClasses.icons.sm,
+      themeClasses.text.muted
+    ),
+    results: combineClasses(
+      'absolute top-full left-0 right-0 z-50 mt-2',
+      themeClasses.bg.elevated,
+      themeClasses.border.primary,
+      themeClasses.effects.shadowLayeredMd,
+      'border rounded-lg max-h-96 overflow-y-auto'
+    ),
+  },
 };
 
 // Merge enhanced classes with existing theme classes

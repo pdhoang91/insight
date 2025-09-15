@@ -19,7 +19,7 @@ const Layout = ({
     reading: themeClasses.layout.reading,
     wide: themeClasses.layout.containerWide,
     compact: themeClasses.layout.containerSmall,
-    full: 'w-full px-3 md:px-4 lg:px-8 xl:px-20 2xl:px-32',
+    full: combineClasses('w-full', themeClasses.spacing.container),
   };
 
   const containerClass = containerVariants[variant] || containerVariants.container;
@@ -32,7 +32,7 @@ const Layout = ({
           {showSidebar && sidebar ? (
             /* Layout with Sidebar - Enhanced responsive behavior */
             <div className={combineClasses(
-              themeClasses.responsive.flexDesktopRow,
+              themeClasses.layout.flexRow,
               themeClasses.spacing.gap,
               themeClasses.spacing.section
             )}>
@@ -81,31 +81,49 @@ const MobileSidebarContent = ({ sidebar }) => {
   if (!sidebar) return null;
 
   return (
-    <div className="mt-6 mb-4">
+    <div className={combineClasses('mt-6 mb-4')}>
       <button
         onClick={() => setIsExpanded(!isExpanded)}
         className={combineClasses(
-          'w-full flex items-center justify-between',
-          'p-4 rounded-card shadow-sm',
-          'text-medium-text-primary hover:bg-medium-hover',
-          'transition-all duration-200 min-h-[44px]', // Touch-friendly height
-          'focus:ring-2 focus:ring-medium-accent-green focus:outline-none'
+          'w-full flex items-center justify-between p-4',
+          themeClasses.effects.rounded,
+          themeClasses.effects.shadow,
+          themeClasses.text.primary,
+          'hover:bg-medium-hover',
+          themeClasses.animations.smooth,
+          themeClasses.interactive.touchTarget,
+          themeClasses.focus.ring
         )}
         aria-expanded={isExpanded}
         aria-controls="mobile-sidebar-content"
       >
-        <span className="font-serif font-bold text-body-small">More from this blog</span>
+        <span className={combineClasses(
+          themeClasses.typography.serif,
+          themeClasses.typography.weightBold,
+          themeClasses.text.bodySmall
+        )}>More from this blog</span>
         {isExpanded ? (
-          <FaChevronUp className="w-4 h-4 text-medium-text-muted transition-transform" />
+          <FaChevronUp className={combineClasses(
+            themeClasses.icons.sm,
+            themeClasses.text.muted,
+            'transition-transform'
+          )} />
         ) : (
-          <FaChevronDown className="w-4 h-4 text-medium-text-muted transition-transform" />
+          <FaChevronDown className={combineClasses(
+            themeClasses.icons.sm,
+            themeClasses.text.muted,
+            'transition-transform'
+          )} />
         )}
       </button>
       
       {isExpanded && (
         <div 
           id="mobile-sidebar-content"
-          className="mt-3 space-y-3 max-h-96 overflow-y-auto overscroll-contain"
+          className={combineClasses(
+            'mt-3 max-h-96 overflow-y-auto overscroll-contain',
+            themeClasses.spacing.stackSmall
+          )}
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {sidebar}
@@ -118,7 +136,10 @@ const MobileSidebarContent = ({ sidebar }) => {
 // Specialized layouts for different page types with enhanced responsive optimization
 export const ArticleLayout = ({ children, ...props }) => (
   <Layout variant="reading" showSidebar={false} {...props}>
-    <article className="prose prose-lg max-w-none reading-content">
+    <article className={combineClasses(
+      themeClasses.prose.large,
+      'max-w-none reading-content'
+    )}>
       {children}
     </article>
   </Layout>

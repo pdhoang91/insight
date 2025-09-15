@@ -128,33 +128,55 @@ const LoginModal = ({ isOpen, onClose }) => {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-error/20 backdrop-blur-sm rounded-md p-3 text-error text-sm text-center"
+                className={`${themeClasses.error.bg} ${themeClasses.effects.blur} ${themeClasses.effects.rounded} p-3 ${themeClasses.error.text} ${themeClasses.text.bodySmall} text-center`}
               >
                 {error}
               </motion.div>
             )}
 
             {/* Form */}
-            <div className="space-y-4">
+            <div className={themeClasses.form.fieldset}>
               <div className="relative">
-                <FaUser className="absolute left-3 top-1/2 transform -translate-y-1/2 text-matrix-green/60 w-4 h-4" />
+                <FaUser className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${themeClasses.text.accent}/60 ${themeClasses.icons.sm}`} />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-medium-bg-primary border border-medium-border rounded-md text-medium-text-primary font-mono placeholder-medium-text-muted focus:bg-medium-bg-secondary focus:outline-none focus:ring-2 focus:ring-medium-accent-green transition-all"
+                  className={combineClasses(
+                    'w-full pl-10 pr-4 py-3 font-mono',
+                    themeClasses.bg.primary,
+                    'border',
+                    themeClasses.border.primary,
+                    themeClasses.effects.rounded,
+                    themeClasses.text.primary,
+                    'placeholder:text-medium-text-muted',
+                    'focus:bg-medium-bg-secondary',
+                    themeClasses.focus.ring,
+                    themeClasses.animations.smooth
+                  )}
                   placeholder="Email"
                   disabled={isLoading}
                 />
               </div>
               
               <div className="relative">
-                <FaLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-matrix-green/60 w-4 h-4" />
+                <FaLock className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${themeClasses.text.accent}/60 ${themeClasses.icons.sm}`} />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-medium-bg-primary border border-medium-border rounded-md text-medium-text-primary font-mono placeholder-medium-text-muted focus:bg-medium-bg-secondary focus:outline-none focus:ring-2 focus:ring-medium-accent-green transition-all"
+                  className={combineClasses(
+                    'w-full pl-10 pr-4 py-3 font-mono',
+                    themeClasses.bg.primary,
+                    'border',
+                    themeClasses.border.primary,
+                    themeClasses.effects.rounded,
+                    themeClasses.text.primary,
+                    'placeholder:text-medium-text-muted',
+                    'focus:bg-medium-bg-secondary',
+                    themeClasses.focus.ring,
+                    themeClasses.animations.smooth
+                  )}
                   placeholder="Mật khẩu"
                   disabled={isLoading}
                 />
@@ -162,14 +184,25 @@ const LoginModal = ({ isOpen, onClose }) => {
             </div>
 
             {/* Action Buttons */}
-            <div className="space-y-3">
+            <div className={themeClasses.form.fieldset}>
               <button
                 onClick={isSignUp ? handleSignUp : handleLogin}
                 disabled={isLoading || !email || !password}
-                className="w-full py-3 bg-matrix-green/20 backdrop-blur-sm text-matrix-green rounded-md font-mono font-medium hover:bg-matrix-green/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                className={combineClasses(
+                  'w-full py-3 font-mono disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center',
+                  'bg-medium-accent-green/20 hover:bg-medium-accent-green/30',
+                  themeClasses.effects.blur,
+                  themeClasses.text.accent,
+                  themeClasses.effects.rounded,
+                  themeClasses.typography.weightMedium,
+                  themeClasses.animations.smooth
+                )}
               >
                 {isLoading ? (
-                  <div className="w-4 h-4 border-2 border-medium-accent-green/30 border-t-medium-accent-green rounded-full animate-spin"></div>
+                  <div className={combineClasses(
+                    themeClasses.icons.sm,
+                    'border-2 border-medium-accent-green/30 border-t-medium-accent-green rounded-full animate-spin'
+                  )}></div>
                 ) : (
                   <span>{isSignUp ? 'Đăng Ký' : 'Đăng Nhập'}</span>
                 )}
@@ -178,16 +211,30 @@ const LoginModal = ({ isOpen, onClose }) => {
               <button
                 onClick={handleGoogleLogin}
                 disabled={isLoading}
-                className="w-full py-3 bg-terminal-black/20 backdrop-blur-sm text-text-primary rounded-md font-mono font-medium hover:bg-terminal-black/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                className={combineClasses(
+                  'w-full py-3 font-mono disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2',
+                  themeClasses.bg.secondary,
+                  'hover:bg-medium-bg-secondary/80',
+                  themeClasses.effects.blur,
+                  themeClasses.text.primary,
+                  themeClasses.effects.rounded,
+                  themeClasses.typography.weightMedium,
+                  themeClasses.animations.smooth
+                )}
               >
-                <FaGoogle className="w-4 h-4" />
+                <FaGoogle className={themeClasses.icons.sm} />
                 <span>Tiếp tục với Google</span>
               </button>
 
               <button
                 onClick={() => setIsSignUp(!isSignUp)}
                 disabled={isLoading}
-                className="w-full py-2 text-text-muted/80 hover:text-matrix-green transition-colors font-mono text-sm disabled:opacity-50"
+                className={combineClasses(
+                  'w-full py-2 font-mono disabled:opacity-50',
+                  'text-medium-text-muted/80 hover:text-medium-accent-green',
+                  themeClasses.text.bodySmall,
+                  themeClasses.animations.smooth
+                )}
               >
                 {isSignUp ? 'Đã có tài khoản?' : 'Chưa có tài khoản?'}
               </button>

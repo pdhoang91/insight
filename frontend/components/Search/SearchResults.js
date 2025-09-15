@@ -7,6 +7,7 @@ import ErrorState from '../Shared/ErrorState';
 import EmptyState from '../Shared/EmptyState';
 import PostSkeleton from '../Shared/PostSkeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const SearchResults = ({ query }) => {
   const { data, totalCount, isLoading, isValidating, isError, loadMore, hasMore } = useSearch(query);
@@ -31,7 +32,7 @@ const SearchResults = ({ query }) => {
   // Initial Loading State
   if (isLoading && (!data || !data.stories || data.stories.length === 0)) {
     return (
-      <div className="space-y-4">
+      <div className={themeClasses.spacing.stackSmall}>
         {Array.from({ length: 5 }).map((_, index) => (
           <PostSkeleton key={index} variant="timeline" />
         ))}
@@ -55,14 +56,28 @@ const SearchResults = ({ query }) => {
   return (
     <>
       {/* Results summary */}
-      <header className="text-center lg:text-left">
-        <h1 className="font-serif font-bold text-2xl sm:text-3xl lg:text-4xl text-medium-text-primary mb-2 lg:mb-3">
+      <header className={combineClasses(
+        'text-center lg:text-left'
+      )}>
+        <h1 className={combineClasses(
+          themeClasses.typography.serif,
+          themeClasses.typography.weightBold,
+          'text-2xl sm:text-3xl lg:text-4xl',
+          themeClasses.text.primary,
+          'mb-2 lg:mb-3'
+        )}>
           Kết quả tìm kiếm
         </h1>
-        <p className="text-sm sm:text-base text-medium-text-secondary">
+        <p className={combineClasses(
+          'text-sm sm:text-base',
+          themeClasses.text.secondary
+        )}>
           Tìm thấy {totalCount || 0} bài viết cho "{query}"
           {stories.length < (totalCount || 0) && (
-            <span className="text-medium-text-muted ml-2">
+            <span className={combineClasses(
+              themeClasses.text.muted,
+              'ml-2'
+            )}>
               (hiển thị {stories.length})
             </span>
           )}
@@ -75,14 +90,17 @@ const SearchResults = ({ query }) => {
         next={loadMore}
         hasMore={hasMore}
         loader={
-          <div className="space-y-8 mt-8">
+          <div className={combineClasses(
+            themeClasses.spacing.stackLarge,
+            'mt-8'
+          )}>
             {Array.from({ length: 3 }).map((_, index) => (
               <PostSkeleton key={`loading-${index}`} variant="timeline" />
             ))}
           </div>
         }
       >
-        <div className="space-y-0">
+        <div className={themeClasses.spacing.stackNone}>
           {stories.map((story, index) => (
             <PostItem key={`${story?.id || index}-${index}`} post={story} />
           ))}

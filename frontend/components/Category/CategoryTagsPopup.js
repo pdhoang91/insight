@@ -125,9 +125,11 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
         </div>
         
         {/* Content */}
-        <div className="overflow-y-auto max-h-[65vh]">
-          <div className="p-6">
-            <div className="space-y-8">
+        <div className={combineClasses(
+          'overflow-y-auto max-h-[65vh]'
+        )}>
+          <div className={themeClasses.spacing.card}>
+            <div className={themeClasses.spacing.stackLarge}>
               {/* Categories Section */}
               <div>
                 <div className="flex items-center justify-between mb-6">
@@ -325,7 +327,10 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
               </div>
 
               {/* Tags Section */}
-              <div className="pt-8 border-t-2 border-medium-border">
+              <div className={combineClasses(
+                'pt-8 border-t-2',
+                themeClasses.border.primary
+              )}>
                 <div className="flex items-center justify-between mb-6">
                   <div className="flex items-center space-x-3">
                     <FaHashtag className={combineClasses(themeClasses.icons.md, themeClasses.text.accent)} />
@@ -410,7 +415,9 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
 
         {/* Footer */}
         <div className={combineClasses(
-          'flex items-center justify-between p-6 border-t-2 border-medium-border',
+          'flex items-center justify-between border-t-2',
+          themeClasses.spacing.card,
+          themeClasses.border.primary,
           themeClasses.bg.secondary + '/30'
         )}>
           <button

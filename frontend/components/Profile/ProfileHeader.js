@@ -15,7 +15,7 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
   
   return (
     <motion.div 
-      className=""
+      className={themeClasses.bg.card}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
@@ -113,20 +113,34 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
       </div>
 
       {/* Desktop Layout */}
-      <div className="hidden sm:flex items-start space-x-6">
+      <div className={combineClasses(
+        themeClasses.responsive.desktopOnly,
+        'flex items-start',
+        themeClasses.spacing.gap
+      )}>
         {/* Avatar */}
         <motion.div 
-          className="flex-shrink-0 relative"
+          className={combineClasses(
+            'flex-shrink-0',
+            themeClasses.utils.relative
+          )}
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <div className="w-24 h-24 lg:w-28 lg:h-28 rounded-full overflow-hidden">
+          <div className={combineClasses(
+            'w-24 h-24 lg:w-28 lg:h-28',
+            themeClasses.avatar.xl,
+            themeClasses.utils.overflowHidden
+          )}>
             <img
               src={imageError ? '/images/placeholder.svg' : `${avatarUrl || '/images/placeholder.svg'}?t=${new Date().getTime()}`}
               alt={`${name}'s avatar`}
               onError={handleImageError}
-              className="w-full h-full object-cover"
+              className={combineClasses(
+                themeClasses.utils.full,
+                'object-cover'
+              )}
             />
           </div>
           {/* Avatar Edit Icon */}
@@ -134,9 +148,12 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
             <motion.button
               onClick={onUpdate}
               className={combineClasses(
-                'absolute -bottom-1 -right-1 w-10 h-10 rounded-full flex items-center justify-center shadow-lg',
+                themeClasses.utils.absolute,
+                '-bottom-1 -right-1 w-10 h-10 rounded-full flex items-center justify-center',
+                themeClasses.effects.shadowLarge,
                 themeClasses.bg.accent,
-                'text-black hover:bg-medium-accent-green/90',
+                themeClasses.text.white,
+                'hover:bg-medium-accent-green/90',
                 themeClasses.animations.smooth
               )}
               initial={{ opacity: 0, scale: 0 }}
@@ -152,13 +169,17 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
 
         {/* User Info */}
         <motion.div 
-          className="flex-1 min-w-0"
+          className={combineClasses(
+            'flex-1 min-w-0'
+          )}
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <div className="flex items-start justify-between">
-            <div className="space-y-3">
+          <div className={combineClasses(
+            'flex items-start justify-between'
+          )}>
+            <div className={themeClasses.spacing.stackSmall}>
               <div>
                 <h1 className={combineClasses(
                   themeClasses.typography.h2,
@@ -170,9 +191,10 @@ const ProfileHeader = ({ avatarUrl, name, bio, email, id, onUpdate, isOwner = tr
                 {/* Role Badge */}
                 {isAdmin && !isOwner && (
                   <div className={combineClasses(
-                    'mt-2 inline-flex items-center space-x-2 px-3 py-1 rounded-md text-sm',
-                    themeClasses.bg.accentLight,
-                    themeClasses.text.accent
+                    'mt-2',
+                    themeClasses.badge.primary,
+                    'inline-flex items-center',
+                    themeClasses.spacing.gapSmall
                   )}>
                     <FaShieldAlt className={themeClasses.icons.sm} />
                     <span>{getRoleDisplayName(userRole)}</span>
