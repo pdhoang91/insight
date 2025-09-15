@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Avatar from '../UI/Avatar';
 import Button from '../UI/Button';
 import TimeAgo from '../Utils/TimeAgo';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const AuthorInfo = ({ 
   author, 
@@ -18,13 +19,20 @@ const AuthorInfo = ({
 
   if (variant === 'detailed') {
     return (
-      <div className={`flex items-start space-x-4 ${className}`}>
+      <div className={combineClasses(
+        'flex items-start',
+        themeClasses.spacing.gapSmall,
+        className
+      )}>
         <Link href={`/${author.username}`}>
           <Avatar
             src={author.avatar_url}
             name={author.name}
             size="lg"
-            className="hover:ring-2 hover:ring-medium-accent-green/20 transition-all"
+            className={combineClasses(
+              'hover:ring-2 hover:ring-medium-accent-green/20',
+              themeClasses.animations.smooth
+            )}
           />
         </Link>
         
@@ -32,7 +40,12 @@ const AuthorInfo = ({
           <div className="flex items-center justify-between mb-2">
             <Link 
               href={`/${author.username}`}
-              className="font-medium text-medium-text-primary hover:text-medium-accent-green transition-colors"
+              className={combineClasses(
+                themeClasses.typography.weightMedium,
+                themeClasses.text.primary,
+                themeClasses.text.accentHover,
+                themeClasses.animations.smooth
+              )}
             >
               {author.name}
             </Link>
@@ -44,12 +57,21 @@ const AuthorInfo = ({
           </div>
           
           {author.bio && (
-            <p className="text-sm text-medium-text-secondary mb-3 line-clamp-2">
+            <p className={combineClasses(
+              themeClasses.text.bodySmall,
+              themeClasses.text.secondary,
+              'mb-3 line-clamp-2'
+            )}>
               {author.bio}
             </p>
           )}
           
-          <div className="flex items-center space-x-3 text-sm text-medium-text-muted">
+          <div className={combineClasses(
+            'flex items-center',
+            themeClasses.spacing.gapSmall,
+            themeClasses.text.bodySmall,
+            themeClasses.text.muted
+          )}>
             {publishedAt && (
               <>
                 <TimeAgo timestamp={publishedAt} />
@@ -65,13 +87,20 @@ const AuthorInfo = ({
 
   // Compact variant (default)
   return (
-    <div className={`flex items-center space-x-3 ${className}`}>
+    <div className={combineClasses(
+      'flex items-center',
+      themeClasses.spacing.gapSmall,
+      className
+    )}>
       <Link href={`/${author.username}`}>
         <Avatar
           src={author.avatar_url}
           name={author.name}
           size="sm"
-          className="hover:ring-2 hover:ring-medium-accent-green/20 transition-all"
+          className={combineClasses(
+            'hover:ring-2 hover:ring-medium-accent-green/20',
+            themeClasses.animations.smooth
+          )}
         />
       </Link>
       
@@ -79,7 +108,13 @@ const AuthorInfo = ({
         <div className="flex items-center space-x-2">
           <Link 
             href={`/${author.username}`}
-            className="font-medium text-medium-text-primary hover:text-medium-accent-green transition-colors truncate"
+            className={combineClasses(
+              themeClasses.typography.weightMedium,
+              themeClasses.text.primary,
+              themeClasses.text.accentHover,
+              themeClasses.animations.smooth,
+              'truncate'
+            )}
           >
             {author.name}
           </Link>
@@ -90,7 +125,12 @@ const AuthorInfo = ({
           )}
         </div>
         
-        <div className="flex items-center space-x-2 text-sm text-medium-text-muted">
+        <div className={combineClasses(
+          'flex items-center',
+          themeClasses.spacing.gapTiny,
+          themeClasses.text.bodySmall,
+          themeClasses.text.muted
+        )}>
           {publishedAt && <TimeAgo timestamp={publishedAt} />}
         </div>
       </div>
@@ -102,23 +142,55 @@ const AuthorInfo = ({
 const AuthorInfoSkeleton = ({ variant = 'compact' }) => {
   if (variant === 'detailed') {
     return (
-      <div className="flex items-start space-x-4 animate-pulse">
-        <div className="w-12 h-12  rounded-full"></div>
+      <div className={combineClasses(
+        'flex items-start animate-pulse',
+        themeClasses.spacing.gapSmall
+      )}>
+        <div className={combineClasses(
+          'w-12 h-12 rounded-full',
+          themeClasses.patterns.skeleton
+        )}></div>
         <div className="flex-1">
-          <div className="h-4  rounded w-32 mb-2"></div>
-          <div className="h-3  rounded w-48 mb-3"></div>
-          <div className="h-3  rounded w-24"></div>
+          <div className={combineClasses(
+            'h-4 w-32 mb-2',
+            themeClasses.patterns.skeleton,
+            themeClasses.effects.rounded
+          )}></div>
+          <div className={combineClasses(
+            'h-3 w-48 mb-3',
+            themeClasses.patterns.skeleton,
+            themeClasses.effects.rounded
+          )}></div>
+          <div className={combineClasses(
+            'h-3 w-24',
+            themeClasses.patterns.skeleton,
+            themeClasses.effects.rounded
+          )}></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex items-center space-x-3 animate-pulse">
-      <div className="w-8 h-8  rounded-full"></div>
+    <div className={combineClasses(
+      'flex items-center animate-pulse',
+      themeClasses.spacing.gapSmall
+    )}>
+      <div className={combineClasses(
+        'w-8 h-8 rounded-full',
+        themeClasses.patterns.skeleton
+      )}></div>
       <div className="flex-1">
-        <div className="h-4  rounded w-24 mb-1"></div>
-        <div className="h-3  rounded w-16"></div>
+        <div className={combineClasses(
+          'h-4 w-24 mb-1',
+          themeClasses.patterns.skeleton,
+          themeClasses.effects.rounded
+        )}></div>
+        <div className={combineClasses(
+          'h-3 w-16',
+          themeClasses.patterns.skeleton,
+          themeClasses.effects.rounded
+        )}></div>
       </div>
     </div>
   );

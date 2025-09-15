@@ -1,5 +1,6 @@
 // components/UI/Avatar.js - Medium 2024 Design
 import React from 'react';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const Avatar = ({ 
   src,
@@ -11,27 +12,28 @@ const Avatar = ({
   ...props 
 }) => {
   const sizes = {
-    xs: 'w-6 h-6 text-xs',
-    sm: 'w-8 h-8 text-sm',
-    md: 'w-10 h-10 text-base',
-    lg: 'w-12 h-12 text-lg',
-    xl: 'w-16 h-16 text-xl',
-    '2xl': 'w-20 h-20 text-2xl',
+    xs: combineClasses(themeClasses.avatar.xs, themeClasses.text.xs),
+    sm: combineClasses(themeClasses.avatar.sm, themeClasses.text.sm),
+    md: combineClasses(themeClasses.avatar.md, themeClasses.text.base),
+    lg: combineClasses(themeClasses.avatar.lg, themeClasses.text.lg),
+    xl: combineClasses(themeClasses.avatar.xl, themeClasses.text.xl),
+    '2xl': combineClasses(themeClasses.avatar.xxl, themeClasses.text.xxl),
   };
 
   const variants = {
     circle: 'rounded-full',
-    square: 'rounded-medium',
+    square: themeClasses.effects.rounded,
   };
 
-  const baseClasses = 'inline-flex items-center justify-center bg-medium-bg-elevated text-medium-text-primary font-medium overflow-hidden';
-
-  const avatarClasses = [
-    baseClasses,
+  const avatarClasses = combineClasses(
+    'inline-flex items-center justify-center font-medium',
+    themeClasses.bg.elevated,
+    themeClasses.text.primary,
+    themeClasses.utils.overflowHidden,
     sizes[size],
     variants[variant],
     className
-  ].filter(Boolean).join(' ');
+  );
 
   // Generate initials from name
   const getInitials = (name) => {

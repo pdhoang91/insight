@@ -1,6 +1,7 @@
 // components/Shared/TableOfContents.js
 import React, { useState, useEffect } from 'react';
 import { FaList, FaChevronUp, FaChevronDown } from 'react-icons/fa';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const TableOfContents = ({ content, className = '' }) => {
   const [toc, setToc] = useState([]);
@@ -81,36 +82,82 @@ const TableOfContents = ({ content, className = '' }) => {
   if (toc.length === 0) return null;
 
   return (
-    <div className={`table-of-contents ${className}`}>
+    <div className={combineClasses(
+      'table-of-contents',
+      themeClasses.bg.card,
+      themeClasses.border.primary,
+      'border',
+      themeClasses.effects.rounded,
+      themeClasses.effects.shadow,
+      className
+    )}>
       {/* Header */}
-      <div className="toc-header">
+      <div className={combineClasses(
+        'toc-header',
+        themeClasses.spacing.cardSmall,
+        'border-b',
+        themeClasses.border.primary
+      )}>
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="flex items-center justify-between w-full text-left"
+          className={combineClasses(
+            'flex items-center justify-between w-full text-left',
+            themeClasses.text.primary,
+            themeClasses.typography.weightMedium,
+            themeClasses.interactive.touchTarget,
+            themeClasses.animations.smooth
+          )}
           aria-expanded={!isCollapsed}
           aria-controls="toc-list"
           aria-label={`${isCollapsed ? 'Expand' : 'Collapse'} table of contents`}
         >
-          <div className="flex items-center gap-2">
+          <div className={combineClasses(
+            'flex items-center',
+            themeClasses.spacing.gapSmall
+          )}>
             <span>Table of Contents</span>
           </div>
           {isCollapsed ? (
-            <FaChevronDown className="w-4 h-4" aria-hidden="true" />
+            <FaChevronDown className={themeClasses.icons.sm} aria-hidden="true" />
           ) : (
-            <FaChevronUp className="w-4 h-4" aria-hidden="true" />
+            <FaChevronUp className={themeClasses.icons.sm} aria-hidden="true" />
           )}
         </button>
       </div>
 
       {/* TOC List */}
       {!isCollapsed && (
-        <ul className="toc-list p-4" id="toc-list" role="navigation" aria-label="Table of contents">
+        <ul 
+          className={combineClasses(
+            'toc-list',
+            themeClasses.spacing.cardMedium
+          )} 
+          id="toc-list" 
+          role="navigation" 
+          aria-label="Table of contents"
+        >
           {toc.map((item, index) => (
             <li key={index} className="toc-item">
               <button
                 onClick={() => scrollToHeading(item.id)}
-                className={`toc-link ${activeId === item.id ? 'active' : ''}`}
-                style={{ paddingLeft: `${(item.level - 1) * 1}rem` }}
+                className={combineClasses(
+                  'toc-link block w-full text-left py-2 px-2 rounded',
+                  themeClasses.text.bodySmall,
+                  themeClasses.animations.smooth,
+                  themeClasses.interactive.touchTarget,
+                  activeId === item.id 
+                    ? combineClasses(
+                        themeClasses.text.accent,
+                        themeClasses.bg.accent + '/10',
+                        themeClasses.typography.weightMedium
+                      )
+                    : combineClasses(
+                        themeClasses.text.secondary,
+                        'hover:bg-medium-hover',
+                        themeClasses.text.primaryHover
+                      )
+                )}
+                style={{ paddingLeft: `${(item.level - 1) * 1 + 0.5}rem` }}
                 aria-label={`Navigate to section: ${item.text}`}
                 aria-current={activeId === item.id ? 'location' : undefined}
               >

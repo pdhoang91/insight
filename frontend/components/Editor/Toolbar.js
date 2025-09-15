@@ -12,7 +12,8 @@ const Toolbar = ({ menuBar, editor, compact = false }) => {
 
   return (
     <div className={combineClasses(
-      'sticky top-0 z-10 rounded-md',
+      'sticky top-0 z-10',
+      themeClasses.effects.rounded,
       'bg-medium-bg-primary/80',
       themeClasses.effects.blur,
       themeClasses.animations.smooth,
@@ -22,7 +23,7 @@ const Toolbar = ({ menuBar, editor, compact = false }) => {
         {/* Main Toolbar */}
         <div className={combineClasses(
           'flex items-center flex-wrap',
-          compact ? 'space-x-0.5' : 'space-x-1'
+          compact ? themeClasses.spacing.gapTiny : themeClasses.spacing.gapSmall
         )}>
           {filteredMenuBar.map((item, index) => {
             if (item.children) {

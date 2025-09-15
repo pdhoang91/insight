@@ -1,6 +1,7 @@
 // components/Shared/EmptyState.js
 import React from 'react';
 import Link from 'next/link';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const EmptyState = ({ 
   title = "Chưa có nội dung", 
@@ -9,13 +10,23 @@ const EmptyState = ({
   icon = null 
 }) => {
   return (
-    <div className="text-center py-16">
-      <div className="max-w-md mx-auto">
+    <div className={combineClasses(
+      'text-center py-16'
+    )}>
+      <div className={combineClasses(
+        'max-w-md mx-auto'
+      )}>
         {/* Icon */}
-        <div className="w-20 h-20 mx-auto mb-6 bg-medium-bg-secondary rounded-full flex items-center justify-center">
+        <div className={combineClasses(
+          'w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center',
+          themeClasses.bg.secondary
+        )}>
           {icon || (
             <svg 
-              className="w-10 h-10 text-medium-text-muted" 
+              className={combineClasses(
+                'w-10 h-10',
+                themeClasses.text.muted
+              )} 
               fill="none" 
               stroke="currentColor" 
               viewBox="0 0 24 24"
@@ -31,12 +42,21 @@ const EmptyState = ({
         </div>
 
         {/* Title */}
-        <h3 className="text-xl font-serif font-bold text-medium-text-primary mb-3">
+        <h3 className={combineClasses(
+          themeClasses.typography.h2,
+          themeClasses.typography.serif,
+          themeClasses.typography.weightBold,
+          themeClasses.text.primary,
+          'mb-3'
+        )}>
           {title}
         </h3>
 
         {/* Message */}
-        <p className="text-medium-text-secondary mb-8 leading-relaxed">
+        <p className={combineClasses(
+          themeClasses.text.secondary,
+          'mb-8 leading-relaxed'
+        )}>
           {message}
         </p>
 
@@ -46,14 +66,24 @@ const EmptyState = ({
             {action.href ? (
               <Link
                 href={action.href}
-                className="inline-flex items-center px-6 py-3 bg-medium-accent-green text-white rounded-full font-medium hover:bg-medium-accent-green/90 transition-colors"
+                className={combineClasses(
+                  'inline-flex items-center px-6 py-3 text-white rounded-full font-medium',
+                  themeClasses.bg.accent,
+                  themeClasses.bg.accentHover,
+                  themeClasses.animations.smooth
+                )}
               >
                 {action.label}
               </Link>
             ) : (
               <button
                 onClick={action.onClick}
-                className="inline-flex items-center px-6 py-3 bg-medium-accent-green text-white rounded-full font-medium hover:bg-medium-accent-green/90 transition-colors"
+                className={combineClasses(
+                  'inline-flex items-center px-6 py-3 text-white rounded-full font-medium',
+                  themeClasses.bg.accent,
+                  themeClasses.bg.accentHover,
+                  themeClasses.animations.smooth
+                )}
               >
                 {action.label}
               </button>

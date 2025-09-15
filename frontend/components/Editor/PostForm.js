@@ -256,10 +256,14 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
                   event.preventDefault();
                   event.stopPropagation();
                   editor.chain().focus().toggleHeading({ level }).run();
-
                 }}
-                className={`w-full text-left px-4 py-2 text-sm hover:bg-medium-hover 
-                  ${editor.isActive('heading', { level }) ? 'bg-medium-accent-green/20' : ''}`}
+                className={combineClasses(
+                  'w-full text-left px-4 py-2',
+                  themeClasses.text.bodySmall,
+                  'hover:bg-medium-hover',
+                  themeClasses.animations.smooth,
+                  editor.isActive('heading', { level }) ? 'bg-medium-accent-green/20' : ''
+                )}
               >
                 Tiêu đề {level}
               </button>

@@ -13,22 +13,44 @@ const PopularPostItem = ({ post, rank, showImages }) => {
     <article>
       <Link 
         href={`/p/${post.title_name}`} 
-        className="flex items-center justify-between py-1 px-2 rounded hover:bg-medium-accent-green/5 transition-colors group"
+        className={combineClasses(
+          'flex items-center justify-between py-1 px-2 group',
+          themeClasses.effects.rounded,
+          'hover:bg-medium-accent-green/5',
+          themeClasses.animations.smooth
+        )}
       >
-        <span className="text-sm lg:text-base text-medium-text-secondary group-hover:text-medium-accent-green line-clamp-2">
+        <span className={combineClasses(
+          themeClasses.text.bodySmall,
+          'lg:text-base',
+          themeClasses.text.secondary,
+          'group-hover:text-medium-accent-green',
+          'line-clamp-2'
+        )}>
           {post.title}
         </span>
-        <div className="flex items-center gap-2 text-xs text-medium-text-muted flex-shrink-0 ml-2">
+        <div className={combineClasses(
+          'flex items-center flex-shrink-0 ml-2',
+          themeClasses.spacing.gapSmall,
+          themeClasses.text.xs,
+          themeClasses.text.muted
+        )}>
           {/* Views */}
           {post.view_count > 0 && (
-            <div className="flex items-center gap-1">
+            <div className={combineClasses(
+              'flex items-center',
+              themeClasses.spacing.gapTiny
+            )}>
               <FaEye className={themeClasses.icons.xs} />
               <span>{post.view_count}</span>
             </div>
           )}
           {/* Comments */}
           {post.comment_count > 0 && (
-            <div className="flex items-center gap-1">
+            <div className={combineClasses(
+              'flex items-center',
+              themeClasses.spacing.gapTiny
+            )}>
               <FaComment className={themeClasses.icons.xs} />
               <span>{post.comment_count}</span>
             </div>
@@ -123,7 +145,7 @@ const PopularPosts = ({
       className
     )}>
       {/* Posts List */}
-      <div className="space-y-1">
+      <div className={themeClasses.spacing.stackTiny}>
         {displayPosts && displayPosts.length > 0 ? (
           displayPosts.slice(0, limit).map((post, index) => (
             <PopularPostItem 

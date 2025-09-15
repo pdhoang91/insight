@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { FaHighlighter, FaComment, FaShareAlt, FaCopy, FaTwitter } from 'react-icons/fa';
 import Button from '../UI/Button';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const TextHighlighter = ({ children, className = '' }) => {
   const [selectedText, setSelectedText] = useState('');
@@ -125,7 +126,7 @@ const TextHighlighter = ({ children, className = '' }) => {
   } : {};
 
   return (
-    <div ref={containerRef} className={`relative ${className}`}>
+    <div ref={containerRef} className={combineClasses(themeClasses.utils.relative, className)}>
       {children}
       
       {/* Selection Toolbar */}
@@ -133,30 +134,38 @@ const TextHighlighter = ({ children, className = '' }) => {
         <div
           ref={toolbarRef}
           style={toolbarStyle}
-          className="bg-medium-text-primary text-white rounded-lg shadow-lg px-2 py-1 flex items-center space-x-1 animate-fade-in"
+          className={combineClasses(
+            themeClasses.bg.primary,
+            'text-white',
+            themeClasses.effects.rounded,
+            themeClasses.effects.shadowLarge,
+            'px-2 py-1 flex items-center',
+            themeClasses.spacing.gapTiny,
+            'animate-fade-in'
+          )}
         >
           <ToolbarButton
-            icon={<FaHighlighter className="w-4 h-4" />}
+            icon={<FaHighlighter className={themeClasses.icons.sm} />}
             onClick={handleHighlight}
             tooltip="Nôi bật"
           />
           <ToolbarButton
-            icon={<FaComment className="w-4 h-4" />}
+            icon={<FaComment className={themeClasses.icons.sm} />}
             onClick={handleComment}
             tooltip="Bình luận"
           />
           <ToolbarButton
-            icon={<FaCopy className="w-4 h-4" />}
+            icon={<FaCopy className={themeClasses.icons.sm} />}
             onClick={handleCopy}
             tooltip="Sao chép"
           />
           <ToolbarButton
-            icon={<FaShareAlt className="w-4 h-4" />}
+            icon={<FaShareAlt className={themeClasses.icons.sm} />}
             onClick={handleShare}
             tooltip="Chia sẻ"
           />
           <ToolbarButton
-            icon={<FaTwitter className="w-4 h-4" />}
+            icon={<FaTwitter className={themeClasses.icons.sm} />}
             onClick={handleTweet}
             tooltip="Tweet"
           />
@@ -174,7 +183,13 @@ const ToolbarButton = ({ icon, onClick, tooltip }) => {
   return (
     <button
       onClick={onClick}
-      className="p-2 hover:bg-medium-hover rounded transition-colors"
+      className={combineClasses(
+        'p-2',
+        'hover:bg-medium-hover',
+        themeClasses.effects.rounded,
+        themeClasses.animations.smooth,
+        themeClasses.interactive.touchTarget
+      )}
       title={tooltip}
       aria-label={tooltip}
     >
@@ -188,11 +203,17 @@ const HighlightsOverlay = ({ highlights }) => {
   if (!highlights.length) return null;
 
   return (
-    <div className="absolute inset-0 pointer-events-none">
+    <div className={combineClasses(
+      themeClasses.utils.absolute,
+      'inset-0 pointer-events-none'
+    )}>
       {highlights.map(highlight => (
         <div
           key={highlight.id}
-          className="absolute bg-medium-accent-green/30 pointer-events-none"
+          className={combineClasses(
+            themeClasses.utils.absolute,
+            'bg-medium-accent-green/30 pointer-events-none'
+          )}
           style={{
             top: highlight.rect.top,
             left: highlight.rect.left,

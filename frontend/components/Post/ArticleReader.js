@@ -13,6 +13,7 @@ import CommentSection from '../Comment/CommentSection';
 import { useUser } from '../../context/UserContext';
 import { useComments } from '../../hooks/useComments';
 import TimeAgo from '../Utils/TimeAgo';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const ArticleReader = ({ post }) => {
   const { user } = useUser();
@@ -47,21 +48,31 @@ const ArticleReader = ({ post }) => {
 
       <article className={themeClasses.layout.reading}>
         {/* Article Header - Mobile Optimized */}
-        <header className="mb-8 sm:mb-10 lg:mb-12">
+        <header className={combineClasses(themeClasses.spacing.stackLarge)}>
           {/* Title */}
-          <h1 className="font-serif font-bold text-lg sm:text-xl lg:text-2xl text-medium-text-primary mb-4 sm:mb-6 leading-tight">
+          <h1 className={combineClasses(
+            themeClasses.typography.h1,
+            themeClasses.text.primary,
+            themeClasses.spacing.marginBottomMedium,
+            'leading-tight'
+          )}>
             {post.title}
           </h1>
 
           {/* Subtitle */}
           {post.subtitle && (
-            <h2 className="text-sm sm:text-base lg:text-lg text-medium-text-secondary mb-6 sm:mb-8 leading-relaxed">
+            <h2 className={combineClasses(
+              themeClasses.typography.h3,
+              themeClasses.text.secondary,
+              themeClasses.spacing.marginBottomLarge,
+              'leading-relaxed'
+            )}>
               {post.subtitle}
             </h2>
           )}
 
           {/* Author Info & Meta - Mobile Optimized */}
-          <div className="mb-6 sm:mb-8">
+          <div className={themeClasses.spacing.marginBottomLarge}>
             <AuthorInfo 
               author={post.user}
               publishedAt={post.created_at}
@@ -72,14 +83,25 @@ const ArticleReader = ({ post }) => {
 
           {/* Featured Image - Mobile Optimized */}
           {post.image_title && (
-            <div className="mb-8 sm:mb-10 lg:mb-12 -mx-4 sm:mx-0">
+            <div className={combineClasses(
+              themeClasses.spacing.marginBottomXLarge,
+              '-mx-4 sm:mx-0'
+            )}>
               <img
                 src={post.image_title}
                 alt={post.title}
-                className="w-full h-auto sm:rounded-lg"
+                className={combineClasses(
+                  'w-full h-auto',
+                  'sm:rounded-lg'
+                )}
               />
               {post.image_caption && (
-                <p className="text-center text-sm text-medium-text-muted mt-3 sm:mt-4 italic px-4 sm:px-0">
+                <p className={combineClasses(
+                  'text-center italic px-4 sm:px-0',
+                  themeClasses.text.bodySmall,
+                  themeClasses.text.muted,
+                  'mt-3 sm:mt-4'
+                )}>
                   {post.image_caption}
                 </p>
               )}
@@ -98,16 +120,27 @@ const ArticleReader = ({ post }) => {
         </div>
 
         {/* Article Footer - Mobile Optimized */}
-        <footer className="mt-12 sm:mt-14 lg:mt-16 pt-6 sm:pt-8">
+        <footer className={combineClasses(
+          themeClasses.spacing.marginTopXLarge,
+          themeClasses.spacing.paddingTopLarge
+        )}>
           {/* Tags */}
           {post.tags && post.tags.length > 0 && (
-            <div className="mb-6 sm:mb-8">
-              <div className="flex flex-wrap gap-2">
+            <div className={themeClasses.spacing.marginBottomLarge}>
+              <div className={combineClasses(
+                'flex flex-wrap',
+                themeClasses.spacing.gapSmall
+              )}>
                 {post.tags.map((tag, index) => (
                   <Link
                     key={index}
                     href={`/tag/${tag}`}
-                    className={`${themeClasses.patterns.tag} ${themeClasses.interactive.base} hover:bg-medium-accent-green hover:text-white`}
+                    className={combineClasses(
+                      themeClasses.patterns.tag,
+                      themeClasses.interactive.base,
+                      'hover:bg-medium-accent-green hover:text-white',
+                      themeClasses.animations.smooth
+                    )}
                   >
                     {tag}
                   </Link>
@@ -117,7 +150,10 @@ const ArticleReader = ({ post }) => {
           )}
 
           {/* Engagement Actions (Mobile) */}
-          <div className="lg:hidden mb-6 sm:mb-8">
+          <div className={combineClasses(
+            'lg:hidden',
+            themeClasses.spacing.marginBottomLarge
+          )}>
             <EngagementActions
               post={post}
               commentsCount={totalCommentReply}
@@ -135,12 +171,18 @@ const ArticleReader = ({ post }) => {
       </article>
 
       {/* Related Articles - Mobile Optimized */}
-      <div className={`${themeClasses.layout.reading} mt-12 sm:mt-14 lg:mt-16`}>
+      <div className={combineClasses(
+        themeClasses.layout.reading,
+        themeClasses.spacing.marginTopXLarge
+      )}>
         <RelatedArticles currentPost={post} />
       </div>
 
       {/* Comments Section - Mobile Optimized */}
-      <div className={`${themeClasses.layout.reading} mt-12 sm:mt-14 lg:mt-16`}>
+      <div className={combineClasses(
+        themeClasses.layout.reading,
+        themeClasses.spacing.marginTopXLarge
+      )}>
         <CommentSection 
           postId={post.id}
         />
@@ -154,24 +196,38 @@ const AuthorBioCard = ({ author, isFollowing, onFollow }) => {
   if (!author) return null;
 
   return (
-    <Card className="p-8">
-      <div className="flex items-start space-x-6">
+    <Card className={themeClasses.spacing.cardLarge}>
+      <div className={combineClasses(
+        'flex items-start',
+        themeClasses.spacing.gapLarge
+      )}>
         <Link href={`/${author.username}`}>
           <Avatar
             src={author.avatar_url}
             name={author.name}
             size="xl"
-            className="hover:ring-2 hover:ring-medium-accent-green/20 transition-all"
+            className={combineClasses(
+              themeClasses.interactive.ringHover,
+              themeClasses.animations.smooth
+            )}
           />
         </Link>
         
         <div className="flex-1">
-          <div className="flex items-center justify-between mb-4">
+          <div className={combineClasses(
+            'flex items-center justify-between',
+            themeClasses.spacing.marginBottomMedium
+          )}>
             <div>
-              <h3 className="font-serif font-bold text-xl text-medium-text-primary mb-1">
+              <h3 className={combineClasses(
+                themeClasses.typography.h3,
+                themeClasses.typography.weightBold,
+                themeClasses.text.primary,
+                'mb-1'
+              )}>
                 Written by {author.name}
               </h3>
-              <p className="text-medium-text-secondary">
+              <p className={themeClasses.text.secondary}>
                 {author.followers_count || 0} Followers
               </p>
             </div>
@@ -186,15 +242,27 @@ const AuthorBioCard = ({ author, isFollowing, onFollow }) => {
           </div>
           
           {author.bio && (
-            <p className="text-medium-text-secondary leading-relaxed mb-4">
+            <p className={combineClasses(
+              themeClasses.text.secondary,
+              'leading-relaxed',
+              themeClasses.spacing.marginBottomMedium
+            )}>
               {author.bio}
             </p>
           )}
           
-          <div className="flex items-center space-x-4 text-sm text-medium-text-muted">
+          <div className={combineClasses(
+            'flex items-center',
+            themeClasses.spacing.gapMedium,
+            themeClasses.text.bodySmall,
+            themeClasses.text.muted
+          )}>
             <Link 
               href={`/${author.username}`}
-              className="hover:text-medium-accent-green transition-colors"
+              className={combineClasses(
+                themeClasses.text.accentHover,
+                themeClasses.animations.smooth
+              )}
             >
               More from {author.name}
             </Link>
@@ -208,31 +276,68 @@ const AuthorBioCard = ({ author, isFollowing, onFollow }) => {
 // Loading skeleton
 const ArticleReaderSkeleton = () => (
   <ArticleLayout>
-    <div className={`${themeClasses.layout.reading} animate-pulse`}>
+    <div className={combineClasses(
+      themeClasses.layout.reading,
+      'animate-pulse'
+    )}>
       {/* Title skeleton */}
-      <div className="mb-12">
-        <div className="h-12  rounded mb-4"></div>
-        <div className="h-8  rounded w-3/4 mb-8"></div>
+      <div className={themeClasses.spacing.marginBottomXLarge}>
+        <div className={combineClasses(
+          'h-12 mb-4',
+          themeClasses.patterns.skeleton,
+          themeClasses.effects.rounded
+        )}></div>
+        <div className={combineClasses(
+          'h-8 w-3/4 mb-8',
+          themeClasses.patterns.skeleton,
+          themeClasses.effects.rounded
+        )}></div>
         
         {/* Author skeleton */}
-        <div className="flex items-center space-x-4 mb-8">
-          <div className="w-12 h-12  rounded-full"></div>
+        <div className={combineClasses(
+          'flex items-center mb-8',
+          themeClasses.spacing.gapMedium
+        )}>
+          <div className={combineClasses(
+            'w-12 h-12 rounded-full',
+            themeClasses.patterns.skeleton
+          )}></div>
           <div>
-            <div className="h-4  rounded w-32 mb-2"></div>
-            <div className="h-3  rounded w-24"></div>
+            <div className={combineClasses(
+              'h-4 w-32 mb-2',
+              themeClasses.patterns.skeleton,
+              themeClasses.effects.rounded
+            )}></div>
+            <div className={combineClasses(
+              'h-3 w-24',
+              themeClasses.patterns.skeleton,
+              themeClasses.effects.rounded
+            )}></div>
           </div>
         </div>
         
         {/* Image skeleton */}
-        <div className="h-64  rounded-lg mb-12"></div>
+        <div className={combineClasses(
+          'h-64 mb-12',
+          themeClasses.patterns.skeleton,
+          themeClasses.effects.rounded
+        )}></div>
       </div>
       
       {/* Content skeleton */}
-      <div className="space-y-4">
+      <div className={themeClasses.spacing.stackMedium}>
         {[...Array(8)].map((_, i) => (
-          <div key={i} className="h-4  rounded w-full"></div>
+          <div key={i} className={combineClasses(
+            'h-4 w-full',
+            themeClasses.patterns.skeleton,
+            themeClasses.effects.rounded
+          )}></div>
         ))}
-        <div className="h-4  rounded w-2/3"></div>
+        <div className={combineClasses(
+          'h-4 w-2/3',
+          themeClasses.patterns.skeleton,
+          themeClasses.effects.rounded
+        )}></div>
       </div>
     </div>
   </ArticleLayout>

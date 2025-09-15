@@ -9,10 +9,18 @@ import { useComments } from '../../hooks/useComments';
 import TableOfContents from '../Shared/TableOfContents';
 import SEOHead from '../SEO/SEOHead';
 import RelatedPosts from './RelatedPosts';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
   if (!post) {
-    return <div className="flex justify-center items-center h-64 text-medium-text-muted">Đang tải bài viết...</div>;
+    return (
+      <div className={combineClasses(
+        'flex justify-center items-center h-64',
+        themeClasses.text.muted
+      )}>
+        Đang tải bài viết...
+      </div>
+    );
   }
 
   const { clapsCount: postClapsCount, hasClapped, mutate: mutateClaps } = useClapsCount('post', post.id);
@@ -49,68 +57,130 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
         url={`${process.env.NEXT_PUBLIC_SITE_URL || ''}/p/${post.title_name}`}
       />
       <div className="">
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className={combineClasses(
+        'grid grid-cols-1 lg:grid-cols-4',
+        themeClasses.spacing.gapLarge
+      )}>
         {/* Main Content */}
         <article className="lg:col-span-3">
           {/* Title Section */}
-          <header className="mb-12">
-            <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-medium-text-primary mb-6 leading-tight text-balance">
+          <header className={themeClasses.spacing.marginBottomXLarge}>
+            <h1 className={combineClasses(
+              themeClasses.typography.h1,
+              'lg:text-4xl xl:text-5xl',
+              themeClasses.typography.weightBold,
+              themeClasses.text.primary,
+              themeClasses.spacing.marginBottomLarge,
+              'leading-tight text-balance'
+            )}>
               {post.title}
             </h1>
 
             {/* Post Meta Information */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 py-6 border-y border-medium-border">
+            <div className={combineClasses(
+              'flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 border-y',
+              themeClasses.spacing.gapMedium,
+              themeClasses.border.primary
+            )}>
               {/* Date and Reading Time */}
-              <div className="flex items-center space-x-4 text-medium-text-muted">
-                <time dateTime={post.created_at} className="font-medium">
+              <div className={combineClasses(
+                'flex items-center',
+                themeClasses.spacing.gapMedium,
+                themeClasses.text.muted
+              )}>
+                <time 
+                  dateTime={post.created_at} 
+                  className={themeClasses.typography.weightMedium}
+                >
                   {new Date(post.created_at).toLocaleDateString('vi-VN', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric'
                   })}
                 </time>
-                <span className="w-1 h-1 bg-medium-text-muted rounded-full"></span>
-                <span className="font-medium">{Math.ceil((post.content?.length || 0) / 1000)} min read</span>
+                <span className={combineClasses(
+                  'w-1 h-1 rounded-full',
+                  themeClasses.bg.muted
+                )}></span>
+                <span className={themeClasses.typography.weightMedium}>
+                  {Math.ceil((post.content?.length || 0) / 1000)} min read
+                </span>
               </div>
 
               {/* Social Actions */}
-              <div className="flex items-center space-x-4">
+              <div className={combineClasses(
+                'flex items-center',
+                themeClasses.spacing.gapMedium
+              )}>
                 {/* Claps */}
                 <button
                   onClick={handleClap}
-                  className={`flex items-center space-x-2 px-3 py-2 rounded-full transition-all duration-200 min-h-[44px] ${
+                  className={combineClasses(
+                    'flex items-center px-3 py-2 rounded-full min-h-[44px]',
+                    themeClasses.spacing.gapSmall,
+                    themeClasses.animations.smooth,
+                    themeClasses.interactive.touchTarget,
                     hasClapped 
-                      ? 'text-medium-accent-green bg-medium-accent-green/10' 
-                      : 'text-medium-text-secondary hover:text-medium-accent-green hover:bg-medium-hover'
-                  }`}
+                      ? combineClasses(
+                          'text-medium-accent-green bg-medium-accent-green/10'
+                        )
+                      : combineClasses(
+                          themeClasses.text.secondary,
+                          'hover:text-medium-accent-green hover:bg-medium-hover'
+                        )
+                  )}
                   aria-label="Thích bài viết này"
                 >
-                  <FaHandsClapping className="w-4 h-4" />
-                  <span className="font-medium">{postClapsCount}</span>
+                  <FaHandsClapping className={themeClasses.icons.sm} />
+                  <span className={themeClasses.typography.weightMedium}>
+                    {postClapsCount}
+                  </span>
                 </button>
 
                 {/* Comments */}
                 <button 
                   onClick={onScrollToComments}
-                  className="flex items-center space-x-2 px-3 py-2 rounded-full text-medium-text-secondary hover:text-medium-accent-green hover:bg-medium-hover transition-all duration-200 min-h-[44px]"
+                  className={combineClasses(
+                    'flex items-center px-3 py-2 rounded-full min-h-[44px]',
+                    themeClasses.spacing.gapSmall,
+                    themeClasses.text.secondary,
+                    'hover:text-medium-accent-green hover:bg-medium-hover',
+                    themeClasses.animations.smooth,
+                    themeClasses.interactive.touchTarget
+                  )}
                   aria-label="Đi tới bình luận"
                 >
-                  <FaComment className="w-4 h-4" />
-                  <span className="font-medium">{totalCommentReply || 0}</span>
+                  <FaComment className={themeClasses.icons.sm} />
+                  <span className={themeClasses.typography.weightMedium}>
+                    {totalCommentReply || 0}
+                  </span>
                 </button>
 
                 {/* Share Button */}
                 <button 
-                  className="flex items-center space-x-2 px-3 py-2 rounded-full text-medium-text-secondary hover:text-medium-accent-green hover:bg-medium-hover transition-all duration-200 min-h-[44px]"
+                  className={combineClasses(
+                    'flex items-center px-3 py-2 rounded-full min-h-[44px]',
+                    themeClasses.spacing.gapSmall,
+                    themeClasses.text.secondary,
+                    'hover:text-medium-accent-green hover:bg-medium-hover',
+                    themeClasses.animations.smooth,
+                    themeClasses.interactive.touchTarget
+                  )}
                   aria-label="Chia sẻ bài viết này"
                 >
-                  <FaShare className="w-4 h-4" />
+                  <FaShare className={themeClasses.icons.sm} />
                 </button>
 
                 {/* Views */}
-                <div className="flex items-center space-x-2 px-3 py-2 text-medium-text-muted">
-                  <FaEye className="w-4 h-4" />
-                  <span className="font-medium">{post.views || 0}</span>
+                <div className={combineClasses(
+                  'flex items-center px-3 py-2',
+                  themeClasses.spacing.gapSmall,
+                  themeClasses.text.muted
+                )}>
+                  <FaEye className={themeClasses.icons.sm} />
+                  <span className={themeClasses.typography.weightMedium}>
+                    {post.views || 0}
+                  </span>
                 </div>
               </div>
             </div>
@@ -118,11 +188,14 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
 
           {/* Featured Image */}
           {post.image_title && (
-            <div className="mb-12">
+            <div className={themeClasses.spacing.marginBottomXLarge}>
               <img
                 src={post.image_title}
                 alt={post.title}
-                className="w-full h-auto rounded-xl"
+                className={combineClasses(
+                  'w-full h-auto',
+                  themeClasses.effects.rounded
+                )}
                 loading="eager"
               />
             </div>
@@ -131,7 +204,10 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
           {/* Post Content */}
           <div className="prose prose-lg prose-gray dark:prose-invert max-w-none">
             <div
-              className="post-content reading-content text-medium-text-primary leading-relaxed"
+              className={combineClasses(
+                'post-content reading-content leading-relaxed',
+                themeClasses.text.primary
+              )}
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
           </div>
@@ -139,7 +215,10 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
 
         {/* Sidebar */}
         <aside className="lg:col-span-1">
-          <div className="sticky top-24 space-y-8">
+          <div className={combineClasses(
+            'sticky top-24',
+            themeClasses.spacing.stackLarge
+          )}>
             {/* Table of Contents */}
             <TableOfContents content={post.content} />
           </div>

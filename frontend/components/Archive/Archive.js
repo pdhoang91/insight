@@ -89,7 +89,10 @@ const Archive = ({ posts = [], className = '', limit = 12 }) => {
 
         {/* Toggle Show All / Show Less */}
         {archiveList.length > limit && (
-          <div className={combineClasses('mt-4 pt-2')}>
+          <div className={combineClasses(
+            themeClasses.spacing.marginTopMedium,
+            'pt-2'
+          )}>
             {!isShowingAll ? (
               <button
                 onClick={() => setIsShowingAll(true)}
@@ -97,7 +100,9 @@ const Archive = ({ posts = [], className = '', limit = 12 }) => {
                   themeClasses.typography.captionText,
                   themeClasses.text.accent,
                   'hover:underline',
-                  themeClasses.focus.visible
+                  themeClasses.focus.visible,
+                  themeClasses.interactive.touchTarget,
+                  themeClasses.animations.smooth
                 )}
               >
                 Show all ({archiveList.length}) →
@@ -109,7 +114,9 @@ const Archive = ({ posts = [], className = '', limit = 12 }) => {
                   themeClasses.typography.captionText,
                   themeClasses.text.accent,
                   'hover:underline',
-                  themeClasses.focus.visible
+                  themeClasses.focus.visible,
+                  themeClasses.interactive.touchTarget,
+                  themeClasses.animations.smooth
                 )}
               >
                 ← Show recent only

@@ -4,6 +4,7 @@ import { useUser } from '../../context/UserContext';
 import { useInfiniteComments } from '../../hooks/useInfiniteComments';
 import LimitedCommentList from './LimitedCommentList';
 import AddCommentForm from './AddCommentForm';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const CommentSection = ({ postId }) => {
   const { user } = useUser();
@@ -25,9 +26,13 @@ const CommentSection = ({ postId }) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className={themeClasses.spacing.stackLarge}>
       {/* Section Header */}
-      <h3 className="text-heading-3 font-serif text-medium-text-primary">
+      <h3 className={combineClasses(
+        themeClasses.typography.h3,
+        themeClasses.typography.weightBold,
+        themeClasses.text.primary
+      )}>
         Bình luận ({totalCount || 0})
       </h3>
 

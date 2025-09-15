@@ -24,20 +24,23 @@ const ToolbarButton = ({ icon: Icon, onClick, isActive, tooltip, disabled, child
   const buttonClasses = combineClasses(
     // Base styles với consistent sizing
     compact ? 'p-1' : 'p-1.5',
-    'rounded-md flex items-center justify-center',
+    themeClasses.effects.rounded,
+    'flex items-center justify-center',
     themeClasses.interactive.base,
     themeClasses.interactive.touchTarget,
     
     // State-based styling với theme classes
     isActive 
       ? combineClasses(
-          'bg-medium-accent-green text-white',
+          themeClasses.bg.accent,
+          'text-white',
           themeClasses.effects.shadow,
           themeClasses.interactions.buttonPress
         )
       : combineClasses(
           themeClasses.text.secondary,
-          'hover:text-medium-accent-green hover:bg-medium-hover',
+          themeClasses.text.accentHover,
+          'hover:bg-medium-hover',
           themeClasses.interactions.buttonHoverSubtle
         ),
     
@@ -48,7 +51,7 @@ const ToolbarButton = ({ icon: Icon, onClick, isActive, tooltip, disabled, child
   if (children) {
     // Dropdown menu button
     return (
-      <div className="relative" ref={ref}>
+      <div className={themeClasses.utils.relative} ref={ref}>
         <Tippy content={tooltip} placement="top" disabled={compact}>
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -62,8 +65,11 @@ const ToolbarButton = ({ icon: Icon, onClick, isActive, tooltip, disabled, child
         </Tippy>
         {isOpen && (
           <div className={combineClasses(
-            'absolute left-0 mt-2 w-48 z-20 overflow-hidden',
-            'bg-medium-bg-card border border-medium-border',
+            themeClasses.utils.absolute,
+            'left-0 mt-2 w-48 z-20 overflow-hidden',
+            themeClasses.bg.card,
+            'border',
+            themeClasses.border.primary,
             themeClasses.effects.rounded,
             themeClasses.effects.shadowLayeredLg
           )}>

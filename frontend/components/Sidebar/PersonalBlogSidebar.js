@@ -53,7 +53,8 @@ const PersonalBlogSidebar = () => {
                   className={combineClasses(
                     'h-8 w-16',
                     themeClasses.effects.rounded,
-                    themeClasses.loading.skeleton
+                    themeClasses.patterns.skeleton,
+                    'animate-pulse'
                   )}
                 ></div>
               ))}

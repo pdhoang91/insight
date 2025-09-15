@@ -18,7 +18,8 @@ const ContentEditor = ({
       
       {isUploading && (
         <div className={combineClasses(
-          'absolute inset-0 flex items-center justify-center z-10',
+          themeClasses.utils.absolute,
+          'inset-0 flex items-center justify-center z-10',
           'bg-medium-bg-primary/50',
           themeClasses.effects.blur,
           themeClasses.effects.rounded

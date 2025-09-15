@@ -5,7 +5,7 @@ import { FaUser } from 'react-icons/fa';
 import { useRecentPosts } from '../../hooks/useRecentPosts';
 import TimeAgo from '../Utils/TimeAgo';
 import SafeImage from '../Utils/SafeImage';
-import { themeClasses } from '../../utils/themeClasses';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const RelatedArticles = ({ currentPostId, categories = [], tags = [], limit = 3 }) => {
   // For now, we'll use recent posts. In a real implementation, 
@@ -17,10 +17,20 @@ const RelatedArticles = ({ currentPostId, categories = [], tags = [], limit = 3 
 
   if (isLoading) {
     return (
-      <div className={`${themeClasses.layout.reading} py-12`}>
-        <div className="space-y-6">
-          <div className="h-6 bg-medium-divider rounded w-48 animate-pulse"></div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className={combineClasses(
+        themeClasses.layout.reading,
+        'py-12'
+      )}>
+        <div className={themeClasses.spacing.stackLarge}>
+          <div className={combineClasses(
+            'h-6 w-48 animate-pulse',
+            themeClasses.patterns.skeleton,
+            themeClasses.effects.rounded
+          )}></div>
+          <div className={combineClasses(
+            'grid md:grid-cols-2 lg:grid-cols-3',
+            themeClasses.spacing.gapLarge
+          )}>
             {[...Array(3)].map((_, i) => (
               <RelatedArticleSkeleton key={i} />
             ))}
@@ -35,27 +45,50 @@ const RelatedArticles = ({ currentPostId, categories = [], tags = [], limit = 3 
   }
 
   return (
-    <div className={`${themeClasses.layout.reading} py-12`}>
+    <div className={combineClasses(
+      themeClasses.layout.reading,
+      'py-12'
+    )}>
       {/* Section Header */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-serif font-bold text-medium-text-primary mb-2">
+      <div className={themeClasses.spacing.marginBottomLarge}>
+        <h2 className={combineClasses(
+          themeClasses.typography.h2,
+          themeClasses.typography.weightBold,
+          themeClasses.text.primary,
+          'mb-2'
+        )}>
           More from Insight
         </h2>
-        <div className="w-16 h-0.5 bg-medium-accent-green"></div>
+        <div className={combineClasses(
+          'w-16 h-0.5',
+          'bg-medium-accent-green'
+        )}></div>
       </div>
 
       {/* Articles Grid */}
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+      <div className={combineClasses(
+        'grid md:grid-cols-2 lg:grid-cols-3',
+        themeClasses.spacing.gapLarge
+      )}>
         {filteredPosts.map((post) => (
           <RelatedArticleCard key={post.id} post={post} />
         ))}
       </div>
 
       {/* View All Link */}
-      <div className="text-center mt-12">
+      <div className={combineClasses(
+        'text-center',
+        themeClasses.spacing.marginTopXLarge
+      )}>
         <Link
           href="/"
-          className="inline-flex items-center px-6 py-3 border border-medium-accent-green text-medium-accent-green hover:bg-medium-accent-green hover:text-white transition-colors rounded-full font-medium"
+          className={combineClasses(
+            'inline-flex items-center px-6 py-3 border rounded-full',
+            'border-medium-accent-green text-medium-accent-green',
+            'hover:bg-medium-accent-green hover:text-white',
+            themeClasses.typography.weightMedium,
+            themeClasses.animations.smooth
+          )}
         >
           View all articles
         </Link>
@@ -68,36 +101,58 @@ const RelatedArticles = ({ currentPostId, categories = [], tags = [], limit = 3 
 const RelatedArticleCard = ({ post }) => {
 
   return (
-    <article className="group cursor-pointer">
+    <article className={combineClasses('group cursor-pointer')}>
       <Link href={`/p/${post.title_name}`} className="block">
         {/* Featured Image */}
         {post.image_title && (
-          <div className="mb-4 overflow-hidden rounded-lg">
+          <div className={combineClasses(
+            themeClasses.spacing.marginBottomMedium,
+            themeClasses.utils.overflowHidden,
+            themeClasses.effects.rounded
+          )}>
             <SafeImage
               src={post.image_title}
               alt={post.title}
               width={300}
               height={200}
-              className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+              className={combineClasses(
+                'w-full h-48 object-cover group-hover:scale-105',
+                'transition-transform duration-300'
+              )}
               sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
             />
           </div>
         )}
 
         {/* Article Info */}
-        <div className="space-y-3">
+        <div className={themeClasses.spacing.stackSmall}>
           {/* Author & Date */}
-          <div className="flex items-center space-x-2 text-sm text-medium-text-muted">
-            <div className="flex items-center space-x-2">
+          <div className={combineClasses(
+            'flex items-center',
+            themeClasses.spacing.gapSmall,
+            themeClasses.text.bodySmall,
+            themeClasses.text.muted
+          )}>
+            <div className={combineClasses(
+              'flex items-center',
+              themeClasses.spacing.gapSmall
+            )}>
               {post.user?.avatar_url ? (
                 <img
                   src={post.user.avatar_url}
                   alt={post.user.name}
-                  className="w-5 h-5 rounded-full object-cover"
+                  className={combineClasses(
+                    'w-5 h-5 rounded-full object-cover'
+                  )}
                 />
               ) : (
-                <div className="w-5 h-5 bg-medium-accent-green rounded-full flex items-center justify-center">
-                  <FaUser className="w-2.5 h-2.5 text-white" />
+                <div className={combineClasses(
+                  'w-5 h-5 rounded-full flex items-center justify-center',
+                  'bg-medium-accent-green'
+                )}>
+                  <FaUser className={combineClasses(
+                    'w-2.5 h-2.5 text-white'
+                  )} />
                 </div>
               )}
               <span>{post.user?.name || 'Anonymous'}</span>
@@ -107,23 +162,41 @@ const RelatedArticleCard = ({ post }) => {
           </div>
 
           {/* Title */}
-          <h3 className="font-serif font-bold text-medium-text-primary group-hover:text-medium-accent-green transition-colors leading-tight">
+          <h3 className={combineClasses(
+            themeClasses.typography.h4,
+            themeClasses.typography.weightBold,
+            themeClasses.text.primary,
+            'group-hover:text-medium-accent-green',
+            themeClasses.animations.smooth,
+            'leading-tight'
+          )}>
             {post.title}
           </h3>
 
           {/* Preview */}
           {post.preview_content && (
-            <p className="text-medium-text-secondary text-sm leading-relaxed line-clamp-2">
+            <p className={combineClasses(
+              themeClasses.text.secondary,
+              themeClasses.text.bodySmall,
+              'leading-relaxed line-clamp-2'
+            )}>
               {post.preview_content.replace(/<[^>]*>/g, '').substring(0, 120)}
               {post.preview_content.length > 120 && '...'}
             </p>
           )}
 
           {/* Meta Info */}
-          <div className="flex items-center justify-between text-xs text-medium-text-muted">
+          <div className={combineClasses(
+            'flex items-center justify-between',
+            themeClasses.text.xs,
+            themeClasses.text.muted
+          )}>
             {/* Category */}
             {post.categories && post.categories.length > 0 && (
-              <span className="px-2 py-1  rounded-full">
+              <span className={combineClasses(
+                'px-2 py-1 rounded-full',
+                themeClasses.patterns.tag
+              )}>
                 {post.categories[0].name}
               </span>
             )}
@@ -136,22 +209,63 @@ const RelatedArticleCard = ({ post }) => {
 
 // Skeleton Loader for Related Articles
 const RelatedArticleSkeleton = () => (
-  <div className="animate-pulse space-y-4">
-    <div className="h-48 bg-medium-divider rounded-lg"></div>
-    <div className="space-y-3">
-      <div className="flex items-center space-x-2">
-        <div className="w-5 h-5 bg-medium-divider rounded-full"></div>
-        <div className="h-3 bg-medium-divider rounded w-20"></div>
-        <div className="h-3 bg-medium-divider rounded w-16"></div>
+  <div className={combineClasses(
+    'animate-pulse',
+    themeClasses.spacing.stackMedium
+  )}>
+    <div className={combineClasses(
+      'h-48',
+      themeClasses.patterns.skeleton,
+      themeClasses.effects.rounded
+    )}></div>
+    <div className={themeClasses.spacing.stackSmall}>
+      <div className={combineClasses(
+        'flex items-center',
+        themeClasses.spacing.gapSmall
+      )}>
+        <div className={combineClasses(
+          'w-5 h-5 rounded-full',
+          themeClasses.patterns.skeleton
+        )}></div>
+        <div className={combineClasses(
+          'h-3 w-20',
+          themeClasses.patterns.skeleton,
+          themeClasses.effects.rounded
+        )}></div>
+        <div className={combineClasses(
+          'h-3 w-16',
+          themeClasses.patterns.skeleton,
+          themeClasses.effects.rounded
+        )}></div>
       </div>
-      <div className="h-5 bg-medium-divider rounded"></div>
-      <div className="space-y-2">
-        <div className="h-3 bg-medium-divider rounded"></div>
-        <div className="h-3 bg-medium-divider rounded w-3/4"></div>
+      <div className={combineClasses(
+        'h-5',
+        themeClasses.patterns.skeleton,
+        themeClasses.effects.rounded
+      )}></div>
+      <div className={themeClasses.spacing.stackTiny}>
+        <div className={combineClasses(
+          'h-3',
+          themeClasses.patterns.skeleton,
+          themeClasses.effects.rounded
+        )}></div>
+        <div className={combineClasses(
+          'h-3 w-3/4',
+          themeClasses.patterns.skeleton,
+          themeClasses.effects.rounded
+        )}></div>
       </div>
       <div className="flex justify-between">
-        <div className="h-3 bg-medium-divider rounded w-16"></div>
-        <div className="h-3 bg-medium-divider rounded w-12"></div>
+        <div className={combineClasses(
+          'h-3 w-16',
+          themeClasses.patterns.skeleton,
+          themeClasses.effects.rounded
+        )}></div>
+        <div className={combineClasses(
+          'h-3 w-12',
+          themeClasses.patterns.skeleton,
+          themeClasses.effects.rounded
+        )}></div>
       </div>
     </div>
   </div>

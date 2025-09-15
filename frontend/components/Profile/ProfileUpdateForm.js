@@ -77,7 +77,10 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3">
+          <div className={combineClasses(
+            'flex items-center justify-between',
+            themeClasses.spacing.cardSmall
+          )}>
             <h2 className={combineClasses(
               themeClasses.typography.h4,
               themeClasses.text.accent,
@@ -86,8 +89,9 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
             <button
               className={combineClasses(
                 themeClasses.text.muted,
-                'hover:text-medium-text-primary',
-                themeClasses.animations.smooth
+                themeClasses.text.primaryHover,
+                themeClasses.animations.smooth,
+                themeClasses.interactive.touchTarget
               )}
               onClick={onCancel}
             >
@@ -96,19 +100,29 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
           </div>
 
           {/* Form Content */}
-          <div className="p-4">
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <div className={themeClasses.spacing.cardMedium}>
+            <form onSubmit={handleSubmit} className={themeClasses.spacing.stackMedium}>
               {/* Avatar Section */}
-              <div className="flex items-center space-x-3">
-                <div className="relative">
+              <div className={combineClasses(
+                'flex items-center',
+                themeClasses.spacing.gapSmall
+              )}>
+                <div className={themeClasses.utils.relative}>
                   <img 
                     src={avatarUrl || '/images/placeholder.svg'} 
                     alt="Avatar" 
-                    className="w-16 h-16 rounded-full object-cover" 
+                    className={combineClasses(
+                      'w-16 h-16 rounded-full object-cover'
+                    )}
                   />
                   {isUploading && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
-                      <div className="w-4 h-4 border-2 border-matrix-green border-t-transparent rounded-full animate-spin"></div>
+                    <div className={combineClasses(
+                      themeClasses.utils.absolute,
+                      'inset-0 flex items-center justify-center bg-black/50 rounded-full'
+                    )}>
+                      <div className={combineClasses(
+                        'w-4 h-4 border-2 border-matrix-green border-t-transparent rounded-full animate-spin'
+                      )}></div>
                     </div>
                   )}
                 </div>
@@ -116,7 +130,14 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
                   type="button"
                   onClick={handleAvatarUploadClick}
                   disabled={isUploading}
-                  className="text-matrix-green text-sm font-mono hover:text-matrix-green/80 transition-colors disabled:opacity-50"
+                  className={combineClasses(
+                    themeClasses.text.accent,
+                    themeClasses.text.bodySmall,
+                    'font-mono',
+                    'hover:text-matrix-green/80',
+                    themeClasses.animations.smooth,
+                    'disabled:opacity-50'
+                  )}
                 >
                   {isUploading ? 'đang tải...' : 'đổi_avatar()'}
                 </button>
@@ -135,7 +156,14 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 bg-transparent text-medium-text-primary placeholder-medium-text-muted border-b border-matrix-green/30 focus:border-matrix-green font-mono focus:outline-none transition-colors"
+                  className={combineClasses(
+                    'w-full px-3 py-2 bg-transparent border-b font-mono',
+                    themeClasses.text.primary,
+                    'placeholder-medium-text-muted',
+                    'border-matrix-green/30 focus:border-matrix-green',
+                    'focus:outline-none',
+                    themeClasses.animations.smooth
+                  )}
                   placeholder="tên_của_bạn"
                   required
                 />
@@ -146,7 +174,14 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
                 <textarea
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
-                  className="w-full px-3 py-2 bg-transparent text-medium-text-primary placeholder-medium-text-muted border-b border-matrix-green/30 focus:border-matrix-green font-mono resize-none focus:outline-none transition-colors"
+                  className={combineClasses(
+                    'w-full px-3 py-2 bg-transparent border-b font-mono resize-none',
+                    themeClasses.text.primary,
+                    'placeholder-medium-text-muted',
+                    'border-matrix-green/30 focus:border-matrix-green',
+                    'focus:outline-none',
+                    themeClasses.animations.smooth
+                  )}
                   placeholder="tiểu_sử_của_bạn"
                   rows={3}
                   maxLength={500}
@@ -154,17 +189,32 @@ const ProfileUpdateForm = ({ userProfile, onUpdate, onCancel }) => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex gap-3 pt-2">
+              <div className={combineClasses(
+                'flex pt-2',
+                themeClasses.spacing.gapSmall
+              )}>
                 <button 
                   type="submit" 
-                  className="flex-1 text-matrix-green font-mono hover:bg-matrix-green/10 rounded py-2 transition-colors"
+                  className={combineClasses(
+                    'flex-1 font-mono py-2',
+                    themeClasses.text.accent,
+                    'hover:bg-matrix-green/10',
+                    themeClasses.effects.rounded,
+                    themeClasses.animations.smooth
+                  )}
                 >
                   ./update
                 </button>
                 <button 
                   type="button" 
                   onClick={onCancel}
-                  className="flex-1 text-medium-text-muted font-mono hover:bg-medium-hover rounded py-2 transition-colors"
+                  className={combineClasses(
+                    'flex-1 font-mono py-2',
+                    themeClasses.text.muted,
+                    'hover:bg-medium-hover',
+                    themeClasses.effects.rounded,
+                    themeClasses.animations.smooth
+                  )}
                 >
                   ./cancel
                 </button>

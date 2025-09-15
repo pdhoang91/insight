@@ -1,6 +1,7 @@
 // components/Auth/AuthorInfo.js
 import React from 'react';
 import Link from 'next/link';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const AuthorInfo = ({ author }) => {
   return (
@@ -9,9 +10,16 @@ const AuthorInfo = ({ author }) => {
         <img
           src={author?.avatar_url || '/author-avatar.svg'}
           alt={`${author?.name || 'Author'} Avatar`}
-          className="w-5 h-5 rounded-full mr-2"
+          className={combineClasses(
+            'w-5 h-5 rounded-full mr-2'
+          )}
         />
-        <span className="text-body-small text-medium-text-secondary hover:text-medium-accent-green transition-colors">
+        <span className={combineClasses(
+          themeClasses.text.bodySmall,
+          themeClasses.text.secondary,
+          themeClasses.text.accentHover,
+          themeClasses.animations.smooth
+        )}>
           {author?.name || 'Unknown Author'}
         </span>
       </Link>

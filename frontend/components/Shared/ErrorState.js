@@ -1,6 +1,7 @@
 // components/Shared/ErrorState.js
 import React from 'react';
 import Link from 'next/link';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const ErrorState = ({ 
   title = "Đã xảy ra lỗi", 
@@ -8,12 +9,22 @@ const ErrorState = ({
   action = null 
 }) => {
   return (
-    <div className="text-center py-12">
-      <div className="max-w-md mx-auto">
+    <div className={combineClasses(
+      'text-center py-12'
+    )}>
+      <div className={combineClasses(
+        'max-w-md mx-auto'
+      )}>
         {/* Error Icon */}
-        <div className="w-16 h-16 mx-auto mb-4 bg-medium-bg-secondary rounded-full flex items-center justify-center">
+        <div className={combineClasses(
+          'w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center',
+          themeClasses.bg.secondary
+        )}>
           <svg 
-            className="w-8 h-8 text-medium-text-muted" 
+            className={combineClasses(
+              themeClasses.icons.lg,
+              themeClasses.text.muted
+            )} 
             fill="none" 
             stroke="currentColor" 
             viewBox="0 0 24 24"
@@ -28,12 +39,21 @@ const ErrorState = ({
         </div>
 
         {/* Title */}
-        <h3 className="text-lg font-serif font-bold text-medium-text-primary mb-2">
+        <h3 className={combineClasses(
+          themeClasses.typography.h3,
+          themeClasses.typography.serif,
+          themeClasses.typography.weightBold,
+          themeClasses.text.primary,
+          'mb-2'
+        )}>
           {title}
         </h3>
 
         {/* Message */}
-        <p className="text-medium-text-secondary mb-6">
+        <p className={combineClasses(
+          themeClasses.text.secondary,
+          'mb-6'
+        )}>
           {message}
         </p>
 
@@ -43,14 +63,26 @@ const ErrorState = ({
             {action.href ? (
               <Link
                 href={action.href}
-                className="inline-flex items-center px-4 py-2 bg-medium-accent-green text-white rounded-md hover:bg-medium-accent-green/90 transition-colors"
+                className={combineClasses(
+                  'inline-flex items-center px-4 py-2 text-white',
+                  themeClasses.bg.accent,
+                  themeClasses.effects.rounded,
+                  themeClasses.bg.accentHover,
+                  themeClasses.animations.smooth
+                )}
               >
                 {action.label}
               </Link>
             ) : (
               <button
                 onClick={action.onClick}
-                className="inline-flex items-center px-4 py-2 bg-medium-accent-green text-white rounded-md hover:bg-medium-accent-green/90 transition-colors"
+                className={combineClasses(
+                  'inline-flex items-center px-4 py-2 text-white',
+                  themeClasses.bg.accent,
+                  themeClasses.effects.rounded,
+                  themeClasses.bg.accentHover,
+                  themeClasses.animations.smooth
+                )}
               >
                 {action.label}
               </button>
