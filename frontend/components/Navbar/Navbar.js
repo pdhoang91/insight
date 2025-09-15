@@ -148,14 +148,14 @@ const Navbar = () => {
                 {isWritePage ? (
                   <button
                     onClick={handlePublishClick}
-                    className="px-4 py-2 bg-medium-accent-green hover:bg-medium-accent-green/90 text-white rounded-button text-sm font-medium transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) shadow-sm hover:shadow-[0_8px_25px_rgba(26,137,23,0.25)] hover:-translate-y-0.5 hover:scale-[1.02]"
+                    className="px-4 py-2 group-hover:text-medium-accent-green rounded-button text-sm font-medium transition-all duration-300"
                   >
                     Đăng
                   </button>
                 ) : (
                   <button
                     onClick={handleWriteClick}
-                    className="flex items-center px-4 py-2 bg-medium-accent-green hover:bg-medium-accent-green/90 text-white rounded-button text-sm font-medium transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) shadow-sm hover:shadow-[0_8px_25px_rgba(26,137,23,0.25)] hover:-translate-y-0.5 hover:scale-[1.02]"
+                    className="flex items-center px-4 py-2 group-hover:text-medium-accent-green text-sm font-medium transition-all duration-300"
                   >
                     <FaEdit className={`${themeClasses.icons.sm} mr-2 text-white`} />
                     Viết bài

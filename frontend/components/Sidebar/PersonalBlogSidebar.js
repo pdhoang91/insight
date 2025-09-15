@@ -46,30 +46,28 @@ const PersonalBlogSidebar = () => {
           </h3>
           
           {categoriesLoading ? (
-            <div className={themeClasses.spacing.stackSmall}>
+            <div className="flex flex-wrap gap-2">
               {[...Array(5)].map((_, i) => (
                 <div 
                   key={i} 
                   className={combineClasses(
-                    'h-6 rounded',
+                    'h-8 w-16 rounded-button',
                     themeClasses.patterns.skeleton
                   )}
                 ></div>
               ))}
             </div>
           ) : (
-            <div className="space-y-1">
+            <div className="flex flex-wrap gap-2">
               {categories?.slice(0, 10).map((category) => (
                 <Link
                   key={category.id}
                   href={`/category/${category.name}`}
-                  className="flex items-center justify-between py-1 px-2 rounded hover:bg-medium-accent-green/5 transition-colors group"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-button bg-medium-bg-secondary text-sm lg:text-base text-medium-text-secondary hover:bg-medium-accent-green hover:text-white transition-all duration-200"
                 >
-                  <span className="text-sm lg:text-base text-medium-text-secondary group-hover:text-medium-accent-green">
-                    {category.name}
-                  </span>
+                  <span>{category.name}</span>
                   {category.post_count && (
-                    <span className="text-xs text-medium-text-muted">
+                    <span className="text-xs opacity-75">
                       {category.post_count}
                     </span>
                   )}
