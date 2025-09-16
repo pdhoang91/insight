@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { HomeLayout } from '../../components/Layout/Layout';
 import { CategoryPosts } from '../../components/Category';
 import { useInfinitePostByCategory } from '../../hooks/useInfinitePostByCategory';
-import { LoadingSpinner } from '../../components/ui';
+import LoadingSpinner from '../../components/Shared/LoadingSpinner';
 import PersonalBlogSidebar from '../../components/Sidebar/PersonalBlogSidebar';
 import { themeClasses, componentClasses } from '../../utils/themeClasses';
 
