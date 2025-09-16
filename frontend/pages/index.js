@@ -13,9 +13,6 @@ const Home = () => {
     isReachingEnd,
   } = useInfinitePosts();
 
-  // Debug log
-  console.log('Home - Posts:', posts, 'Loading:', isLoading, 'Error:', isError);
-
   return (
     <HomeLayout sidebar={<PersonalBlogSidebar />}>      
       {/* Posts List */}

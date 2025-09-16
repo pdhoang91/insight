@@ -77,7 +77,7 @@ const PostItemProfile = ({ post, isOwner }) => {
       <div className={`${themeClasses.responsive.flexDesktopRow} ${themeClasses.spacing.gap} items-start`}>
         {/* Image Section - First on mobile, second on desktop */}
         {post.image_title && (
-          <div className="w-full lg:w-80 flex-shrink-0 order-1 lg:order-2">
+          <div className="w-full md:w-64 lg:w-80 flex-shrink-0 order-1 md:order-2">
             <Link href={`/p/${post.title_name}`} className="block">
               <div className="relative overflow-hidden rounded-xl bg-medium-bg-secondary">
                 <div className="aspect-[16/10]">
@@ -94,7 +94,7 @@ const PostItemProfile = ({ post, isOwner }) => {
         )}
 
         {/* Main Content Section - Second on mobile, first on desktop */}
-        <div className="flex-1 min-w-0 order-2 lg:order-1 py-6">
+        <div className="flex-1 min-w-0 order-2 md:order-1 py-6">
 
           {/* Post Title */}
           <Link href={`/p/${post.title_name}`} className={`block ${themeClasses.spacing.marginBottom}`}>

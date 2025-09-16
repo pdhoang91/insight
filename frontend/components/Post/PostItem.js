@@ -56,7 +56,7 @@ const PostItem = ({ post }) => {
       <div className={`${themeClasses.layout.flexRow} ${themeClasses.spacing.gap} items-start`}>
         {/* Image Section - First on mobile, second on desktop */}
         {post.image_title && (
-          <div className="w-full lg:w-80 flex-shrink-0 order-1 lg:order-2">
+          <div className="w-full md:w-64 lg:w-80 flex-shrink-0 order-1 md:order-2">
             <Link href={`/p/${post.title_name}`} className="block">
               <div className={`relative overflow-hidden ${themeClasses.effects.rounded} ${themeClasses.bg.secondary}`}>
                 <div className="aspect-[16/10]">
@@ -73,7 +73,7 @@ const PostItem = ({ post }) => {
         )}
 
         {/* Main Content Section - Second on mobile, first on desktop */}
-        <div className="flex-1 min-w-0 order-2 lg:order-1">
+        <div className="flex-1 min-w-0 order-2 md:order-1">
           {/* Post Title */}
           <Link href={`/p/${post.title_name}`} className={`block ${themeClasses.spacing.marginBottom}`}>
             <h2 className={`${themeClasses.typography.h2} ${themeClasses.text.primary} mb-3 line-clamp-2 text-balance ${themeClasses.text.accentHover} ${themeClasses.animations.smooth}`}>

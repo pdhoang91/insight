@@ -24,6 +24,7 @@ const Layout = ({
 
   const containerClass = containerVariants[variant] || containerVariants.container;
 
+
   return (
     <div className={combineClasses(themeClasses.layout.fullHeight, themeClasses.bg.primary)}>
       {/* Main Content */}
@@ -33,7 +34,6 @@ const Layout = ({
             /* Layout with Sidebar - Enhanced responsive behavior */
             <div className={combineClasses(
               themeClasses.layout.flexRow,
-              themeClasses.spacing.gap,
               themeClasses.spacing.section
             )}>
               {/* Main Content Area - Always first on mobile */}
@@ -43,18 +43,18 @@ const Layout = ({
                 </div>
               </div>
               
-              {/* Sidebar - Increased width by 30% */}
+              {/* Sidebar - Responsive width optimization */}
               <aside className={combineClasses(
                 themeClasses.responsive.sidebarWidth,
-                sidebarPosition === 'left' ? 'lg:order-first' : ''
+                sidebarPosition === 'left' ? 'md:order-first' : ''
               )}>
                 <div className={themeClasses.responsive.sidebarDesktopSticky}>
                   {/* Mobile: Condensed sidebar */}
-                  <div className={themeClasses.responsive.touchOnly}>
+                  <div className="block md:hidden">
                     <MobileSidebarContent sidebar={sidebar} />
                   </div>
                   {/* Desktop: Full sidebar */}
-                  <div className={themeClasses.responsive.desktopOnly}>
+                  <div className="hidden md:block">
                     {sidebar}
                   </div>
                 </div>

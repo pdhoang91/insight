@@ -86,7 +86,7 @@ const PostList = ({
                 </div>
               </div>
               {/* Image skeleton */}
-              <div className="w-full lg:w-80">
+              <div className="w-full md:w-64 lg:w-80">
                 <div className="aspect-[16/10] bg-medium-bg-secondary rounded-xl"></div>
               </div>
             </div>
@@ -160,7 +160,7 @@ const PostList = ({
                     </div>
                   </div>
                   {/* Image skeleton */}
-                  <div className="w-full lg:w-80">
+                  <div className="w-full md:w-64 lg:w-80">
                     <div className="aspect-[16/10] bg-medium-bg-secondary rounded-xl"></div>
                   </div>
                 </div>

@@ -9,98 +9,66 @@ import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const PersonalBlogSidebar = () => {
   const { categories, isLoading: categoriesLoading } = useCategories();
-  const { posts: recentPosts, isLoading: postsLoading } = useRecentPosts(50);
+  const { posts: recentPosts, isLoading: postsLoading } = useRecentPosts(5);
 
   return (
-    <div className={themeClasses.spacing.stackLarge}>
-      {/* Sticky container for better UX */}
-      <div className={combineClasses(
-        themeClasses.responsive.sidebarDesktopSticky,
-        themeClasses.spacing.stackLarge
-      )}>
+    <div className="space-y-6">
+      {/* Popular Posts */}
+      <div className="bg-medium-bg-card rounded-lg p-4">
+        <h3 className="text-lg font-semibold text-medium-text-primary mb-3">
+          Popular Posts
+        </h3>
+        <PopularPosts 
+          limit={5} 
+          showImages={false} 
+          className=""
+        />
+      </div>
+
+      {/* Categories */}
+      <div className="bg-medium-bg-card rounded-lg p-4">
+        <h3 className="text-lg font-semibold text-medium-text-primary mb-3">
+          Categories
+        </h3>
         
-        {/* Popular Posts */}
-        <div className={themeClasses.spacing.stack}>
-          <h3 className={combineClasses(
-            themeClasses.typography.h3,
-            themeClasses.text.primary,
-            themeClasses.utils.sectionSmall
-          )}>
-            Popular
-          </h3>
-          <PopularPosts 
-            limit={5} 
-            showImages={false} 
-            className=""
-          />
-        </div>
+        {categoriesLoading ? (
+          <div className="flex flex-wrap gap-2">
+            {[...Array(5)].map((_, i) => (
+              <div 
+                key={i} 
+                className="h-8 w-16 bg-medium-bg-secondary rounded animate-pulse"
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-wrap gap-2">
+            {categories?.slice(0, 8).map((category) => (
+              <Link
+                key={category.id}
+                href={`/category/${category.name}`}
+                className="px-3 py-1 bg-medium-bg-secondary text-medium-text-secondary hover:bg-medium-accent-green hover:text-white rounded-full text-sm transition-colors"
+              >
+                {category.name}
+                {category.post_count && (
+                  <span className="ml-1 opacity-75">
+                    ({category.post_count})
+                  </span>
+                )}
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
 
-        {/* Categories */}
-        <div className={themeClasses.spacing.stack}>
-          <h3 className={combineClasses(
-            themeClasses.typography.h3,
-            themeClasses.text.primary,
-            themeClasses.utils.sectionSmall
-          )}>
-            Categories
-          </h3>
-          
-          {categoriesLoading ? (
-            <div className={themeClasses.list.horizontal}>
-              {[...Array(5)].map((_, i) => (
-                <div 
-                  key={i} 
-                  className={combineClasses(
-                    'h-8 w-16',
-                    themeClasses.effects.rounded,
-                    themeClasses.patterns.skeleton,
-                    'animate-pulse'
-                  )}
-                ></div>
-              ))}
-            </div>
-          ) : (
-            <div className={themeClasses.list.horizontal}>
-              {categories?.slice(0, 10).map((category) => (
-                <Link
-                  key={category.id}
-                  href={`/category/${category.name}`}
-                  className={combineClasses(
-                    themeClasses.tag.secondary,
-                    'gap-1',
-                    themeClasses.typography.bodySmall
-                  )}
-                >
-                  <span>{category.name}</span>
-                  {category.post_count && (
-                    <span className={combineClasses(
-                      themeClasses.typography.captionText,
-                      'opacity-75'
-                    )}>
-                      {category.post_count}
-                    </span>
-                  )}
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Archive */}
-        <div className={themeClasses.spacing.stack}>
-          <h3 className={combineClasses(
-            themeClasses.typography.h3,
-            themeClasses.text.primary,
-            themeClasses.utils.sectionSmall
-          )}>
-            Archive
-          </h3>
-          <Archive 
-            posts={recentPosts} 
-            className=""
-          />
-        </div>
-
+      {/* Archive */}
+      <div className="bg-medium-bg-card rounded-lg p-4">
+        <h3 className="text-lg font-semibold text-medium-text-primary mb-3">
+          Archive
+        </h3>
+        <Archive 
+          posts={recentPosts} 
+          className=""
+        />
       </div>
     </div>
   );

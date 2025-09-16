@@ -107,7 +107,7 @@ export const themeClasses = {
     
     // Flex layouts - Enhanced responsive behavior
     flexColumn: 'flex flex-col gap-4 lg:gap-6 xl:gap-8',
-    flexRow: 'flex flex-col lg:flex-row gap-4 lg:gap-6 xl:gap-8',
+    flexRow: 'flex flex-col md:flex-row gap-4 md:gap-5 lg:gap-6 xl:gap-8',
   },
 
   // Interactive states with enhanced touch targets and accessibility
@@ -229,12 +229,12 @@ export const themeClasses = {
     // Flex patterns
     flexMobileColumn: 'flex flex-col',
     flexTabletRow: 'flex flex-col md:flex-row',
-    flexDesktopRow: 'flex flex-col lg:flex-row',
+    flexDesktopRow: 'flex flex-col md:flex-row',
     
     // Sidebar patterns
-    sidebarMobileHidden: 'hidden lg:block',
-    sidebarMobileCollapsed: 'lg:hidden',
-    sidebarDesktopSticky: 'lg:sticky lg:top-24',
+    sidebarMobileHidden: 'hidden md:block',
+    sidebarMobileCollapsed: 'md:hidden',
+    sidebarDesktopSticky: 'md:sticky md:top-20 lg:top-24',
     
     // Text alignment
     textMobileCenter: 'text-center lg:text-left',
@@ -243,14 +243,14 @@ export const themeClasses = {
     // Visibility
     mobileOnly: 'block md:hidden',
     tabletOnly: 'hidden md:block lg:hidden', 
-    desktopOnly: 'hidden lg:block',
-    touchOnly: 'block lg:hidden',
+    desktopOnly: 'hidden md:block',
+    touchOnly: 'block md:hidden',
     
-    // Sizing - Enhanced sidebar width
+    // Sizing - Optimized sidebar width for better content balance across all breakpoints
     fullMobile: 'w-full',
-    autoDesktop: 'w-full lg:w-auto',
-    sidebarWidth: 'w-full lg:w-96 xl:w-80 2xl:w-72 lg:flex-shrink-0',
-    sidebarWidthLarge: 'w-full lg:w-80 xl:w-72 2xl:w-64 lg:flex-shrink-0',
+    autoDesktop: 'w-full md:w-auto',
+    sidebarWidth: 'w-full md:w-64 lg:w-72 xl:w-64 2xl:w-60 md:flex-shrink-0',
+    sidebarWidthLarge: 'w-full md:w-60 lg:w-64 xl:w-60 2xl:w-56 md:flex-shrink-0',
   },
 
   // Enhanced shadows and effects with layered system
