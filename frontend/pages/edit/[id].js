@@ -137,9 +137,21 @@ const EditPost = () => {
     }
 
     try {
+      // Generate preview_content from content (first 55 words)
+      const generatePreview = (content) => {
+        // Remove HTML tags
+        const cleanContent = content.replace(/<[^>]*>/g, '');
+        const words = cleanContent.split(/\s+/).filter(word => word.length > 0);
+        if (words.length > 55) {
+          return words.slice(0, 55).join(' ') + '...';
+        }
+        return cleanContent;
+      };
+
       const res = await updatePost(post.id, {
         title,
         content,
+        preview_content: generatePreview(content),
         image_title: imageTitle,
         categories: categories ? categories.split(',').map(cat => cat.trim()) : [],
         tags: tags ? tags.split(',').map(tag => tag.trim()) : [],

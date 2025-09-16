@@ -355,12 +355,30 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 	// Update fields
 	if req.Title != "" {
 		post.Title = req.Title
+		// Generate new title_name (slug) from updated title
+		newTitleName := utils.CreateSlug(req.Title)
+
+		// Ensure unique title_name if it's different from current one
+		if newTitleName != post.TitleName {
+			var existingPost entities.Post
+			if err := tx.Where("title_name = ? AND id != ?", newTitleName, post.ID).First(&existingPost).Error; err == nil {
+				// Title name already exists, add unique prefix
+				uniquePrefix := utils.GetUniquePrefix()
+				newTitleName = fmt.Sprintf("%s-%s", newTitleName, uniquePrefix)
+			}
+			post.TitleName = newTitleName
+		}
 	}
 	if req.ImageTitle != "" {
 		post.ImageTitle = req.ImageTitle
 	}
 	if req.PreviewContent != "" {
 		post.PreviewContent = req.PreviewContent
+	}
+
+	// Auto-generate preview_content from content if not provided and content is being updated
+	if req.Content != "" && req.PreviewContent == "" {
+		post.PreviewContent = utils.ExtractPreviewContent(req.Content, 55)
 	}
 
 	post.UpdatedAt = time.Now()
