@@ -182,7 +182,7 @@ const PostList = ({
         }
         refreshFunction={() => window.location.reload()}
         pullDownToRefresh={false}
-        className={themeClasses.spacing.stackLarge}
+        className={combineClasses(themeClasses.spacing.stackLarge, themeClasses.responsive.gapProgressive)}
       >
         {flatPosts.map((post, index) => (
           <div key={`${post.id}-${index}`} className={themeClasses.spacing.marginBottom}>

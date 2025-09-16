@@ -118,7 +118,7 @@ const Navbar = () => {
         : themeClasses.bg.primary + '/90'
     )}>
       <div className={themeClasses.layout.container}>
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-16 md:h-18 lg:h-20">
           {/* Logo */}
           <Link 
             href="/" 
@@ -137,8 +137,8 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-4">
-            {/* Search - Always visible */}
-            <div className="w-64">
+            {/* Search - Always visible with responsive width */}
+            <div className="w-48 md:w-56 lg:w-64 xl:w-72">
               <SimpleSearchBar placeholder="Tìm kiếm..." />
             </div>
 
@@ -321,7 +321,7 @@ const Navbar = () => {
           <div className="md:hidden flex items-center gap-2">
             {/* Mobile Search */}
             <div className={combineClasses(
-              'flex-1 max-w-48',
+              'flex-1 max-w-40 sm:max-w-48',
               themeClasses.responsive.touchOnly
             )}>
               <SimpleSearchBar placeholder="Tìm kiếm..." />

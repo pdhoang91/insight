@@ -113,14 +113,14 @@ module.exports = {
         '30': '7.5rem',   // 120px
       },
       maxWidth: {
-        // Medium 2024 Layout Widths - Optimized for large screens
+        // Medium 2024 Layout Widths - Optimized for better content containment
         'article': '680px',       // Medium's optimal reading width
-        'container': '1140px',    // Main container (reduced from 1200px)
+        'container': '1080px',    // Main container (further reduced for better padding)
         'sidebar': '320px',       // Sidebar width
         'content': '800px',       // Content area (article + padding)
-        'wide': '1280px',         // Wide container (reduced from 1400px)
+        'wide': '1200px',         // Wide container (reduced for better control)
         'reading': '720px',       // Reading-optimized width
-        'compact': '960px',       // Compact layout for forms/profiles
+        'compact': '900px',       // Compact layout for forms/profiles (reduced)
       },
       
       // Standardized responsive breakpoints - Optimized for better scaling

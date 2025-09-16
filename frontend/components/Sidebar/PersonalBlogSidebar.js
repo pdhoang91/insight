@@ -12,10 +12,14 @@ const PersonalBlogSidebar = () => {
   const { posts: recentPosts, isLoading: postsLoading } = useRecentPosts(5);
 
   return (
-    <div className="space-y-6">
+    <div className={combineClasses(themeClasses.spacing.stackLarge, themeClasses.responsive.gapProgressive)}>
       {/* Popular Posts */}
-      <div className="bg-medium-bg-card rounded-lg p-4">
-        <h3 className="text-lg font-semibold text-medium-text-primary mb-3">
+      <div className={combineClasses(themeClasses.bg.card, themeClasses.effects.rounded, themeClasses.spacing.card)}>
+        <h3 className={combineClasses(
+          themeClasses.typography.h4,
+          themeClasses.text.primary,
+          'mb-3'
+        )}>
           Popular Posts
         </h3>
         <PopularPosts 
@@ -26,8 +30,12 @@ const PersonalBlogSidebar = () => {
       </div>
 
       {/* Categories */}
-      <div className="bg-medium-bg-card rounded-lg p-4">
-        <h3 className="text-lg font-semibold text-medium-text-primary mb-3">
+      <div className={combineClasses(themeClasses.bg.card, themeClasses.effects.rounded, themeClasses.spacing.card)}>
+        <h3 className={combineClasses(
+          themeClasses.typography.h4,
+          themeClasses.text.primary,
+          'mb-3'
+        )}>
           Categories
         </h3>
         
@@ -61,8 +69,12 @@ const PersonalBlogSidebar = () => {
       </div>
 
       {/* Archive */}
-      <div className="bg-medium-bg-card rounded-lg p-4">
-        <h3 className="text-lg font-semibold text-medium-text-primary mb-3">
+      <div className={combineClasses(themeClasses.bg.card, themeClasses.effects.rounded, themeClasses.spacing.card)}>
+        <h3 className={combineClasses(
+          themeClasses.typography.h4,
+          themeClasses.text.primary,
+          'mb-3'
+        )}>
           Archive
         </h3>
         <Archive 

@@ -34,10 +34,11 @@ const Layout = ({
             /* Layout with Sidebar - Enhanced responsive behavior */
             <div className={combineClasses(
               themeClasses.layout.flexRow,
-              themeClasses.spacing.section
+              themeClasses.spacing.section,
+              themeClasses.responsive.gapProgressive
             )}>
               {/* Main Content Area - Always first on mobile */}
-              <div className={combineClasses('flex-1 min-w-0', themeClasses.utils.relative)}>
+              <div className={combineClasses(themeClasses.responsive.contentMain, themeClasses.utils.relative)}>
                 <div className={combineClasses(themeClasses.spacing.stackLarge, className)}>
                   {children}
                 </div>

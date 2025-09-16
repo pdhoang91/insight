@@ -85,14 +85,14 @@ export const themeClasses = {
 
   // Layout - Mobile-first with minimal padding on small screens, heavy padding on large screens
   layout: {
-    // Container patterns - Minimal padding on mobile, increasing dramatically on large screens
-    container: 'max-w-container mx-auto px-3 md:px-4 lg:px-8 xl:px-20 2xl:px-32',        // Minimal mobile, heavy desktop
-    containerSmall: 'max-w-compact mx-auto px-2 md:px-3 lg:px-6 xl:px-16',              // Very minimal mobile
-    containerWide: 'max-w-wide mx-auto px-3 md:px-4 lg:px-8 xl:px-20 2xl:px-32',         // Same strategy as container
+    // Container patterns - Minimal padding on mobile, dramatically increasing on large screens
+    container: 'max-w-container mx-auto px-4 sm:px-6 md:px-8 lg:px-16 xl:px-24 2xl:px-40',        // Progressive padding increase
+    containerSmall: 'max-w-compact mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20',              // Smaller but still progressive
+    containerWide: 'max-w-wide mx-auto px-4 sm:px-6 md:px-8 lg:px-16 xl:px-24 2xl:px-40',         // Same progressive strategy
     
-    // Content patterns - Prioritize width on mobile, constrain on desktop
-    article: 'max-w-reading mx-auto px-3 md:px-4 lg:px-8 xl:px-20',                     // Minimal mobile padding
-    reading: 'max-w-reading mx-auto px-3 md:px-4 lg:px-8 xl:px-20',                     // Same as article
+    // Content patterns - Prioritize width on mobile, constrain on desktop with better padding
+    article: 'max-w-reading mx-auto px-4 sm:px-6 md:px-8 lg:px-16 xl:px-24',                     // Better mobile padding
+    reading: 'max-w-reading mx-auto px-4 sm:px-6 md:px-8 lg:px-16 xl:px-24',                     // Same as article
     
     // Layout utilities
     fullHeight: 'min-h-screen',
@@ -220,25 +220,41 @@ export const themeClasses = {
   
   // Responsive Layout Patterns
   responsive: {
-    // Mobile-first grid patterns
+    // Mobile-first grid patterns with better spacing
     gridMobileSingle: 'grid grid-cols-1',
     gridTabletDouble: 'grid grid-cols-1 md:grid-cols-2',
     gridDesktopTriple: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
     gridDesktopQuad: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
     
-    // Flex patterns
+    // Flex patterns with improved gaps
     flexMobileColumn: 'flex flex-col',
     flexTabletRow: 'flex flex-col md:flex-row',
     flexDesktopRow: 'flex flex-col md:flex-row',
     
-    // Sidebar patterns
+    // Sidebar patterns with better responsive behavior
     sidebarMobileHidden: 'hidden md:block',
     sidebarMobileCollapsed: 'md:hidden',
     sidebarDesktopSticky: 'md:sticky md:top-20 lg:top-24',
+    sidebarWidth: 'w-full md:w-72 lg:w-80 xl:w-72 md:ml-6 lg:ml-8 xl:ml-12',
     
     // Text alignment
     textMobileCenter: 'text-center lg:text-left',
     textMobileLeft: 'text-left',
+    
+    // Progressive spacing utilities for smooth scaling
+    paddingProgressive: 'px-4 sm:px-6 md:px-8 lg:px-16 xl:px-24 2xl:px-40',
+    marginProgressive: 'mx-4 sm:mx-6 md:mx-8 lg:mx-16 xl:mx-24 2xl:mx-40',
+    gapProgressive: 'gap-4 sm:gap-6 md:gap-8 lg:gap-12 xl:gap-16',
+    
+    // Content responsive behavior
+    contentMain: 'flex-1 min-w-0 max-w-none',
+    contentWithSidebar: 'flex-1 min-w-0 pr-0 md:pr-6 lg:pr-8 xl:pr-12',
+    
+    // Touch-friendly responsive utilities
+    touchOnly: 'block md:hidden',
+    desktopOnly: 'hidden md:block',
+    tabletUp: 'hidden md:flex',
+    mobileDown: 'flex md:hidden',
     
     // Visibility
     mobileOnly: 'block md:hidden',
