@@ -78,9 +78,8 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
 
             {/* Post Meta Information */}
             <div className={combineClasses(
-              'flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 border-y',
+              'flex flex-col sm:flex-row sm:items-center sm:justify-between py-6',
               themeClasses.spacing.gapMedium,
-              themeClasses.border.primary
             )}>
               {/* Date and Reading Time */}
               <div className={combineClasses(

@@ -135,7 +135,7 @@ const PostItem = ({ post }) => {
 
       {/* Comments Section - Full Width */}
       {isCommentsOpen && (
-        <div className={`mt-8 pt-6 border-t ${themeClasses.border.primary}`}>
+        <div className={`mt-8 pt-6`}>
           <div className={themeClasses.spacing.stack}>
             <AddCommentForm 
               postId={post.id} 

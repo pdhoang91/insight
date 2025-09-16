@@ -31,8 +31,7 @@ const PostItemSmall = ({ post }) => {
       )}>
         {/* Content */}
         <div className={combineClasses(
-          'flex-1 min-w-0 border-b pb-3',
-          themeClasses.border.primary
+          'flex-1 min-w-0 pb-3',
         )}>
           <Link 
             href={`/p/${post.title_name}`} 

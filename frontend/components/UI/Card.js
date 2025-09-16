@@ -14,7 +14,7 @@ const Card = ({
     default: combineClasses(themeClasses.interactive.cardBase, themeClasses.effects.rounded),
     elevated: combineClasses(themeClasses.interactive.cardBase, themeClasses.effects.rounded, themeClasses.effects.shadowLarge),
     flat: themeClasses.effects.rounded,
-    outline: combineClasses(themeClasses.effects.rounded, themeClasses.border.primary, 'border shadow-none'),
+    outline: combineClasses(themeClasses.effects.rounded, 'shadow-none'),
   };
 
   const paddings = {
@@ -64,8 +64,7 @@ export const CardBody = ({ children, className = '', ...props }) => {
 export const CardFooter = ({ children, className = '', ...props }) => {
   return (
     <div className={combineClasses(
-      'mt-6 pt-4 border-t',
-      themeClasses.border.primary,
+      'mt-6 pt-4',
       className
     )} {...props}>
       {children}

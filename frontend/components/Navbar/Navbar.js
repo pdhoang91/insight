@@ -104,14 +104,12 @@ const Navbar = () => {
       scrolled 
         ? combineClasses(
             themeClasses.bg.primary,
-            'border-b',
-            themeClasses.border.primary,
             themeClasses.effects.shadow
           )
         : themeClasses.bg.primary + '/90'
     )}>
       <div className={themeClasses.layout.container}>
-        <div className="flex items-center justify-between h-16 md:h-18 lg:h-20">
+        <div className="flex items-center justify-between h-14 sm:h-16 md:h-18 lg:h-20">
           {/* Logo */}
           <Link 
             href="/" 
@@ -128,9 +126,9 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-2 md:gap-3 lg:gap-4">
             {/* Search - Always visible with responsive width */}
-            <div className="w-48 md:w-56 lg:w-64 xl:w-72">
+            <div className="w-40 md:w-48 lg:w-56 xl:w-64 2xl:w-72">
               <SimpleSearchBar placeholder="Tìm kiếm..." />
             </div>
 
@@ -184,7 +182,7 @@ const Navbar = () => {
                   ) : (
                     <div className={combineClasses(
                       themeClasses.avatar.sm,
-                      'bg-medium-bg-secondary border border-medium-border',
+                      'bg-medium-bg-secondary',
                       'flex items-center justify-center'
                     )}>
                       <FaUser className={combineClasses(
@@ -203,7 +201,7 @@ const Navbar = () => {
                       exit={{ opacity: 0, scale: 0.95, y: -10 }}
                       className={combineClasses(
                         'absolute right-0 mt-2 w-64 overflow-hidden z-50',
-                        'bg-medium-bg-primary border-medium-border border',
+                        'bg-medium-bg-primary',
                         'rounded-lg shadow-2xl'
                       )}
                       style={{ 
@@ -230,7 +228,7 @@ const Navbar = () => {
                           ) : (
                             <div className={combineClasses(
                               themeClasses.avatar.md,
-                              'bg-medium-bg-secondary border border-medium-border',
+                              'bg-medium-bg-secondary',
                               'flex items-center justify-center'
                             )}>
                               <FaUser className={combineClasses(

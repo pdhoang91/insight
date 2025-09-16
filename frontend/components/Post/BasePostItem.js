@@ -72,8 +72,7 @@ const BasePostItem = ({
       )}>
         <div className={`${themeClasses.responsive.flexTabletRow} items-start ${themeClasses.spacing.gap}`}>
           <div className={combineClasses(
-            'flex-1 min-w-0 pb-3 border-b',
-            themeClasses.border.primary
+            'flex-1 min-w-0 pb-3',
           )}>
             <Link href={`/p/${post.title_name}`} className={`block ${themeClasses.spacing.marginBottomSmall}`}>
               <h3 className={`${componentClasses.heading.h4} ${themeClasses.interactive.link} line-clamp-2 text-balance`}>
@@ -106,7 +105,6 @@ const BasePostItem = ({
       themeClasses.effects.rounded,
       themeClasses.effects.shadow,
       'border',
-      themeClasses.border.primary
     )}>
       <div className={combineClasses(
         themeClasses.layout.flexRow,
@@ -121,9 +119,8 @@ const BasePostItem = ({
               src={post.author?.avatar_url || '/author-avatar.svg'}
               alt={post.author?.display_name || 'Author'}
               className={combineClasses(
-                'w-12 h-12 rounded-full object-cover border-2',
-                themeClasses.border.primary,
-                'hover:border-medium-accent-blue',
+                'w-12 h-12 rounded-full object-cover',
+,
                 themeClasses.animations.smooth
               )}
             />
@@ -253,8 +250,7 @@ const BasePostItem = ({
       {/* Comments Section */}
       {showComments && isCommentsOpen && (
         <div className={combineClasses(
-          'mt-6 pt-6 border-t',
-          themeClasses.border.primary
+          'mt-6 pt-6',
         )}>
           <div className={themeClasses.spacing.marginBottom}>
             <AddCommentForm 

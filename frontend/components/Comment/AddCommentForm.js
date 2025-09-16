@@ -48,12 +48,10 @@ const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId =
         className={combineClasses(
           'w-full p-3 pr-12 resize-none',
           themeClasses.bg.card,
-          'border',
-          themeClasses.border.primary,
           themeClasses.effects.rounded,
           themeClasses.text.primary,
           'placeholder:text-medium-text-muted',
-          'focus:outline-none focus:ring-2 focus:ring-medium-accent-green/50 focus:border-medium-accent-green',
+          'focus:outline-none focus:ring-2 focus:ring-medium-accent-green/50',
           themeClasses.animations.smooth,
           themeClasses.effects.shadow,
           'focus:shadow-card',

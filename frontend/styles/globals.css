@@ -936,7 +936,7 @@ button, a, [role="button"] {
   background: var(--medium-bg-card);
   /* border: 1px solid var(--medium-border);
   border-radius: var(--border-radius-lg); */
-  box-shadow: var(--shadow-sm);
+  /* box-shadow: var(--shadow-sm); */
   position: relative;
   overflow: hidden;
 }

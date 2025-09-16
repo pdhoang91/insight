@@ -85,8 +85,6 @@ const TableOfContents = ({ content, className = '' }) => {
     <div className={combineClasses(
       'table-of-contents',
       themeClasses.bg.card,
-      themeClasses.border.primary,
-      'border',
       themeClasses.effects.rounded,
       themeClasses.effects.shadow,
       className
@@ -94,9 +92,7 @@ const TableOfContents = ({ content, className = '' }) => {
       {/* Header */}
       <div className={combineClasses(
         'toc-header',
-        themeClasses.spacing.cardSmall,
-        'border-b',
-        themeClasses.border.primary
+        themeClasses.spacing.cardSmall
       )}>
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}

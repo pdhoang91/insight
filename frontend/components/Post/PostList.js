@@ -171,8 +171,7 @@ const PostList = ({
         endMessage={
           flatPosts.length > 0 && (
             <div className={combineClasses(
-              'text-center py-8 border-t mt-8',
-              themeClasses.border.primary
+              'text-center py-8 mt-8',
             )}>
               <p className={themeClasses.text.muted}>
                 You've reached the end!

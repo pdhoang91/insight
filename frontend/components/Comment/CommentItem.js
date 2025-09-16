@@ -47,7 +47,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
 
   return (
     <motion.div
-      className={`${themeClasses.bg.card} border ${themeClasses.border.primary} ${themeClasses.effects.rounded} ${themeClasses.spacing.card} ${themeClasses.effects.shadow}`}
+      className={`${themeClasses.bg.card} ${themeClasses.effects.rounded} ${themeClasses.spacing.card} ${themeClasses.effects.shadow}`}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
