@@ -6,18 +6,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   FaUser, 
   FaSignOutAlt, 
-  FaEdit,
-  FaBars, 
-  FaTimes,
-  FaSearch
+  FaEdit
 } from 'react-icons/fa';
 import { useUser } from '../../context/UserContext';
 import { useTheme } from '../../context/ThemeContext';
 import { usePostContext } from '../../context/PostContext';
 import ThemeToggle from '../UI/ThemeToggle';
 import SimpleSearchBar from '../Shared/SimpleSearchBar';
+import NavbarMobile from './NavbarMobile';
 import { canWritePosts } from '../../services/authService';
-import { themeClasses, componentClasses, combineClasses } from '../../utils/themeClasses';
+import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const Navbar = () => {
   const { user, setUser, setModalOpen } = useUser();
@@ -26,10 +24,11 @@ const Navbar = () => {
   const router = useRouter();
   const isWritePage = router.pathname === '/write' || router.pathname.startsWith('/edit/');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const userMenuRef = useRef();
-  const mobileMenuRef = useRef();
+  
+  // Get mobile navigation components
+  const mobileNav = NavbarMobile();
 
   // Handle scroll effect
   useEffect(() => {
@@ -42,14 +41,11 @@ const Navbar = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close menus when clicking outside
+  // Close user menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
         setIsUserMenuOpen(false);
-      }
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target)) {
-        setIsMobileMenuOpen(false);
       }
     };
 
@@ -61,7 +57,6 @@ const Navbar = () => {
     localStorage.removeItem('token');
     setUser(null);
     setIsUserMenuOpen(false);
-    setIsMobileMenuOpen(false);
     router.push('/');
   };
 
@@ -72,7 +67,6 @@ const Navbar = () => {
   };
 
   const handleWriteClick = () => {
-    setIsMobileMenuOpen(false);
     if (!user) {
       setModalOpen(true);
     } else {
@@ -81,7 +75,6 @@ const Navbar = () => {
   };
 
   const toggleUserMenu = () => setIsUserMenuOpen(!isUserMenuOpen);
-  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
   // Don't render navbar until theme is mounted to prevent hydration mismatch
   if (!mounted) {
@@ -123,7 +116,6 @@ const Navbar = () => {
           <Link 
             href="/" 
             className="flex items-center group"
-            onClick={() => setIsMobileMenuOpen(false)}
           >
             <div className={combineClasses(
               themeClasses.typography.h2,
@@ -148,7 +140,7 @@ const Navbar = () => {
                 {isWritePage ? (
                   <button
                     onClick={handlePublishClick}
-                    className={componentClasses.button.primary}
+                    className="inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 min-h-[44px] text-sm text-medium-text-secondary hover:text-medium-accent-green hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 transition-all duration-200 ease-out flex items-center"
                     aria-label="Đăng bài viết"
                   >
                     Đăng
@@ -156,10 +148,7 @@ const Navbar = () => {
                 ) : (
                   <button
                     onClick={handleWriteClick}
-                    className={combineClasses(
-                      componentClasses.button.ghost,
-                      'flex items-center'
-                    )}
+                    className="inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 min-h-[44px] text-sm text-medium-text-secondary hover:text-medium-accent-green hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 transition-all duration-200 ease-out flex items-center"
                     aria-label="Viết bài mới"
                   >
                     <FaEdit className={combineClasses(
@@ -179,9 +168,9 @@ const Navbar = () => {
                 <button
                   onClick={toggleUserMenu}
                   className={combineClasses(
-                    'flex items-center gap-2 p-1 rounded-full',
-                    'hover:bg-medium-hover',
-                    themeClasses.interactions.iconHover
+                    'flex items-center gap-2 p-2 rounded-full',
+                    'hover:bg-medium-bg-secondary transition-all duration-200 ease-out',
+                    'focus:outline-none focus-visible:ring-2 focus-visible:ring-medium-accent-green focus-visible:ring-offset-2'
                   )}
                   aria-label="Mở menu người dùng"
                   aria-expanded={isUserMenuOpen}
@@ -195,12 +184,12 @@ const Navbar = () => {
                   ) : (
                     <div className={combineClasses(
                       themeClasses.avatar.sm,
-                      themeClasses.bg.accent,
+                      'bg-medium-bg-secondary border border-medium-border',
                       'flex items-center justify-center'
                     )}>
                       <FaUser className={combineClasses(
                         themeClasses.icons.sm,
-                        themeClasses.text.white
+                        themeClasses.text.secondary
                       )} />
                     </div>
                   )}
@@ -213,9 +202,14 @@ const Navbar = () => {
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95, y: -10 }}
                       className={combineClasses(
-                        'absolute right-0 mt-2 w-64 overflow-hidden',
-                        themeClasses.menu.container
+                        'absolute right-0 mt-2 w-64 overflow-hidden z-50',
+                        'bg-medium-bg-primary border-medium-border border',
+                        'rounded-lg shadow-2xl'
                       )}
+                      style={{ 
+                        backgroundColor: 'var(--medium-bg-primary)',
+                        opacity: '1'
+                      }}
                     >
                       {/* User Info - Clickable to profile */}
                       <div className="px-4 py-3">
@@ -223,8 +217,7 @@ const Navbar = () => {
                           href={`/${user.username}`}
                           className={combineClasses(
                             'flex items-center gap-3 rounded-lg p-2 -m-2',
-                            'hover:bg-medium-hover',
-                            themeClasses.animations.smooth
+                            'hover:bg-medium-bg-secondary transition-all duration-200 ease-out'
                           )}
                           onClick={() => setIsUserMenuOpen(false)}
                         >
@@ -237,12 +230,12 @@ const Navbar = () => {
                           ) : (
                             <div className={combineClasses(
                               themeClasses.avatar.md,
-                              themeClasses.bg.accent,
+                              'bg-medium-bg-secondary border border-medium-border',
                               'flex items-center justify-center'
                             )}>
                               <FaUser className={combineClasses(
                                 themeClasses.icons.md,
-                                themeClasses.text.white
+                                themeClasses.text.secondary
                               )} />
                             </div>
                           )}
@@ -275,8 +268,7 @@ const Navbar = () => {
                           variant="simple" 
                           className={combineClasses(
                             'w-full justify-start px-4 py-2 text-sm rounded-md',
-                            'hover:bg-medium-hover',
-                            themeClasses.animations.smooth
+                            'hover:bg-medium-bg-secondary transition-all duration-200 ease-out'
                           )} 
                         />
 
@@ -284,8 +276,10 @@ const Navbar = () => {
                         <button
                           onClick={handleLogout}
                           className={combineClasses(
-                            themeClasses.menu.item,
-                            'w-full'
+                            'w-full px-4 py-2 text-sm cursor-pointer flex items-center gap-3 rounded-md',
+                            'text-medium-text-primary bg-transparent',
+                            'hover:bg-medium-bg-secondary hover:text-medium-text-primary',
+                            'transition-all duration-200 ease-out'
                           )}
                           aria-label="Đăng xuất khỏi tài khoản"
                         >
@@ -301,202 +295,22 @@ const Navbar = () => {
                 <div className="flex items-center gap-4">
                 <button
                   onClick={() => setModalOpen(true)}
-                  className={componentClasses.button.ghost}
+                  className="inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2 min-h-[44px] text-sm text-medium-text-secondary hover:text-medium-accent-green hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 transition-all duration-200 ease-out flex items-center"
                   aria-label="Đăng nhập vào tài khoản"
                 >
                   Đăng nhập
-                </button>
-                <button
-                  onClick={handleWriteClick}
-                  className={componentClasses.button.primary}
-                  aria-label="Bắt đầu viết bài"
-                >
-                  Bắt đầu
                 </button>
               </div>
             )}
           </div>
 
           {/* Mobile Navigation */}
-          <div className="md:hidden flex items-center gap-2">
-            {/* Mobile Search */}
-            <div className={combineClasses(
-              'flex-1 max-w-40 sm:max-w-48',
-              themeClasses.responsive.touchOnly
-            )}>
-              <SimpleSearchBar placeholder="Tìm kiếm..." />
-            </div>
-            
-            {/* Mobile Write/Publish Button */}
-            {(user && canWritePosts(user)) && (
-              <>
-                {isWritePage ? (
-                  <button
-                    onClick={handlePublishClick}
-                    className={componentClasses.button.primarySmall}
-                    aria-label="Đăng bài viết"
-                  >
-                    Đăng
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleWriteClick}
-                    className={combineClasses(
-                      componentClasses.button.primarySmall,
-                      'p-2'
-                    )}
-                    aria-label="Viết bài mới"
-                  >
-                    <FaEdit className={combineClasses(
-                      themeClasses.icons.sm,
-                      themeClasses.text.white
-                    )} />
-                  </button>
-                )}
-              </>
-            )}
-            
-            {/* Mobile Menu Button */}
-            <button
-              onClick={toggleMobileMenu}
-            className={combineClasses(
-              themeClasses.interactive.touchTarget,
-              'rounded-lg',
-              themeClasses.text.secondary,
-              themeClasses.interactions.iconHover
-            )}
-              aria-label={isMobileMenuOpen ? "Đóng menu" : "Mở menu"}
-              aria-expanded={isMobileMenuOpen}
-            >
-              {isMobileMenuOpen ? (
-                <FaTimes className={themeClasses.icons.md} />
-              ) : (
-                <FaBars className={themeClasses.icons.md} />
-              )}
-            </button>
-          </div>
+          {mobileNav?.mobileControls}
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            ref={mobileMenuRef}
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className={combineClasses(
-              'md:hidden rounded-b-lg border border-t-0',
-              themeClasses.menu.container
-            )}
-          >
-            <div className="px-6 py-4 space-y-4">
-              {/* Mobile Navigation */}
-              {user ? (
-                <div className="space-y-3">
-                  {/* User Profile Link */}
-                  <Link
-                    href={`/${user.username}`}
-                    className={combineClasses(
-                      themeClasses.menu.item,
-                      'gap-3 p-3 rounded-lg'
-                    )}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {user.avatar_url ? (
-                      <img
-                        src={user.avatar_url}
-                        alt={user.name}
-                        className={themeClasses.avatar.md}
-                      />
-                    ) : (
-                      <div className={combineClasses(
-                        themeClasses.avatar.md,
-                        themeClasses.bg.accent,
-                        'flex items-center justify-center'
-                      )}>
-                        <FaUser className={combineClasses(
-                          themeClasses.icons.md,
-                          themeClasses.text.white
-                        )} />
-                      </div>
-                    )}
-                    <div>
-                      <div className={combineClasses(
-                        themeClasses.typography.weightMedium,
-                        themeClasses.text.primary
-                      )}>
-                        {user.name}
-                      </div>
-                      <div className={combineClasses(
-                        themeClasses.typography.bodySmall,
-                        themeClasses.text.secondary
-                      )}>
-                        Xem hồ sơ
-                      </div>
-                    </div>
-                  </Link>
-                  
-                  {/* Menu Items with consistent styling */}
-                  <div className="space-y-1">
-                    {/* Theme Toggle */}
-                    <div className="px-3 py-2">
-                      <div className="flex items-center justify-between">
-                        <span className={combineClasses(
-                          themeClasses.typography.bodySmall,
-                          themeClasses.text.secondary
-                        )}>Giao diện</span>
-                        <ThemeToggle variant="simple" />
-                      </div>
-                    </div>
-                    
-                    <button
-                      onClick={handleLogout}
-                      className={combineClasses(
-                        themeClasses.menu.item,
-                        'w-full px-3 py-2 rounded-md'
-                      )}
-                      aria-label="Đăng xuất khỏi tài khoản"
-                    >
-                      <FaSignOutAlt className={combineClasses(themeClasses.icons.sm, 'mr-3')} />
-                      Đăng xuất
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <button
-                    onClick={() => {
-                      setModalOpen(true);
-                      setIsMobileMenuOpen(false);
-                    }}
-                    className={combineClasses(
-                      componentClasses.button.ghost,
-                      'w-full text-left justify-start',
-                      themeClasses.interactive.touchTarget
-                    )}
-                    aria-label="Đăng nhập vào tài khoản"
-                  >
-                    Đăng nhập
-                  </button>
-                  <button
-                    onClick={handleWriteClick}
-                    className={combineClasses(
-                      componentClasses.button.primary,
-                      'w-full text-center',
-                      themeClasses.interactive.touchTarget
-                    )}
-                    aria-label="Bắt đầu viết bài"
-                  >
-                    Bắt đầu
-                  </button>
-                </div>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Mobile Menu - positioned outside navbar container for proper spacing */}
+      {mobileNav?.mobileMenu}
     </nav>
   );
 };
