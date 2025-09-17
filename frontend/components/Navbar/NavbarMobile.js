@@ -138,15 +138,11 @@ const NavbarMobile = () => {
             exit={{ opacity: 0, height: 0 }}
             className={combineClasses(
               'md:hidden absolute top-full left-0 right-0 z-50',
-              'bg-medium-bg-primary',
-              'rounded-b-lg shadow-2xl',
-              '[&]:bg-opacity-100 [&]:backdrop-blur-none'
+              themeClasses.bg.card,
+              'border border-t-0',
+              themeClasses.border.primary,
+              'rounded-b-lg shadow-2xl backdrop-blur-sm'
             )}
-            style={{ 
-              backgroundColor: 'var(--medium-bg-primary)',
-              opacity: '1',
-              backdropFilter: 'none'
-            }}
           >
             <div className="px-6 py-6 space-y-4">
               {/* Mobile Navigation */}

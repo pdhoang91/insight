@@ -96,8 +96,8 @@ body {
 [data-theme="dark"] {
   --medium-bg-primary: #0D1117;          /* GitHub dark inspired */
   --medium-bg-secondary: #161B22;
-  --medium-bg-card: transparent;
-  --medium-bg-elevated: #2D333B;
+  --medium-bg-card: #161B22;             /* Solid background for cards/dropdowns */
+  --medium-bg-elevated: #21262D;         /* More elevated background */
   --medium-bg-overlay: rgba(13, 17, 23, 0.95);
   
   --medium-text-primary: #F0F6FC;        /* High contrast white */

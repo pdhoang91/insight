@@ -93,7 +93,10 @@ const LoginModal = ({ isOpen, onClose }) => {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
-        className={themeClasses.modal.overlay}
+        className={combineClasses(
+          'fixed inset-0 z-50 flex items-center justify-center',
+          'bg-black/60 backdrop-blur-sm'
+        )}
         onClick={onClose}
       >
         <motion.div
@@ -101,14 +104,26 @@ const LoginModal = ({ isOpen, onClose }) => {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
-          className={themeClasses.modal.content}
+          className={combineClasses(
+            'relative w-full max-w-md mx-4 p-6',
+            themeClasses.bg.card,
+            'border',
+            themeClasses.border.primary,
+            'rounded-lg shadow-2xl backdrop-blur-sm'
+          )}
           onClick={(e) => e.stopPropagation()}
         >
           <div className={themeClasses.form.fieldsetLarge}>
             {/* Close Button */}
             <button
               onClick={onClose}
-              className={themeClasses.modal.closeButton}
+              className={combineClasses(
+                'absolute top-4 right-4 p-2 rounded-full',
+                themeClasses.text.muted,
+                'hover:bg-medium-bg-secondary',
+                themeClasses.animations.smooth,
+                'focus:outline-none focus-visible:ring-2 focus-visible:ring-medium-accent-green'
+              )}
             >
               <FaTimes className={themeClasses.icons.sm} />
             </button>

@@ -104,9 +104,14 @@ const Navbar = () => {
       scrolled 
         ? combineClasses(
             themeClasses.bg.primary,
+            'border-b',
+            themeClasses.border.primary,
             themeClasses.effects.shadow
           )
-        : themeClasses.bg.primary + '/90'
+        : combineClasses(
+            themeClasses.bg.primary + '/95',
+            'backdrop-blur-md'
+          )
     )}>
       <div className={themeClasses.layout.container}>
         <div className="flex items-center justify-between h-14 sm:h-16 md:h-18 lg:h-20">
@@ -199,15 +204,13 @@ const Navbar = () => {
                       initial={{ opacity: 0, scale: 0.95, y: -10 }}
                       animate={{ opacity: 1, scale: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                      className={combineClasses(
-                        'absolute right-0 mt-2 w-64 overflow-hidden z-50',
-                        'bg-medium-bg-primary',
-                        'rounded-lg shadow-2xl'
-                      )}
-                      style={{ 
-                        backgroundColor: 'var(--medium-bg-primary)',
-                        opacity: '1'
-                      }}
+                        className={combineClasses(
+                          'absolute right-0 mt-2 w-64 overflow-hidden z-50',
+                          themeClasses.bg.card,
+                          'border',
+                          themeClasses.border.primary,
+                          'rounded-lg shadow-2xl backdrop-blur-sm'
+                        )}
                     >
                       {/* User Info - Clickable to profile */}
                       <div className="px-4 py-3">

@@ -45,10 +45,11 @@ const SimpleSearchBar = ({ onClose, autoFocus = false, className = '', placehold
             'pl-10 pr-10 py-2 rounded-full border',
             themeClasses.animations.smooth,
             themeClasses.focus.ring,
-            themeClasses.bg.elevated,
+            themeClasses.bg.card,
             themeClasses.border.primary,
             themeClasses.text.primary,
-            'placeholder-medium-text-muted'
+            'placeholder-medium-text-muted',
+            'backdrop-blur-sm'
           )}
           disabled={isLoading}
         />
