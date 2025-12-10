@@ -13,7 +13,7 @@
     "@tailwindcss/typography": "^0.5.15",
     "@tippyjs/react": "^4.2.6",
     "@tiptap/extension-image": "^2.9.1",
-    "@tiptap/extension-link": "^2.9.1",
+    "@tiptap/extension-link": "^2.10.4",
     "@tiptap/extension-placeholder": "^2.10.3",
     "@tiptap/extension-text-align": "^2.10.3",
     "@tiptap/extension-underline": "^2.9.1",
