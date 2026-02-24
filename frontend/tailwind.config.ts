@@ -1,6 +1,5 @@
 // tailwind.config.ts - Medium 2024 Design System
 module.exports = {
-  darkMode: ['class', '[data-theme="dark"]'],
   content: [
     "./pages/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
@@ -113,14 +112,13 @@ module.exports = {
         '30': '7.5rem',   // 120px
       },
       maxWidth: {
-        // Medium 2024 Layout Widths - More aggressive centering for large screens
-        'article': '640px',       // Tighter reading width for better focus
-        'container': '800px',     // More centered container (reduced from 900px)
-        'sidebar': '280px',       // Smaller sidebar for more content focus
-        'content': '680px',       // Tighter content area
-        'wide': '900px',          // More centered wide container (reduced from 1000px)
-        'reading': '640px',       // Consistent with article width
-        'compact': '720px',       // More compact layout
+        'article': '720px',
+        'container': '1200px',
+        'sidebar': '300px',
+        'content': '720px',
+        'wide': '1200px',
+        'reading': '720px',
+        'compact': '900px',
       },
       
       // Standardized responsive breakpoints - Optimized for better scaling

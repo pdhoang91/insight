@@ -1,237 +1,205 @@
-# Rich Editor Upgrade Plan
+# UI/UX Refactor Plan — Light-Only, TopDev + Medium Style
+
+## Goals
+1. Remove dark theme entirely — light mode only, no theme toggle
+2. Redesign UX/UI combining TopDev.vn (clean, professional) + Medium.com (reading-focused) style
+3. Fix responsive design: TableOfContents, editor, scroll behavior, nav-content padding
+4. Achieve full style consistency across all pages and components
+
+---
 
 ## Current State Analysis
 
-### Editor (Frontend)
-- **TipTap v2.9.1** with React integration
-- **Extensions**: StarterKit (bold, italic, strike, heading 1-5, blockquote, code, codeBlock, lists, horizontalRule, history), Image, Link, TextStyle, Underline, TextAlign
-- **Toolbar**: Bold, Italic, Underline, Strike, Align (L/C/R/J), Image upload, Link (prompt-based), Bullet/Ordered list, Heading dropdown (1-5), Blockquote, Clear format
-- **Missing**: Code block button, Horizontal rule button, Color/Highlight, Table, Embed (YouTube/Twitter), Drag-and-drop, Slash commands, Bubble menu, Floating menu, Image resize/caption, better link UI
+### Theme System
+- `ThemeContext.js` manages light/dark via `data-theme` attribute + localStorage
+- `ThemeToggle.js` component in Navbar (desktop + mobile)
+- CSS variables in `globals.css` define both light and dark palettes
+- `tailwind.config.ts` has `darkMode: ['class', '[data-theme="dark"]']`
+- `themeClasses.js` (920 lines) — central utility, uses CSS variable-based classes
+- Dark-specific references: `dark:prose-invert` in 4 places, `dark:` in BubbleToolbar and LinkDialog, `[data-theme="dark"]` in globals.css and mobile.css
 
-### Backend (Go)
-- `post_contents.content` = JSONB (TipTap document tree)
-- `ProcessJSONContent()` / `ProcessJSONContentForDisplay()` handle image URL ↔ `dataImageId` swapping
-- `extract_text_from_json_doc()` SQL function for full-text search
-- `walkJSONTree()` recursive visitor pattern for JSON processing
-- No JSON schema validation
+### Layout Issues
+- Navbar height varies: 56px (mobile) → 64px (sm) → 72px (md) → 80px (lg) — too many breakpoints
+- Content offset: `pt-16 md:pt-20` doesn't match all navbar heights
+- TOC sticky `top-24` (96px) doesn't align with actual navbar height
+- Body `scroll-padding-top: 4rem` (64px) — mismatch with larger navbar
+- Sidebar scroll is independent of main content — no coordination
+- Container padding `px-4 sm:px-6 md:px-16 lg:px-32 xl:px-48 2xl:px-64` — too aggressive on large screens
 
-### Rendering (Frontend)
-- `renderContent.js` uses `generateHTML()` from `@tiptap/html` with shared extensions
-- `tiptapExtensions.js` centralizes extension config (shared between editor & renderer)
-- Tailwind Typography (`prose`) + custom CSS for reading experience
-- Code blocks have basic styling but **no syntax highlighting**
-
----
-
-## Upgrade Plan
-
-### Phase 1: TipTap Extensions — New Node Types
-Add extensions to `tiptapExtensions.js` (shared config) and install packages.
-
-**New extensions:**
-| Extension | Package | Purpose |
-|-----------|---------|---------|
-| CodeBlockLowlight | `@tiptap/extension-code-block-lowlight` + `lowlight` | Syntax-highlighted code blocks with language selector |
-| Table + TableRow + TableHeader + TableCell | `@tiptap/extension-table` family | Tables |
-| Youtube | `@tiptap/extension-youtube` | YouTube embed |
-| Highlight | `@tiptap/extension-highlight` | Text highlight (background color) |
-| Color | `@tiptap/extension-color` | Text color |
-| Subscript | `@tiptap/extension-subscript` | Subscript text |
-| Superscript | `@tiptap/extension-superscript` | Superscript text |
-| TaskList + TaskItem | `@tiptap/extension-task-list` + `@tiptap/extension-task-item` | Checkbox lists |
-| Placeholder | (already installed) | Already used in PostForm |
-| CharacterCount | `@tiptap/extension-character-count` | Word/char count display |
-| Typography | `@tiptap/extension-typography` | Smart quotes, dashes, ellipsis auto-replace |
-
-**Replace StarterKit's CodeBlock** with `CodeBlockLowlight` (disable `codeBlock` in StarterKit config).
-
-**Impact on JSON structure**: New node types will appear in the document tree:
-```json
-{ "type": "table", "content": [{ "type": "tableRow", "content": [...] }] }
-{ "type": "codeBlock", "attrs": { "language": "javascript" }, "content": [...] }
-{ "type": "youtube", "attrs": { "src": "https://youtube.com/...", "width": 640, "height": 480 } }
-{ "type": "taskList", "content": [{ "type": "taskItem", "attrs": { "checked": false }, "content": [...] }] }
-{ "type": "text", "marks": [{ "type": "highlight", "attrs": { "color": "#fef08a" } }] }
-{ "type": "text", "marks": [{ "type": "textStyle", "attrs": { "color": "#ef4444" } }] }
-```
-
-**Files changed:**
-- `frontend/utils/tiptapExtensions.js` — add all new extensions
-- `frontend/package.json` — new dependencies
-- `frontend/components/Editor/PostForm.js` — CodeBlockLowlight replaces StarterKit's codeBlock in editor-specific config
-
-### Phase 2: Toolbar Redesign — Grouped & Feature-Rich
-Redesign the toolbar with logical groups, separators, and new buttons.
-
-**New toolbar layout:**
-```
-[B] [I] [U] [S] | [H▼] [Color▼] [Highlight▼] | [BulletList] [OrderedList] [TaskList] | 
-[AlignL] [AlignC] [AlignR] [AlignJ] | [Link] [Image] [YouTube] [Table] | 
-[Blockquote] [Code] [CodeBlock▼] [HorizontalRule] | [Sub] [Sup] [ClearFormat] | [Undo] [Redo]
-```
-
-**New components:**
-- `ToolbarSeparator.js` — vertical divider between groups
-- `ColorPicker.js` — reusable color picker dropdown (for Color and Highlight)
-- `LinkDialog.js` — proper link insertion dialog (replace `prompt()`)
-- `YouTubeDialog.js` — YouTube URL input dialog
-- `TableMenu.js` — table insertion grid (rows × cols picker)
-- `CodeBlockSelector.js` — language selector dropdown for code blocks
-
-**Refactor `PostForm.js`**: Extract `menuBar` definition into a separate `useToolbarItems.js` hook for cleanliness.
-
-**Files changed:**
-- `frontend/components/Editor/PostForm.js` — simplified, uses hook
-- `frontend/components/Editor/Toolbar.js` — support separators, groups
-- `frontend/components/Editor/ToolbarButton.js` — minor adjustments
-- `frontend/components/Editor/ToolbarSeparator.js` — new
-- `frontend/components/Editor/ColorPicker.js` — new
-- `frontend/components/Editor/LinkDialog.js` — new
-- `frontend/components/Editor/YouTubeDialog.js` — new
-- `frontend/components/Editor/TableMenu.js` — new
-- `frontend/components/Editor/CodeBlockSelector.js` — new
-- `frontend/hooks/useToolbarItems.js` — new (extracted from PostForm)
-
-### Phase 3: Bubble Menu & Floating Menu
-Add context-aware menus that appear on text selection or empty lines.
-
-**Bubble Menu** (appears on text selection):
-- Bold, Italic, Underline, Strike, Link, Color, Highlight, Clear format
-- Uses `@tiptap/react`'s `BubbleMenu` component (already in `@tiptap/react`)
-
-**Floating Menu** (appears on empty new lines):
-- Heading, Image, Code block, Table, YouTube, Horizontal rule, Task list
-- Uses `@tiptap/react`'s `FloatingMenu` component (already in `@tiptap/react`)
-
-**Files changed:**
-- `frontend/components/Editor/BubbleToolbar.js` — new
-- `frontend/components/Editor/FloatingToolbar.js` — new
-- `frontend/components/Editor/PostForm.js` — integrate both menus
-
-### Phase 4: Image Enhancements
-Improve image handling in the editor.
-
-**Features:**
-- **Drag & drop** image upload (TipTap supports this via `handleDrop`)
-- **Paste** image from clipboard (TipTap supports via `handlePaste`)
-- **Image resize** handles (custom extension or `@tiptap/extension-image` with resize)
-- **Image caption** (custom node extending Image)
-- **Image alignment** (left, center, right, full-width)
-
-**Approach:** Create a custom `ImageBlock` extension that extends TipTap's Image with:
-- `caption` attribute
-- `alignment` attribute (`left` | `center` | `right` | `full`)
-- `width` attribute (for resize)
-- Custom NodeView with resize handles and caption input
-
-**JSON structure:**
-```json
-{
-  "type": "imageBlock",
-  "attrs": {
-    "src": "...",
-    "alt": "...",
-    "caption": "Photo by ...",
-    "alignment": "center",
-    "width": "80%"
-  }
-}
-```
-
-**Files changed:**
-- `frontend/components/Editor/extensions/ImageBlock.js` — custom TipTap extension
-- `frontend/components/Editor/extensions/ImageBlockView.js` — custom NodeView (React component)
-- `frontend/components/Editor/PostForm.js` — add drop/paste handlers
-- `frontend/utils/tiptapExtensions.js` — replace `Image` with `ImageBlock`
-
-### Phase 5: Backend — JSON Validation & New Node Support
-Update backend to handle new node types properly.
-
-**Changes:**
-1. **Update `walkJSONTree`** — already handles all node types recursively (no change needed for basic walking)
-2. **Update `ProcessJSONContent`** — handle `imageBlock` type (in addition to `image`) for `dataImageId` swapping
-3. **Update `ExtractImageIDsFromJSON`** — handle `imageBlock` type
-4. **Update `extract_text_from_json_doc` SQL function** — already handles all text nodes recursively (no change needed)
-5. **Add JSON validation** — validate that incoming content has `type: "doc"` root and known node types (optional, defensive)
-6. **Update excerpt extraction** — `ExtractPlainTextFromJSON` already works for any text nodes (no change needed)
-
-**Files changed:**
-- `backend/application/pkg/storage/manager.go` — update image processing to handle `imageBlock` type
-- `backend/migrate/scripts/001_initial_setup.sql` — no change needed (function is generic)
-
-### Phase 6: Rendering & Display Styles
-Update content rendering and CSS for new node types.
-
-**Changes:**
-1. **`renderContent.js`** — already uses `generateHTML()` with shared extensions, so new extensions auto-render
-2. **Syntax highlighting CSS** — add highlight.js/lowlight theme CSS for code blocks
-3. **Table styles** — add CSS for rendered tables
-4. **YouTube embed styles** — responsive iframe wrapper
-5. **Task list styles** — checkbox styling
-6. **Image caption styles** — figcaption styling
-7. **Highlight/Color styles** — already handled by TipTap's inline styles
-
-**Files changed:**
-- `frontend/styles/globals.css` — add styles for tables, code highlighting, task lists, image captions, YouTube embeds
-- `frontend/utils/renderContent.js` — no logic change needed (extensions handle it)
-
-### Phase 7: Slash Commands (Optional Enhancement)
-Add Medium/Notion-style `/` commands for quick insertion.
-
-**Behavior:** Type `/` on empty line → dropdown with:
-- `/heading` → Insert heading
-- `/image` → Upload image
-- `/code` → Insert code block
-- `/table` → Insert table
-- `/youtube` → Insert YouTube
-- `/quote` → Insert blockquote
-- `/divider` → Insert horizontal rule
-- `/tasklist` → Insert task list
-
-**Implementation:** Use TipTap's `@tiptap/suggestion` extension with a custom renderer.
-
-**Files changed:**
-- `frontend/components/Editor/extensions/SlashCommands.js` — suggestion extension config
-- `frontend/components/Editor/SlashCommandsList.js` — dropdown UI component
-- `frontend/utils/tiptapExtensions.js` — add to editor-only extensions
+### Style Inconsistencies
+- PostItem vs PostItemProfile vs BasePostItem: different border-radius (`rounded-lg` vs `rounded-xl`), spacing (`mb-6` vs `mb-8`), and styling approaches
+- Mixed usage of `themeClasses` utilities and hardcoded Tailwind classes
+- Image aspect ratios vary: `aspect-[16/10]`, `h-48`, `w-16 h-16`
+- Hover states inconsistent across components
+- Typography: mix of `themeClasses.typography.*` and direct font classes
 
 ---
 
-## Cursor Rules Updates
+## Implementation Plan
 
-### New Rule: `editor-rule.mdc`
-Create a dedicated cursor rule for the Editor components:
+### Phase 1: Remove Dark Theme
+Remove all dark mode infrastructure.
 
-```
-Scope: frontend/components/Editor/**, frontend/utils/tiptapExtensions.js, frontend/hooks/useToolbarItems.js
+**Changes:**
+1. **`context/ThemeContext.js`** — Simplify: always return `'light'`, remove localStorage/system preference logic, remove `visibility: hidden` wrapper
+2. **`components/UI/ThemeToggle.js`** — Delete file
+3. **`components/Navbar/Navbar.js`** — Remove ThemeToggle import and usage, remove `useTheme` import
+4. **`components/Navbar/NavbarMobile.js`** — Same removals
+5. **`styles/globals.css`** — Remove entire `[data-theme="dark"]` CSS variable block, remove all `[data-theme="dark"]` selectors (syntax highlighting dark, mobile dark)
+6. **`styles/mobile.css`** — Remove all `[data-theme="dark"]` rules
+7. **`tailwind.config.ts`** — Remove `darkMode` config line
+8. **`utils/themeClasses.js`** — Remove `dark:prose-invert` from prose classes
+9. **`components/Editor/BubbleToolbar.js`** — Remove `dark:bg-gray-800`
+10. **`components/Editor/LinkDialog.js`** — Remove `dark:hover:bg-red-900/20`
+11. **`components/Post/PostDetail.js`** — Remove `dark:prose-invert`
 
-- All TipTap extensions MUST be registered in tiptapExtensions.js (shared between editor and renderer)
-- Editor-only extensions (Placeholder, Slash commands) go in PostForm.js or useToolbarItems.js
-- Every new node type MUST have corresponding CSS in globals.css for reading view
-- Image nodes use dataImageId (not src) when saved to backend
-- Custom extensions go in frontend/components/Editor/extensions/
-- Use Vietnamese for all tooltip text
-- Toolbar buttons use ToolbarButton.js component
-- Dialogs (link, youtube, table) are separate components in Editor/
+**Status:** [x] Completed
+
+### Phase 2: Standardize Layout System
+Fix navbar, content offset, sidebar scroll, and container widths.
+
+**Changes:**
+
+#### 2a. Navbar — Consistent Height
+- Standardize to **64px** on all breakpoints (matching Medium.com)
+- Remove responsive height classes (`h-14 sm:h-16 md:h-18 lg:h-20` → `h-16`)
+- Simplify padding and inner layout
+
+#### 2b. Content Offset — Unified
+- All pages: `pt-16` (64px) consistently
+- TOC sticky: `top-20` (80px = 64px navbar + 16px gap)
+- Body `scroll-padding-top: 5rem` (80px)
+- Sidebar sticky: `top-20` consistently
+
+#### 2c. Container Widths — TopDev/Medium Inspired
+- Max container: `max-w-[1200px]` (TopDev uses ~1200px)
+- Reading content: `max-w-[720px]` (Medium uses ~680-720px)
+- Homepage: 3-column grid — main content (2/3) + sidebar (1/3)
+- Post detail: content (3/4) + TOC sidebar (1/4) on `lg:`
+- Consistent horizontal padding: `px-4 md:px-6 lg:px-8`
+
+#### 2d. Sidebar Scroll Fix
+- Sidebar uses `position: sticky` with `top-20` and `max-h-[calc(100vh-5rem)]` + `overflow-y-auto`
+- Main content scrolls naturally
+- No independent scroll containers
+
+**Files changed:**
+- `components/Navbar/Navbar.js`
+- `components/Navbar/NavbarMobile.js`
+- `components/Layout/Layout.js`
+- `components/Shared/TableOfContents.js`
+- `components/Sidebar/PersonalBlogSidebar.js`
+- `styles/globals.css`
+- `utils/themeClasses.js` — update layout/spacing/responsive utilities
+
+**Status:** [x] Completed
+
+### Phase 3: Redesign Post Cards — Consistent Components
+Unify all post card variants using `BasePostItem.js` as the single source of truth.
+
+**Target design (TopDev + Medium hybrid):**
+- Clean white card with subtle border, `rounded-lg`
+- Image: `aspect-[16/9]` consistently, `rounded-md`
+- Title: serif font, `line-clamp-2`
+- Excerpt: sans-serif, `line-clamp-2`, muted color
+- Meta: author avatar + name, date, read time, category tag
+- Actions: clap count, comment count — always visible (not hover-only)
+- Consistent spacing: `p-5`, `gap-4`, `mb-4`
+
+**Changes:**
+1. **`BasePostItem.js`** — Rewrite as the single card component with variants: `default`, `compact`, `horizontal`, `profile`
+2. **Delete** `PostItem.js`, `PostItemSmall.js`, `PostItemProfile.js` — migrate to BasePostItem variants
+3. **Update** all pages/components that import the deleted files
+4. **`RelatedPosts.js`** — Use BasePostItem `compact` variant
+5. **`RelatedArticles.js`** — Use BasePostItem `default` variant in grid
+6. **`PopularPosts.js`** — Use BasePostItem `compact` variant
+
+**Status:** [x] Completed
+
+### Phase 4: Redesign Navbar — TopDev + Medium Style
+Clean, professional navbar matching the target aesthetic.
+
+**Target design:**
+- White background, subtle bottom border
+- Left: Logo/brand name
+- Center: Search bar (expandable on mobile)
+- Right: Write button (green, prominent), user avatar/menu
+- No theme toggle
+- Mobile: hamburger menu with slide-in drawer
+
+**Changes:**
+- `components/Navbar/Navbar.js` — Full redesign
+- `components/Navbar/NavbarMobile.js` — Simplified mobile menu
+- Remove ThemeToggle references
+
+**Status:** [x] Completed
+
+### Phase 5: Redesign Homepage — TopDev + Medium Style
+Clean, content-focused homepage.
+
+**Target layout:**
+```
+[Navbar — 64px fixed]
+[Hero/Featured Post — optional, full-width banner]
+[Main Content Area — max-w-1200px, centered]
+  ├── Posts Feed (2/3 width) — BasePostItem cards
+  └── Sidebar (1/3 width) — sticky
+      ├── Popular Posts
+      ├── Categories
+      └── Archive
 ```
 
-### Update: `nextjs-rule.mdc`
-Add editor-specific section:
+**Changes:**
+- `pages/index.js` — Update layout structure
+- `components/Post/PostList.js` — Use new BasePostItem
+- `components/Sidebar/PersonalBlogSidebar.js` — Redesign with consistent styling
+
+**Status:** [x] Completed
+
+### Phase 6: Redesign Post Detail — Reading Experience
+Medium-inspired reading layout with proper TOC.
+
+**Target layout:**
 ```
-- TipTap extensions are centralized in utils/tiptapExtensions.js
-- Editor components live in components/Editor/
-- Custom TipTap NodeViews use React components
-- Content rendering uses generateHTML() from @tiptap/html with shared extensions
+[Navbar — 64px fixed]
+[Post Header — title, author, date, cover image]
+[Content Area — max-w-1200px]
+  ├── Article Content (3/4) — max-w-720px prose
+  └── TOC Sidebar (1/4) — sticky, scrollable
+[Related Posts]
+[Comments]
 ```
 
-### Update: `go-rule.mdc`
-Add content processing section:
-```
-- Post content is stored as TipTap/ProseMirror JSON document tree (JSONB)
-- Image URLs are swapped to dataImageId on save, restored on display
-- walkJSONTree() visitor pattern handles all JSON tree operations
-- New node types with images must be handled in ProcessJSONContent/ProcessJSONContentForDisplay
-```
+**Changes:**
+- `components/Post/PostDetail.js` — Redesign header and layout
+- `components/Post/ArticleReader.js` — Consistent with PostDetail
+- `components/Shared/TableOfContents.js` — Fix sticky behavior, responsive collapse
+- `components/Post/EngagementActions.js` — Consistent action bar
+
+**Status:** [x] Completed
+
+### Phase 7: Redesign Editor — Responsive & Clean
+Fix editor responsive issues.
+
+**Changes:**
+- `components/Editor/PostForm.js` — Fix toolbar overflow on mobile, proper padding
+- `components/Editor/Toolbar.js` — Horizontal scroll on mobile instead of wrap
+- `pages/write.js` — Proper fullscreen mode
+- `pages/edit/[id].js` — Same fixes
+
+**Status:** [x] Completed
+
+### Phase 8: Global Style Cleanup
+Final pass for consistency.
+
+**Changes:**
+1. **`styles/globals.css`** — Clean up orphaned dark mode CSS, standardize typography scale
+2. **`utils/themeClasses.js`** — Remove dark-related utilities, ensure all components use this system
+3. **`tailwind.config.ts`** — Clean up unused custom values
+4. **Audit all components** — Replace hardcoded classes with `themeClasses` equivalents
+5. **Standardize transitions** — `transition-colors duration-150` everywhere
+
+**Status:** [x] Completed
 
 ---
 
@@ -239,30 +207,24 @@ Add content processing section:
 
 | Phase | Description | Effort | Dependencies |
 |-------|-------------|--------|--------------|
-| 1 | TipTap Extensions — New Node Types | Medium | None |
-| 2 | Toolbar Redesign | Large | Phase 1 |
-| 3 | Bubble Menu & Floating Menu | Small | Phase 1 |
-| 4 | Image Enhancements | Medium | Phase 1 |
-| 5 | Backend — JSON Validation & New Node Support | Small | Phase 4 |
-| 6 | Rendering & Display Styles | Medium | Phase 1, 4 |
-| 7 | Slash Commands (Optional) | Medium | Phase 1 |
+| 1 | Remove Dark Theme | Small | None |
+| 2 | Standardize Layout System | Medium | Phase 1 |
+| 3 | Redesign Post Cards | Medium | Phase 2 |
+| 4 | Redesign Navbar | Medium | Phase 1 |
+| 5 | Redesign Homepage | Medium | Phase 2, 3, 4 |
+| 6 | Redesign Post Detail + TOC | Medium | Phase 2, 3 |
+| 7 | Redesign Editor | Small | Phase 2 |
+| 8 | Global Style Cleanup | Medium | All above |
 
-**Recommended order:** 1 → 2 → 3 → 6 → 4 → 5 → 7
-
-Phase 1 first (foundation), then 2+3 (toolbar UX), then 6 (display), then 4+5 (image upgrade), then 7 (nice-to-have).
+**Recommended order:** 1 → 2 → 4 → 3 → 5 → 6 → 7 → 8
 
 ---
 
-## Questions for Confirmation
+## Confirmed Decisions
 
-1. **Phase 4 — ImageBlock**: Should we create a custom `imageBlock` extension (with caption, alignment, resize) or keep the basic `Image` extension? Custom = more work but much richer. **Recommendation: custom imageBlock.**
-
-2. **Phase 7 — Slash Commands**: Include in scope or defer to a future iteration? **Recommendation: include, it's a major UX improvement.**
-
-3. **Color palette**: Should Color and Highlight use a fixed palette (8-12 preset colors like Notion) or a full color picker? **Recommendation: fixed palette for simplicity.**
-
-4. **Code block languages**: Which languages to support in the selector? **Recommendation: JavaScript, TypeScript, Python, Go, Rust, Java, C/C++, HTML, CSS, SQL, Bash, JSON, YAML, Markdown, PHP, Ruby, Swift, Kotlin — plus "Plain text" and "Auto-detect".**
-
-5. **Table features**: Basic table (insert, add/remove rows/cols) or advanced (merge cells, resize columns)? **Recommendation: basic first.**
-
-6. **Existing cursor rules**: The current `go-rule.mdc` and `golang-rule.mdc` have overlapping scope. Should I merge them into one? **Recommendation: merge into single `go-rule.mdc`.**
+1. **Brand color**: Keep green (`#1A8917`) ✅
+2. **Font**: Serif for articles, sans-serif for UI ✅
+3. **Homepage**: Add featured/hero post section ✅
+4. **Sidebar**: Keep as-is (Popular Posts, Categories, Archive) ✅
+5. **Post cards**: Don't show author avatar on cards ✅
+6. **ThemeContext**: Fully delete ✅

@@ -1,275 +1,259 @@
-// components/Post/BasePostItem.js
-import React from 'react';
+// components/Post/BasePostItem.js — Single source of truth for post cards
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { FaEye, FaEdit, FaTrash, FaChevronRight } from 'react-icons/fa';
-import { FaHandsClapping, FaRegComments } from "react-icons/fa6";
+import { FaEye, FaEdit, FaTrash, FaComment } from 'react-icons/fa';
+import { FaHandsClapping } from 'react-icons/fa6';
 import { useRouter } from 'next/router';
 import TextUtils from '../Utils/TextUtils';
 import TimeAgo from '../Utils/TimeAgo';
 import { AddCommentForm, LimitedCommentList } from '../Comment';
 import { useClapsCount } from '../../hooks/useClapsCount';
-import { useComments } from '../../hooks/useComments';
 import { useInfiniteComments } from '../../hooks/useInfiniteComments';
-import useCommentActions from '../../hooks/useCommentActions';
+import { useUser } from '../../context/UserContext';
+import { clapPost } from '../../services/activityService';
 import { deletePost } from '../../services/postService';
-import { BASE_FE_URL } from '../../config/api';
-import { themeClasses, componentClasses, combineClasses } from '../../utils/themeClasses';
 
-const BasePostItem = ({ 
-  post, 
-  variant = 'default', // 'default' | 'profile' | 'small'
+// variant: 'default' | 'compact' | 'horizontal' | 'profile'
+const BasePostItem = ({
+  post,
+  variant = 'default',
   isOwner = false,
   showComments = true,
-  showClaps = true,
-  showActions = false 
 }) => {
-  if (!post) {
-    return <div>Đang tải bài viết...</div>;
-  }
+  if (!post) return null;
 
   const router = useRouter();
+  const { user } = useUser();
   const { clapsCount, loading: clapsLoading, mutate: mutateClaps } = useClapsCount('post', post.id);
-  const { 
-    isCommentsOpen, 
-    handleClap, 
-    toggleCommentPopup, 
-    closeCommentPopup, 
-    user 
-  } = useCommentActions(post.id, mutateClaps);
+  const [isCommentsOpen, setCommentsOpen] = useState(false);
+  const { comments, totalCount, isLoading, mutate, canLoadMore, loadMore } =
+    useInfiniteComments(post.id, isCommentsOpen, 3);
 
-  // Different comment hooks based on variant
-  const useCommentsHook = variant === 'profile' ? useComments : useInfiniteComments;
-  const commentsData = variant === 'profile' 
-    ? useCommentsHook(post.id, true, 1, 10)
-    : useCommentsHook(post.id, isCommentsOpen, 3);
-
-  const { comments, totalCount, isLoading, isError, mutate, canLoadMore, loadMore } = commentsData;
-
-  const handleDelete = async () => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa bài viết này?')) {
-      try {
-        await deletePost(post.id);
-        router.reload();
-      } catch (error) {
-        console.error('Failed to delete post:', error);
-        alert('Đã xảy ra lỗi khi xóa bài viết. Vui lòng thử lại sau.');
-      }
+  const handleClap = async () => {
+    if (!user) return;
+    try {
+      await clapPost(post.id);
+      mutateClaps();
+    } catch (e) {
+      console.error('Clap failed:', e);
     }
   };
 
-  const handleShare = () => {
-    const url = `${window.location.origin}/p/${post.slug}`;
-    navigator.clipboard.writeText(url);
-    alert('Đã sao chép link bài viết!');
+  const handleDelete = async () => {
+    if (!window.confirm('Bạn có chắc chắn muốn xóa bài viết này?')) return;
+    try {
+      await deletePost(post.id);
+      router.reload();
+    } catch (e) {
+      console.error('Delete failed:', e);
+    }
   };
 
-  // Small variant - minimal display
-  if (variant === 'small') {
+  // --- Compact variant (sidebar / popular posts) ---
+  if (variant === 'compact') {
     return (
-      <article className={combineClasses(
-        themeClasses.bg.card,
-        'pb-4 mb-6'
-      )}>
-        <div className={`${themeClasses.responsive.flexTabletRow} items-start ${themeClasses.spacing.gap}`}>
-          <div className={combineClasses(
-            'flex-1 min-w-0 pb-3',
-          )}>
-            <Link href={`/p/${post.slug}`} className={`block ${themeClasses.spacing.marginBottomSmall}`}>
-              <h3 className={`${componentClasses.heading.h4} ${themeClasses.interactive.link} line-clamp-2 text-balance`}>
-                {post.title}
-              </h3>
-            </Link>
-            <div className={`flex items-center ${componentClasses.text.bodyTiny} ${themeClasses.spacing.marginBottomSmall}`}>
-              <TimeAgo timestamp={post.created_at} className="text-medium-text-muted" />
-            </div>
-            <p className={`${componentClasses.text.bodySmall} line-clamp-2 text-pretty`}>
-              <TextUtils html={post.excerpt} maxLength={100} />
-            </p>
+      <article className="py-3 border-b border-medium-border last:border-0">
+        <Link href={`/p/${post.slug}`} className="block group">
+          <h4 className="font-serif font-semibold text-sm text-medium-text-primary group-hover:text-medium-accent-green transition-colors line-clamp-2">
+            {post.title}
+          </h4>
+          <div className="flex items-center gap-2 mt-1 text-xs text-medium-text-muted">
+            <TimeAgo timestamp={post.created_at} />
           </div>
-          <div className="flex-shrink-0">
-            <FaChevronRight className={combineClasses(
-              themeClasses.icons.sm,
-              'text-medium-accent-blue'
-            )} />
-          </div>
-        </div>
+        </Link>
       </article>
     );
   }
 
-  // Default and Profile variants - full display
-  return (
-    <article className={combineClasses(
-      themeClasses.bg.card,
-      'p-6 mb-6',
-      themeClasses.effects.rounded,
-      themeClasses.effects.shadow,
-      'border',
-    )}>
-      <div className={combineClasses(
-        themeClasses.layout.flexRow,
-        themeClasses.spacing.gap,
-        'items-start'
-      )}>
-        
-        {/* Author Avatar */}
-        <div className="flex-shrink-0">
-          <Link href={`/${post.author?.username || 'unknown'}`}>
-            <img
-              src={post.author?.avatar_url || '/author-avatar.svg'}
-              alt={post.author?.display_name || 'Author'}
-              className={combineClasses(
-                'w-12 h-12 rounded-full object-cover',
-,
-                themeClasses.animations.smooth
-              )}
-            />
-          </Link>
-        </div>
+  // --- Horizontal variant (related posts, search results) ---
+  if (variant === 'horizontal') {
+    return (
+      <article className="group">
+        <Link href={`/p/${post.slug}`} className="flex gap-4 p-3 rounded-lg hover:bg-medium-hover transition-colors">
+          {post.cover_image && (
+            <div className="flex-shrink-0 w-20 h-20 rounded-md overflow-hidden bg-medium-bg-secondary">
+              <img
+                src={post.cover_image}
+                alt={post.title}
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <h4 className="font-serif font-semibold text-sm text-medium-text-primary group-hover:text-medium-accent-green transition-colors line-clamp-2 mb-1">
+              {post.title}
+            </h4>
+            <p className="text-xs text-medium-text-secondary line-clamp-1">
+              <TextUtils html={post.excerpt} maxLength={80} />
+            </p>
+            <div className="flex items-center gap-2 mt-1 text-xs text-medium-text-muted">
+              <TimeAgo timestamp={post.created_at} />
+            </div>
+          </div>
+        </Link>
+      </article>
+    );
+  }
 
-        {/* Content */}
+  // --- Shared meta + actions for default & profile ---
+  const metaRow = (
+    <div className="flex items-center gap-3 text-xs text-medium-text-muted mt-3">
+      <TimeAgo timestamp={post.created_at} />
+      <span className="w-1 h-1 bg-medium-text-muted rounded-full" />
+      <span>{Math.ceil((post.excerpt?.length || 0) / 200)} min read</span>
+    </div>
+  );
+
+  const actionsRow = (
+    <div className="flex items-center justify-between mt-4">
+      <div className="flex items-center gap-3">
+        <button
+          onClick={handleClap}
+          disabled={clapsLoading}
+          className="flex items-center gap-1.5 text-sm text-medium-text-secondary hover:text-medium-accent-green transition-colors"
+        >
+          <FaHandsClapping className="w-4 h-4" />
+          <span>{clapsCount || 0}</span>
+        </button>
+        {showComments && (
+          <button
+            onClick={() => setCommentsOpen(prev => !prev)}
+            className="flex items-center gap-1.5 text-sm text-medium-text-secondary hover:text-medium-accent-green transition-colors"
+          >
+            <FaComment className="w-4 h-4" />
+            <span>{totalCount || 0}</span>
+          </button>
+        )}
+        <div className="flex items-center gap-1.5 text-sm text-medium-text-muted">
+          <FaEye className="w-4 h-4" />
+          <span>{post.view_count || post.views || 0}</span>
+        </div>
+      </div>
+
+      {isOwner && (
+        <div className="flex items-center gap-2">
+          <Link
+            href={`/edit/${post.id}`}
+            className="p-1.5 rounded hover:bg-medium-hover text-medium-text-secondary hover:text-medium-accent-green transition-colors"
+          >
+            <FaEdit className="w-4 h-4" />
+          </Link>
+          <button
+            onClick={handleDelete}
+            className="p-1.5 rounded hover:bg-red-50 text-medium-text-secondary hover:text-red-500 transition-colors"
+          >
+            <FaTrash className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+
+  const commentsSection = showComments && isCommentsOpen && (
+    <div className="mt-6 pt-6 border-t border-medium-border">
+      <AddCommentForm
+        postId={post.id}
+        user={user}
+        onCommentAdded={mutate}
+      />
+      <LimitedCommentList
+        comments={comments ? comments.flat() : []}
+        postId={post.id}
+        mutate={mutate}
+        canLoadMore={canLoadMore}
+        loadMore={loadMore}
+        isLoadingMore={isLoading}
+        totalCount={totalCount || 0}
+      />
+    </div>
+  );
+
+  // --- Profile variant (with owner actions, same layout as default) ---
+  if (variant === 'profile') {
+    return (
+      <article className="bg-white rounded-lg border border-medium-border p-5 mb-4 transition-shadow hover:shadow-md">
+        <div className="flex flex-col lg:flex-row gap-5">
+          <div className="flex-1 min-w-0">
+            <Link href={`/p/${post.slug}`}>
+              <h2 className="font-serif text-xl font-bold text-medium-text-primary hover:text-medium-accent-green transition-colors line-clamp-2">
+                {post.title}
+              </h2>
+            </Link>
+            <p className="text-medium-text-secondary text-sm line-clamp-2 mt-2 leading-relaxed">
+              <TextUtils html={post.excerpt} maxLength={200} />
+            </p>
+            {post.categories?.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {post.categories.slice(0, 3).map(cat => (
+                  <Link
+                    key={cat.id}
+                    href={`/category/${cat.name}`}
+                    className="px-2.5 py-0.5 bg-medium-bg-secondary text-medium-text-secondary text-xs rounded-full hover:bg-medium-accent-green hover:text-white transition-colors"
+                  >
+                    {cat.name}
+                  </Link>
+                ))}
+              </div>
+            )}
+            {metaRow}
+            {actionsRow}
+          </div>
+          {post.cover_image && (
+            <div className="w-full lg:w-56 flex-shrink-0">
+              <Link href={`/p/${post.slug}`}>
+                <div className="aspect-[16/10] rounded-md overflow-hidden bg-medium-bg-secondary">
+                  <img src={post.cover_image} alt={post.title} className="w-full h-full object-cover" loading="lazy" />
+                </div>
+              </Link>
+            </div>
+          )}
+        </div>
+        {commentsSection}
+      </article>
+    );
+  }
+
+  // --- Default variant (homepage card) ---
+  return (
+    <article className="bg-white border-b border-medium-border pb-6 mb-6 last:border-0">
+      <div className="flex flex-col lg:flex-row gap-5">
         <div className="flex-1 min-w-0">
-          <Link href={`/p/${post.slug}`} className={`block ${themeClasses.spacing.marginBottom}`}>
-            <h2 className={`${componentClasses.heading.h3} ${themeClasses.interactive.link} line-clamp-3 text-balance`}>
+          <Link href={`/p/${post.slug}`}>
+            <h2 className="font-serif text-xl lg:text-2xl font-bold text-medium-text-primary hover:text-medium-accent-green transition-colors line-clamp-2">
               {post.title}
             </h2>
           </Link>
-
-          {/* Author Info */}
-          <div className={`flex items-center ${componentClasses.text.bodySmall} ${themeClasses.spacing.marginBottomSmall}`}>
-            <Link href={`/${post.author?.username || 'unknown'}`} className={themeClasses.interactive.link}>
-              {post.author?.display_name || 'Unknown Author'}
-            </Link>
-            <span className={combineClasses(
-              'mx-2',
-              themeClasses.text.muted
-            )}>·</span>
-            <TimeAgo timestamp={post.created_at} className="text-medium-text-muted" />
-          </div>
-
-          {/* Preview Content */}
-          <p className={`${componentClasses.text.bodyMedium} line-clamp-3 text-pretty ${themeClasses.spacing.marginBottom}`}>
+          <p className="text-medium-text-secondary text-sm lg:text-base line-clamp-2 mt-2 leading-relaxed">
             <TextUtils html={post.excerpt} maxLength={200} />
           </p>
-
-          {/* Categories */}
-          {post.categories && post.categories.length > 0 && (
-            <div className={`flex flex-wrap gap-2 ${themeClasses.spacing.marginBottomSmall}`}>
-              {post.categories.slice(0, 3).map((category) => (
+          {post.categories?.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {post.categories.slice(0, 3).map(cat => (
                 <Link
-                  key={category.id}
-                  href={`/category/${category.name}`}
-                  className={`${componentClasses.text.bodyTiny} ${themeClasses.patterns.tag} ${themeClasses.interactive.tagHover} px-2 py-1 rounded-full`}
+                  key={cat.id}
+                  href={`/category/${cat.name}`}
+                  className="px-2.5 py-0.5 bg-medium-bg-secondary text-medium-text-secondary text-xs rounded-full hover:bg-medium-accent-green hover:text-white transition-colors"
                 >
-                  {category.name}
+                  {cat.name}
                 </Link>
               ))}
             </div>
           )}
-
-          {/* Actions */}
-          <div className="flex items-center justify-between">
-            <div className={combineClasses(
-              'flex items-center',
-              themeClasses.spacing.gapSmall
-            )}>
-              
-              {/* Clap Button */}
-              {showClaps && (
-                <button
-                  onClick={handleClap}
-                  disabled={clapsLoading}
-                  className={combineClasses(
-                    'flex items-center space-x-1 px-3 py-1 rounded-full',
-                    themeClasses.interactive.buttonSecondary,
-                    themeClasses.animations.smooth,
-                    'hover:bg-medium-accent-green/10'
-                  )}
-                >
-                  <FaHandsClapping className={`${themeClasses.icons.sm} ${clapsLoading ? 'animate-pulse' : ''}`} />
-                  <span className={componentClasses.text.bodySmall}>{clapsCount || 0}</span>
-                </button>
-              )}
-
-              {/* Comment Button */}
-              {showComments && (
-                <button
-                  onClick={toggleCommentPopup}
-                  className={combineClasses(
-                    'flex items-center space-x-1 px-3 py-1 rounded-full',
-                    themeClasses.interactive.buttonSecondary,
-                    themeClasses.animations.smooth,
-                    'hover:bg-medium-accent-blue/10'
-                  )}
-                >
-                  <FaRegComments className={themeClasses.icons.sm} />
-                  <span className={componentClasses.text.bodySmall}>{totalCount || 0}</span>
-                </button>
-              )}
-
-              {/* View Count */}
-              <div className={combineClasses(
-                'flex items-center space-x-1',
-                themeClasses.text.muted
-              )}>
-                <FaEye className={themeClasses.icons.sm} />
-                <span className={componentClasses.text.bodySmall}>{post.view_count || 0}</span>
-              </div>
-            </div>
-
-            {/* Owner Actions */}
-            {showActions && isOwner && (
-              <div className={combineClasses(
-                'flex items-center',
-                themeClasses.spacing.gapSmall
-              )}>
-                <Link
-                  href={`/edit/${post.id}`}
-                  className={combineClasses(
-                    themeClasses.interactive.buttonSecondary,
-                    'p-2 rounded-full hover:bg-medium-accent-blue/10'
-                  )}
-                >
-                  <FaEdit className={themeClasses.icons.sm} />
-                </Link>
-                <button
-                  onClick={handleDelete}
-                  className={combineClasses(
-                    themeClasses.interactive.buttonSecondary,
-                    'p-2 rounded-full hover:bg-red-500/10 text-red-500'
-                  )}
-                >
-                  <FaTrash className={themeClasses.icons.sm} />
-                </button>
-              </div>
-            )}
-          </div>
+          {metaRow}
+          {actionsRow}
         </div>
+        {post.cover_image && (
+          <div className="w-full lg:w-64 flex-shrink-0 order-first lg:order-last">
+            <Link href={`/p/${post.slug}`}>
+              <div className="aspect-[16/10] rounded-md overflow-hidden bg-medium-bg-secondary">
+                <img src={post.cover_image} alt={post.title} className="w-full h-full object-cover" loading="lazy" />
+              </div>
+            </Link>
+          </div>
+        )}
       </div>
-
-      {/* Comments Section */}
-      {showComments && isCommentsOpen && (
-        <div className={combineClasses(
-          'mt-6 pt-6',
-        )}>
-          <div className={themeClasses.spacing.marginBottom}>
-            <AddCommentForm 
-              postId={post.id} 
-              onCommentAdded={() => {
-                mutate();
-                closeCommentPopup();
-              }}
-            />
-          </div>
-          <LimitedCommentList
-            comments={comments}
-            isLoading={isLoading}
-            isError={isError}
-            canLoadMore={canLoadMore}
-            onLoadMore={loadMore}
-          />
-        </div>
-      )}
+      {commentsSection}
     </article>
   );
 };

@@ -83,31 +83,25 @@ export const themeClasses = {
     subtitle: 'font-sans font-normal text-lg md:text-xl leading-relaxed text-medium-text-secondary',
   },
 
-  // Layout - Mobile-first with minimal padding on small screens, EXTREME padding on large screens for maximum centering
+  // Layout — max-w-[1200px] container, consistent 64px navbar
   layout: {
-    // Container patterns - Mobile minimal, large screens HEAVILY centered
-    container: 'max-w-container mx-auto px-4 sm:px-6 md:px-16 lg:px-32 xl:px-48 2xl:px-64',      // Aggressive padding for large screens
-    containerSmall: 'max-w-compact mx-auto px-4 sm:px-6 md:px-14 lg:px-28 xl:px-40',            // Strong centering
-    containerWide: 'max-w-wide mx-auto px-4 sm:px-6 md:px-16 lg:px-32 xl:px-48 2xl:px-64',       // Same aggressive strategy
-    
-    // Content patterns - Mobile full-width, large screens heavily centered
-    article: 'max-w-reading mx-auto px-4 sm:px-6 md:px-16 lg:px-32 xl:px-48',                   // Heavy padding for large screens
-    reading: 'max-w-reading mx-auto px-4 sm:px-6 md:px-16 lg:px-32 xl:px-48',                   // Same as article
-    
-    // Layout utilities
+    container: 'max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8',
+    containerSmall: 'max-w-[900px] mx-auto px-4 md:px-6 lg:px-8',
+    containerWide: 'max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8',
+    article: 'max-w-[720px] mx-auto px-4 md:px-6',
+    reading: 'max-w-[720px] mx-auto px-4 md:px-6',
+
     fullHeight: 'min-h-screen',
-    sticky: 'sticky top-16 md:top-20 lg:top-24',
+    sticky: 'sticky top-20',
     stickyNav: 'sticky top-0 z-50',
-    
-    // Responsive grid layouts - Better scaling
-    mainWithSidebar: 'grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6 xl:gap-8 items-start',
-    twoColumn: 'grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 xl:gap-8',
-    threeColumn: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 xl:gap-8',
-    fourColumn: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 xl:gap-8',
-    
-    // Flex layouts - Enhanced responsive behavior
-    flexColumn: 'flex flex-col gap-4 lg:gap-6 xl:gap-8',
-    flexRow: 'flex flex-col md:flex-row gap-4 md:gap-5 lg:gap-6 xl:gap-8',
+
+    mainWithSidebar: 'grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 lg:gap-8 items-start',
+    twoColumn: 'grid grid-cols-1 md:grid-cols-2 gap-6',
+    threeColumn: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6',
+    fourColumn: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6',
+
+    flexColumn: 'flex flex-col gap-6',
+    flexRow: 'flex flex-col lg:flex-row gap-6 lg:gap-8',
   },
 
   // Interactive states with enhanced touch targets and accessibility
@@ -220,53 +214,41 @@ export const themeClasses = {
   
   // Responsive Layout Patterns
   responsive: {
-    // Mobile-first grid patterns with better spacing
     gridMobileSingle: 'grid grid-cols-1',
     gridTabletDouble: 'grid grid-cols-1 md:grid-cols-2',
     gridDesktopTriple: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
     gridDesktopQuad: 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
-    
-    // Flex patterns with improved gaps
+
     flexMobileColumn: 'flex flex-col',
     flexTabletRow: 'flex flex-col md:flex-row',
-    flexDesktopRow: 'flex flex-col md:flex-row',
-    
-    // Sidebar patterns with better responsive behavior
-    sidebarMobileHidden: 'hidden md:block',
-    sidebarMobileCollapsed: 'md:hidden',
-    sidebarDesktopSticky: 'md:sticky md:top-20 lg:top-24',
-    sidebarWidth: 'w-full md:w-60 lg:w-64 xl:w-60 md:ml-6 lg:ml-8 xl:ml-10',
-    
-    // Text alignment
+    flexDesktopRow: 'flex flex-col lg:flex-row',
+
+    sidebarMobileHidden: 'hidden lg:block',
+    sidebarMobileCollapsed: 'lg:hidden',
+    sidebarDesktopSticky: 'lg:sticky lg:top-20 lg:max-h-[calc(100vh-5rem)] lg:overflow-y-auto',
+    sidebarWidth: 'w-full lg:w-[300px] lg:flex-shrink-0',
+
     textMobileCenter: 'text-center lg:text-left',
     textMobileLeft: 'text-left',
-    
-    // Progressive spacing utilities for smooth scaling - Heavy centering for large screens
-    paddingProgressive: 'px-4 sm:px-6 md:px-16 lg:px-32 xl:px-48 2xl:px-64',
-    marginProgressive: 'mx-4 sm:mx-6 md:mx-16 lg:mx-32 xl:mx-48 2xl:mx-64',
-    gapProgressive: 'gap-4 sm:gap-6 md:gap-8 lg:gap-12 xl:gap-16',
-    
-    // Content responsive behavior
-    contentMain: 'flex-1 min-w-0 max-w-none',
-    contentWithSidebar: 'flex-1 min-w-0 pr-0 md:pr-6 lg:pr-8 xl:pr-12',
-    
-    // Touch-friendly responsive utilities
-    touchOnly: 'block md:hidden',
-    desktopOnly: 'hidden md:block',
+
+    paddingProgressive: 'px-4 md:px-6 lg:px-8',
+    marginProgressive: 'mx-4 md:mx-6 lg:mx-8',
+    gapProgressive: 'gap-4 md:gap-6 lg:gap-8',
+
+    contentMain: 'flex-1 min-w-0',
+    contentWithSidebar: 'flex-1 min-w-0',
+
+    touchOnly: 'block lg:hidden',
+    desktopOnly: 'hidden lg:block',
     tabletUp: 'hidden md:flex',
     mobileDown: 'flex md:hidden',
-    
-    // Visibility
+
     mobileOnly: 'block md:hidden',
-    tabletOnly: 'hidden md:block lg:hidden', 
-    desktopOnly: 'hidden md:block',
-    touchOnly: 'block md:hidden',
-    
-    // Sizing - Optimized sidebar width for better content balance across all breakpoints
+    tabletOnly: 'hidden md:block lg:hidden',
+
     fullMobile: 'w-full',
     autoDesktop: 'w-full md:w-auto',
-    sidebarWidth: 'w-full md:w-64 lg:w-72 xl:w-64 2xl:w-60 md:flex-shrink-0',
-    sidebarWidthLarge: 'w-full md:w-60 lg:w-64 xl:w-60 2xl:w-56 md:flex-shrink-0',
+    sidebarWidthLarge: 'w-full lg:w-[300px] lg:flex-shrink-0',
   },
 
   // Enhanced shadows and effects with layered system
@@ -644,13 +626,13 @@ export const enhancedThemeClasses = {
 
   // Content/Prose styling for articles
   prose: {
-    small: 'prose prose-sm max-w-none prose-slate dark:prose-invert',
-    base: 'prose prose-base max-w-none prose-slate dark:prose-invert',
-    large: 'prose prose-lg max-w-none prose-slate dark:prose-invert',
-    xl: 'prose prose-xl max-w-none prose-slate dark:prose-invert',
+    small: 'prose prose-sm max-w-none prose-slate',
+    base: 'prose prose-base max-w-none prose-slate',
+    large: 'prose prose-lg max-w-none prose-slate',
+    xl: 'prose prose-xl max-w-none prose-slate',
     // Custom prose variants
-    compact: 'prose prose-sm max-w-none prose-slate dark:prose-invert prose-p:my-2 prose-headings:my-3',
-    relaxed: 'prose prose-base max-w-none prose-slate dark:prose-invert prose-p:my-4 prose-headings:my-6',
+    compact: 'prose prose-sm max-w-none prose-slate prose-p:my-2 prose-headings:my-3',
+    relaxed: 'prose prose-base max-w-none prose-slate prose-p:my-4 prose-headings:my-6',
   },
 
   // Utility classes for common patterns

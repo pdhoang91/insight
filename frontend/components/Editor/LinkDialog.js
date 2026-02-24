@@ -66,7 +66,7 @@ const LinkDialog = ({ editor, onClose }) => {
             <button
               type="button"
               onClick={handleRemove}
-              className="px-3 py-1.5 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md"
+              className="px-3 py-1.5 text-sm text-red-500 hover:bg-red-50 rounded-md"
             >
               Xóa liên kết
             </button>

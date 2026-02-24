@@ -27,46 +27,34 @@ const Layout = ({
 
   return (
     <div className={combineClasses(themeClasses.layout.fullHeight, themeClasses.bg.primary)}>
-      {/* Main Content */}
-      <main className={combineClasses('pt-16 md:pt-20', themeClasses.utils.relative)} role="main" {...props}>
+      <main className={combineClasses('pt-16', themeClasses.utils.relative)} role="main" {...props}>
         <div className={containerClass}>
           {showSidebar && sidebar ? (
-            /* Layout with Sidebar - Enhanced responsive behavior */
             <div className={combineClasses(
-              themeClasses.layout.flexRow,
-              themeClasses.spacing.section,
-              themeClasses.responsive.gapProgressive
+              'flex flex-col lg:flex-row gap-6 lg:gap-8',
+              'py-6 lg:py-8'
             )}>
-              {/* Main Content Area - Always first on mobile */}
-              <div className={combineClasses(themeClasses.responsive.contentMain, themeClasses.utils.relative)}>
-                <div className={combineClasses(themeClasses.spacing.stackLarge, className)}>
-                  {children}
-                </div>
+              <div className={combineClasses('flex-1 min-w-0', className)}>
+                {children}
               </div>
-              
-              {/* Sidebar - Responsive width optimization */}
+
               <aside className={combineClasses(
-                themeClasses.responsive.sidebarWidth,
-                sidebarPosition === 'left' ? 'md:order-first' : ''
+                'w-full lg:w-[300px] lg:flex-shrink-0',
+                sidebarPosition === 'left' ? 'lg:order-first' : ''
               )}>
-                <div className={themeClasses.responsive.sidebarDesktopSticky}>
-                  {/* Mobile: Condensed sidebar */}
-                  <div className="block md:hidden">
+                <div className="lg:sticky lg:top-20 lg:max-h-[calc(100vh-5rem)] lg:overflow-y-auto">
+                  <div className="block lg:hidden">
                     <MobileSidebarContent sidebar={sidebar} />
                   </div>
-                  {/* Desktop: Full sidebar */}
-                  <div className="hidden md:block">
+                  <div className="hidden lg:block">
                     {sidebar}
                   </div>
                 </div>
               </aside>
             </div>
           ) : (
-            /* Single Column Layout - Enhanced spacing */
-            <div className={combineClasses(themeClasses.spacing.section, className)}>
-              <div className={themeClasses.spacing.stackLarge}>
-                {children}
-              </div>
+            <div className={combineClasses('py-6 lg:py-8', className)}>
+              {children}
             </div>
           )}
         </div>

@@ -1,51 +1,33 @@
-// components/Shared/PersonalBlogSidebar.js - Clean Medium 2024 Design
+// components/Sidebar/PersonalBlogSidebar.js
 import React from 'react';
 import Link from 'next/link';
 import { useCategories } from '../../hooks/useCategories';
 import { useRecentPosts } from '../../hooks/useRecentPosts';
 import PopularPosts from '../Post/PopularPosts';
 import Archive from '../Archive/Archive';
-import { themeClasses, combineClasses } from '../../utils/themeClasses';
+
+const SidebarSection = ({ title, children }) => (
+  <div className="bg-white rounded-lg border border-medium-border p-5 mb-4">
+    <h3 className="font-serif font-bold text-base text-medium-text-primary mb-4">{title}</h3>
+    {children}
+  </div>
+);
 
 const PersonalBlogSidebar = () => {
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { posts: recentPosts, isLoading: postsLoading } = useRecentPosts(5);
 
   return (
-    <div className={combineClasses(themeClasses.spacing.stackLarge, themeClasses.responsive.gapProgressive)}>
-      {/* Popular Posts */}
-      <div className={combineClasses(themeClasses.bg.card, themeClasses.effects.rounded, themeClasses.spacing.card)}>
-        <h3 className={combineClasses(
-          themeClasses.typography.h4,
-          themeClasses.text.primary,
-          'mb-3'
-        )}>
-          Popular Posts
-        </h3>
-        <PopularPosts 
-          limit={5} 
-          showImages={false} 
-          className=""
-        />
-      </div>
+    <div>
+      <SidebarSection title="Popular Posts">
+        <PopularPosts limit={5} showImages={false} className="" />
+      </SidebarSection>
 
-      {/* Categories */}
-      <div className={combineClasses(themeClasses.bg.card, themeClasses.effects.rounded, themeClasses.spacing.card)}>
-        <h3 className={combineClasses(
-          themeClasses.typography.h4,
-          themeClasses.text.primary,
-          'mb-3'
-        )}>
-          Categories
-        </h3>
-        
+      <SidebarSection title="Categories">
         {categoriesLoading ? (
           <div className="flex flex-wrap gap-2">
             {[...Array(5)].map((_, i) => (
-              <div 
-                key={i} 
-                className="h-8 w-16 bg-medium-bg-secondary rounded animate-pulse"
-              />
+              <div key={i} className="h-7 w-16 bg-medium-bg-secondary rounded-full animate-pulse" />
             ))}
           </div>
         ) : (
@@ -54,34 +36,21 @@ const PersonalBlogSidebar = () => {
               <Link
                 key={category.id}
                 href={`/category/${category.name}`}
-                className="px-3 py-1 bg-medium-bg-secondary text-medium-text-secondary hover:bg-medium-accent-green hover:text-white rounded-full text-sm transition-colors"
+                className="px-3 py-1 bg-medium-bg-secondary text-medium-text-secondary text-sm rounded-full hover:bg-medium-accent-green hover:text-white transition-colors"
               >
                 {category.name}
                 {category.post_count && (
-                  <span className="ml-1 opacity-75">
-                    ({category.post_count})
-                  </span>
+                  <span className="ml-1 opacity-75">({category.post_count})</span>
                 )}
               </Link>
             ))}
           </div>
         )}
-      </div>
+      </SidebarSection>
 
-      {/* Archive */}
-      <div className={combineClasses(themeClasses.bg.card, themeClasses.effects.rounded, themeClasses.spacing.card)}>
-        <h3 className={combineClasses(
-          themeClasses.typography.h4,
-          themeClasses.text.primary,
-          'mb-3'
-        )}>
-          Archive
-        </h3>
-        <Archive 
-          posts={recentPosts} 
-          className=""
-        />
-      </div>
+      <SidebarSection title="Archive">
+        <Archive posts={recentPosts} className="" />
+      </SidebarSection>
     </div>
   );
 };

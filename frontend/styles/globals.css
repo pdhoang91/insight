@@ -17,9 +17,9 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Fixed Navbar Spacing */
+/* Fixed Navbar Spacing — 64px navbar + 16px gap */
 body {
-  scroll-padding-top: 4rem; /* 64px for navbar height */
+  scroll-padding-top: 5rem; /* 80px */
 }
 
 /* Medium 2024 Design System - CSS Custom Properties */
@@ -92,50 +92,18 @@ body {
   --border-radius-full: 9999px;
 }
 
-/* Enhanced Dark Mode - Medium 2024 with better hierarchy */
-[data-theme="dark"] {
-  --medium-bg-primary: #0D1117;          /* GitHub dark inspired */
-  --medium-bg-secondary: #161B22;
-  --medium-bg-card: #161B22;             /* Solid background for cards/dropdowns */
-  --medium-bg-elevated: #21262D;         /* More elevated background */
-  --medium-bg-overlay: rgba(13, 17, 23, 0.95);
-  
-  --medium-text-primary: #F0F6FC;        /* High contrast white */
-  --medium-text-secondary: #8B949E;      /* Medium gray */
-  --medium-text-muted: #6E7681;          /* Muted gray */
-  --medium-text-accent: #2EA043;         /* GitHub green */
-  --medium-text-inverse: #0D1117;
-  
-  --medium-accent-green: #2EA043;
-  --medium-accent-green-hover: #2C974B;
-  --medium-accent-green-light: rgba(46, 160, 67, 0.15);
-  --medium-accent-gray: #8B949E;
-  --medium-accent-blue: #58A6FF;
-  
-  --medium-border: #30363D;              /* Subtle dark borders */
-  --medium-border-light: #21262D;        /* Very subtle */
-  --medium-divider: #30363D;
-  
-  --medium-hover: #262C36;               /* Subtle hover */
-  --medium-active: #30363D;              /* Clear active */
-  --medium-focus: rgba(46, 160, 67, 0.3);
-  
-  /* Dark mode status colors */
-  --medium-success: #2EA043;
-  --medium-warning: #FB8500;
-  --medium-error: #FF6B6B;
-  --medium-info: #58A6FF;
-  
-  /* Enhanced Dark Mode Shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.6);
-}
-
 /* To ensure all elements use border-box sizing */
 *, *::before, *::after {
   box-sizing: border-box;
+}
+
+/* Hide scrollbar but keep scroll functionality */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
 
 /* Global Styles - Medium-inspired */
@@ -613,25 +581,6 @@ a:hover {
 .content pre code .hljs-meta { color: #6a737d; }
 .content pre code .hljs-addition { color: #22863a; background-color: #f0fff4; }
 .content pre code .hljs-deletion { color: #b31d28; background-color: #ffeef0; }
-
-[data-theme="dark"] .content pre code .hljs-comment,
-[data-theme="dark"] .content pre code .hljs-quote { color: #8b949e; }
-[data-theme="dark"] .content pre code .hljs-keyword,
-[data-theme="dark"] .content pre code .hljs-selector-tag,
-[data-theme="dark"] .content pre code .hljs-type { color: #ff7b72; }
-[data-theme="dark"] .content pre code .hljs-string,
-[data-theme="dark"] .content pre code .hljs-attr,
-[data-theme="dark"] .content pre code .hljs-symbol,
-[data-theme="dark"] .content pre code .hljs-bullet { color: #a5d6ff; }
-[data-theme="dark"] .content pre code .hljs-number,
-[data-theme="dark"] .content pre code .hljs-literal { color: #79c0ff; }
-[data-theme="dark"] .content pre code .hljs-title,
-[data-theme="dark"] .content pre code .hljs-section { color: #d2a8ff; }
-[data-theme="dark"] .content pre code .hljs-built_in,
-[data-theme="dark"] .content pre code .hljs-name { color: #ffa657; }
-[data-theme="dark"] .content pre code .hljs-meta { color: #8b949e; }
-[data-theme="dark"] .content pre code .hljs-addition { color: #aff5b4; background-color: rgba(46, 160, 67, 0.15); }
-[data-theme="dark"] .content pre code .hljs-deletion { color: #ffdcd7; background-color: rgba(248, 81, 73, 0.15); }
 
 /* Code block language label */
 .content pre { position: relative; }

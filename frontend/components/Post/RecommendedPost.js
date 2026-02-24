@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import useSWR from 'swr';
-import PostItemSmall from './PostItemSmall';
+import BasePostItem from './BasePostItem';
 import { getPopulerPosts } from '../../services/postService';
 import { useUser } from '../../context/UserContext';
 
@@ -29,7 +29,7 @@ const RecommendedPost = () => {
   return (
     <div>
       {posts.map((post) => (
-        <PostItemSmall key={post.id} post={post} />
+        <BasePostItem key={post.id} post={post} variant="compact" />
       ))}
     </div>
   );

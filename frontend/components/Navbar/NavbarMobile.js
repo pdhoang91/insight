@@ -11,16 +11,13 @@ import {
   FaTimes
 } from 'react-icons/fa';
 import { useUser } from '../../context/UserContext';
-import { useTheme } from '../../context/ThemeContext';
 import { usePostContext } from '../../context/PostContext';
-import ThemeToggle from '../UI/ThemeToggle';
 import SimpleSearchBar from '../Shared/SimpleSearchBar';
 import { canWritePosts } from '../../services/authService';
 import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const NavbarMobile = () => {
   const { user, setUser, setModalOpen } = useUser();
-  const { theme, mounted } = useTheme();
   const { handlePublish } = usePostContext();
   const router = useRouter();
   const isWritePage = router.pathname === '/write' || router.pathname.startsWith('/edit/');
@@ -63,10 +60,6 @@ const NavbarMobile = () => {
 
   const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
-  // Don't render until theme is mounted to prevent hydration mismatch
-  if (!mounted) {
-    return null;
-  }
 
   return {
     // Mobile Navigation Controls
@@ -197,13 +190,6 @@ const NavbarMobile = () => {
                   <div className="space-y-1">
                     {/* Theme Toggle */}
                     <div className="px-3 py-2">
-                      <div className="flex items-center justify-between">
-                        <span className={combineClasses(
-                          themeClasses.typography.bodySmall,
-                          themeClasses.text.secondary
-                        )}>Giao diện</span>
-                        <ThemeToggle variant="simple" />
-                      </div>
                     </div>
                     
                     <button

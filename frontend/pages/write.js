@@ -8,7 +8,6 @@ import { createPost } from '../services/postService';
 import { usePostContext } from '../context/PostContext';
 import { FaTimes } from 'react-icons/fa';
 import { WriteLayout } from '../components/Layout/Layout';
-import { themeClasses, combineClasses, componentClasses } from '../utils/themeClasses';
 
 // Write Page Header Component - Following home page pattern
 // const WritePageHeader = () => (
@@ -195,25 +194,16 @@ const Write = () => {
       {isFullscreen && (
         <button
           onClick={() => setIsFullscreen(false)}
-          className={combineClasses(
-            'fixed top-4 right-4 z-50 rounded-lg',
-            'bg-medium-bg-primary/80',
-            themeClasses.effects.blur,
-            themeClasses.interactive.touchTarget,
-            themeClasses.text.secondary,
-            'hover:text-medium-text-primary',
-            themeClasses.animations.smooth
-          )}
+          className="fixed top-4 right-4 z-50 p-2 rounded-lg bg-white/80 backdrop-blur-sm text-medium-text-secondary hover:text-medium-text-primary transition-colors"
           title="Thoát toàn màn hình"
         >
-          <FaTimes className={themeClasses.icons.md} />
+          <FaTimes className="w-5 h-5" />
         </button>
       )}
 
       {isFullscreen ? (
-        /* Fullscreen Mode - Direct rendering */
-        <main className={`${themeClasses.layout.container} pt-16 md:pt-20`}>
-          <div className="h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)]">
+        <main className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 pt-16">
+          <div className="h-[calc(100vh-4rem)]">
             <PostForm
               title={title}
               setTitle={setTitle}

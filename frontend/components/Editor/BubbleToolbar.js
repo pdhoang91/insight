@@ -53,7 +53,7 @@ const BubbleToolbar = ({ editor, onLinkClick }) => {
     >
       <div className={combineClasses(
         'flex items-center gap-0.5 px-2 py-1 rounded-lg shadow-lg',
-        'bg-gray-900 dark:bg-gray-800 border border-gray-700'
+        'bg-gray-900 border border-gray-700'
       )}>
         <BubbleButton
           icon={FaBold}

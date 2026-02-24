@@ -1,5 +1,4 @@
 import React from 'react'
-import { themeClasses, combineClasses } from '../../utils/themeClasses'
 import ToolbarButton from './ToolbarButton'
 import ToolbarSeparator from './ToolbarSeparator'
 import ColorPicker, { PRESET_COLORS, HIGHLIGHT_COLORS } from './ColorPicker'
@@ -14,19 +13,9 @@ const Toolbar = ({ menuBar, editor, compact = false }) => {
     : menuBar
 
   return (
-    <div className={combineClasses(
-      'sticky top-0 z-10',
-      themeClasses.effects.rounded,
-      'bg-medium-bg-primary/80',
-      themeClasses.effects.blur,
-      themeClasses.animations.smooth,
-      compact ? 'p-2' : 'p-2.5'
-    )}>
-      <div className="flex items-center justify-center">
-        <div className={combineClasses(
-          'flex items-center flex-wrap',
-          compact ? themeClasses.spacing.gapTiny : themeClasses.spacing.gapSmall
-        )}>
+    <div className={`sticky top-16 z-10 bg-white/90 backdrop-blur-sm border-b border-medium-border ${compact ? 'p-2' : 'p-2.5'}`}>
+      <div className="overflow-x-auto scrollbar-hide">
+        <div className={`flex items-center ${compact ? 'gap-0.5' : 'gap-1'} min-w-max`}>
           {filteredMenuBar.map((item, index) => {
             if (item.type === 'separator') {
               return <ToolbarSeparator key={item.name} />

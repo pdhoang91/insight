@@ -2,7 +2,7 @@
 import React from 'react';
 import InfiniteScrollWrapper from '../Utils/InfiniteScrollWrapper';
 import UserPostList from './UserPostList';
-import PostItemProfile from '../Post/PostItemProfile';
+import BasePostItem from '../Post/BasePostItem';
 
 const UserPostsSection = ({ posts, isLoading, isError, setSize, isReachingEnd, isOwner }) => {
   const fetchMore = () => {
@@ -16,7 +16,7 @@ const UserPostsSection = ({ posts, isLoading, isError, setSize, isReachingEnd, i
 
       return null; // Hoặc render một component khác để xử lý
     }
-    return <PostItemProfile key={post.id} post={post} isOwner={isOwner} />;
+    return <BasePostItem key={post.id} post={post} variant="profile" isOwner={isOwner} />;
   };
 
   if (isError) return <div className="text-red-500">Không thể tải bài viết</div>;

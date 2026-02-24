@@ -1,6 +1,6 @@
 // components/Profile/UserPostList.js
 import React from 'react';
-import PostItemProfile from '../Post/PostItemProfile';
+import BasePostItem from '../Post/BasePostItem';
 
 const UserPostList = ({ posts, isOwner }) => {
   if (!Array.isArray(posts)) {
@@ -10,7 +10,7 @@ const UserPostList = ({ posts, isOwner }) => {
   return (
     <div className="space-y-4">
       {posts.map((post) => (
-        <PostItemProfile key={post.id} post={post} isOwner={isOwner} />
+        <BasePostItem key={post.id} post={post} variant="profile" isOwner={isOwner} />
       ))}
     </div>
   );

@@ -2,8 +2,6 @@
 import { useState } from 'react';
 import Head from 'next/head';
 import { PostProvider } from '../context/PostContext';
-import { ThemeProvider } from '../context/ThemeContext';
-
 import UserContext from '../context/UserContext';
 import Navbar from '../components/Navbar/Navbar';
 import LoginModal from '../components/Auth/LoginModal';
@@ -20,26 +18,24 @@ function MyApp({ Component, pageProps }) {
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
-      <ThemeProvider>
-        <PostProvider>
-          <UserContext.Provider value={{ user, setUser, setModalOpen, loading, mutate }}>
-            <div className="min-h-screen bg-medium-bg-primary text-medium-text-primary">
+      <PostProvider>
+        <UserContext.Provider value={{ user, setUser, setModalOpen, loading, mutate }}>
+          <div className="min-h-screen bg-medium-bg-primary text-medium-text-primary">
             {/* Site Header with Navigation */}
             <header className="fixed top-0 left-0 right-0 z-50">
               <Navbar />
             </header>
-            
+
             {/* Modal Dialogs */}
             <LoginModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
-            
+
             {/* Main Application Content */}
             <main role="main">
               <Component {...pageProps} />
             </main>
-            </div>
-          </UserContext.Provider>
-        </PostProvider>
-      </ThemeProvider>
+          </div>
+        </UserContext.Provider>
+      </PostProvider>
     </>
   );
 }
