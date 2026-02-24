@@ -16,7 +16,6 @@ const PopularPostItem = ({ post, rank, showImages }) => {
         className={combineClasses(
           'flex items-center justify-between py-1 px-2 group',
           themeClasses.effects.rounded,
-          'hover:bg-medium-accent-green/5',
           themeClasses.animations.smooth
         )}
       >

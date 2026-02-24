@@ -1,5 +1,6 @@
 // pages/category/[name].js
 import React from 'react';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
 import { HomeLayout } from '../../components/Layout/Layout';
 import { CategoryPosts } from '../../components/Category';
@@ -45,5 +46,11 @@ const CategoryPage = () => {
     </HomeLayout>
   );
 };
+
+export const getServerSideProps = async ({ locale }) => ({
+  props: {
+    ...(await serverSideTranslations(locale ?? 'vi', ['common'])),
+  },
+});
 
 export default CategoryPage;

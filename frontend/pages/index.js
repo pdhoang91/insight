@@ -1,5 +1,6 @@
 // pages/index.js
 import React from 'react';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import Link from 'next/link';
 import { useInfinitePosts } from '../hooks/useInfinitePosts';
 import { HomeLayout } from '../components/Layout/Layout';
@@ -74,5 +75,11 @@ const Home = () => {
     </HomeLayout>
   );
 };
+
+export const getServerSideProps = async ({ locale }) => ({
+  props: {
+    ...(await serverSideTranslations(locale ?? 'vi', ['common'])),
+  },
+});
 
 export default Home;

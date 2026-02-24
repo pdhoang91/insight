@@ -1,5 +1,6 @@
 // pages/[username].js
 import React, { useEffect, useState } from 'react';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
 import { useUser } from '../context/UserContext';
 import useProfile from '../hooks/useProfile';
@@ -168,5 +169,11 @@ const UserProfilePage = () => {
     </ProfileLayout>
   );
 };
+
+export const getServerSideProps = async ({ locale }) => ({
+  props: {
+    ...(await serverSideTranslations(locale ?? 'vi', ['common'])),
+  },
+});
 
 export default UserProfilePage;

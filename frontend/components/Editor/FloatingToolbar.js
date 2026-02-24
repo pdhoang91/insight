@@ -10,17 +10,11 @@ import {
   FaQuoteRight,
   FaTasks,
 } from 'react-icons/fa'
-import { themeClasses, combineClasses } from '../../utils/themeClasses'
 
 const FloatingButton = ({ icon: Icon, label, onClick }) => (
   <button
     onClick={onClick}
-    className={combineClasses(
-      'flex items-center gap-2 w-full px-3 py-1.5 text-sm rounded-md',
-      themeClasses.text.secondary,
-      'hover:bg-medium-hover',
-      themeClasses.animations.smooth
-    )}
+    className="flex items-center gap-2 w-full px-3 py-1.5 text-sm rounded-md text-medium-text-secondary hover:text-medium-accent-green transition-colors"
   >
     <Icon className="w-3.5 h-3.5 opacity-60" />
     <span>{label}</span>
@@ -45,13 +39,7 @@ const FloatingToolbar = ({ editor, onImageUpload, onYoutubeClick }) => {
         return isEmptyLine && !currentLineText
       }}
     >
-      <div className={combineClasses(
-        'py-1.5 px-1 min-w-[180px] rounded-lg',
-        themeClasses.bg.card,
-        'border',
-        themeClasses.border.primary,
-        themeClasses.effects.shadowLayeredLg
-      )}>
+      <div className="py-1.5 px-1 min-w-[180px] rounded-lg bg-white border border-medium-border shadow-lg">
         <FloatingButton
           icon={FaHeading}
           label="Tiêu đề"

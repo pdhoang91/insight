@@ -7,9 +7,7 @@ import {
   FaStrikethrough,
   FaLink,
   FaEraser,
-  FaHighlighter,
 } from 'react-icons/fa'
-import { themeClasses, combineClasses } from '../../utils/themeClasses'
 
 const QUICK_HIGHLIGHTS = [
   { color: '#fef08a', label: 'Vàng' },
@@ -21,12 +19,11 @@ const QUICK_HIGHLIGHTS = [
 const BubbleButton = ({ icon: Icon, onClick, isActive, title }) => (
   <button
     onClick={onClick}
-    className={combineClasses(
-      'p-1.5 rounded transition-colors',
+    className={`p-1.5 rounded transition-colors ${
       isActive
         ? 'bg-white/20 text-white'
         : 'text-white/70 hover:text-white hover:bg-white/10'
-    )}
+    }`}
     title={title}
   >
     <Icon className="w-3.5 h-3.5" />
@@ -51,10 +48,7 @@ const BubbleToolbar = ({ editor, onLinkClick }) => {
         return true
       }}
     >
-      <div className={combineClasses(
-        'flex items-center gap-0.5 px-2 py-1 rounded-lg shadow-lg',
-        'bg-gray-900 border border-gray-700'
-      )}>
+      <div className="flex items-center gap-0.5 px-2 py-1 rounded-lg shadow-lg bg-gray-900 border border-gray-700">
         <BubbleButton
           icon={FaBold}
           onClick={() => editor.chain().focus().toggleBold().run()}
@@ -95,12 +89,11 @@ const BubbleToolbar = ({ editor, onLinkClick }) => {
           <button
             key={h.color}
             onClick={() => editor.chain().focus().toggleHighlight({ color: h.color }).run()}
-            className={combineClasses(
-              'w-5 h-5 rounded-sm border transition-transform hover:scale-110',
+            className={`w-5 h-5 rounded-sm border transition-opacity hover:opacity-80 ${
               editor.isActive('highlight', { color: h.color })
                 ? 'border-white ring-1 ring-white'
                 : 'border-transparent'
-            )}
+            }`}
             style={{ backgroundColor: h.color }}
             title={h.label}
           />

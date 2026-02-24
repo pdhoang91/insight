@@ -1,6 +1,7 @@
 // pages/_app.js
 import { useState } from 'react';
 import Head from 'next/head';
+import { appWithTranslation } from 'next-i18next';
 import { PostProvider } from '../context/PostContext';
 import UserContext from '../context/UserContext';
 import Navbar from '../components/Navbar/Navbar';
@@ -40,4 +41,4 @@ function MyApp({ Component, pageProps }) {
   );
 }
 
-export default MyApp;
+export default appWithTranslation(MyApp);

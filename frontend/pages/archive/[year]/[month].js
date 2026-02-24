@@ -1,5 +1,6 @@
 // pages/archive/[year]/[month].js
 import React from 'react';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
 import { HomeLayout } from '../../../components/Layout/Layout';
 import PersonalBlogSidebar from '../../../components/Sidebar/PersonalBlogSidebar';
@@ -99,5 +100,11 @@ const ArchivePage = () => {
     </HomeLayout>
   );
 };
+
+export const getServerSideProps = async ({ locale }) => ({
+  props: {
+    ...(await serverSideTranslations(locale ?? 'vi', ['common'])),
+  },
+});
 
 export default ArchivePage;

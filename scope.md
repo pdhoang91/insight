@@ -1,203 +1,216 @@
-# UI/UX Refactor Plan — Light-Only, TopDev + Medium Style
+# UI/UX Refactor Plan — Round 2
 
 ## Goals
-1. Remove dark theme entirely — light mode only, no theme toggle
-2. Redesign UX/UI combining TopDev.vn (clean, professional) + Medium.com (reading-focused) style
-3. Fix responsive design: TableOfContents, editor, scroll behavior, nav-content padding
-4. Achieve full style consistency across all pages and components
+1. Remove unnecessary hover effects (green/gray background hovers)
+2. Redesign Publish Article popup (categories, tags UX)
+3. Redesign editor to match Medium's writing flow
+4. Redesign comment/clap UX and verify count logic
+5. Redesign TOC + Post Detail to match 200lab.io/blog style
+6. Add language switcher (Vietnamese / English)
 
 ---
 
-## Current State Analysis
+## Phase 1: Remove Unnecessary Hover Effects
 
-### Theme System
-- `ThemeContext.js` manages light/dark via `data-theme` attribute + localStorage
-- `ThemeToggle.js` component in Navbar (desktop + mobile)
-- CSS variables in `globals.css` define both light and dark palettes
-- `tailwind.config.ts` has `darkMode: ['class', '[data-theme="dark"]']`
-- `themeClasses.js` (920 lines) — central utility, uses CSS variable-based classes
-- Dark-specific references: `dark:prose-invert` in 4 places, `dark:` in BubbleToolbar and LinkDialog, `[data-theme="dark"]` in globals.css and mobile.css
+Strip distracting hover backgrounds across the app. Keep only meaningful hover states (links → color change, buttons → subtle opacity/color).
 
-### Layout Issues
-- Navbar height varies: 56px (mobile) → 64px (sm) → 72px (md) → 80px (lg) — too many breakpoints
-- Content offset: `pt-16 md:pt-20` doesn't match all navbar heights
-- TOC sticky `top-24` (96px) doesn't align with actual navbar height
-- Body `scroll-padding-top: 4rem` (64px) — mismatch with larger navbar
-- Sidebar scroll is independent of main content — no coordination
-- Container padding `px-4 sm:px-6 md:px-16 lg:px-32 xl:px-48 2xl:px-64` — too aggressive on large screens
+**Principle:** Hover should communicate "this is clickable", not decorate. No `hover:bg-*` on non-button elements. No `hover:scale-*` anywhere.
 
-### Style Inconsistencies
-- PostItem vs PostItemProfile vs BasePostItem: different border-radius (`rounded-lg` vs `rounded-xl`), spacing (`mb-6` vs `mb-8`), and styling approaches
-- Mixed usage of `themeClasses` utilities and hardcoded Tailwind classes
-- Image aspect ratios vary: `aspect-[16/10]`, `h-48`, `w-16 h-16`
-- Hover states inconsistent across components
-- Typography: mix of `themeClasses.typography.*` and direct font classes
+**Files & specific changes:**
+
+### 1a. `BasePostItem.js`
+- Category tags: Remove `hover:bg-medium-accent-green hover:text-white` → use `hover:text-medium-accent-green` only
+- Horizontal variant: Remove `hover:bg-medium-hover` from link wrapper
+- Profile variant: Remove `hover:shadow-md` from article
+
+### 1b. `CategoryTagsPopup.js`
+- Close button: Remove `hover:bg-medium-hover`
+- Category buttons: Remove `hover:bg-medium-hover hover:shadow-md hover:scale-102`
+- Selected tags: Remove `hover:scale-105`
+- Cancel button: Remove `hover:bg-medium-hover hover:scale-105`
+- Publish button: Remove `hover:shadow-xl hover:scale-105 hover:-translate-y-0.5`
+
+### 1c. `Navbar.js`
+- User menu items: Remove `hover:bg-medium-bg-secondary` → keep `hover:text-medium-accent-green` only
+- Mobile menu items: Same treatment
+
+### 1d. `PopularPosts.js`
+- Post links: Remove `hover:bg-medium-accent-green/5`
+
+### 1e. `PostDetail.js`
+- Action buttons (clap, comment, share): Remove `hover:bg-medium-hover` → keep `hover:text-medium-accent-green`
+
+### 1f. `CommentItem.js`
+- Uses `themeClasses.text.accentHover` which is fine (text color only)
+- No background hover to remove
+
+### 1g. `AddCommentForm.js`
+- Submit button: Remove `hover:scale-105`
+
+### 1h. `LimitedCommentList.js`
+- Load more button: Remove `hover:bg-medium-hover hover:shadow-md`
+
+### 1i. `PersonalBlogSidebar.js`
+- Category links: Remove `hover:bg-medium-accent-green hover:text-white` → use `hover:text-medium-accent-green`
+
+**Status:** [x] Completed
 
 ---
 
-## Implementation Plan
+## Phase 2: Redesign Publish Article Popup
 
-### Phase 1: Remove Dark Theme
-Remove all dark mode infrastructure.
+Current issues: Over-decorated, too many icons, excessive animations, `themeClasses` indirection makes it hard to read.
 
-**Changes:**
-1. **`context/ThemeContext.js`** — Simplify: always return `'light'`, remove localStorage/system preference logic, remove `visibility: hidden` wrapper
-2. **`components/UI/ThemeToggle.js`** — Delete file
-3. **`components/Navbar/Navbar.js`** — Remove ThemeToggle import and usage, remove `useTheme` import
-4. **`components/Navbar/NavbarMobile.js`** — Same removals
-5. **`styles/globals.css`** — Remove entire `[data-theme="dark"]` CSS variable block, remove all `[data-theme="dark"]` selectors (syntax highlighting dark, mobile dark)
-6. **`styles/mobile.css`** — Remove all `[data-theme="dark"]` rules
-7. **`tailwind.config.ts`** — Remove `darkMode` config line
-8. **`utils/themeClasses.js`** — Remove `dark:prose-invert` from prose classes
-9. **`components/Editor/BubbleToolbar.js`** — Remove `dark:bg-gray-800`
-10. **`components/Editor/LinkDialog.js`** — Remove `dark:hover:bg-red-900/20`
-11. **`components/Post/PostDetail.js`** — Remove `dark:prose-invert`
+**Target design:** Clean modal like Medium's publish flow — simple, focused, minimal chrome.
 
-**Status:** [x] Completed
+**Changes to `CategoryTagsPopup.js`:**
 
-### Phase 2: Standardize Layout System
-Fix navbar, content offset, sidebar scroll, and container widths.
-
-**Changes:**
-
-#### 2a. Navbar — Consistent Height
-- Standardize to **64px** on all breakpoints (matching Medium.com)
-- Remove responsive height classes (`h-14 sm:h-16 md:h-18 lg:h-20` → `h-16`)
-- Simplify padding and inner layout
-
-#### 2b. Content Offset — Unified
-- All pages: `pt-16` (64px) consistently
-- TOC sticky: `top-20` (80px = 64px navbar + 16px gap)
-- Body `scroll-padding-top: 5rem` (80px)
-- Sidebar sticky: `top-20` consistently
-
-#### 2c. Container Widths — TopDev/Medium Inspired
-- Max container: `max-w-[1200px]` (TopDev uses ~1200px)
-- Reading content: `max-w-[720px]` (Medium uses ~680-720px)
-- Homepage: 3-column grid — main content (2/3) + sidebar (1/3)
-- Post detail: content (3/4) + TOC sidebar (1/4) on `lg:`
-- Consistent horizontal padding: `px-4 md:px-6 lg:px-8`
-
-#### 2d. Sidebar Scroll Fix
-- Sidebar uses `position: sticky` with `top-20` and `max-h-[calc(100vh-5rem)]` + `overflow-y-auto`
-- Main content scrolls naturally
-- No independent scroll containers
-
-**Files changed:**
-- `components/Navbar/Navbar.js`
-- `components/Navbar/NavbarMobile.js`
-- `components/Layout/Layout.js`
-- `components/Shared/TableOfContents.js`
-- `components/Sidebar/PersonalBlogSidebar.js`
-- `styles/globals.css`
-- `utils/themeClasses.js` — update layout/spacing/responsive utilities
+1. **Header**: Simplify — just title + close X, no subtitle
+2. **Categories section**:
+   - Replace grid cards with simple checkbox list or pill toggles
+   - Remove FaTag icons from each category
+   - Remove green check badge overlay
+   - Simple selected state: filled pill (green bg + white text)
+   - Unselected: outlined pill (border + gray text)
+3. **Tags section**:
+   - Replace comma-separated input with tag chips input (type → Enter to add)
+   - Show tags as removable pills below input
+   - Remove suggested tags section (or make it subtle)
+4. **Footer**: Simple two buttons — "Cancel" (text) and "Publish" (green filled)
+5. **Remove all**: `hover:scale-*`, `hover:shadow-*`, `transform`, excessive `themeClasses` usage
+6. **Use plain Tailwind** classes directly (consistent with Navbar rewrite)
 
 **Status:** [x] Completed
 
-### Phase 3: Redesign Post Cards — Consistent Components
-Unify all post card variants using `BasePostItem.js` as the single source of truth.
+---
 
-**Target design (TopDev + Medium hybrid):**
-- Clean white card with subtle border, `rounded-lg`
-- Image: `aspect-[16/9]` consistently, `rounded-md`
-- Title: serif font, `line-clamp-2`
-- Excerpt: sans-serif, `line-clamp-2`, muted color
-- Meta: author avatar + name, date, read time, category tag
-- Actions: clap count, comment count — always visible (not hover-only)
-- Consistent spacing: `p-5`, `gap-4`, `mb-4`
+## Phase 3: Redesign Editor — Medium-style Writing Flow
+
+Current issues: Toolbar is cluttered, PostForm uses heavy `themeClasses` indirection, editor area doesn't feel like Medium's clean writing surface.
+
+**Target:** Medium.com's writing experience — clean white canvas, minimal toolbar, focus on content.
 
 **Changes:**
-1. **`BasePostItem.js`** — Rewrite as the single card component with variants: `default`, `compact`, `horizontal`, `profile`
-2. **Delete** `PostItem.js`, `PostItemSmall.js`, `PostItemProfile.js` — migrate to BasePostItem variants
-3. **Update** all pages/components that import the deleted files
-4. **`RelatedPosts.js`** — Use BasePostItem `compact` variant
-5. **`RelatedArticles.js`** — Use BasePostItem `default` variant in grid
-6. **`PopularPosts.js`** — Use BasePostItem `compact` variant
+
+### 3a. `PostForm.js`
+- Remove `themeClasses`/`combineClasses` — use plain Tailwind
+- Editor area: white background, generous padding, `max-w-[720px]` centered
+- Title input: Large serif font, no border, placeholder "Title"
+- Content area: Serif font for body text, clean prose styling
+- Word count: subtle, bottom-right
+
+### 3b. `Toolbar.js`
+- Already fixed for horizontal scroll — keep that
+- Reduce visual weight: lighter border, smaller icons
+- Consider hiding toolbar on scroll (show on hover/focus)
+
+### 3c. `TitleInput.js`
+- Large, clean title field — Medium uses ~42px serif bold
+- Cover image upload: subtle "Add cover image" button, not a separate section
+
+### 3d. `pages/write.js` & `pages/edit/[id].js`
+- Remove `themeClasses` usage
+- Clean layout: just the editor, centered, white background
 
 **Status:** [x] Completed
 
-### Phase 4: Redesign Navbar — TopDev + Medium Style
-Clean, professional navbar matching the target aesthetic.
+---
 
-**Target design:**
-- White background, subtle bottom border
-- Left: Logo/brand name
-- Center: Search bar (expandable on mobile)
-- Right: Write button (green, prominent), user avatar/menu
-- No theme toggle
-- Mobile: hamburger menu with slide-in drawer
+## Phase 4: Redesign Comment & Clap UX + Verify Counts
 
-**Changes:**
-- `components/Navbar/Navbar.js` — Full redesign
-- `components/Navbar/NavbarMobile.js` — Simplified mobile menu
-- Remove ThemeToggle references
+### 4a. Comment Design
+Current `CommentItem.js` uses heavy `themeClasses` indirection. Redesign to be cleaner.
 
-**Status:** [x] Completed
+**Target design (Medium-inspired):**
+- Avatar + name + time on one line
+- Comment text below
+- Actions: heart + reply — inline, subtle
+- Reply form: inline textarea, appears on click
+- Nested replies: left border indent (not card-in-card)
 
-### Phase 5: Redesign Homepage — TopDev + Medium Style
-Clean, content-focused homepage.
+**Files:**
+- `CommentItem.js` — full rewrite with plain Tailwind
+- `AddCommentForm.js` — simplify, remove hover:scale
+- `LimitedCommentList.js` — simplify load more button
+- `ReplyList.js` — check and align style
 
-**Target layout:**
-```
-[Navbar — 64px fixed]
-[Hero/Featured Post — optional, full-width banner]
-[Main Content Area — max-w-1200px, centered]
-  ├── Posts Feed (2/3 width) — BasePostItem cards
-  └── Sidebar (1/3 width) — sticky
-      ├── Popular Posts
-      ├── Categories
-      └── Archive
-```
+### 4b. Clap UX
+- Current: `useClapsCount` hook fetches `getClapInfo(type, id)` returning `{ clapCount, hasClapped }`
+- Verify: Does `clapPost()` increment correctly? Does `mutateClaps()` refetch?
+- UX: Clap button should animate on click (brief scale pulse), show count update immediately (optimistic)
 
-**Changes:**
-- `pages/index.js` — Update layout structure
-- `components/Post/PostList.js` — Use new BasePostItem
-- `components/Sidebar/PersonalBlogSidebar.js` — Redesign with consistent styling
+**Files to verify:**
+- `hooks/useClapsCount.js` — check SWR key and mutate behavior
+- `services/activityService.js` — check `clapPost()` and `getClapInfo()` API calls
+- `BasePostItem.js` — clap handler
+- `PostDetail.js` — clap handler
 
 **Status:** [x] Completed
 
-### Phase 6: Redesign Post Detail — Reading Experience
-Medium-inspired reading layout with proper TOC.
+---
 
-**Target layout:**
-```
-[Navbar — 64px fixed]
-[Post Header — title, author, date, cover image]
-[Content Area — max-w-1200px]
-  ├── Article Content (3/4) — max-w-720px prose
-  └── TOC Sidebar (1/4) — sticky, scrollable
-[Related Posts]
-[Comments]
-```
+## Phase 5: Redesign TOC + Post Detail — 200lab.io Style
 
-**Changes:**
-- `components/Post/PostDetail.js` — Redesign header and layout
-- `components/Post/ArticleReader.js` — Consistent with PostDetail
-- `components/Shared/TableOfContents.js` — Fix sticky behavior, responsive collapse
-- `components/Post/EngagementActions.js` — Consistent action bar
+### Reference: 200lab.io/blog
+- TOC: "Mục Lục" header, collapsible, shows numbered headings
+- Post detail: Clean article layout, author info at top, tags at bottom
+- Reading progress indicator (optional)
+- Content: well-spaced, serif body, code blocks with language labels
+
+### 5a. `TableOfContents.js` — Redesign
+Current: left-border indicator, "On this page" header. Good start but needs:
+- **Collapsible** on mobile (accordion)
+- **Numbered items** matching heading hierarchy
+- **Progress indicator**: highlight current section as user scrolls
+- **200lab style**: Card with "Mục Lục" header, list items with dotted lines or numbers
+- Position: sticky sidebar on desktop, collapsible card above content on mobile
+
+### 5b. `PostDetail.js` — Redesign
+Current layout is good (article + TOC sidebar). Enhance:
+- **Author info section**: avatar + name + date + read time (like 200lab)
+- **Tags at bottom**: pill-style tags after content
+- **Share buttons**: at bottom of article, not in header
+- **Related articles**: card grid at bottom (like 200lab's "Bài viết liên quan")
+- **Reading progress bar**: thin green bar at top of page showing scroll progress
+
+### 5c. `pages/p/[id].js`
+- Add reading progress bar
+- Ensure TOC is properly positioned in sidebar
 
 **Status:** [x] Completed
 
-### Phase 7: Redesign Editor — Responsive & Clean
-Fix editor responsive issues.
+---
 
-**Changes:**
-- `components/Editor/PostForm.js` — Fix toolbar overflow on mobile, proper padding
-- `components/Editor/Toolbar.js` — Horizontal scroll on mobile instead of wrap
-- `pages/write.js` — Proper fullscreen mode
-- `pages/edit/[id].js` — Same fixes
+## Phase 6: Language Switcher (Vietnamese / English)
 
-**Status:** [x] Completed
+No i18n system exists currently. Need to add one.
 
-### Phase 8: Global Style Cleanup
-Final pass for consistency.
+**Approach: `next-i18next`** (most popular for Next.js Pages Router)
 
-**Changes:**
-1. **`styles/globals.css`** — Clean up orphaned dark mode CSS, standardize typography scale
-2. **`utils/themeClasses.js`** — Remove dark-related utilities, ensure all components use this system
-3. **`tailwind.config.ts`** — Clean up unused custom values
-4. **Audit all components** — Replace hardcoded classes with `themeClasses` equivalents
-5. **Standardize transitions** — `transition-colors duration-150` everywhere
+### 6a. Setup
+- Install `next-i18next` + `i18next` + `react-i18next`
+- Create `next-i18next.config.js` with locales: `['vi', 'en']`, default: `'vi'`
+- Update `next.config.js` with i18n config
+- Create translation files: `public/locales/vi/common.json` and `public/locales/en/common.json`
+
+### 6b. Translation Files
+Extract all user-facing strings:
+- Navbar: "Viết bài", "Đăng nhập", "Đăng xuất", "Tìm kiếm..."
+- Post cards: "min read", "Featured"
+- Comments: "Viết bình luận...", "Gửi", "Xem thêm bình luận"
+- Editor: "Nhập / để xem các lệnh...", "Publish Article", "Cancel"
+- TOC: "Mục Lục" / "Table of Contents"
+- Errors: "Đã xảy ra lỗi", "Thử lại"
+
+### 6c. Language Switcher Component
+- Small dropdown or toggle in Navbar (right side, before user menu)
+- Shows "VI" / "EN" flags or text
+- Persists choice in localStorage + cookie (for SSR)
+
+### 6d. Wrap Components
+- Wrap `_app.js` with `appWithTranslation`
+- Use `useTranslation('common')` hook in components
+- Replace hardcoded strings with `t('key')`
 
 **Status:** [x] Completed
 
@@ -205,26 +218,16 @@ Final pass for consistency.
 
 ## Implementation Order
 
-| Phase | Description | Effort | Dependencies |
-|-------|-------------|--------|--------------|
-| 1 | Remove Dark Theme | Small | None |
-| 2 | Standardize Layout System | Medium | Phase 1 |
-| 3 | Redesign Post Cards | Medium | Phase 2 |
-| 4 | Redesign Navbar | Medium | Phase 1 |
-| 5 | Redesign Homepage | Medium | Phase 2, 3, 4 |
-| 6 | Redesign Post Detail + TOC | Medium | Phase 2, 3 |
-| 7 | Redesign Editor | Small | Phase 2 |
-| 8 | Global Style Cleanup | Medium | All above |
+**Recommended:** 1 → 2 → 3 → 4 → 5 → 6
 
-**Recommended order:** 1 → 2 → 4 → 3 → 5 → 6 → 7 → 8
+Phases 1-5 are independent UI changes. Phase 6 (i18n) touches many files so should be last.
 
 ---
 
 ## Confirmed Decisions
 
-1. **Brand color**: Keep green (`#1A8917`) ✅
-2. **Font**: Serif for articles, sans-serif for UI ✅
-3. **Homepage**: Add featured/hero post section ✅
-4. **Sidebar**: Keep as-is (Popular Posts, Categories, Archive) ✅
-5. **Post cards**: Don't show author avatar on cards ✅
-6. **ThemeContext**: Fully delete ✅
+1. **i18n**: Use `next-i18next` ✅
+2. **Editor**: Hide top toolbar, use BubbleMenu/FloatingMenu only (Medium style) ✅
+3. **TOC mobile**: Collapsible card above content (200lab style) ✅
+4. **Reading progress bar**: Yes, thin green bar below navbar ✅
+5. **Comment nesting**: Cap at 2 levels (comment → reply) ✅

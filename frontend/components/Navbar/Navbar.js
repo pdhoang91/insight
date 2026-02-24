@@ -8,8 +8,11 @@ import { useUser } from '../../context/UserContext';
 import { usePostContext } from '../../context/PostContext';
 import SimpleSearchBar from '../Shared/SimpleSearchBar';
 import { canWritePosts } from '../../services/authService';
+import LanguageSwitcher from '../Shared/LanguageSwitcher';
+import { useTranslation } from 'next-i18next';
 
 const Navbar = () => {
+  const { t } = useTranslation('common');
   const { user, setUser, setModalOpen } = useUser();
   const { handlePublish } = usePostContext();
   const router = useRouter();
@@ -58,7 +61,7 @@ const Navbar = () => {
           {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-4">
             <div className="w-52 lg:w-64">
-              <SimpleSearchBar placeholder="Tìm kiếm..." />
+              <SimpleSearchBar placeholder={t('nav.search')} />
             </div>
 
             {user && canWritePosts(user) && (
@@ -67,7 +70,7 @@ const Navbar = () => {
                   onClick={() => handlePublish?.()}
                   className="px-4 py-2 text-sm font-medium bg-medium-accent-green text-white rounded-full hover:bg-medium-accent-green/90 transition-colors"
                 >
-                  Đăng bài
+                  {t('nav.publish')}
                 </button>
               ) : (
                 <button
@@ -75,16 +78,18 @@ const Navbar = () => {
                   className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-medium-text-secondary hover:text-medium-accent-green transition-colors"
                 >
                   <FaEdit className="w-4 h-4" />
-                  Viết bài
+                  {t('nav.write')}
                 </button>
               )
             )}
+
+            <LanguageSwitcher />
 
             {user ? (
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center p-1 rounded-full hover:ring-2 hover:ring-medium-border transition-all"
+                  className="flex items-center p-1 rounded-full transition-colors"
                 >
                   {user.avatar_url ? (
                     <img src={user.avatar_url} alt={user.name} className="w-8 h-8 rounded-full object-cover" />
@@ -106,7 +111,7 @@ const Navbar = () => {
                     >
                       <Link
                         href={`/${user.username}`}
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-medium-bg-secondary transition-colors"
+                        className="flex items-center gap-3 px-4 py-3 transition-colors"
                         onClick={() => setIsUserMenuOpen(false)}
                       >
                         {user.avatar_url ? (
@@ -124,10 +129,10 @@ const Navbar = () => {
                       <div className="border-t border-medium-border" />
                       <button
                         onClick={handleLogout}
-                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-medium-text-secondary hover:bg-medium-bg-secondary transition-colors"
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-medium-text-secondary hover:text-medium-text-primary transition-colors"
                       >
                         <FaSignOutAlt className="w-4 h-4" />
-                        Đăng xuất
+                        {t('nav.logout')}
                       </button>
                     </motion.div>
                   )}
@@ -138,7 +143,7 @@ const Navbar = () => {
                 onClick={() => setModalOpen(true)}
                 className="px-4 py-2 text-sm font-medium text-medium-accent-green border border-medium-accent-green rounded-full hover:bg-medium-accent-green hover:text-white transition-colors"
               >
-                Đăng nhập
+                {t('nav.login')}
               </button>
             )}
           </div>
@@ -146,11 +151,11 @@ const Navbar = () => {
           {/* Mobile controls */}
           <div className="flex items-center gap-3 md:hidden">
             <div className="w-36">
-              <SimpleSearchBar placeholder="Tìm kiếm..." />
+              <SimpleSearchBar placeholder={t('nav.search')} />
             </div>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 rounded-lg text-medium-text-secondary hover:bg-medium-bg-secondary transition-colors"
+              className="p-2 rounded-lg text-medium-text-secondary hover:text-medium-text-primary transition-colors"
             >
               {isMobileMenuOpen ? <FaTimes className="w-5 h-5" /> : <FaBars className="w-5 h-5" />}
             </button>
@@ -171,17 +176,22 @@ const Navbar = () => {
               {user && canWritePosts(user) && !isWritePage && (
                 <button
                   onClick={() => { router.push('/write'); setIsMobileMenuOpen(false); }}
-                  className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-medium-text-secondary hover:bg-medium-bg-secondary rounded-lg transition-colors"
+                  className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-medium-text-secondary hover:text-medium-accent-green rounded-lg transition-colors"
                 >
                   <FaEdit className="w-4 h-4" />
-                  Viết bài
+                  {t('nav.write')}
                 </button>
               )}
+
+              <div className="px-4 py-1">
+                <LanguageSwitcher />
+              </div>
+
               {user ? (
                 <>
                   <Link
                     href={`/${user.username}`}
-                    className="flex items-center gap-3 px-4 py-2.5 hover:bg-medium-bg-secondary rounded-lg transition-colors"
+                    className="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {user.avatar_url ? (
@@ -195,10 +205,10 @@ const Navbar = () => {
                   </Link>
                   <button
                     onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
-                    className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-medium-text-secondary hover:bg-medium-bg-secondary rounded-lg transition-colors"
+                    className="flex items-center gap-3 w-full px-4 py-2.5 text-sm text-medium-text-secondary hover:text-medium-text-primary rounded-lg transition-colors"
                   >
                     <FaSignOutAlt className="w-4 h-4" />
-                    Đăng xuất
+                    {t('nav.logout')}
                   </button>
                 </>
               ) : (
@@ -206,7 +216,7 @@ const Navbar = () => {
                   onClick={() => { setModalOpen(true); setIsMobileMenuOpen(false); }}
                   className="w-full px-4 py-2.5 text-sm font-medium text-medium-accent-green border border-medium-accent-green rounded-lg hover:bg-medium-accent-green hover:text-white transition-colors"
                 >
-                  Đăng nhập
+                  {t('nav.login')}
                 </button>
               )}
             </div>

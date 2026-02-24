@@ -1,9 +1,11 @@
 // components/Shared/TableOfContents.js
 import React, { useState, useEffect } from 'react';
+import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
-const TableOfContents = ({ content, className = '' }) => {
+const TableOfContents = ({ content, className = '', collapsible = false }) => {
   const [toc, setToc] = useState([]);
   const [activeId, setActiveId] = useState('');
+  const [isOpen, setIsOpen] = useState(!collapsible);
 
   useEffect(() => {
     if (!content) return;
@@ -56,28 +58,67 @@ const TableOfContents = ({ content, className = '' }) => {
 
   if (toc.length === 0) return null;
 
+  const minLevel = Math.min(...toc.map(t => t.level));
+
+  const numberItems = () => {
+    const counters = {};
+    return toc.map(item => {
+      const depth = item.level - minLevel;
+      counters[depth] = (counters[depth] || 0) + 1;
+      // Reset deeper counters
+      Object.keys(counters).forEach(k => {
+        if (parseInt(k) > depth) delete counters[k];
+      });
+      const num = Object.keys(counters)
+        .sort((a, b) => a - b)
+        .map(k => counters[k])
+        .join('.');
+      return { ...item, num };
+    });
+  };
+
+  const numberedToc = numberItems();
+
   return (
-    <nav className={`${className}`} aria-label="Table of contents">
-      <h4 className="font-sans text-xs font-semibold uppercase tracking-wider text-medium-text-muted mb-3">
-        On this page
-      </h4>
-      <ul className="space-y-1 border-l border-medium-border">
-        {toc.map((item) => (
-          <li key={item.id}>
-            <button
-              onClick={() => scrollTo(item.id)}
-              className={`block w-full text-left text-sm py-1 transition-colors border-l-2 -ml-px ${
-                activeId === item.id
-                  ? 'border-medium-accent-green text-medium-accent-green font-medium'
-                  : 'border-transparent text-medium-text-secondary hover:text-medium-text-primary hover:border-medium-border'
-              }`}
-              style={{ paddingLeft: `${(item.level - 1) * 12 + 12}px` }}
-            >
-              {item.text}
-            </button>
-          </li>
-        ))}
-      </ul>
+    <nav className={`bg-white rounded-lg border border-medium-border ${className}`} aria-label="Mục lục">
+      {/* Header */}
+      <button
+        onClick={() => collapsible && setIsOpen(prev => !prev)}
+        className={`flex items-center justify-between w-full px-4 py-3 text-left ${
+          collapsible ? 'cursor-pointer' : 'cursor-default'
+        }`}
+      >
+        <h4 className="font-serif font-bold text-sm text-medium-text-primary">
+          Mục Lục
+        </h4>
+        {collapsible && (
+          isOpen ? <FaChevronUp className="w-3 h-3 text-medium-text-muted" /> : <FaChevronDown className="w-3 h-3 text-medium-text-muted" />
+        )}
+      </button>
+
+      {/* Items */}
+      {isOpen && (
+        <ul className="px-4 pb-4 space-y-0.5">
+          {numberedToc.map((item) => (
+            <li key={item.id}>
+              <button
+                onClick={() => scrollTo(item.id)}
+                className={`flex items-start gap-2 w-full text-left py-1.5 text-sm transition-colors rounded px-2 -mx-2 ${
+                  activeId === item.id
+                    ? 'text-medium-accent-green font-medium bg-medium-accent-green/5'
+                    : 'text-medium-text-secondary hover:text-medium-text-primary'
+                }`}
+                style={{ paddingLeft: `${(item.level - minLevel) * 16 + 8}px` }}
+              >
+                <span className="text-medium-text-muted text-xs mt-0.5 flex-shrink-0 w-6 text-right">
+                  {item.num}
+                </span>
+                <span className="line-clamp-2">{item.text}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </nav>
   );
 };

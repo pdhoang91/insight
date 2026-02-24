@@ -1,6 +1,6 @@
-// src/components/Comment/ReplyItem.js
+// components/Comment/ReplyItem.js
 import React from 'react';
-import { FaHeart, FaUser } from "react-icons/fa";
+import { FaHeart, FaUser } from 'react-icons/fa';
 import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapReply } from '../../services/activityService';
 import { useUser } from '../../context/UserContext';
@@ -11,71 +11,49 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
   const { clapsCount, loading: clapsLoading, hasClapped, mutate: mutateClaps } = useClapsCount('reply', reply.id);
 
   const handleClap = async () => {
-    if (!user) {
-      alert('Please login to clap.');
-      return;
-    }
+    if (!user) return;
     try {
       await clapReply(reply.id);
-      mutateClaps(); // Refetch clap count
+      mutateClaps();
     } catch (error) {
       console.error('Failed to clap:', error);
-      alert(error.message || 'Failed to clap. Please try again.');
     }
-  };
-
-  // Helper function to display clap count with loading state
-  const clapsCountDisplay = (count, loading) => {
-    if (loading) {
-      return '...';
-    }
-    return count;
   };
 
   return (
-    <div className="bg-medium-bg-card rounded-lg p-md hover:bg-medium-hover transition-all duration-200 shadow-sm">
-      {/* Author Info */}
-      <div className="flex items-center gap-sm mb-sm">
-        <div className="w-6 h-6 bg-medium-bg-secondary rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
-          {reply.user?.avatar_url ? (
-            <img
-              src={reply.user.avatar_url}
-              alt={reply.user.name}
-              className="w-full h-full rounded-full object-cover"
-            />
-          ) : (
-            <FaUser className="w-3 h-3 text-medium-accent-green" />
-          )}
-        </div>
-        <div className="flex items-center gap-sm">
-          <span className="font-serif font-bold text-medium-text-primary text-body-small">
+    <div className="flex gap-2.5 py-2">
+      {/* Avatar */}
+      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-medium-bg-secondary flex items-center justify-center overflow-hidden">
+        {reply.user?.avatar_url ? (
+          <img src={reply.user.avatar_url} alt={reply.user.name} className="w-full h-full object-cover" />
+        ) : (
+          <FaUser className="w-2.5 h-2.5 text-medium-text-muted" />
+        )}
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2 mb-0.5">
+          <span className="text-xs font-medium text-medium-text-primary">
             {reply.user?.name || 'Anonymous'}
           </span>
-          <span className="text-medium-text-muted text-body-small">
+          <span className="text-xs text-medium-text-muted">
             <TimeAgo timestamp={reply.created_at} />
           </span>
         </div>
-      </div>
 
-      {/* Reply Content */}
-      <div className="pl-8 mb-sm">
-        <div className="text-medium-text-secondary text-body leading-relaxed">
+        <div className="text-sm text-medium-text-secondary leading-relaxed mb-1">
           {reply.content}
         </div>
-      </div>
 
-      {/* Actions */}
-      <div className="flex items-center pl-8">
         <button
           onClick={handleClap}
-          className={`flex items-center gap-sm text-body-small transition-all duration-200 ${
+          disabled={clapsLoading}
+          className={`flex items-center gap-1 text-xs transition-colors ${
             hasClapped ? 'text-medium-accent-green' : 'text-medium-text-muted hover:text-medium-accent-green'
           }`}
-          disabled={clapsLoading}
-          aria-label="Clap for this reply"
         >
-          <FaHeart className={`w-3 h-3 ${clapsLoading ? 'animate-pulse' : ''}`} />
-          <span>{clapsCountDisplay(clapsCount, clapsLoading)}</span>
+          <FaHeart className={`w-2.5 h-2.5 ${clapsLoading ? 'animate-pulse' : ''}`} />
+          <span>{clapsLoading ? '...' : clapsCount}</span>
         </button>
       </div>
     </div>

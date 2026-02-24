@@ -1,40 +1,15 @@
 // pages/edit/[id].js
 import { useState, useEffect, useCallback } from 'react';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
 import { useUser } from '../../context/UserContext';
 import CategoryTagsPopup from '../../components/Category/CategoryTagsPopup';
 import PostForm from '../../components/Editor/PostForm';
 import LoadingSpinner from '../../components/Shared/LoadingSpinner';
-import { WriteLayout } from '../../components/Layout/Layout';
-import { themeClasses, combineClasses, componentClasses } from '../../utils/themeClasses';
-
-// Edit Page Header Component - Following home page pattern
-// const EditPageHeader = () => (
-//   <header className={combineClasses(
-//     'text-center lg:text-left',
-//     themeClasses.spacing.gap
-//   )}>
-//     <h1 className={combineClasses(
-//       componentClasses.heading.h3,
-//       'mb-3'
-//     )}>
-//       Chỉnh sửa bài viết
-//     </h1>
-//     <p className={combineClasses(
-//       componentClasses.text.bodySmall,
-//       themeClasses.text.secondary,
-//       'max-w-2xl mx-auto lg:mx-0'
-//     )}>
-//       Cập nhật nội dung và thông tin bài viết
-//     </p>
-//   </header>
-// );
 import { updatePost } from '../../services/postService';
 import { usePostName } from '../../hooks/usePost';
 import { usePostContext } from '../../context/PostContext';
-import { 
-  FaTimes
-} from 'react-icons/fa';
+import { FaTimes } from 'react-icons/fa';
 
 const EditPost = () => {
   const router = useRouter();
@@ -48,11 +23,9 @@ const EditPost = () => {
   const [content, setContent] = useState(null);
   const [imageTitle, setImageTitle] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
-  const [saveStatus, setSaveStatus] = useState('idle'); // idle, saving, saved, error
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
-  // Initialize form data when post loads
   useEffect(() => {
     if (post && !isInitialized) {
       setTitle(post.title || '');
@@ -68,74 +41,39 @@ const EditPost = () => {
     }
   }, [loading, user, setModalOpen]);
 
-  // Auto-save functionality
-  const handleSaveDraft = async () => {
-    try {
-      setSaveStatus('saving');
-      // TODO: Implement save draft functionality
-
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setSaveStatus('saved');
-      setTimeout(() => setSaveStatus('idle'), 2000);
-    } catch {
-      setSaveStatus('error');
-      setTimeout(() => setSaveStatus('idle'), 2000);
+  const handleUpdate = useCallback(() => {
+    if (!title.trim() || !content) {
+      alert('Vui lòng thêm tiêu đề và nội dung cho bài viết của bạn');
+      return;
     }
-  };
-
-
-  // Auto-save functionality
-  useEffect(() => {
-    if (!title && !content) return;
-    
-    const autoSaveTimer = setTimeout(() => {
-      if (title.trim() || content) {
-        handleSaveDraft();
-      }
-    }, 30000); // Auto-save every 30 seconds
-
-    return () => clearTimeout(autoSaveTimer);
+    setShowPopup(true);
   }, [title, content]);
 
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Cmd/Ctrl + S for save
-      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
-        e.preventDefault();
-        handleSaveDraft();
-      }
-      // Cmd/Ctrl + Enter for update
       if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
         e.preventDefault();
         handleUpdate();
       }
-      // F11 for fullscreen
       if (e.key === 'F11') {
         e.preventDefault();
-        setIsFullscreen(!isFullscreen);
+        setIsFullscreen(prev => !prev);
       }
-      // Escape to exit fullscreen
-      if (e.key === 'Escape') {
-        if (isFullscreen) {
-          setIsFullscreen(false);
-        }
+      if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isFullscreen, handleSaveDraft]);
+  }, [isFullscreen, handleUpdate]);
 
   const updateFunction = useCallback(async (categories, tags) => {
     if (!user) {
       setModalOpen(true);
       return;
     }
-
     try {
       const res = await updatePost(post.id, {
         title,
@@ -147,17 +85,9 @@ const EditPost = () => {
       router.push(`/p/${res.data.slug}`);
     } catch (error) {
       console.error('Failed to update post:', error);
-      alert('Failed to update post.');
+      alert('Không thể cập nhật bài viết.');
     }
   }, [user, title, content, imageTitle, post?.id, router]);
-
-  const handleUpdate = useCallback(() => {
-    if (!title.trim() || !content) {
-      alert('Vui lòng thêm tiêu đề và nội dung cho bài viết của bạn');
-      return;
-    }
-    setShowPopup(true);
-  }, [title, content]);
 
   useEffect(() => {
     setHandleUpdate(() => handleUpdate);
@@ -175,27 +105,9 @@ const EditPost = () => {
     }
   }, [router.asPath, router, id]);
 
-  const getSaveStatusText = () => {
-    switch (saveStatus) {
-      case 'saving': return 'Đang lưu...';
-      case 'saved': return 'Đã lưu';
-      case 'error': return 'Lỗi';
-      default: return 'Lưu bản nháp';
-    }
-  };
-
-  const getSaveStatusColor = () => {
-    switch (saveStatus) {
-      case 'saving': return 'text-secondary';
-      case 'saved': return 'text-primary';
-      case 'error': return 'text-danger';
-      default: return 'text-muted';
-    }
-  };
-
   if (!router.isReady || isLoading || loading) {
     return (
-      <div className="min-h-screen bg-medium-bg-primary flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" />
           <p className="mt-4 text-medium-text-secondary">Đang tải trình soạn thảo...</p>
@@ -206,7 +118,7 @@ const EditPost = () => {
 
   if (isError) {
     return (
-      <div className="min-h-screen bg-medium-bg-primary flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="text-red-500 font-serif text-lg mb-2">Lỗi khi tải bài viết</div>
           <p className="text-medium-text-muted">Không thể tìm thấy bài viết bạn muốn chỉnh sửa.</p>
@@ -215,63 +127,32 @@ const EditPost = () => {
     );
   }
 
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
 
   return (
-    <div className={`${isFullscreen ? 'fixed inset-0 z-50 bg-medium-bg-primary' : ''}`}>
-      {/* Fullscreen Exit Button */}
+    <div className={isFullscreen ? 'fixed inset-0 z-50 bg-white overflow-y-auto' : 'min-h-screen bg-white'}>
       {isFullscreen && (
         <button
           onClick={() => setIsFullscreen(false)}
-          className={combineClasses(
-            'fixed top-4 right-4 z-50 rounded-lg',
-            'bg-medium-bg-primary/80',
-            themeClasses.effects.blur,
-            themeClasses.interactive.touchTarget,
-            themeClasses.text.secondary,
-            'hover:text-medium-text-primary',
-            themeClasses.animations.smooth
-          )}
+          className="fixed top-4 right-4 z-50 p-2 rounded-lg bg-white/80 backdrop-blur-sm text-medium-text-secondary hover:text-medium-text-primary transition-colors"
           title="Thoát toàn màn hình"
         >
-          <FaTimes className={themeClasses.icons.md} />
+          <FaTimes className="w-5 h-5" />
         </button>
       )}
 
-      {isFullscreen ? (
-        /* Fullscreen Mode - Direct rendering */
-        <main className={`${themeClasses.layout.container} pt-16 md:pt-20`}>
-          <div className="h-[calc(100vh-5rem)] md:h-[calc(100vh-6rem)]">
-            <PostForm
-              title={title}
-              setTitle={setTitle}
-              content={content}
-              setContent={setContent}
-              imageTitle={imageTitle}
-              setImageTitle={setImageTitle}
-              isFullscreen={isFullscreen}
-            />
-          </div>
-        </main>
-      ) : (
-        /* Normal Mode - Use optimized WriteLayout */
-        <WriteLayout>
-          
-          <PostForm
-            title={title}
-            setTitle={setTitle}
-            content={content}
-            setContent={setContent}
-            imageTitle={imageTitle}
-            setImageTitle={setImageTitle}
-            isFullscreen={isFullscreen}
-          />
-        </WriteLayout>
-      )}
+      <main className="max-w-[720px] mx-auto px-4 md:px-6 pt-20 pb-16">
+        <PostForm
+          title={title}
+          setTitle={setTitle}
+          content={content}
+          setContent={setContent}
+          imageTitle={imageTitle}
+          setImageTitle={setImageTitle}
+          isFullscreen={isFullscreen}
+        />
+      </main>
 
-      {/* Update Modal */}
       {showPopup && (
         <CategoryTagsPopup
           title={title}
@@ -284,5 +165,11 @@ const EditPost = () => {
     </div>
   );
 };
+
+export const getServerSideProps = async ({ locale }) => ({
+  props: {
+    ...(await serverSideTranslations(locale ?? 'vi', ['common'])),
+  },
+});
 
 export default EditPost;

@@ -69,7 +69,7 @@ const BasePostItem = ({
   if (variant === 'horizontal') {
     return (
       <article className="group">
-        <Link href={`/p/${post.slug}`} className="flex gap-4 p-3 rounded-lg hover:bg-medium-hover transition-colors">
+        <Link href={`/p/${post.slug}`} className="flex gap-4 p-3 rounded-lg">
           {post.cover_image && (
             <div className="flex-shrink-0 w-20 h-20 rounded-md overflow-hidden bg-medium-bg-secondary">
               <img
@@ -135,13 +135,13 @@ const BasePostItem = ({
         <div className="flex items-center gap-2">
           <Link
             href={`/edit/${post.id}`}
-            className="p-1.5 rounded hover:bg-medium-hover text-medium-text-secondary hover:text-medium-accent-green transition-colors"
+            className="p-1.5 rounded text-medium-text-secondary hover:text-medium-accent-green transition-colors"
           >
             <FaEdit className="w-4 h-4" />
           </Link>
           <button
             onClick={handleDelete}
-            className="p-1.5 rounded hover:bg-red-50 text-medium-text-secondary hover:text-red-500 transition-colors"
+            className="p-1.5 rounded text-medium-text-secondary hover:text-red-500 transition-colors"
           >
             <FaTrash className="w-4 h-4" />
           </button>
@@ -172,7 +172,7 @@ const BasePostItem = ({
   // --- Profile variant (with owner actions, same layout as default) ---
   if (variant === 'profile') {
     return (
-      <article className="bg-white rounded-lg border border-medium-border p-5 mb-4 transition-shadow hover:shadow-md">
+      <article className="bg-white rounded-lg border border-medium-border p-5 mb-4">
         <div className="flex flex-col lg:flex-row gap-5">
           <div className="flex-1 min-w-0">
             <Link href={`/p/${post.slug}`}>
@@ -189,7 +189,7 @@ const BasePostItem = ({
                   <Link
                     key={cat.id}
                     href={`/category/${cat.name}`}
-                    className="px-2.5 py-0.5 bg-medium-bg-secondary text-medium-text-secondary text-xs rounded-full hover:bg-medium-accent-green hover:text-white transition-colors"
+                    className="px-2.5 py-0.5 bg-medium-bg-secondary text-medium-text-secondary text-xs rounded-full hover:text-medium-accent-green transition-colors"
                   >
                     {cat.name}
                   </Link>
@@ -233,7 +233,7 @@ const BasePostItem = ({
                 <Link
                   key={cat.id}
                   href={`/category/${cat.name}`}
-                  className="px-2.5 py-0.5 bg-medium-bg-secondary text-medium-text-secondary text-xs rounded-full hover:bg-medium-accent-green hover:text-white transition-colors"
+                    className="px-2.5 py-0.5 bg-medium-bg-secondary text-medium-text-secondary text-xs rounded-full hover:text-medium-accent-green transition-colors"
                 >
                   {cat.name}
                 </Link>

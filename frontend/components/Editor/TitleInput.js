@@ -1,7 +1,6 @@
 // components/Editor/TitleInput.js
 import React from 'react';
-import { FaImage } from 'react-icons/fa';
-import { themeClasses, combineClasses, componentClasses } from '../../utils/themeClasses';
+import { FaImage, FaTimes } from 'react-icons/fa';
 import LoadingSpinner from '../Shared/LoadingSpinner';
 
 const TitleInput = ({
@@ -11,102 +10,53 @@ const TitleInput = ({
   setImageTitle,
   handleImageTitleUpload,
   isUploadingTitle,
-  focusMode = false,
 }) => {
   return (
-    <div className={themeClasses.spacing.stackSmall}>
-      {/* Title Input */}
-      <div className={themeClasses.utils.relative}>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-          className={combineClasses(
-            'w-full bg-transparent border-0 border-b py-3 outline-none resize-none',
-            themeClasses.border.primary,
-            'focus:border-medium-accent-green',
-            themeClasses.typography.h3,
-            themeClasses.text.primary,
-            'placeholder:text-medium-text-muted',
-            themeClasses.animations.smooth
-          )}
-          placeholder="Tiêu đề bài viết của bạn..."
-        />
-        
-        {/* Upload Button */}
-        <button
-          type="button"
-          onClick={handleImageTitleUpload}
-          className={combineClasses(
-            themeClasses.utils.absolute,
-            'right-0 top-1/2 transform -translate-y-1/2 p-2',
-            themeClasses.interactive.touchTarget,
-            themeClasses.effects.rounded,
-            themeClasses.text.secondary,
-            themeClasses.text.accentHover,
-            themeClasses.animations.smooth
-          )}
-          aria-label="Tải lên ảnh bìa"
-          title="Tải lên ảnh bìa"
-        >
-          {isUploadingTitle ? (
-            <LoadingSpinner size="sm" />
-          ) : imageTitle ? (
-            <div className={themeClasses.utils.relative}>
-              <img
-                src={imageTitle}
-                alt="Ảnh bìa"
-                className={combineClasses(
-                  'w-6 h-6 object-cover',
-                  themeClasses.effects.rounded
-                )}
-              />
-              <div className={combineClasses(
-                themeClasses.utils.absolute,
-                '-top-1 -right-1 w-3 h-3 rounded-full flex items-center justify-center',
-                themeClasses.bg.accent,
-                'text-white'
-              )}>
-                <FaImage className="w-1.5 h-1.5" />
-              </div>
-            </div>
-          ) : (
-            <FaImage className={themeClasses.icons.sm} />
-          )}
-        </button>
-      </div>
+    <div className="mb-8">
+      {/* Title */}
+      <textarea
+        value={title}
+        onChange={(e) => {
+          setTitle(e.target.value);
+          e.target.style.height = 'auto';
+          e.target.style.height = e.target.scrollHeight + 'px';
+        }}
+        placeholder="Title"
+        className="w-full bg-transparent border-0 outline-none resize-none font-serif text-4xl font-bold text-medium-text-primary placeholder:text-medium-text-muted/50 leading-tight"
+        rows={1}
+      />
 
-      {/* Cover Image Preview */}
-      {imageTitle && (
-        <div className={themeClasses.utils.relative}>
+      {/* Cover image */}
+      {imageTitle ? (
+        <div className="relative mt-6">
           <img
             src={imageTitle}
-            alt="Xem trước ảnh bìa"
-            className={combineClasses(
-              'w-full max-h-64 object-cover border',
-              themeClasses.border.primary,
-              themeClasses.effects.rounded
-            )}
+            alt="Cover"
+            className="w-full max-h-[400px] object-cover rounded-lg"
           />
           <button
             onClick={() => setImageTitle(null)}
-            className={combineClasses(
-              themeClasses.utils.absolute,
-              'top-2 right-2 p-1 rounded-full',
-              'bg-medium-bg-primary/80',
-              themeClasses.effects.blur,
-              themeClasses.text.secondary,
-              'hover:text-red-500',
-              themeClasses.animations.smooth
-            )}
+            className="absolute top-3 right-3 p-1.5 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
             title="Xóa ảnh bìa"
           >
-            <svg className={themeClasses.icons.sm} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <FaTimes className="w-3.5 h-3.5" />
           </button>
         </div>
+      ) : (
+        <button
+          onClick={handleImageTitleUpload}
+          disabled={isUploadingTitle}
+          className="mt-4 flex items-center gap-2 text-sm text-medium-text-muted hover:text-medium-accent-green transition-colors"
+        >
+          {isUploadingTitle ? (
+            <LoadingSpinner size="sm" />
+          ) : (
+            <>
+              <FaImage className="w-4 h-4" />
+              <span>Add cover image</span>
+            </>
+          )}
+        </button>
       )}
     </div>
   );

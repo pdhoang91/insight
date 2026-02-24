@@ -6,21 +6,17 @@ import CharacterCount from '@tiptap/extension-character-count'
 import { getExtensions } from '../../utils/tiptapExtensions'
 import SlashCommands from './extensions/SlashCommands'
 import { uploadImage } from '../../services/imageService'
-import useToolbarItems from '../../hooks/useToolbarItems'
-import Toolbar from './Toolbar'
 import TitleInput from './TitleInput'
 import ContentEditor from './ContentEditor'
 import LinkDialog from './LinkDialog'
 import YouTubeDialog from './YouTubeDialog'
 import BubbleToolbar from './BubbleToolbar'
 import FloatingToolbar from './FloatingToolbar'
-import { themeClasses, combineClasses } from '../../utils/themeClasses'
 import 'tippy.js/dist/tippy.css'
 
 const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTitle, isFullscreen = false }) => {
   const [isUploading, setIsUploading] = useState(false)
   const [isUploadingTitle, setIsUploadingTitle] = useState(false)
-  const [isContentEmpty, setIsContentEmpty] = useState(!content)
   const [showLinkDialog, setShowLinkDialog] = useState(false)
   const [showYoutubeDialog, setShowYoutubeDialog] = useState(false)
 
@@ -41,9 +37,11 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       if (isGeneratingTOC.current) return
       const json = editor.getJSON()
       setContent(json)
-      setIsContentEmpty(editor.isEmpty)
     },
     editorProps: {
+      attributes: {
+        class: 'prose prose-lg max-w-none focus:outline-none min-h-[60vh] font-serif text-medium-text-primary leading-relaxed',
+      },
       handleDrop: (view, event) => {
         const files = event.dataTransfer?.files
         if (files?.length) {
@@ -92,7 +90,6 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       const incomingJSON = typeof content === 'string' ? content : JSON.stringify(content)
       if (incomingJSON !== currentJSON) {
         editor.commands.setContent(content)
-        setIsContentEmpty(editor.isEmpty)
       }
     }
   }, [content, editor])
@@ -141,89 +138,48 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
     }
   }, [setImageTitle])
 
-  const menuBar = useToolbarItems(editor, {
-    onImageUpload: handleImageUpload,
-    onLinkClick: () => setShowLinkDialog(true),
-    onYoutubeClick: () => setShowYoutubeDialog(true),
-  })
-
   const charCount = editor?.storage.characterCount
   const wordCount = charCount?.words?.() || 0
-  const characterCount = charCount?.characters?.() || 0
 
   return (
-    <div className={combineClasses(
-      'w-full max-w-6xl mx-auto',
-      themeClasses.animations.smooth
-    )}>
-      <div className={themeClasses.spacing.cardSmall}>
-        {/* Title Input Section */}
-        <div className={themeClasses.spacing.marginBottom}>
-          <TitleInput
-            title={title}
-            setTitle={setTitle}
-            imageTitle={imageTitle}
-            setImageTitle={setImageTitle}
-            handleImageTitleUpload={handleImageTitleUpload}
-            isUploadingTitle={isUploadingTitle}
+    <div className="w-full max-w-[720px] mx-auto">
+      {/* Title */}
+      <TitleInput
+        title={title}
+        setTitle={setTitle}
+        imageTitle={imageTitle}
+        setImageTitle={setImageTitle}
+        handleImageTitleUpload={handleImageTitleUpload}
+        isUploadingTitle={isUploadingTitle}
+      />
+
+      {/* Editor */}
+      <ContentEditor
+        editor={editor}
+        isUploading={isUploading}
+      />
+
+      {/* Bubble & Floating Menus */}
+      {editor && (
+        <>
+          <BubbleToolbar
+            editor={editor}
+            onLinkClick={() => setShowLinkDialog(true)}
           />
+          <FloatingToolbar
+            editor={editor}
+            onImageUpload={handleImageUpload}
+            onYoutubeClick={() => setShowYoutubeDialog(true)}
+          />
+        </>
+      )}
+
+      {/* Word count — subtle, bottom-right */}
+      {editor && (
+        <div className="text-right mt-4 text-xs text-medium-text-muted">
+          {wordCount} từ
         </div>
-
-        {/* Editor Section */}
-        <div className={combineClasses(
-          themeClasses.animations.smooth,
-          isFullscreen ? 'h-[calc(100vh-8rem)]' : 'min-h-[70vh]'
-        )}>
-          {/* Toolbar */}
-          <div className={combineClasses(
-            themeClasses.animations.smooth,
-            themeClasses.spacing.marginBottom
-          )}>
-            <Toolbar
-              menuBar={menuBar}
-              editor={editor}
-            />
-          </div>
-
-          {/* Content Editor */}
-          <div className={combineClasses(
-            themeClasses.animations.smooth,
-            isFullscreen ? 'h-[calc(100%-4rem)]' : '',
-            'overflow-y-auto'
-          )}>
-            <ContentEditor
-              editor={editor}
-              content={content}
-              isUploading={isUploading}
-            />
-          </div>
-
-          {/* Bubble & Floating Menus */}
-          {editor && (
-            <>
-              <BubbleToolbar
-                editor={editor}
-                onLinkClick={() => setShowLinkDialog(true)}
-              />
-              <FloatingToolbar
-                editor={editor}
-                onImageUpload={handleImageUpload}
-                onYoutubeClick={() => setShowYoutubeDialog(true)}
-              />
-            </>
-          )}
-
-          {/* Word count */}
-          {editor && (
-            <div className={combineClasses(
-              'flex justify-end mt-2 text-xs',
-              themeClasses.text.secondary
-            )}>
-              {wordCount} từ · {characterCount} ký tự
-            </div>
-          )}
-        </div>
-      </div>
+      )}
 
       {/* Dialogs */}
       {showLinkDialog && (

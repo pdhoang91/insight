@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
 import { useUser } from '../context/UserContext';
 import CategoryTagsPopup from '../components/Category/CategoryTagsPopup';
@@ -7,29 +8,6 @@ import LoadingSpinner from '../components/Shared/LoadingSpinner';
 import { createPost } from '../services/postService';
 import { usePostContext } from '../context/PostContext';
 import { FaTimes } from 'react-icons/fa';
-import { WriteLayout } from '../components/Layout/Layout';
-
-// Write Page Header Component - Following home page pattern
-// const WritePageHeader = () => (
-//   <header className={combineClasses(
-//     'text-center lg:text-left',
-//     themeClasses.spacing.gap
-//   )}>
-//     <h1 className={combineClasses(
-//       componentClasses.heading.h3,
-//       'mb-3'
-//     )}>
-//       Tạo bài viết mới
-//     </h1>
-//     <p className={combineClasses(
-//       componentClasses.text.bodySmall,
-//       themeClasses.text.secondary,
-//       'max-w-2xl mx-auto lg:mx-0'
-//     )}>
-//       Chia sẻ kiến thức và ý tưởng của bạn
-//     </p>
-//   </header>
-// );
 
 const Write = () => {
   const router = useRouter();
@@ -40,26 +18,7 @@ const Write = () => {
   const [content, setContent] = useState(null);
   const [imageTitle, setImageTitle] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
-  const [saveStatus, setSaveStatus] = useState('idle'); // idle, saving, saved, error
   const [isFullscreen, setIsFullscreen] = useState(false);
-
-  // Function definitions
-  const handleSaveDraft = async () => {
-    try {
-      setSaveStatus('saving');
-      // TODO: Implement save draft functionality
-
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setSaveStatus('saved');
-      setTimeout(() => setSaveStatus('idle'), 2000);
-    } catch {
-      setSaveStatus('error');
-      setTimeout(() => setSaveStatus('idle'), 2000);
-    }
-  };
 
   const handlePublish = useCallback(() => {
     if (!title.trim() || !content) {
@@ -69,48 +28,25 @@ const Write = () => {
     setShowPopup(true);
   }, [title, content]);
 
-  // Auto-save functionality
-  useEffect(() => {
-    if (!title && !content) return;
-    
-    const autoSaveTimer = setTimeout(() => {
-      if (title.trim() || content) {
-        handleSaveDraft();
-      }
-    }, 30000); // Auto-save every 30 seconds
-
-    return () => clearTimeout(autoSaveTimer);
-  }, [title, content, handleSaveDraft]);
-
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // Cmd/Ctrl + S for save
-      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
-        e.preventDefault();
-        handleSaveDraft();
-      }
-      // Cmd/Ctrl + Enter for publish
       if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
         e.preventDefault();
         handlePublish();
       }
-      // F11 for fullscreen
       if (e.key === 'F11') {
         e.preventDefault();
-        setIsFullscreen(!isFullscreen);
+        setIsFullscreen(prev => !prev);
       }
-      // Escape to exit fullscreen
-      if (e.key === 'Escape') {
-        if (isFullscreen) {
-          setIsFullscreen(false);
-        }
+      if (e.key === 'Escape' && isFullscreen) {
+        setIsFullscreen(false);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isFullscreen, handleSaveDraft, handlePublish]);
+  }, [isFullscreen, handlePublish]);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -146,34 +82,16 @@ const Write = () => {
   }, [user, title, content, imageTitle, router]);
 
   useEffect(() => {
-    setHandlePublish(() => handlePublish); // Use local handlePublish function
+    setHandlePublish(() => handlePublish);
     setHandleUpdate(null);
     return () => {
       setHandlePublish(null);
     };
   }, [handlePublish, setHandlePublish, setHandleUpdate]);
 
-  const getSaveStatusText = () => {
-    switch (saveStatus) {
-      case 'saving': return 'Đang lưu...';
-      case 'saved': return 'Đã lưu';
-      case 'error': return 'Lỗi';
-      default: return 'Lưu Bản Nháp';
-    }
-  };
-
-  const getSaveStatusColor = () => {
-    switch (saveStatus) {
-      case 'saving': return 'text-secondary';
-      case 'saved': return 'text-primary';
-      case 'error': return 'text-danger';
-      default: return 'text-muted';
-    }
-  };
-
   if (loading) {
     return (
-      <div className="min-h-screen bg-medium-bg-primary flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <LoadingSpinner size="lg" />
           <p className="mt-4 text-medium-text-secondary">Đang tải trình soạn thảo...</p>
@@ -182,15 +100,11 @@ const Write = () => {
     );
   }
 
-  if (!user) {
-    return null;
-  }
+  if (!user) return null;
 
   return (
-    <div className={`${isFullscreen ? 'fixed inset-0 z-50 bg-medium-bg-primary' : ''}`}>
-
-
-      {/* Fullscreen Exit Button */}
+    <div className={isFullscreen ? 'fixed inset-0 z-50 bg-white overflow-y-auto' : 'min-h-screen bg-white'}>
+      {/* Fullscreen exit */}
       {isFullscreen && (
         <button
           onClick={() => setIsFullscreen(false)}
@@ -201,37 +115,18 @@ const Write = () => {
         </button>
       )}
 
-      {isFullscreen ? (
-        <main className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8 pt-16">
-          <div className="h-[calc(100vh-4rem)]">
-            <PostForm
-              title={title}
-              setTitle={setTitle}
-              content={content}
-              setContent={setContent}
-              imageTitle={imageTitle}
-              setImageTitle={setImageTitle}
-              isFullscreen={isFullscreen}
-            />
-          </div>
-        </main>
-      ) : (
-        /* Normal Mode - Use optimized WriteLayout */
-        <WriteLayout>
-          
-          <PostForm
-            title={title}
-            setTitle={setTitle}
-            content={content}
-            setContent={setContent}
-            imageTitle={imageTitle}
-            setImageTitle={setImageTitle}
-            isFullscreen={isFullscreen}
-          />
-        </WriteLayout>
-      )}
+      <main className="max-w-[720px] mx-auto px-4 md:px-6 pt-20 pb-16">
+        <PostForm
+          title={title}
+          setTitle={setTitle}
+          content={content}
+          setContent={setContent}
+          imageTitle={imageTitle}
+          setImageTitle={setImageTitle}
+          isFullscreen={isFullscreen}
+        />
+      </main>
 
-      {/* Publish Modal */}
       {showPopup && (
         <CategoryTagsPopup
           title={title}
@@ -244,5 +139,11 @@ const Write = () => {
     </div>
   );
 };
+
+export const getServerSideProps = async ({ locale }) => ({
+  props: {
+    ...(await serverSideTranslations(locale ?? 'vi', ['common'])),
+  },
+});
 
 export default Write;

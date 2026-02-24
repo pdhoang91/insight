@@ -1,450 +1,174 @@
 // components/Category/CategoryTagsPopup.js
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  FaTimes, 
-  FaPlus, 
-  FaCheck, 
-  FaSearch, 
-  FaTag, 
-  FaHashtag
-} from 'react-icons/fa';
+import { FaTimes } from 'react-icons/fa';
 import { useCategories } from '../../hooks/useCategories';
-import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) => {
   const { categories, isLoading } = useCategories();
-  const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategories, setSelectedCategories] = useState([]);
+  const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState('');
-  const [parsedTags, setParsedTags] = useState([]);
-  const searchInputRef = useRef(null);
-
-  // Focus search input when popup opens
-  useEffect(() => {
-    if (searchInputRef.current) {
-      searchInputRef.current.focus();
-    }
-  }, []);
-
-  // Simple tag parsing
-  useEffect(() => {
-    const parsed = tagInput
-      .split(',')
-      .map(tag => tag.trim())
-      .filter(tag => tag.length > 0)
-      .slice(0, 5);
-    setParsedTags(parsed);
-  }, [tagInput]);
-
-  // Simple category filtering
-  const filteredCategories = categories?.filter(cat => 
-    cat.name.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
-
-  // Simple suggested tags
-  const suggestedTags = ['tutorial', 'guide', 'tips', 'javascript', 'react', 'web-dev'];
+  const tagInputRef = useRef(null);
 
   const toggleCategory = (category) => {
-    const isSelected = selectedCategories.some(cat => cat.id === category.id);
+    const isSelected = selectedCategories.some(c => c.id === category.id);
     if (isSelected) {
-      setSelectedCategories(selectedCategories.filter(cat => cat.id !== category.id));
+      setSelectedCategories(selectedCategories.filter(c => c.id !== category.id));
     } else if (selectedCategories.length < 3) {
       setSelectedCategories([...selectedCategories, category]);
     }
   };
 
-  const removeTag = (indexToRemove) => {
-    const newTags = parsedTags.filter((_, index) => index !== indexToRemove);
-    setTagInput(newTags.join(', '));
-  };
-
-  const addSuggestedTag = (tag) => {
-    if (!parsedTags.includes(tag) && parsedTags.length < 5) {
-      const newTags = [...parsedTags, tag];
-      setTagInput(newTags.join(', '));
+  const handleTagKeyDown = (e) => {
+    if ((e.key === 'Enter' || e.key === ',') && tagInput.trim()) {
+      e.preventDefault();
+      const newTag = tagInput.trim().toLowerCase();
+      if (!tags.includes(newTag) && tags.length < 5) {
+        setTags([...tags, newTag]);
+      }
+      setTagInput('');
+    }
+    if (e.key === 'Backspace' && !tagInput && tags.length > 0) {
+      setTags(tags.slice(0, -1));
     }
   };
 
+  const removeTag = (index) => {
+    setTags(tags.filter((_, i) => i !== index));
+  };
+
   const handlePublish = () => {
-    const categoryNames = selectedCategories.map(cat => cat.name).join(',');
-    const finalTags = parsedTags.join(',');
+    const categoryNames = selectedCategories.map(c => c.name).join(',');
+    const finalTags = tags.join(',');
     onPublish(categoryNames, finalTags);
   };
 
   const canPublish = selectedCategories.length > 0;
 
   return (
-    <div 
-      className={combineClasses(
-        'fixed inset-0 z-50 flex items-center justify-center',
-        themeClasses.bg.primary + '/80',
-        themeClasses.effects.blur
-      )}
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
       onClick={(e) => e.target === e.currentTarget && onCancel()}
     >
-      <div className={combineClasses(
-        'max-w-2xl w-full mx-4 max-h-[85vh] overflow-hidden',
-        themeClasses.bg.primary,
-        themeClasses.effects.rounded,
-        themeClasses.effects.shadowLayered,
-        themeClasses.border.primary,
-        'border transform transition-all duration-300 ease-out scale-100'
-      )}>
-        {/* Simple Header */}
-        <div className={combineClasses(
-          'flex items-center justify-between',
-          themeClasses.spacing.card,
-          themeClasses.border.primary,
-          'border-b'
-        )}>
-          <div>
-            <h3 className={combineClasses(
-              themeClasses.typography.h4,
-              themeClasses.text.primary
-            )}>
-              Publish Article
+      <div className="max-w-lg w-full mx-4 bg-white rounded-xl shadow-xl border border-medium-border overflow-hidden">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-medium-border">
+          <h3 className="font-serif text-lg font-bold text-medium-text-primary">
+            Publish Article
           </h3>
-            <p className={combineClasses(
-              themeClasses.typography.bodySmall,
-              themeClasses.text.secondary
-            )}>
-              Choose categories and add tags to help readers find your content
-            </p>
-          </div>
-          
           <button
             onClick={onCancel}
-            className={combineClasses(
-              'p-2 rounded-full transition-colors duration-200',
-              'hover:bg-medium-hover',
-              themeClasses.text.secondary
-            )}
+            className="p-1 text-medium-text-muted hover:text-medium-text-primary transition-colors"
           >
-            <FaTimes className={themeClasses.icons.md} />
+            <FaTimes className="w-4 h-4" />
           </button>
         </div>
-        
-        {/* Content */}
-        <div className={combineClasses(
-          'overflow-y-auto max-h-[65vh]'
-        )}>
-          <div className={themeClasses.spacing.card}>
-            <div className={themeClasses.spacing.stackLarge}>
-              {/* Categories Section */}
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center space-x-3">
-                    <FaTag className={combineClasses(themeClasses.icons.md, themeClasses.text.accent)} />
-                    <div>
-                      <h4 className={combineClasses(themeClasses.typography.h4, themeClasses.text.primary)}>
-                        Categories
-                      </h4>
-                      <p className={combineClasses(themeClasses.typography.bodySmall, themeClasses.text.secondary)}>
-                        Choose up to 3 categories
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <span className={combineClasses(
-                      'text-sm px-3 py-1.5 rounded-full font-medium',
-                      selectedCategories.length > 0 ? 
-                        combineClasses(themeClasses.bg.accent, 'text-white') : 
-                        combineClasses(themeClasses.bg.secondary, themeClasses.text.muted)
-                    )}>
-                      {selectedCategories.length}/3
-                    </span>
-                  </div>
-                </div>
-                
-                {/* Search & Add New */}
-                <div className="space-y-4 mb-6">
-                  <div className="relative">
-                    <FaSearch className={combineClasses(
-                      'absolute left-4 top-1/2 transform -translate-y-1/2',
-                      themeClasses.icons.sm,
-                      themeClasses.text.muted
-                    )} />
-                    <input
-                      ref={searchInputRef}
-                      type="text"
-                      placeholder="Search or create new category..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className={combineClasses(
-                        themeClasses.interactive.inputBase,
-                        themeClasses.interactive.inputLarge,
-                        themeClasses.interactive.input,
-                        'pl-12 pr-4'
-                      )}
-                    />
-                  </div>
-                  
-                  {/* Add New Category Option */}
-                  {searchTerm && !filteredCategories.some(cat => cat.name.toLowerCase() === searchTerm.toLowerCase()) && (
+
+        {/* Body */}
+        <div className="px-6 py-5 space-y-6 max-h-[65vh] overflow-y-auto">
+          {/* Categories */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-sm font-semibold text-medium-text-primary">
+                Categories
+              </label>
+              <span className="text-xs text-medium-text-muted">
+                {selectedCategories.length}/3
+              </span>
+            </div>
+            {isLoading ? (
+              <div className="flex gap-2 flex-wrap">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="h-8 w-20 bg-medium-bg-secondary rounded-full animate-pulse" />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {categories?.map((cat) => {
+                  const isSelected = selectedCategories.some(c => c.id === cat.id);
+                  const isDisabled = !isSelected && selectedCategories.length >= 3;
+                  return (
                     <button
-                      onClick={() => {
-                        const newCategory = { 
-                          id: `new-${Date.now()}`, 
-                          name: searchTerm.trim(),
-                          isNew: true 
-                        };
-                        if (selectedCategories.length < 3) {
-                          setSelectedCategories([...selectedCategories, newCategory]);
-                          setSearchTerm('');
-                        }
-                      }}
-                      disabled={selectedCategories.length >= 3}
-                      className={combineClasses(
-                        'w-full flex items-center space-x-3 p-4 rounded-xl border-2 border-dashed transition-all duration-200',
-                        selectedCategories.length >= 3
-                          ? combineClasses('opacity-50 cursor-not-allowed', themeClasses.border.primary)
-                          : combineClasses(
-                              'border-medium-accent-green/50 hover:border-medium-accent-green hover:bg-medium-accent-green/5',
-                              themeClasses.text.accent
-                            )
-                      )}
+                      key={cat.id}
+                      onClick={() => !isDisabled && toggleCategory(cat)}
+                      disabled={isDisabled}
+                      className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                        isSelected
+                          ? 'bg-medium-accent-green text-white border-medium-accent-green'
+                          : isDisabled
+                          ? 'border-medium-border text-medium-text-muted opacity-40 cursor-not-allowed'
+                          : 'border-medium-border text-medium-text-secondary hover:border-medium-accent-green hover:text-medium-accent-green'
+                      }`}
                     >
-                      <FaPlus className={themeClasses.icons.sm} />
-                      <span className="font-medium">
-                        Create new category: "{searchTerm}"
-                      </span>
+                      {cat.name}
                     </button>
-                  )}
-                </div>
-
-                {/* Selected Categories */}
-                {selectedCategories.length > 0 && (
-                  <div className="mb-6">
-                    <h5 className={combineClasses(
-                      'text-sm font-semibold mb-3',
-                      themeClasses.text.primary
-                    )}>
-                      Selected Categories:
-                    </h5>
-                    <div className="flex flex-wrap gap-3">
-                      {selectedCategories.map((category) => (
-                        <div
-                          key={category.id}
-                          className={combineClasses(
-                            'group flex items-center space-x-3 px-4 py-2.5 rounded-xl border-2 transition-all duration-200 hover:scale-105',
-                            category.isNew 
-                              ? 'border-blue-500 bg-blue-50 text-blue-700'
-                              : combineClasses(
-                                  themeClasses.border.accent,
-                                  themeClasses.bg.accentLight,
-                                  themeClasses.text.accent
-                                )
-                          )}
-                        >
-                          <FaTag className="w-4 h-4" />
-                          <span className="font-medium">{category.name}</span>
-                          {category.isNew && (
-                            <span className="text-xs bg-blue-200 px-2 py-0.5 rounded-full">NEW</span>
-                          )}
-                          <button
-                            onClick={() => toggleCategory(category)}
-                            className="opacity-70 hover:opacity-100 hover:bg-white/20 rounded-full p-1 transition-all duration-200"
-                          >
-                            <FaTimes className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Available Categories */}
-                {filteredCategories.length > 0 && (
-                  <div>
-                    <h5 className={combineClasses(
-                      'text-sm font-semibold mb-4',
-                      themeClasses.text.primary
-                    )}>
-                      Available Categories:
-                    </h5>
-                    <div className="grid grid-cols-2 gap-3 max-h-48 overflow-y-auto pr-2">
-                      {isLoading ? (
-                        <div className="col-span-2 text-center py-8">
-                          <div className="animate-spin w-6 h-6 border-2 border-medium-accent-green border-t-transparent rounded-full mx-auto mb-2"></div>
-                          <span className={combineClasses(themeClasses.text.secondary)}>Loading...</span>
-                        </div>
-                      ) : (
-                        filteredCategories.map((category) => {
-                          const isSelected = selectedCategories.some(cat => cat.id === category.id);
-                          const isDisabled = !isSelected && selectedCategories.length >= 3;
-                          
-                          return (
-                            <button
-                              key={category.id}
-                              onClick={() => !isDisabled && toggleCategory(category)}
-                              disabled={isDisabled}
-                              className={combineClasses(
-                                'group relative p-4 rounded-xl border-2 text-left transition-all duration-200 transform hover:scale-102',
-                                isSelected 
-                                  ? combineClasses(
-                                      themeClasses.border.accent,
-                                      themeClasses.bg.accentLight,
-                                      'shadow-lg'
-                                    )
-                                  : isDisabled
-                                  ? combineClasses(
-                                      themeClasses.border.primary,
-                                      'opacity-40 cursor-not-allowed'
-                                    )
-                                  : combineClasses(
-                                      themeClasses.border.primary,
-                                      'hover:border-medium-accent-green/50 hover:bg-medium-hover hover:shadow-md'
-                                    )
-                              )}
-                            >
-                              <div className="flex items-center space-x-2">
-                                <FaTag className={combineClasses(
-                                  'w-4 h-4',
-                                  isSelected ? themeClasses.text.accent : themeClasses.text.secondary
-                                )} />
-                                <span className={combineClasses(
-                                  'font-medium text-sm',
-                                  isSelected ? themeClasses.text.accent : themeClasses.text.primary
-                                )}>
-                                  {category.name}
-                                </span>
-                              </div>
-                              {isSelected && (
-                                <div className={combineClasses(
-                                  'absolute -top-2 -right-2 p-1 rounded-full',
-                                  themeClasses.bg.accent
-                                )}>
-                                  <FaCheck className="w-3 h-3 text-white" />
-                                </div>
-                              )}
-                            </button>
-                          );
-                        })
-                      )}
-                    </div>
-                  </div>
-                )}
+                  );
+                })}
               </div>
+            )}
+          </div>
 
-              {/* Tags Section */}
-              <div className={combineClasses(
-                'pt-8 border-t-2',
-                themeClasses.border.primary
-              )}>
-                <div className="flex items-center justify-between mb-6">
-                  <div className="flex items-center space-x-3">
-                    <FaHashtag className={combineClasses(themeClasses.icons.md, themeClasses.text.accent)} />
-                    <div>
-                      <h4 className={combineClasses(themeClasses.typography.h4, themeClasses.text.primary)}>
-                        Tags
-                      </h4>
-                      <p className={combineClasses(themeClasses.typography.bodySmall, themeClasses.text.secondary)}>
-                        Add relevant keywords
-                      </p>
-                    </div>
-                  </div>
-                  <span className={combineClasses(
-                    'text-sm px-3 py-1.5 rounded-full font-medium',
-                    parsedTags.length > 0 ? 
-                      combineClasses(themeClasses.bg.accent, 'text-white') : 
-                      combineClasses(themeClasses.bg.secondary, themeClasses.text.muted)
-                  )}>
-                    {parsedTags.length}/5
-                  </span>
-                </div>
-
-                {/* Tag Input */}
-                <div className="relative mb-6">
-                  <FaHashtag className={combineClasses(
-                    'absolute left-4 top-1/2 transform -translate-y-1/2',
-                    themeClasses.icons.sm,
-                    themeClasses.text.muted
-                  )} />
-                  <input
-                    type="text"
-                    placeholder="Enter tags separated by commas (e.g. javascript, react, tutorial)..."
-                    value={tagInput}
-                    onChange={(e) => setTagInput(e.target.value)}
-                    className={combineClasses(
-                      themeClasses.interactive.inputBase,
-                      themeClasses.interactive.inputLarge,
-                      themeClasses.interactive.input,
-                      'pl-12 pr-4'
-                    )}
-                  />
-                </div>
-
-                {/* Current Tags */}
-                {parsedTags.length > 0 && (
-                  <div>
-                    <h5 className={combineClasses(
-                      'text-sm font-semibold mb-4',
-                      themeClasses.text.primary
-                    )}>
-                      Your Tags:
-                    </h5>
-                    <div className="flex flex-wrap gap-3">
-                      {parsedTags.map((tag, index) => (
-                        <div
-                          key={index}
-                          className={combineClasses(
-                            'group flex items-center space-x-3 px-4 py-2.5 rounded-xl border-2 transition-all duration-200 hover:scale-105',
-                            themeClasses.border.accent,
-                            'bg-medium-accent-green/10'
-                          )}
-                        >
-                          <FaHashtag className={combineClasses('w-4 h-4', themeClasses.text.accent)} />
-                          <span className={combineClasses('font-medium', themeClasses.text.accent)}>
-                            {tag}
-                          </span>
-                          <button
-                            onClick={() => removeTag(index)}
-                            className="opacity-70 hover:opacity-100 hover:bg-medium-accent-green/20 rounded-full p-1 transition-all duration-200"
-                          >
-                            <FaTimes className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+          {/* Tags */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <label className="text-sm font-semibold text-medium-text-primary">
+                Tags
+              </label>
+              <span className="text-xs text-medium-text-muted">
+                {tags.length}/5
+              </span>
+            </div>
+            <div
+              className="flex flex-wrap items-center gap-2 px-3 py-2 border border-medium-border rounded-lg focus-within:ring-2 focus-within:ring-medium-accent-green/30 focus-within:border-medium-accent-green transition-all min-h-[42px]"
+              onClick={() => tagInputRef.current?.focus()}
+            >
+              {tags.map((tag, i) => (
+                <span
+                  key={i}
+                  className="flex items-center gap-1 px-2.5 py-1 bg-medium-accent-green/10 text-medium-accent-green text-sm rounded-full"
+                >
+                  {tag}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); removeTag(i); }}
+                    className="hover:text-red-500 transition-colors"
+                  >
+                    <FaTimes className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+              {tags.length < 5 && (
+                <input
+                  ref={tagInputRef}
+                  type="text"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={handleTagKeyDown}
+                  placeholder={tags.length === 0 ? 'Type a tag and press Enter...' : ''}
+                  className="flex-1 min-w-[120px] text-sm outline-none bg-transparent text-medium-text-primary placeholder:text-medium-text-muted"
+                />
+              )}
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className={combineClasses(
-          'flex items-center justify-between border-t-2',
-          themeClasses.spacing.card,
-          themeClasses.border.primary,
-          themeClasses.bg.secondary + '/30'
-        )}>
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-medium-border">
           <button
             onClick={onCancel}
-            className={combineClasses(
-              'px-6 py-3 rounded-xl font-medium transition-all duration-200',
-              themeClasses.interactive.buttonGhost,
-              'hover:bg-medium-hover hover:scale-105'
-            )}
+            className="px-5 py-2 text-sm font-medium text-medium-text-secondary hover:text-medium-text-primary transition-colors"
           >
             Cancel
           </button>
-          
           <button
             onClick={handlePublish}
             disabled={!canPublish}
-            className={combineClasses(
-              'px-8 py-3 rounded-xl font-semibold transition-all duration-200 transform',
-              canPublish 
-                ? combineClasses(
-                    themeClasses.bg.accent,
-                    'text-white shadow-lg hover:shadow-xl hover:scale-105 hover:-translate-y-0.5'
-                  )
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'
-            )}
+            className={`px-6 py-2 text-sm font-semibold rounded-full transition-colors ${
+              canPublish
+                ? 'bg-medium-accent-green text-white hover:opacity-90'
+                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+            }`}
           >
-            {canPublish ? 'Publish Article' : 'Select Categories First'}
+            Publish
           </button>
         </div>
       </div>
