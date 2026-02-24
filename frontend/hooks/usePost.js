@@ -1,6 +1,6 @@
 // hooks/usePost.js
 import useSWR from 'swr';
-import { getPostById, getPostByTitleName } from '../services/postService';
+import { getPostById, getPostBySlug } from '../services/postService';
 
 export const usePost = (postId) => {
   const { data , error, mutate } = useSWR(postId ? `/posts/${postId}` : null, () => getPostById(postId));
@@ -13,8 +13,8 @@ export const usePost = (postId) => {
   };
 };
 
-export const usePostName = (postName) => {
-  const { data , error, mutate } = useSWR(postName ? `/p/${postName}` : null, () => getPostByTitleName(postName));
+export const usePostName = (slug) => {
+  const { data , error, mutate } = useSWR(slug ? `/p/${slug}` : null, () => getPostBySlug(slug));
 
    return {
     post: data ?? null,
@@ -23,4 +23,3 @@ export const usePostName = (postName) => {
     mutate,
   };
 };
-

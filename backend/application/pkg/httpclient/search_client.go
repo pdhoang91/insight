@@ -25,20 +25,19 @@ type SearchPostsResponse struct {
 
 // SearchPostResult represents a single post result from search service
 type SearchPostResult struct {
-	ID             string     `json:"id"`
-	Title          string     `json:"title"`
-	TitleName      string     `json:"title_name"`
-	PreviewContent string     `json:"preview_content"`
-	Content        string     `json:"content"`
-	Tags           []string   `json:"tags"`
-	Categories     []string   `json:"categories"`
-	UserID         string     `json:"user_id"`
-	User           SearchUser `json:"user"`
-	CreatedAt      time.Time  `json:"created_at"`
-	ClapCount      uint64     `json:"claps"`
-	Views          uint64     `json:"views"`
-	CommentsCount  uint64     `json:"comments_count"`
-	AverageRating  float64    `json:"average_rating"`
+	ID            string     `json:"id"`
+	Title         string     `json:"title"`
+	Slug          string     `json:"slug"`
+	Excerpt       string     `json:"excerpt"`
+	Tags          []string   `json:"tags"`
+	Categories    []string   `json:"categories"`
+	UserID        string     `json:"user_id"`
+	User          SearchUser `json:"user"`
+	CreatedAt     time.Time  `json:"created_at"`
+	ClapCount     uint64     `json:"claps"`
+	Views         uint64     `json:"views"`
+	CommentsCount uint64     `json:"comments_count"`
+	AverageRating float64    `json:"average_rating"`
 }
 
 // SearchUser represents user info in search results

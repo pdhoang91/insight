@@ -26,13 +26,13 @@ const RelatedPosts = ({ posts = [], currentPostId, className = '' }) => {
       <div className="space-y-4">
         {relatedPosts.map((post, index) => (
           <article key={post.id} className="group">
-            <Link href={`/p/${post.title_name}`} className="block">
+            <Link href={`/p/${post.slug}`} className="block">
               <div className="flex gap-4 p-3 rounded-lg hover:bg-medium-hover transition-colors duration-200">
                 {/* Thumbnail */}
-                {post.image_title && (
+                {post.cover_image && (
                   <div className="flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-medium-bg-secondary">
                     <img
-                      src={post.image_title}
+                      src={post.cover_image}
                       alt={post.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                       loading="lazy"

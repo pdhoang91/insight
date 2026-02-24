@@ -142,5 +142,14 @@
     - Use Tailwind for rapid development and consistent spacing/sizing.
     - Use Stylus modules for complex, unique component styles.
 
+  Rich Text Editor (TipTap)
+  - TipTap extensions are centralized in utils/tiptapExtensions.js (shared between editor and renderer)
+  - Editor components live in components/Editor/
+  - Custom TipTap extensions live in components/Editor/extensions/
+  - Custom TipTap NodeViews use React components with ReactNodeViewRenderer
+  - Content rendering uses generateHTML() from @tiptap/html with shared extensions
+  - Post content is stored as JSON document tree, never raw HTML
+  - See .cursor/rules/editor-rule.mdc for detailed editor conventions
+
   Follow Next.js docs for Data Fetching, Rendering, and Routing.
     

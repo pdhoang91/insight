@@ -45,7 +45,7 @@ const EditPost = () => {
   const { post, isLoading, isError } = usePostName(id);
 
   const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState(null);
   const [imageTitle, setImageTitle] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
   const [saveStatus, setSaveStatus] = useState('idle'); // idle, saving, saved, error
@@ -56,8 +56,8 @@ const EditPost = () => {
   useEffect(() => {
     if (post && !isInitialized) {
       setTitle(post.title || '');
-      setContent(post.content || '');
-      setImageTitle(post.image_title || null);
+      setContent(post.content || null);
+      setImageTitle(post.cover_image || null);
       setIsInitialized(true);
     }
   }, [post, isInitialized]);
@@ -92,7 +92,7 @@ const EditPost = () => {
     if (!title && !content) return;
     
     const autoSaveTimer = setTimeout(() => {
-      if (title.trim() || content.trim()) {
+      if (title.trim() || content) {
         handleSaveDraft();
       }
     }, 30000); // Auto-save every 30 seconds
@@ -137,26 +137,14 @@ const EditPost = () => {
     }
 
     try {
-      // Generate preview_content from content (first 55 words)
-      const generatePreview = (content) => {
-        // Remove HTML tags
-        const cleanContent = content.replace(/<[^>]*>/g, '');
-        const words = cleanContent.split(/\s+/).filter(word => word.length > 0);
-        if (words.length > 55) {
-          return words.slice(0, 55).join(' ') + '...';
-        }
-        return cleanContent;
-      };
-
       const res = await updatePost(post.id, {
         title,
         content,
-        preview_content: generatePreview(content),
-        image_title: imageTitle,
+        cover_image: imageTitle,
         categories: categories ? categories.split(',').map(cat => cat.trim()) : [],
         tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
       });
-      router.push(`/p/${res.data.title_name}`);
+      router.push(`/p/${res.data.slug}`);
     } catch (error) {
       console.error('Failed to update post:', error);
       alert('Failed to update post.');
@@ -164,7 +152,7 @@ const EditPost = () => {
   }, [user, title, content, imageTitle, post?.id, router]);
 
   const handleUpdate = useCallback(() => {
-    if (!title.trim() || !content.trim()) {
+    if (!title.trim() || !content) {
       alert('Vui lòng thêm tiêu đề và nội dung cho bài viết của bạn');
       return;
     }

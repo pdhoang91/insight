@@ -35,7 +35,7 @@ type Service interface {
 	CreatePost(userID uuid.UUID, req *dto.CreatePostRequest) (*dto.PostResponse, error)
 	GetPost(id uuid.UUID) (*dto.PostResponse, error)
 	GetPostEntity(id uuid.UUID) (*entities.Post, error)
-	GetPostByTitleName(titleName string) (*dto.PostResponse, error)
+	GetPostBySlug(slug string) (*dto.PostResponse, error)
 	UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.UpdatePostRequest) (*dto.PostResponse, error)
 	DeletePost(userID uuid.UUID, id uuid.UUID) error
 	ListPosts(req *dto.PaginationRequest) ([]*dto.PostResponse, int64, error)
@@ -95,7 +95,6 @@ type Service interface {
 	ListUserImages(ctx context.Context, userID uuid.UUID, imageType string, page, limit int) ([]entities.Image, int64, error)
 	GetImageURL(imageID string) string
 	GetImageRedirectURL(ctx context.Context, imageID string) (string, error)
-	ResolveLegacyImageURL(legacyURL string) (string, bool)
 
 	// Search
 	GetSearchClient() *httpclient.SearchClient

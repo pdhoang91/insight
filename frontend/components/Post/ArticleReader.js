@@ -1,5 +1,5 @@
 // components/Post/ArticleReader.js - Medium 2024 Reading Experience
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import { ArticleLayout } from '../Layout/Layout';
 import Card from '../UI/Card';
@@ -14,6 +14,7 @@ import { useUser } from '../../context/UserContext';
 import { useComments } from '../../hooks/useComments';
 import TimeAgo from '../Utils/TimeAgo';
 import { themeClasses, combineClasses } from '../../utils/themeClasses';
+import { renderPostContent } from '../../utils/renderContent';
 
 const ArticleReader = ({ post }) => {
   const { user } = useUser();
@@ -21,6 +22,11 @@ const ArticleReader = ({ post }) => {
   const contentRef = useRef();
   
   const { comments, totalCommentReply, isLoading: commentsLoading } = useComments(post.id, true, 1, 10);
+
+  const renderedHTML = useMemo(
+    () => renderPostContent(post.content),
+    [post.content]
+  );
 
   if (!post) {
     return <ArticleReaderSkeleton />;
@@ -82,13 +88,13 @@ const ArticleReader = ({ post }) => {
           </div>
 
           {/* Featured Image - Mobile Optimized */}
-          {post.image_title && (
+          {post.cover_image && (
             <div className={combineClasses(
               themeClasses.spacing.marginBottomXLarge,
               '-mx-4 sm:mx-0'
             )}>
               <img
-                src={post.image_title}
+                src={post.cover_image}
                 alt={post.title}
                 className={combineClasses(
                   'w-full h-auto',
@@ -114,7 +120,7 @@ const ArticleReader = ({ post }) => {
           <TextHighlighter>
             <div 
               className="prose prose-sm sm:prose-base lg:prose-lg max-w-none"
-              dangerouslySetInnerHTML={{ __html: post.content }}
+              dangerouslySetInnerHTML={{ __html: renderedHTML }}
             />
           </TextHighlighter>
         </div>

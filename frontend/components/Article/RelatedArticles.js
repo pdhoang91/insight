@@ -102,16 +102,16 @@ const RelatedArticleCard = ({ post }) => {
 
   return (
     <article className={combineClasses('group cursor-pointer')}>
-      <Link href={`/p/${post.title_name}`} className="block">
+      <Link href={`/p/${post.slug}`} className="block">
         {/* Featured Image */}
-        {post.image_title && (
+        {post.cover_image && (
           <div className={combineClasses(
             themeClasses.spacing.marginBottomMedium,
             themeClasses.utils.overflowHidden,
             themeClasses.effects.rounded
           )}>
             <SafeImage
-              src={post.image_title}
+              src={post.cover_image}
               alt={post.title}
               width={300}
               height={200}
@@ -174,14 +174,14 @@ const RelatedArticleCard = ({ post }) => {
           </h3>
 
           {/* Preview */}
-          {post.preview_content && (
+          {post.excerpt && (
             <p className={combineClasses(
               themeClasses.text.secondary,
               themeClasses.text.bodySmall,
               'leading-relaxed line-clamp-2'
             )}>
-              {post.preview_content.replace(/<[^>]*>/g, '').substring(0, 120)}
-              {post.preview_content.length > 120 && '...'}
+              {post.excerpt.replace(/<[^>]*>/g, '').substring(0, 120)}
+              {post.excerpt.length > 120 && '...'}
             </p>
           )}
 

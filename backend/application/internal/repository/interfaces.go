@@ -22,7 +22,7 @@ type PostRepository interface {
 	Update(db *gorm.DB, post *entities.Post) error
 	Delete(db *gorm.DB, post *entities.Post) error
 	FindByID(db *gorm.DB, id uuid.UUID) (*entities.Post, error)
-	FindByTitleName(db *gorm.DB, titleName string) (*entities.Post, error)
+	FindBySlug(db *gorm.DB, slug string) (*entities.Post, error)
 	FindByUserID(db *gorm.DB, userID uuid.UUID, limit, offset int) ([]*entities.Post, error)
 	FindAll(db *gorm.DB, limit, offset int) ([]*entities.Post, error)
 	List(db *gorm.DB, limit, offset int) ([]*entities.Post, error)
@@ -41,7 +41,7 @@ type PostRepository interface {
 	AppendTags(db *gorm.DB, post *entities.Post, tags []entities.Tag) error
 	ReplaceTags(db *gorm.DB, post *entities.Post, tags []entities.Tag) error
 	LoadRelationships(db *gorm.DB, post *entities.Post) error
-	ExistsByTitleNameExcluding(db *gorm.DB, titleName string, excludeID uuid.UUID) bool
+	ExistsBySlugExcluding(db *gorm.DB, slug string, excludeID uuid.UUID) bool
 }
 
 type CommentRepository interface {

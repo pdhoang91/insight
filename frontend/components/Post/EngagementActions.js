@@ -114,7 +114,7 @@ const EngagementActions = ({
 
         {/* Comment Button */}
         <Link
-          href={`/p/${post.title_name}#comments`}
+          href={`/p/${post.slug}#comments`}
           className={buttonClasses}
           aria-label="Xem bình luận"
         >
@@ -167,7 +167,7 @@ const EngagementActions = ({
 // More options dropdown menu
 const MoreOptionsMenu = ({ post, onClose }) => {
   const handleCopyLink = () => {
-    const url = `${window.location.origin}/p/${post.title_name}`;
+    const url = `${window.location.origin}/p/${post.slug}`;
     navigator.clipboard.writeText(url);
     onClose();
     // TODO: Show toast notification

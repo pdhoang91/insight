@@ -58,7 +58,7 @@ const BasePostItem = ({
   };
 
   const handleShare = () => {
-    const url = `${window.location.origin}/p/${post.title_name}`;
+    const url = `${window.location.origin}/p/${post.slug}`;
     navigator.clipboard.writeText(url);
     alert('Đã sao chép link bài viết!');
   };
@@ -74,7 +74,7 @@ const BasePostItem = ({
           <div className={combineClasses(
             'flex-1 min-w-0 pb-3',
           )}>
-            <Link href={`/p/${post.title_name}`} className={`block ${themeClasses.spacing.marginBottomSmall}`}>
+            <Link href={`/p/${post.slug}`} className={`block ${themeClasses.spacing.marginBottomSmall}`}>
               <h3 className={`${componentClasses.heading.h4} ${themeClasses.interactive.link} line-clamp-2 text-balance`}>
                 {post.title}
               </h3>
@@ -83,7 +83,7 @@ const BasePostItem = ({
               <TimeAgo timestamp={post.created_at} className="text-medium-text-muted" />
             </div>
             <p className={`${componentClasses.text.bodySmall} line-clamp-2 text-pretty`}>
-              <TextUtils html={post.preview_content} maxLength={100} />
+              <TextUtils html={post.excerpt} maxLength={100} />
             </p>
           </div>
           <div className="flex-shrink-0">
@@ -129,7 +129,7 @@ const BasePostItem = ({
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <Link href={`/p/${post.title_name}`} className={`block ${themeClasses.spacing.marginBottom}`}>
+          <Link href={`/p/${post.slug}`} className={`block ${themeClasses.spacing.marginBottom}`}>
             <h2 className={`${componentClasses.heading.h3} ${themeClasses.interactive.link} line-clamp-3 text-balance`}>
               {post.title}
             </h2>
@@ -149,7 +149,7 @@ const BasePostItem = ({
 
           {/* Preview Content */}
           <p className={`${componentClasses.text.bodyMedium} line-clamp-3 text-pretty ${themeClasses.spacing.marginBottom}`}>
-            <TextUtils html={post.preview_content} maxLength={200} />
+            <TextUtils html={post.excerpt} maxLength={200} />
           </p>
 
           {/* Categories */}

@@ -55,13 +55,13 @@ const PostItem = ({ post }) => {
     <article className={`group relative ${themeClasses.bg.card} ${themeClasses.effects.rounded} ${themeClasses.spacing.marginBottom} ${themeClasses.animations.smooth}`}>
       <div className={`${themeClasses.layout.flexRow} ${themeClasses.spacing.gap} items-start`}>
         {/* Image Section - First on mobile, second on desktop */}
-        {post.image_title && (
+        {post.cover_image && (
           <div className="w-full md:w-64 lg:w-80 flex-shrink-0 order-1 md:order-2">
-            <Link href={`/p/${post.title_name}`} className="block">
+            <Link href={`/p/${post.slug}`} className="block">
               <div className={`relative overflow-hidden ${themeClasses.effects.rounded} ${themeClasses.bg.secondary}`}>
                 <div className="aspect-[16/10]">
                   <img
-                    src={post.image_title}
+                    src={post.cover_image}
                     alt={post.title}
                     className="w-full h-full object-cover"
                     loading="lazy"
@@ -75,7 +75,7 @@ const PostItem = ({ post }) => {
         {/* Main Content Section - Second on mobile, first on desktop */}
         <div className="flex-1 min-w-0 order-2 md:order-1">
           {/* Post Title */}
-          <Link href={`/p/${post.title_name}`} className={`block ${themeClasses.spacing.marginBottom}`}>
+          <Link href={`/p/${post.slug}`} className={`block ${themeClasses.spacing.marginBottom}`}>
             <h2 className={`${themeClasses.typography.h2} ${themeClasses.text.primary} mb-3 line-clamp-2 text-balance ${themeClasses.text.accentHover} ${themeClasses.animations.smooth}`}>
               {post.title}
             </h2>
@@ -84,7 +84,7 @@ const PostItem = ({ post }) => {
           {/* Post Preview Content */}
           <div className={themeClasses.spacing.marginBottom}>
             <p className={`${themeClasses.text.bodyLarge} ${themeClasses.text.secondary} line-clamp-3 leading-relaxed`}>
-              <TextUtils html={post.preview_content} maxLength={280} />
+              <TextUtils html={post.excerpt} maxLength={280} />
             </p>
           </div>
 
@@ -95,7 +95,7 @@ const PostItem = ({ post }) => {
               <TimeAgo timestamp={post.created_at} className={themeClasses.text.muted} />
               <span className={`w-1 h-1 ${themeClasses.bg.primary} rounded-full`}></span>
               <span className={themeClasses.text.muted}>
-                {Math.ceil((post.preview_content?.length || 0) / 200)} min read
+                {Math.ceil((post.excerpt?.length || 0) / 200)} min read
               </span>
             </div>
 

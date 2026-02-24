@@ -12,7 +12,7 @@ const PopularPostItem = ({ post, rank, showImages }) => {
   return (
     <article>
       <Link 
-        href={`/p/${post.title_name}`} 
+        href={`/p/${post.slug}`} 
         className={combineClasses(
           'flex items-center justify-between py-1 px-2 group',
           themeClasses.effects.rounded,

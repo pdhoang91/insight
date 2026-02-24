@@ -28,9 +28,9 @@ func (r *postRepo) FindByID(db *gorm.DB, id uuid.UUID) (*entities.Post, error) {
 	return &post, err
 }
 
-func (r *postRepo) FindByTitleName(db *gorm.DB, titleName string) (*entities.Post, error) {
+func (r *postRepo) FindBySlug(db *gorm.DB, slug string) (*entities.Post, error) {
 	var post entities.Post
-	err := db.Where("title_name = ?", titleName).First(&post).Error
+	err := db.Where("slug = ?", slug).First(&post).Error
 	return &post, err
 }
 
@@ -69,7 +69,7 @@ func (r *postRepo) List(db *gorm.DB, limit, offset int) ([]*entities.Post, error
 func (r *postRepo) Search(db *gorm.DB, query string, limit, offset int) ([]*entities.Post, error) {
 	var posts []*entities.Post
 	err := db.Preload("User").Preload("Categories").Preload("Tags").
-		Where("title ILIKE ? OR preview_content ILIKE ?", "%"+query+"%", "%"+query+"%").
+		Where("title ILIKE ? OR excerpt ILIKE ?", "%"+query+"%", "%"+query+"%").
 		Limit(limit).Offset(offset).
 		Find(&posts).Error
 	return posts, err
@@ -166,9 +166,9 @@ func (r *postRepo) LoadRelationships(db *gorm.DB, post *entities.Post) error {
 	return db.Preload("User").Preload("Categories").Preload("Tags").First(post, post.ID).Error
 }
 
-func (r *postRepo) ExistsByTitleNameExcluding(db *gorm.DB, titleName string, excludeID uuid.UUID) bool {
+func (r *postRepo) ExistsBySlugExcluding(db *gorm.DB, slug string, excludeID uuid.UUID) bool {
 	var count int64
-	db.Model(&entities.Post{}).Where("title_name = ? AND id != ?", titleName, excludeID).Count(&count)
+	db.Model(&entities.Post{}).Where("slug = ? AND id != ?", slug, excludeID).Count(&count)
 	return count > 0
 }
 

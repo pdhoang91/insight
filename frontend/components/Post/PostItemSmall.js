@@ -34,7 +34,7 @@ const PostItemSmall = ({ post }) => {
           'flex-1 min-w-0 pb-3',
         )}>
           <Link 
-            href={`/p/${post.title_name}`} 
+            href={`/p/${post.slug}`} 
             className={combineClasses(
               'block',
               themeClasses.spacing.marginBottomSmall
@@ -62,7 +62,7 @@ const PostItemSmall = ({ post }) => {
             componentClasses.text.bodySmall,
             'line-clamp-2 text-pretty'
           )}>
-            <TextUtils html={post.preview_content} maxLength={100} />
+            <TextUtils html={post.excerpt} maxLength={100} />
           </p>
         </div>
         

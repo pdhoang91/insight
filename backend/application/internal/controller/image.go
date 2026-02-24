@@ -184,13 +184,6 @@ func (c *Controller) ProxyImage(ctx *gin.Context) {
 		return
 	}
 
-	legacyURL := fmt.Sprintf("/images/proxy/%s/%s/%s/%s", userID, date, imageType, filename)
-
-	if newURL, ok := c.service.ResolveLegacyImageURL(legacyURL); ok {
-		ctx.Redirect(http.StatusMovedPermanently, newURL)
-		return
-	}
-
 	s3Key := fmt.Sprintf("uploads/%s/%s/%s/%s", userID, date, imageType, filename)
 	s3URL := fmt.Sprintf("https://insight.storage.s3.amazonaws.com/%s", s3Key)
 	ctx.Redirect(http.StatusFound, s3URL)

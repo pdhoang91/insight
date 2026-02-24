@@ -2,10 +2,11 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
-	"regexp"
+	"strings"
 	"time"
 
 	"github.com/pdhoang91/blog/internal/apperror"
@@ -29,34 +30,34 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 		}
 	}()
 
-	imageTitle := req.ImageTitle
-	if imageTitle == "" {
+	coverImage := req.CoverImage
+	if coverImage == "" {
 		feURL := os.Getenv("BASE_FE_URL")
 		if feURL == "" {
 			feURL = "http://localhost:3000"
 		}
-		imageTitle = feURL + "/images/insight.jpg"
+		coverImage = feURL + "/images/insight.jpg"
 	}
 
-	titleName := utils.CreateSlug(req.Title)
-	if _, err := s.PostRepo.FindByTitleName(s.DB, titleName); err == nil {
-		titleName = fmt.Sprintf("%s-%s", titleName, utils.GetUniquePrefix())
+	slug := utils.CreateSlug(req.Title)
+	if _, err := s.PostRepo.FindBySlug(s.DB, slug); err == nil {
+		slug = fmt.Sprintf("%s-%s", slug, utils.GetUniquePrefix())
 	}
 
-	previewContent := req.PreviewContent
-	if previewContent == "" && req.Content != "" {
-		previewContent = utils.ExtractPreviewContent(req.Content, 55)
+	excerpt := req.Excerpt
+	if excerpt == "" && len(req.Content) > 0 {
+		excerpt = s.extractExcerpt(req.Content)
 	}
 
 	post := &entities.Post{
-		ID:             uuid.NewV4(),
-		UserID:         userID,
-		Title:          req.Title,
-		ImageTitle:     imageTitle,
-		TitleName:      titleName,
-		PreviewContent: previewContent,
-		CreatedAt:      time.Now(),
-		UpdatedAt:      time.Now(),
+		ID:         uuid.NewV4(),
+		UserID:     userID,
+		Title:      req.Title,
+		CoverImage: coverImage,
+		Slug:       slug,
+		Excerpt:    excerpt,
+		CreatedAt:  time.Now(),
+		UpdatedAt:  time.Now(),
 	}
 
 	if err := s.PostRepo.Create(tx, post); err != nil {
@@ -64,13 +65,13 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 		return nil, apperror.NewInternal("failed to create post", err)
 	}
 
-	var processedContent string
-	if req.Content != "" {
-		processedContent = s.ProcessContentForSavingWithoutReferences(req.Content)
+	var processedJSON json.RawMessage
+	if len(req.Content) > 0 {
+		processedJSON = s.StorageManager.ProcessJSONContent(req.Content)
 		postContent := &entities.PostContent{
 			ID:        uuid.NewV4(),
 			PostID:    post.ID,
-			Content:   processedContent,
+			Content:   processedJSON,
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		}
@@ -113,8 +114,11 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 	}
 
 	// Create image references after commit (best-effort)
-	if processedContent != "" {
-		_ = s.CreateImageReferencesFromContent(context.Background(), post.ID, processedContent)
+	if len(processedJSON) > 0 {
+		imageIDs := s.StorageManager.ExtractImageIDsFromJSON(processedJSON)
+		for _, imgID := range imageIDs {
+			_ = s.createImageReference(imgID, post.ID, "content")
+		}
 	}
 
 	if err := s.PostRepo.LoadRelationships(s.DB, post); err != nil {
@@ -162,10 +166,7 @@ func (s *InsightService) GetPost(id uuid.UUID) (*dto.PostResponse, error) {
 	// Increment view count (best-effort, write DB)
 	_ = s.PostRepo.IncrementViews(s.DB, post)
 
-	postContent, err := s.PostContentRepo.FindByPostID(s.DBR2, id)
-	if err == nil && postContent != nil {
-		post.Content = s.ProcessContentForDisplay(postContent.Content)
-	}
+	s.loadPostContent(post)
 
 	if err := s.PostRepo.LoadRelationships(s.DBR2, post); err != nil {
 		return nil, apperror.NewInternal("failed to load post relationships", err)
@@ -175,22 +176,19 @@ func (s *InsightService) GetPost(id uuid.UUID) (*dto.PostResponse, error) {
 	return dto.NewPostResponse(post), nil
 }
 
-// GetPostByTitleName retrieves a post by title name
-func (s *InsightService) GetPostByTitleName(titleName string) (*dto.PostResponse, error) {
-	post, err := s.PostRepo.FindByTitleName(s.DBR2, titleName)
+// GetPostBySlug retrieves a post by slug
+func (s *InsightService) GetPostBySlug(slug string) (*dto.PostResponse, error) {
+	post, err := s.PostRepo.FindBySlug(s.DBR2, slug)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewNotFound("post not found")
 		}
-		return nil, apperror.NewInternal("failed to get post by title name", err)
+		return nil, apperror.NewInternal("failed to get post by slug", err)
 	}
 
 	_ = s.PostRepo.IncrementViews(s.DB, post)
 
-	postContent, err := s.PostContentRepo.FindByPostID(s.DBR2, post.ID)
-	if err == nil && postContent != nil {
-		post.Content = s.ProcessContentForDisplay(postContent.Content)
-	}
+	s.loadPostContent(post)
 
 	if err := s.PostRepo.LoadRelationships(s.DBR2, post); err != nil {
 		return nil, apperror.NewInternal("failed to load post relationships", err)
@@ -198,6 +196,15 @@ func (s *InsightService) GetPostByTitleName(titleName string) (*dto.PostResponse
 
 	_ = s.PostRepo.CalculateCounts(s.DBR2, post)
 	return dto.NewPostResponse(post), nil
+}
+
+// loadPostContent loads and processes post content for display
+func (s *InsightService) loadPostContent(post *entities.Post) {
+	postContent, err := s.PostContentRepo.FindByPostID(s.DBR2, post.ID)
+	if err != nil || postContent == nil {
+		return
+	}
+	post.Content = s.StorageManager.ProcessJSONContentForDisplay(postContent.Content)
 }
 
 // GetPostEntity returns the raw post entity (for internal use)
@@ -240,22 +247,22 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 
 	if req.Title != "" {
 		post.Title = req.Title
-		newTitleName := utils.CreateSlug(req.Title)
-		if newTitleName != post.TitleName {
-			if s.PostRepo.ExistsByTitleNameExcluding(tx, newTitleName, post.ID) {
-				newTitleName = fmt.Sprintf("%s-%s", newTitleName, utils.GetUniquePrefix())
+		newSlug := utils.CreateSlug(req.Title)
+		if newSlug != post.Slug {
+			if s.PostRepo.ExistsBySlugExcluding(tx, newSlug, post.ID) {
+				newSlug = fmt.Sprintf("%s-%s", newSlug, utils.GetUniquePrefix())
 			}
-			post.TitleName = newTitleName
+			post.Slug = newSlug
 		}
 	}
-	if req.ImageTitle != "" {
-		post.ImageTitle = req.ImageTitle
+	if req.CoverImage != "" {
+		post.CoverImage = req.CoverImage
 	}
-	if req.PreviewContent != "" {
-		post.PreviewContent = req.PreviewContent
+	if req.Excerpt != "" {
+		post.Excerpt = req.Excerpt
 	}
-	if req.Content != "" && req.PreviewContent == "" {
-		post.PreviewContent = utils.ExtractPreviewContent(req.Content, 55)
+	if len(req.Content) > 0 && req.Excerpt == "" {
+		post.Excerpt = s.extractExcerpt(req.Content)
 	}
 
 	post.UpdatedAt = time.Now()
@@ -264,37 +271,41 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 		return nil, apperror.NewInternal("failed to update post", err)
 	}
 
-	var oldContent string
-	if req.Content != "" {
+	if len(req.Content) > 0 {
 		postContent, err := s.PostContentRepo.FindByPostID(tx, post.ID)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				processedContent := s.ProcessContentForSavingWithoutReferences(req.Content)
 				postContent = &entities.PostContent{
-					ID: uuid.NewV4(), PostID: post.ID, Content: processedContent,
-					CreatedAt: time.Now(), UpdatedAt: time.Now(),
-				}
-				if err := s.PostContentRepo.Create(tx, postContent); err != nil {
-					tx.Rollback()
-					return nil, apperror.NewInternal("failed to create post content", err)
+					ID:        uuid.NewV4(),
+					PostID:    post.ID,
+					CreatedAt: time.Now(),
 				}
 			} else {
 				tx.Rollback()
 				return nil, apperror.NewInternal("failed to find post content", err)
 			}
+		}
+
+		oldContent := postContent.Content
+		processedJSON := s.StorageManager.ProcessJSONContent(req.Content)
+		postContent.Content = processedJSON
+		postContent.UpdatedAt = time.Now()
+
+		if postContent.ID == uuid.Nil {
+			postContent.ID = uuid.NewV4()
+			if err := s.PostContentRepo.Create(tx, postContent); err != nil {
+				tx.Rollback()
+				return nil, apperror.NewInternal("failed to create post content", err)
+			}
 		} else {
-			oldContent = postContent.Content
-			processedContent := s.ProcessContentForSavingWithoutReferences(req.Content)
-			postContent.Content = processedContent
-			postContent.UpdatedAt = time.Now()
 			if err := s.PostContentRepo.Update(tx, postContent); err != nil {
 				tx.Rollback()
 				return nil, apperror.NewInternal("failed to update post content", err)
 			}
-			if oldContent != processedContent {
-				_ = s.UpdateImageReferences(context.Background(), post.ID, oldContent, processedContent)
-			}
 		}
+
+		// Update image references (best-effort)
+		_ = s.StorageManager.UpdateJSONImageReferences(context.Background(), post.ID, oldContent, postContent.Content)
 	}
 
 	if len(req.CategoryNames) > 0 {
@@ -327,11 +338,6 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 
 	if err := tx.Commit().Error; err != nil {
 		return nil, apperror.NewInternal("failed to commit transaction", err)
-	}
-
-	if req.Content != "" {
-		processedContent := s.ProcessContentForSavingWithoutReferences(req.Content)
-		_ = s.UpdateImageReferences(context.Background(), post.ID, oldContent, processedContent)
 	}
 
 	if err := s.PostRepo.LoadRelationships(s.DB, post); err != nil {
@@ -678,30 +684,6 @@ func (s *InsightService) HasUserClapped(userID uuid.UUID, itemType string, itemI
 	return s.UserActivityRepo.HasUserClapped(s.DB, userID, itemType, itemID)
 }
 
-// ProcessContentForSavingWithoutReferences converts image URLs to data-image-id without creating references
-func (s *InsightService) ProcessContentForSavingWithoutReferences(content string) string {
-	re := regexp.MustCompile(`src=['"]([^'"]*\/images\/v2\/([^'"\/]+))['"]`)
-	return re.ReplaceAllStringFunc(content, func(match string) string {
-		matches := re.FindStringSubmatch(match)
-		if len(matches) < 3 {
-			return match
-		}
-		return fmt.Sprintf(`data-image-id="%s"`, matches[2])
-	})
-}
-
-// CreateImageReferencesFromContent creates image references after post is committed
-func (s *InsightService) CreateImageReferencesFromContent(ctx context.Context, postID uuid.UUID, content string) error {
-	re := regexp.MustCompile(`data-image-id=['"]([^'"]+)['"]`)
-	matches := re.FindAllStringSubmatch(content, -1)
-	for _, match := range matches {
-		if len(match) > 1 {
-			_ = s.createImageReference(match[1], postID, "content")
-		}
-	}
-	return nil
-}
-
 func (s *InsightService) createImageReference(imageID string, postID uuid.UUID, refType string) error {
 	id, err := uuid.FromString(imageID)
 	if err != nil {
@@ -763,4 +745,14 @@ func (s *InsightService) findOrCreateTags(tx *gorm.DB, names []string) ([]entiti
 		tags = append(tags, *tag)
 	}
 	return tags, nil
+}
+
+// extractExcerpt extracts preview text from JSON content
+func (s *InsightService) extractExcerpt(content json.RawMessage) string {
+	plainText := s.StorageManager.ExtractPlainTextFromJSON(content)
+	words := strings.Fields(plainText)
+	if len(words) > 55 {
+		return strings.Join(words[:55], " ") + "..."
+	}
+	return plainText
 }

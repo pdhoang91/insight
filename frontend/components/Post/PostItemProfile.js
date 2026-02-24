@@ -76,13 +76,13 @@ const PostItemProfile = ({ post, isOwner }) => {
     <article className="group relative bg-medium-bg-card rounded-xl mb-8 transition-all duration-300">
       <div className={`${themeClasses.responsive.flexDesktopRow} ${themeClasses.spacing.gap} items-start`}>
         {/* Image Section - First on mobile, second on desktop */}
-        {post.image_title && (
+        {post.cover_image && (
           <div className="w-full md:w-64 lg:w-80 flex-shrink-0 order-1 md:order-2">
-            <Link href={`/p/${post.title_name}`} className="block">
+            <Link href={`/p/${post.slug}`} className="block">
               <div className="relative overflow-hidden rounded-xl bg-medium-bg-secondary">
                 <div className="aspect-[16/10]">
                   <img
-                    src={post.image_title}
+                    src={post.cover_image}
                     alt={post.title}
                     className="w-full h-full object-cover"
                     loading="lazy"
@@ -97,7 +97,7 @@ const PostItemProfile = ({ post, isOwner }) => {
         <div className="flex-1 min-w-0 order-2 md:order-1 py-6">
 
           {/* Post Title */}
-          <Link href={`/p/${post.title_name}`} className={`block ${themeClasses.spacing.marginBottom}`}>
+          <Link href={`/p/${post.slug}`} className={`block ${themeClasses.spacing.marginBottom}`}>
             <h2 className="text-xl lg:text-2xl font-bold text-medium-text-primary mb-3 line-clamp-2 text-balance group-hover:text-medium-accent-green transition-colors duration-300">
               {post.title}
             </h2>
@@ -106,7 +106,7 @@ const PostItemProfile = ({ post, isOwner }) => {
           {/* Post Preview Content */}
           <div className="mb-6">
             <p className="text-medium-text-secondary line-clamp-3 leading-relaxed text-base lg:text-lg">
-              <TextUtils html={post.preview_content} maxLength={280} />
+              <TextUtils html={post.excerpt} maxLength={280} />
             </p>
           </div>
 
@@ -118,7 +118,7 @@ const PostItemProfile = ({ post, isOwner }) => {
               <TimeAgo timestamp={post.created_at} className="text-medium-text-muted" />
               <span className="w-1 h-1 bg-medium-text-muted rounded-full"></span>
               <span className="text-medium-text-muted">
-                {Math.ceil((post.preview_content?.length || 0) / 200)} min read
+                {Math.ceil((post.excerpt?.length || 0) / 200)} min read
               </span>
             </div>
 
@@ -155,7 +155,7 @@ const PostItemProfile = ({ post, isOwner }) => {
               {isOwner && (
                 <div className="flex items-center gap-2">
                   <Link 
-                    href={`/edit/${post.title_name}`} 
+                    href={`/edit/${post.slug}`} 
                     className="flex items-center gap-2 px-3 py-1.5 rounded-full hover:bg-medium-hover text-medium-text-secondary hover:text-medium-accent-green transition-all duration-200 min-h-[44px]"
                     aria-label="Chỉnh sửa bài viết"
                   >

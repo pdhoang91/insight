@@ -43,6 +43,28 @@ func createFullTextSearchIndexes() error {
 		 END;
 		 $$ LANGUAGE plpgsql IMMUTABLE;`,
 
+		// Function to extract plain text from TipTap/ProseMirror JSON document tree
+		`CREATE OR REPLACE FUNCTION extract_text_from_json_doc(doc jsonb)
+		 RETURNS text AS $$
+		 DECLARE
+		   result text := '';
+		   node jsonb;
+		   child jsonb;
+		 BEGIN
+		   IF doc IS NULL THEN RETURN ''; END IF;
+		   IF doc->>'text' IS NOT NULL THEN
+		     result := result || ' ' || (doc->>'text');
+		   END IF;
+		   IF doc->'content' IS NOT NULL AND jsonb_typeof(doc->'content') = 'array' THEN
+		     FOR child IN SELECT jsonb_array_elements(doc->'content')
+		     LOOP
+		       result := result || extract_text_from_json_doc(child);
+		     END LOOP;
+		   END IF;
+		   RETURN result;
+		 END;
+		 $$ LANGUAGE plpgsql IMMUTABLE;`,
+
 		// Create GIN index for full-text search on posts (using immutable wrapper)
 		`CREATE INDEX IF NOT EXISTS idx_posts_fulltext_search 
 		 ON posts USING gin(to_tsvector('simple', lower(immutable_unaccent(
@@ -83,34 +105,35 @@ func normalizeVietnameseText(text string) string {
 	return normalized
 }
 
-// SearchPosts thực hiện tìm kiếm đơn giản trên title và preview_content
+// SearchPosts searches in title, excerpt, and post content (JSON document tree)
 func SearchPosts(query string, page int, limit int) ([]models.SearchPost, int, error) {
 	var posts []models.SearchPost
 	var totalCount int64
 
-	// Build base query - chỉ search trong title và preview_content
 	baseQuery := database.DB.Table("posts").
-		Select(`posts.id, posts.title, posts.title_name, posts.preview_content, 
+		Joins("LEFT JOIN post_contents ON post_contents.post_id = posts.id AND post_contents.deleted_at IS NULL").
+		Select(`DISTINCT posts.id, posts.title, posts.slug, posts.excerpt, 
 		       posts.user_id, posts.created_at, posts.views`).
-		Order("posts.created_at DESC") // Mặc định sort theo created_at mới nhất
+		Where("posts.deleted_at IS NULL").
+		Order("posts.created_at DESC")
 
-	// Apply text search filter chỉ trong title và preview_content
 	if query != "" {
 		searchQuery := strings.TrimSpace(query)
 		if searchQuery != "" {
-			// Normalize search query for accent-insensitive search
 			normalizedQuery := normalizeVietnameseText(searchQuery)
 
-			// Sử dụng PostgreSQL full-text search và ILIKE với normalized text
 			baseQuery = baseQuery.Where(`
 				(to_tsvector('simple', lower(coalesce(posts.title, '') || ' ' || 
-				 coalesce(posts.preview_content, ''))) @@ plainto_tsquery('simple', ?) OR
+				 coalesce(posts.excerpt, ''))) @@ plainto_tsquery('simple', ?) OR
 				 lower(immutable_unaccent(posts.title)) LIKE ? OR 
-				 lower(immutable_unaccent(posts.preview_content)) LIKE ? OR
+				 lower(immutable_unaccent(posts.excerpt)) LIKE ? OR
 				 posts.title ILIKE ? OR 
-				 posts.preview_content ILIKE ?)`,
+				 posts.excerpt ILIKE ? OR
+				 (post_contents.content IS NOT NULL AND
+				  lower(immutable_unaccent(extract_text_from_json_doc(post_contents.content))) LIKE ?))`,
 				normalizedQuery, "%"+normalizedQuery+"%", "%"+normalizedQuery+"%",
-				"%"+searchQuery+"%", "%"+searchQuery+"%")
+				"%"+searchQuery+"%", "%"+searchQuery+"%",
+				"%"+normalizedQuery+"%")
 		}
 	}
 
@@ -134,11 +157,9 @@ func SearchPosts(query string, page int, limit int) ([]models.SearchPost, int, e
 		if err := fillPostMetadata(&posts[i]); err != nil {
 			log.Printf("Warning: Failed to fill metadata for post %s: %v", posts[i].ID, err)
 		}
-		// Set default values for missing fields
 		posts[i].ClapCount = 0
 		posts[i].AverageRating = 0.0
 		posts[i].CommentsCount = 0
-		posts[i].Content = "" // Không load content để tăng performance
 	}
 
 	log.Printf("PostgreSQL search found %d results for query: %s", totalCount, query)

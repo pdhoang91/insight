@@ -1,14 +1,17 @@
-// components/Editor/Toolbar.js
-import React from 'react';
-import { themeClasses, combineClasses } from '../../utils/themeClasses';
-import ToolbarButton from './ToolbarButton';
+import React from 'react'
+import { themeClasses, combineClasses } from '../../utils/themeClasses'
+import ToolbarButton from './ToolbarButton'
+import ToolbarSeparator from './ToolbarSeparator'
+import ColorPicker, { PRESET_COLORS, HIGHLIGHT_COLORS } from './ColorPicker'
+import TableMenu from './TableMenu'
+import CodeBlockSelector from './CodeBlockSelector'
 
 const Toolbar = ({ menuBar, editor, compact = false }) => {
-  const essentialTools = ['bold', 'italic', 'heading', 'bulletList', 'orderedList', 'blockquote'];
-  
-  const filteredMenuBar = compact 
-    ? menuBar.filter(item => essentialTools.includes(item.name) || item.essential)
-    : menuBar;
+  const essentialTools = ['bold', 'italic', 'heading', 'bulletList', 'orderedList', 'blockquote']
+
+  const filteredMenuBar = compact
+    ? menuBar.filter(item => item.type === 'separator' || essentialTools.includes(item.name) || item.essential)
+    : menuBar
 
   return (
     <div className={combineClasses(
@@ -20,17 +23,71 @@ const Toolbar = ({ menuBar, editor, compact = false }) => {
       compact ? 'p-2' : 'p-2.5'
     )}>
       <div className="flex items-center justify-center">
-        {/* Main Toolbar */}
         <div className={combineClasses(
           'flex items-center flex-wrap',
           compact ? themeClasses.spacing.gapTiny : themeClasses.spacing.gapSmall
         )}>
           {filteredMenuBar.map((item, index) => {
+            if (item.type === 'separator') {
+              return <ToolbarSeparator key={item.name} />
+            }
+
+            if (item.type === 'color') {
+              return (
+                <ColorPicker
+                  key={item.name}
+                  icon={item.icon}
+                  tooltip={item.tooltip}
+                  colors={PRESET_COLORS}
+                  activeColor={item.getActiveColor?.()}
+                  onSelect={item.onSelect}
+                  disabled={!editor}
+                  compact={compact}
+                />
+              )
+            }
+
+            if (item.type === 'highlight') {
+              return (
+                <ColorPicker
+                  key={item.name}
+                  icon={item.icon}
+                  tooltip={item.tooltip}
+                  colors={HIGHLIGHT_COLORS}
+                  activeColor={item.getActiveColor?.()}
+                  onSelect={item.onSelect}
+                  disabled={!editor}
+                  compact={compact}
+                />
+              )
+            }
+
+            if (item.type === 'table') {
+              return (
+                <TableMenu
+                  key={item.name}
+                  editor={editor}
+                  disabled={!editor}
+                  compact={compact}
+                />
+              )
+            }
+
+            if (item.type === 'codeBlock') {
+              return (
+                <CodeBlockSelector
+                  key={item.name}
+                  editor={editor}
+                  disabled={!editor}
+                  compact={compact}
+                />
+              )
+            }
+
             if (item.children) {
-              // Dropdown menu button
               return (
                 <ToolbarButton
-                  key={index}
+                  key={item.name}
                   icon={item.icon}
                   isActive={item.isActive ? item.isActive() : false}
                   tooltip={item.tooltip}
@@ -39,13 +96,12 @@ const Toolbar = ({ menuBar, editor, compact = false }) => {
                 >
                   {item.children}
                 </ToolbarButton>
-              );
+              )
             }
 
-            // Single button
             return (
               <ToolbarButton
-                key={index}
+                key={item.name}
                 icon={item.icon}
                 onClick={item.action}
                 isActive={item.isActive ? item.isActive() : false}
@@ -53,12 +109,12 @@ const Toolbar = ({ menuBar, editor, compact = false }) => {
                 disabled={!editor}
                 compact={compact}
               />
-            );
+            )
           })}
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Toolbar;
+export default Toolbar

@@ -1,311 +1,155 @@
 // components/Editor/PostForm.js
-import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
-import { useEditor } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
-import Image from '@tiptap/extension-image';
-import Link from '@tiptap/extension-link';
-import TextStyle from '@tiptap/extension-text-style';
-import Underline from '@tiptap/extension-underline';
-import TextAlign from '@tiptap/extension-text-align';
-import Placeholder from '@tiptap/extension-placeholder';
-import { uploadImage } from '../../services/imageService';
-import {
-  FaBold,
-  FaItalic,
-  FaUnderline,
-  FaStrikethrough,
-  FaQuoteRight,
-  FaLink,
-  FaImage,
-  FaUpload,
-  FaEraser,
-  FaEye,
-  FaEyeSlash,
-  FaListUl,
-  FaListOl,
-  FaHeading,
-  FaSave,
-  FaAlignLeft,
-  FaAlignCenter,
-  FaAlignRight,
-  FaAlignJustify,
-  FaList,
-} from 'react-icons/fa';
-import Toolbar from './Toolbar';
-import TitleInput from './TitleInput';
-import ContentEditor from './ContentEditor';
-import { themeClasses, combineClasses } from '../../utils/themeClasses';
-import 'tippy.js/dist/tippy.css';
+import React, { useEffect, useState, useCallback, useRef } from 'react'
+import { useEditor } from '@tiptap/react'
+import Placeholder from '@tiptap/extension-placeholder'
+import CharacterCount from '@tiptap/extension-character-count'
+import { getExtensions } from '../../utils/tiptapExtensions'
+import SlashCommands from './extensions/SlashCommands'
+import { uploadImage } from '../../services/imageService'
+import useToolbarItems from '../../hooks/useToolbarItems'
+import Toolbar from './Toolbar'
+import TitleInput from './TitleInput'
+import ContentEditor from './ContentEditor'
+import LinkDialog from './LinkDialog'
+import YouTubeDialog from './YouTubeDialog'
+import BubbleToolbar from './BubbleToolbar'
+import FloatingToolbar from './FloatingToolbar'
+import { themeClasses, combineClasses } from '../../utils/themeClasses'
+import 'tippy.js/dist/tippy.css'
 
 const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTitle, isFullscreen = false }) => {
-  const [isUploading, setIsUploading] = useState(false);
-  const [isUploadingTitle, setIsUploadingTitle] = useState(false);
-  const [isContentEmpty, setIsContentEmpty] = useState(!content || content.trim() === '');
+  const [isUploading, setIsUploading] = useState(false)
+  const [isUploadingTitle, setIsUploadingTitle] = useState(false)
+  const [isContentEmpty, setIsContentEmpty] = useState(!content)
+  const [showLinkDialog, setShowLinkDialog] = useState(false)
+  const [showYoutubeDialog, setShowYoutubeDialog] = useState(false)
 
-  // Thêm useRef để kiểm soát vòng lặp
-  const isGeneratingTOC = useRef(false);
+  const isGeneratingTOC = useRef(false)
 
   const editor = useEditor({
     extensions: [
-      StarterKit.configure({
-        heading: {
-          levels: [1, 2, 3, 4, 5], // Hỗ trợ từ H1 đến H5
-          HTMLAttributes: {
-            id: null, // Đảm bảo không có ID mặc định
-          },
-        },
-      }),
-      Image,
-      Link,
-      TextStyle,
-      Underline,
-      TextAlign.configure({
-        types: ['heading', 'paragraph'],
-      }),
+      ...getExtensions(),
       Placeholder.configure({
-        placeholder: 'Nội dung bài viết...',
+        placeholder: 'Nhập / để xem các lệnh...',
       }),
+      CharacterCount,
+      SlashCommands,
     ],
     content: content || '',
-    immediatelyRender: false, // Fix SSR hydration mismatch
+    immediatelyRender: false,
     onUpdate: ({ editor }) => {
-      // Nếu đang trong quá trình generate TOC, không thực hiện lại
-      if (isGeneratingTOC.current) return;
-
-      const html = editor.getHTML();
-      setContent(html);
-      setIsContentEmpty(!html || html.trim() === '');
+      if (isGeneratingTOC.current) return
+      const json = editor.getJSON()
+      setContent(json)
+      setIsContentEmpty(editor.isEmpty)
     },
-  });
+    editorProps: {
+      handleDrop: (view, event) => {
+        const files = event.dataTransfer?.files
+        if (files?.length) {
+          const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'))
+          if (imageFiles.length) {
+            event.preventDefault()
+            imageFiles.forEach(file => handleDroppedImage(file))
+            return true
+          }
+        }
+        return false
+      },
+      handlePaste: (view, event) => {
+        const items = event.clipboardData?.items
+        if (items) {
+          for (const item of items) {
+            if (item.type.startsWith('image/')) {
+              event.preventDefault()
+              const file = item.getAsFile()
+              if (file) handleDroppedImage(file)
+              return true
+            }
+          }
+        }
+        return false
+      },
+    },
+  })
+
+  const handleDroppedImage = useCallback(async (file) => {
+    if (!editor) return
+    setIsUploading(true)
+    try {
+      const imageUrl = await uploadImage(file, 'content')
+      editor.commands.setImageBlock({ src: imageUrl, alignment: 'center', width: '100%' })
+    } catch (error) {
+      console.error('Error uploading image', error)
+    } finally {
+      setIsUploading(false)
+    }
+  }, [editor])
 
   useEffect(() => {
-    if (editor) {
-      const currentContent = editor.getHTML();
-      if (content !== currentContent) {
-        editor.commands.setContent(content || '');
-        setIsContentEmpty(!content || content.trim() === '');
+    if (editor && content) {
+      const currentJSON = JSON.stringify(editor.getJSON())
+      const incomingJSON = typeof content === 'string' ? content : JSON.stringify(content)
+      if (incomingJSON !== currentJSON) {
+        editor.commands.setContent(content)
+        setIsContentEmpty(editor.isEmpty)
       }
     }
-  }, [content, editor]);
+  }, [content, editor])
 
   const handleImageUpload = useCallback(() => {
-    const input = document.createElement('input');
-    input.setAttribute('type', 'file');
-    input.setAttribute('accept', 'image/*');
-    input.click();
+    const input = document.createElement('input')
+    input.setAttribute('type', 'file')
+    input.setAttribute('accept', 'image/*')
+    input.click()
 
     input.onchange = async () => {
-      const file = input.files[0];
-      if (!file) return;
-      setIsUploading(true);
+      const file = input.files[0]
+      if (!file) return
+      setIsUploading(true)
       try {
-        const imageUrl = await uploadImage(file, 'content');
-        editor.chain().focus().setImage({ src: imageUrl }).run();
+        const imageUrl = await uploadImage(file, 'content')
+        editor.commands.setImageBlock({ src: imageUrl, alignment: 'center', width: '100%' })
       } catch (error) {
-        console.error('Error uploading image', error);
-        alert('Đã xảy ra lỗi khi tải lên hình ảnh.');
+        console.error('Error uploading image', error)
+        alert('Đã xảy ra lỗi khi tải lên hình ảnh.')
       } finally {
-        setIsUploading(false);
+        setIsUploading(false)
       }
-    };
-  }, [editor]);
+    }
+  }, [editor])
 
   const handleImageTitleUpload = useCallback(() => {
-    const input = document.createElement('input');
-    input.setAttribute('type', 'file');
-    input.setAttribute('accept', 'image/*');
-    input.click();
+    const input = document.createElement('input')
+    input.setAttribute('type', 'file')
+    input.setAttribute('accept', 'image/*')
+    input.click()
 
     input.onchange = async () => {
-      const file = input.files[0];
-      if (!file) return;
-      setIsUploadingTitle(true);
+      const file = input.files[0]
+      if (!file) return
+      setIsUploadingTitle(true)
       try {
-        const uploadedUrl = await uploadImage(file, 'title');
-        setImageTitle(uploadedUrl);
+        const uploadedUrl = await uploadImage(file, 'title')
+        setImageTitle(uploadedUrl)
       } catch (error) {
-        console.error('Error uploading image title', error);
-        alert('Đã xảy ra lỗi khi tải lên ảnh tiêu đề.');
+        console.error('Error uploading image title', error)
+        alert('Đã xảy ra lỗi khi tải lên ảnh tiêu đề.')
       } finally {
-        setIsUploadingTitle(false);
+        setIsUploadingTitle(false)
       }
-    };
-  }, [setImageTitle]);
-
-  const handleToggleTOC = useCallback(() => {
-    // TOC functionality removed
-
-  }, []);
-
-  const menuBar = useMemo(() => {
-    if (!editor) return [];
-
-    return [
-      // Nhóm Định Dạng Văn Bản
-      {
-        name: 'bold',
-        icon: FaBold,
-        action: () => editor.chain().focus().toggleBold().run(),
-        isActive: () => editor.isActive('bold'),
-        tooltip: 'Đậm',
-        essential: true,
-      },
-      {
-        name: 'italic',
-        icon: FaItalic,
-        action: () => editor.chain().focus().toggleItalic().run(),
-        isActive: () => editor.isActive('italic'),
-        tooltip: 'Nghiêng',
-        essential: true,
-      },
-      {
-        name: 'underline',
-        icon: FaUnderline,
-        action: () => editor.chain().focus().toggleUnderline().run(),
-        isActive: () => editor.isActive('underline'),
-        tooltip: 'Gạch chân',
-      },
-      {
-        name: 'strike',
-        icon: FaStrikethrough,
-        action: () => editor.chain().focus().toggleStrike().run(),
-        isActive: () => editor.isActive('strike'),
-        tooltip: 'Gạch ngang',
-      },
-      // Nhóm Căn Chỉnh Văn Bản
-      {
-        name: 'alignJustify',
-        icon: FaAlignJustify,
-        action: () => editor.chain().focus().setTextAlign('justify').run(),
-        isActive: () => editor.isActive({ textAlign: 'justify' }),
-        tooltip: 'Căn đều',
-      },
-      {
-        name: 'alignLeft',
-        icon: FaAlignLeft,
-        action: () => editor.chain().focus().setTextAlign('left').run(),
-        isActive: () => editor.isActive({ textAlign: 'left' }),
-        tooltip: 'Căn trái',
-      },
-      {
-        name: 'alignCenter',
-        icon: FaAlignCenter,
-        action: () => editor.chain().focus().setTextAlign('center').run(),
-        isActive: () => editor.isActive({ textAlign: 'center' }),
-        tooltip: 'Căn giữa',
-      },
-      {
-        name: 'alignRight',
-        icon: FaAlignRight,
-        action: () => editor.chain().focus().setTextAlign('right').run(),
-        isActive: () => editor.isActive({ textAlign: 'right' }),
-        tooltip: 'Căn phải',
-      },
-      // Nhóm Chèn Đối Tượng
-      {
-        name: 'image',
-        icon: FaImage,
-        action: handleImageUpload,
-        isActive: false,
-        tooltip: 'Chèn hình ảnh',
-      },
-      {
-        name: 'link',
-        icon: FaLink,
-        action: () => {
-          const url = prompt('Nhập URL:');
-          if (url) editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
-        },
-        isActive: () => editor.isActive('link'),
-        tooltip: 'Chèn liên kết',
-      },
-      // Nhóm Tổ Chức Nội Dung
-      {
-        name: 'bulletList',
-        icon: FaListUl,
-        action: () => {
-          editor.chain().focus().toggleBulletList().run();
-
-        },
-        isActive: () => editor.isActive('bulletList'),
-        tooltip: 'Danh sách dấu đầu dòng',
-        essential: true,
-      },
-      {
-        name: 'orderedList',
-        icon: FaListOl,
-        action: () => {
-          editor.chain().focus().toggleOrderedList().run();
-
-        },
-        isActive: () => editor.isActive('orderedList'),
-        tooltip: 'Danh sách số',
-        essential: true,
-      },
-      {
-        name: 'heading',
-        icon: FaHeading,
-        tooltip: 'Tiêu đề',
-        essential: true,
-        children: (
-          <div className="py-1">
-            {[1, 2, 3, 4, 5].map((level) => (
-              <button
-                key={level}
-                onClick={(event) => {
-                  event.preventDefault();
-                  event.stopPropagation();
-                  editor.chain().focus().toggleHeading({ level }).run();
-                }}
-                className={combineClasses(
-                  'w-full text-left px-4 py-2',
-                  themeClasses.text.bodySmall,
-                  'hover:bg-medium-hover',
-                  themeClasses.animations.smooth,
-                  editor.isActive('heading', { level }) ? 'bg-medium-accent-green/20' : ''
-                )}
-              >
-                Tiêu đề {level}
-              </button>
-            ))}
-          </div>
-        ),
-      },
-      // Nhóm Hỗ Trợ
-      {
-        name: 'blockquote',
-        icon: FaQuoteRight,
-        action: () => editor.chain().focus().toggleBlockquote().run(),
-        isActive: () => editor.isActive('blockquote'),
-        tooltip: 'Trích dẫn',
-        essential: true,
-      },
-      {
-        name: 'clearFormat',
-        icon: FaEraser,
-        action: () => editor.chain().focus().clearNodes().unsetAllMarks().run(),
-        isActive: false,
-        tooltip: 'Xóa định dạng',
-      },
-
-    ];
-  }, [editor, handleImageUpload, handleToggleTOC]);
-
-  const handleSubmit = (e) => {
-    if (e) e.preventDefault();
-    if (!title.trim() || isContentEmpty) {
-      alert('Vui lòng nhập đầy đủ tiêu đề và nội dung bài viết.');
-      return;
     }
+  }, [setImageTitle])
 
-    const postData = {
-      title,
-      imageTitle,
-      content,
-    };
+  const menuBar = useToolbarItems(editor, {
+    onImageUpload: handleImageUpload,
+    onLinkClick: () => setShowLinkDialog(true),
+    onYoutubeClick: () => setShowYoutubeDialog(true),
+  })
 
-    // Gửi dữ liệu đến backend tại đây
-  };
+  const charCount = editor?.storage.characterCount
+  const wordCount = charCount?.words?.() || 0
+  const characterCount = charCount?.characters?.() || 0
 
   return (
     <div className={combineClasses(
@@ -335,9 +179,9 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
             themeClasses.animations.smooth,
             themeClasses.spacing.marginBottom
           )}>
-            <Toolbar 
-              menuBar={menuBar} 
-              editor={editor} 
+            <Toolbar
+              menuBar={menuBar}
+              editor={editor}
             />
           </div>
 
@@ -353,10 +197,43 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
               isUploading={isUploading}
             />
           </div>
+
+          {/* Bubble & Floating Menus */}
+          {editor && (
+            <>
+              <BubbleToolbar
+                editor={editor}
+                onLinkClick={() => setShowLinkDialog(true)}
+              />
+              <FloatingToolbar
+                editor={editor}
+                onImageUpload={handleImageUpload}
+                onYoutubeClick={() => setShowYoutubeDialog(true)}
+              />
+            </>
+          )}
+
+          {/* Word count */}
+          {editor && (
+            <div className={combineClasses(
+              'flex justify-end mt-2 text-xs',
+              themeClasses.text.secondary
+            )}>
+              {wordCount} từ · {characterCount} ký tự
+            </div>
+          )}
         </div>
       </div>
-    </div>
-  );
-};
 
-export default PostForm;
+      {/* Dialogs */}
+      {showLinkDialog && (
+        <LinkDialog editor={editor} onClose={() => setShowLinkDialog(false)} />
+      )}
+      {showYoutubeDialog && (
+        <YouTubeDialog editor={editor} onClose={() => setShowYoutubeDialog(false)} />
+      )}
+    </div>
+  )
+}
+
+export default PostForm

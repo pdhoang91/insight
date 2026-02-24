@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 	"mime/multipart"
 
 	"github.com/pdhoang91/blog/internal/apperror"
@@ -49,19 +50,9 @@ func (s *InsightService) ServeImageV2(ctx context.Context, imageID string) (stri
 	return s.StorageManager.ServeImage(ctx, imageID)
 }
 
-// ProcessContentForDisplay processes content to replace image references with URLs
-func (s *InsightService) ProcessContentForDisplay(content string) string {
-	return s.StorageManager.ProcessContent(content)
-}
-
-// ProcessContentForSaving processes content to replace image URLs with references
-func (s *InsightService) ProcessContentForSaving(content string, postID uuid.UUID) (string, error) {
-	return s.StorageManager.ProcessContentForSaving(content, postID)
-}
-
-// LegacyURLToImageID converts legacy proxy URLs to new image IDs
-func (s *InsightService) LegacyURLToImageID(legacyURL string) (string, error) {
-	return s.StorageManager.LegacyURLToImageID(legacyURL)
+// UpdateJSONImageReferences updates image references when JSON post content changes
+func (s *InsightService) UpdateJSONImageReferences(ctx context.Context, postID uuid.UUID, oldDoc, newDoc json.RawMessage) error {
+	return s.StorageManager.UpdateJSONImageReferences(ctx, postID, oldDoc, newDoc)
 }
 
 // CleanupOrphanedImages removes images that are no longer referenced
@@ -72,21 +63,6 @@ func (s *InsightService) CleanupOrphanedImages(ctx context.Context, userID uuid.
 // CleanupUserImages removes all images for a user (for user deletion)
 func (s *InsightService) CleanupUserImages(ctx context.Context, userID uuid.UUID) error {
 	return s.StorageManager.CleanupUserImages(ctx, userID)
-}
-
-// UpdateImageReferences updates image references when post content changes
-func (s *InsightService) UpdateImageReferences(ctx context.Context, postID uuid.UUID, oldContent, newContent string) error {
-	return s.StorageManager.UpdateImageReferences(ctx, postID, oldContent, newContent)
-}
-
-// MigrateLegacyImage migrates a single legacy image to V2 system
-func (s *InsightService) MigrateLegacyImage(ctx context.Context, legacyURL, userID, imageType string) (*entities.Image, error) {
-	return s.StorageManager.MigrateLegacyImage(ctx, legacyURL, userID, imageType)
-}
-
-// MigrateLegacyImagesForUser migrates all legacy images for a user
-func (s *InsightService) MigrateLegacyImagesForUser(ctx context.Context, userID string) (int, error) {
-	return s.StorageManager.MigrateLegacyImagesForUser(ctx, userID)
 }
 
 // GetImageURL returns the public URL for an image by ID
@@ -109,13 +85,4 @@ func (s *InsightService) GetImageRedirectURL(ctx context.Context, imageID string
 		return "", apperror.NewInternal("failed to generate URL", err)
 	}
 	return url, nil
-}
-
-// ResolveLegacyImageURL resolves a legacy image URL to a new image URL if migrated
-func (s *InsightService) ResolveLegacyImageURL(legacyURL string) (string, bool) {
-	imageID, err := s.StorageManager.LegacyURLToImageID(legacyURL)
-	if err != nil {
-		return "", false
-	}
-	return s.StorageManager.GetImageURL(imageID), true
 }

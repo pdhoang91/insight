@@ -75,20 +75,3 @@ func GetUniquePrefix() string {
 	return hex.EncodeToString(b)
 }
 
-// CleanHTMLTags removes HTML tags from content
-func CleanHTMLTags(content string) string {
-	re := regexp.MustCompile(`<[^>]*>`)
-	return re.ReplaceAllString(content, "")
-}
-
-// ExtractPreviewContent extracts first N words for preview
-func ExtractPreviewContent(content string, wordLimit int) string {
-	cleanContent := CleanHTMLTags(content)
-	words := strings.Fields(cleanContent)
-
-	if len(words) > wordLimit {
-		return strings.Join(words[:wordLimit], " ") + "..."
-	}
-
-	return cleanContent
-}

@@ -38,7 +38,7 @@ const Write = () => {
   const { setHandlePublish, setHandleUpdate } = usePostContext();
 
   const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const [content, setContent] = useState(null);
   const [imageTitle, setImageTitle] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
   const [saveStatus, setSaveStatus] = useState('idle'); // idle, saving, saved, error
@@ -63,7 +63,7 @@ const Write = () => {
   };
 
   const handlePublish = useCallback(() => {
-    if (!title.trim() || !content.trim()) {
+    if (!title.trim() || !content) {
       alert('Vui lòng thêm tiêu đề và nội dung cho bài viết của bạn');
       return;
     }
@@ -75,7 +75,7 @@ const Write = () => {
     if (!title && !content) return;
     
     const autoSaveTimer = setTimeout(() => {
-      if (title.trim() || content.trim()) {
+      if (title.trim() || content) {
         handleSaveDraft();
       }
     }, 30000); // Auto-save every 30 seconds
@@ -135,13 +135,11 @@ const Write = () => {
       const res = await createPost({
         title,
         content,
-        image_title: imageTitle,
-        author_id: user.id,
-        author: user.name,
+        cover_image: imageTitle,
         categories: categories ? categories.split(',').map(cat => cat.trim()) : [],
         tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
       });
-      router.push(`/p/${res.data.title_name}`);
+      router.push(`/p/${res.data.slug}`);
     } catch (error) {
       console.error('Failed to create post:', error);
       alert('Không thể tạo bài viết.');

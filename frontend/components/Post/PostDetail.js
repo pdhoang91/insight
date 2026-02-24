@@ -1,5 +1,5 @@
 // components/Post/PostDetail.js
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useUser } from '../../context/UserContext';
 import { FaHandsClapping, FaShare, FaBookmark } from "react-icons/fa6";
 import { FaEye, FaComment, FaTwitter, FaLinkedin } from 'react-icons/fa';
@@ -10,6 +10,7 @@ import TableOfContents from '../Shared/TableOfContents';
 import SEOHead from '../SEO/SEOHead';
 import RelatedPosts from './RelatedPosts';
 import { themeClasses, combineClasses } from '../../utils/themeClasses';
+import { renderPostContent, getContentPlainText } from '../../utils/renderContent';
 
 export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
   if (!post) {
@@ -26,6 +27,16 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
   const { clapsCount: postClapsCount, hasClapped, mutate: mutateClaps } = useClapsCount('post', post.id);
   const { user } = useUser();
   const { totalCommentReply } = useComments(post.id, true, 1, 10);
+
+  const renderedHTML = useMemo(
+    () => renderPostContent(post.content),
+    [post.content]
+  );
+
+  const plainText = useMemo(
+    () => getContentPlainText(post.content),
+    [post.content]
+  );
 
   const handleClap = async () => {
     if (!user) {
@@ -47,14 +58,14 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
     <>
       <SEOHead
         title={post.title}
-        description={post.preview_content || post.content?.substring(0, 160)}
-        image={post.image_title}
+        description={post.excerpt || plainText?.substring(0, 160)}
+        image={post.cover_image}
         type="article"
         publishedTime={post.created_at}
         modifiedTime={post.updated_at}
         author={post.author?.name}
         category={post.category}
-        url={`${process.env.NEXT_PUBLIC_SITE_URL || ''}/p/${post.title_name}`}
+        url={`${process.env.NEXT_PUBLIC_SITE_URL || ''}/p/${post.slug}`}
       />
       <div className="">
       <div className={combineClasses(
@@ -102,7 +113,7 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
                   themeClasses.bg.muted
                 )}></span>
                 <span className={themeClasses.typography.weightMedium}>
-                  {Math.ceil((post.content?.length || 0) / 1000)} min read
+                  {Math.ceil((plainText?.length || 0) / 1000)} min read
                 </span>
               </div>
 
@@ -186,10 +197,10 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
           </header>
 
           {/* Featured Image */}
-          {post.image_title && (
+          {post.cover_image && (
             <div className={themeClasses.spacing.marginBottomXLarge}>
               <img
-                src={post.image_title}
+                src={post.cover_image}
                 alt={post.title}
                 className={combineClasses(
                   'w-full h-auto',
@@ -207,7 +218,7 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
                 'post-content reading-content leading-relaxed',
                 themeClasses.text.primary
               )}
-              dangerouslySetInnerHTML={{ __html: post.content }}
+              dangerouslySetInnerHTML={{ __html: renderedHTML }}
             />
           </div>
         </article>
@@ -219,7 +230,7 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
             themeClasses.spacing.stackLarge
           )}>
             {/* Table of Contents */}
-            <TableOfContents content={post.content} />
+            <TableOfContents content={renderedHTML} />
           </div>
         </aside>
       </div>

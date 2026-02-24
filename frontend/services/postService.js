@@ -12,8 +12,8 @@ export const getPostById = async (id) => {
   return response.data.data.post;
 };
 
-export const getPostByTitleName = async (titleName) => {
-  const response = await axiosPublicInstance.get(`/p/${titleName}`);
+export const getPostBySlug = async (slug) => {
+  const response = await axiosPublicInstance.get(`/p/${slug}`);
   return response.data.data.post;
 };
 

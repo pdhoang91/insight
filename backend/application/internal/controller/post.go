@@ -234,13 +234,13 @@ func (c *Controller) GetUserPostsByUsername(ctx *gin.Context) {
 }
 
 func (c *Controller) GetPostByTitleName(ctx *gin.Context) {
-	titleName := ctx.Param("titleName")
-	if titleName == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Title name is required"})
+	slug := ctx.Param("titleName")
+	if slug == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Slug is required"})
 		return
 	}
 
-	response, err := c.service.GetPostByTitleName(titleName)
+	response, err := c.service.GetPostBySlug(slug)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -341,8 +341,8 @@ func (c *Controller) SearchPosts(ctx *gin.Context) {
 		}
 
 		postResp := &dto.PostResponse{
-			ID: postID, Title: searchPost.Title, TitleName: searchPost.TitleName,
-			PreviewContent: searchPost.PreviewContent, Content: searchPost.Content,
+			ID: postID, Title: searchPost.Title, Slug: searchPost.Slug,
+			Excerpt: searchPost.Excerpt,
 			CreatedAt: searchPost.CreatedAt, UpdatedAt: searchPost.CreatedAt,
 			Views: searchPost.Views, ClapCount: searchPost.ClapCount,
 			CommentsCount: searchPost.CommentsCount, AverageRating: searchPost.AverageRating,

@@ -46,9 +46,9 @@ CREATE TABLE IF NOT EXISTS tags (
 CREATE TABLE IF NOT EXISTS posts (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     title VARCHAR(500) NOT NULL,
-    image_title VARCHAR(500),
-    title_name VARCHAR(255),
-    preview_content TEXT,
+    slug VARCHAR(500) UNIQUE,
+    excerpt TEXT,
+    cover_image VARCHAR(500),
     user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     views INTEGER DEFAULT 0,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
@@ -56,12 +56,11 @@ CREATE TABLE IF NOT EXISTS posts (
     deleted_at TIMESTAMPTZ
 );
 
--- Post content table (for full content)
+-- Post content table (structured JSON document tree - TipTap/ProseMirror format)
 CREATE TABLE IF NOT EXISTS post_contents (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     post_id UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
-    content TEXT NOT NULL,
-    content_type VARCHAR(50) DEFAULT 'markdown',
+    content JSONB NOT NULL DEFAULT '{}',
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
     deleted_at TIMESTAMPTZ
@@ -206,6 +205,7 @@ CREATE TABLE IF NOT EXISTS notifications (
 
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_posts_user_id ON posts(user_id);
+CREATE INDEX IF NOT EXISTS idx_posts_slug ON posts(slug);
 CREATE INDEX IF NOT EXISTS idx_posts_created_at ON posts(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_posts_deleted_at ON posts(deleted_at);
 CREATE INDEX IF NOT EXISTS idx_posts_views ON posts(views DESC);
@@ -260,7 +260,7 @@ CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created
 
 -- Create full-text search indexes
 CREATE INDEX IF NOT EXISTS idx_posts_title_search ON posts USING gin(to_tsvector('english', title));
-CREATE INDEX IF NOT EXISTS idx_post_contents_search ON post_contents USING gin(to_tsvector('english', content));
+CREATE INDEX IF NOT EXISTS idx_post_contents_content_gin ON post_contents USING GIN (content);
 CREATE INDEX IF NOT EXISTS idx_categories_name_search ON categories USING gin(to_tsvector('english', name));
 CREATE INDEX IF NOT EXISTS idx_tags_name_search ON tags USING gin(to_tsvector('english', name));
 
