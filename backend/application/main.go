@@ -11,6 +11,7 @@ import (
 	"github.com/pdhoang91/blog/config"
 	"github.com/pdhoang91/blog/internal"
 	"github.com/pdhoang91/blog/internal/controller"
+	"github.com/pdhoang91/blog/internal/repository"
 	"github.com/pdhoang91/blog/internal/service"
 	"github.com/pdhoang91/blog/pkg/storage"
 )
@@ -48,18 +49,38 @@ func main() {
 	s3Provider := storage.NewS3Provider(bucket, region, basePath, cdnDomain)
 	storageManager.RegisterProvider("s3", s3Provider)
 
+	// Initialize repositories
+	userRepo := repository.NewUserRepository()
+	postRepo := repository.NewPostRepository()
+	commentRepo := repository.NewCommentRepository()
+	replyRepo := repository.NewReplyRepository()
+	categoryRepo := repository.NewCategoryRepository()
+	tagRepo := repository.NewTagRepository()
+	bookmarkRepo := repository.NewBookmarkRepository()
+	postContentRepo := repository.NewPostContentRepository()
+	userActivityRepo := repository.NewUserActivityRepository()
+	imageRepo := repository.NewImageRepository()
+
 	// Create base service with common dependencies
 	baseService := service.NewBaseService(
 		db,
 		config.GoogleOauthConfig,
 		config.S3Client,
 		storageManager,
+		userRepo,
+		postRepo,
+		commentRepo,
+		replyRepo,
+		categoryRepo,
+		tagRepo,
+		bookmarkRepo,
+		postContentRepo,
+		userActivityRepo,
+		imageRepo,
 	)
 
 	// Create insight service with all dependencies
-	insightService := service.NewInsightService(
-		baseService,
-	)
+	insightService := service.NewInsightService(baseService)
 
 	// Create controller (routing layer only)
 	mainController := controller.NewController(insightService)

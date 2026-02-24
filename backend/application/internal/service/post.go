@@ -8,23 +8,20 @@ import (
 	"regexp"
 	"time"
 
+	"github.com/pdhoang91/blog/internal/apperror"
 	"github.com/pdhoang91/blog/internal/dto"
 	"github.com/pdhoang91/blog/internal/entities"
-
 	"github.com/pdhoang91/blog/pkg/notification"
 	"github.com/pdhoang91/blog/pkg/utils"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
 
-// ==================== POST METHODS ====================
-
 // CreatePost creates a new post
 func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest) (*dto.PostResponse, error) {
-	// Start transaction for data consistency
 	tx := s.DB.Begin()
 	if tx.Error != nil {
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to start transaction", tx.Error)
 	}
 	defer func() {
 		if r := recover(); r != nil {
@@ -32,34 +29,25 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 		}
 	}()
 
-	// Use provided image_title or generate default
 	imageTitle := req.ImageTitle
 	if imageTitle == "" {
 		feURL := os.Getenv("BASE_FE_URL")
 		if feURL == "" {
-			feURL = "http://localhost:3000" // fallback
+			feURL = "http://localhost:3000"
 		}
 		imageTitle = feURL + "/images/insight.jpg"
 	}
 
-	// Generate title_name (slug) from title
 	titleName := utils.CreateSlug(req.Title)
-
-	// Ensure unique title_name
-	var existingPost entities.Post
-	if err := s.DB.Where("title_name = ?", titleName).First(&existingPost).Error; err == nil {
-		// Title name already exists, add unique prefix
-		uniquePrefix := utils.GetUniquePrefix()
-		titleName = fmt.Sprintf("%s-%s", titleName, uniquePrefix)
+	if _, err := s.PostRepo.FindByTitleName(s.DB, titleName); err == nil {
+		titleName = fmt.Sprintf("%s-%s", titleName, utils.GetUniquePrefix())
 	}
 
-	// Generate preview_content from content (first 55 words)
 	previewContent := req.PreviewContent
 	if previewContent == "" && req.Content != "" {
 		previewContent = utils.ExtractPreviewContent(req.Content, 55)
 	}
 
-	// Create post
 	post := &entities.Post{
 		ID:             uuid.NewV4(),
 		UserID:         userID,
@@ -71,17 +59,14 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 		UpdatedAt:      time.Now(),
 	}
 
-	if err := tx.Create(post).Error; err != nil {
+	if err := s.PostRepo.Create(tx, post); err != nil {
 		tx.Rollback()
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to create post", err)
 	}
 
-	// Handle post content creation using PostContentRepo
 	var processedContent string
 	if req.Content != "" {
-		// First, just convert URLs to data-image-id without creating references yet
 		processedContent = s.ProcessContentForSavingWithoutReferences(req.Content)
-
 		postContent := &entities.PostContent{
 			ID:        uuid.NewV4(),
 			PostID:    post.ID,
@@ -89,109 +74,51 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		}
-
-		if err := postContent.Create(tx); err != nil {
+		if err := s.PostContentRepo.Create(tx, postContent); err != nil {
 			tx.Rollback()
-			return nil, errors.New("internal server error")
+			return nil, apperror.NewInternal("failed to create post content", err)
 		}
 	}
 
-	// Handle category associations using CategoryRepo
 	if len(req.CategoryNames) > 0 {
-		var categories []entities.Category
-		for _, categoryName := range req.CategoryNames {
-			// Try to find existing category by name
-			category, err := s.Category.FindByName(tx, categoryName)
-			if err != nil {
-				if err == gorm.ErrRecordNotFound {
-					// Create new category if it doesn't exist
-					category = &entities.Category{
-						ID:        uuid.NewV4(),
-						Name:      categoryName,
-						CreatedAt: time.Now(),
-						UpdatedAt: time.Now(),
-					}
-					if err := category.Create(tx); err != nil {
-						tx.Rollback()
-						return nil, errors.New("internal server error")
-					}
-				} else {
-					tx.Rollback()
-					return nil, errors.New("internal server error")
-				}
-			}
-			categories = append(categories, *category)
-		}
-
-		// Associate categories with post
-		if err := tx.Model(post).Association("Categories").Append(&categories); err != nil {
+		categories, err := s.findOrCreateCategories(tx, req.CategoryNames)
+		if err != nil {
 			tx.Rollback()
-			return nil, errors.New("internal server error")
+			return nil, err
+		}
+		if err := s.PostRepo.AppendCategories(tx, post, categories); err != nil {
+			tx.Rollback()
+			return nil, apperror.NewInternal("failed to associate categories", nil)
 		}
 	}
 
-	// Handle tag associations using TagRepo
 	if len(req.TagNames) > 0 {
-		var tags []entities.Tag
-		for _, tagName := range req.TagNames {
-			// Try to find existing tag
-			tag, err := s.Tag.FindByName(tx, tagName)
-			if err != nil {
-				if err == gorm.ErrRecordNotFound {
-					// Create new tag if it doesn't exist
-					tag = &entities.Tag{
-						ID:        uuid.NewV4(),
-						Name:      tagName,
-						CreatedAt: time.Now(),
-						UpdatedAt: time.Now(),
-					}
-					if err := tag.Create(tx); err != nil {
-						tx.Rollback()
-						return nil, errors.New("internal server error")
-					}
-				} else {
-					tx.Rollback()
-					return nil, errors.New("internal server error")
-				}
-			}
-			tags = append(tags, *tag)
-		}
-
-		// Associate tags with post
-		if err := tx.Model(post).Association("Tags").Append(&tags); err != nil {
+		tags, err := s.findOrCreateTags(tx, req.TagNames)
+		if err != nil {
 			tx.Rollback()
-			return nil, errors.New("internal server error")
+			return nil, err
+		}
+		if err := s.PostRepo.AppendTags(tx, post, tags); err != nil {
+			tx.Rollback()
+			return nil, apperror.NewInternal("failed to associate tags", nil)
 		}
 	}
 
-	// Process images in content using V2 system
-	// The content processing is now handled by Storage Manager in ProcessContentForSaving above
-	// No additional processing needed here
-
-	// Send notifications using EventProcessor
+	// Send notifications (best-effort)
 	eventProcessor := notification.GetDefaultProcessor(s.DB)
-	notifyErr := eventProcessor.SendPostNotification(notification.EventTypePostCreated, userID, post.ID, "New post created")
-	if notifyErr != nil {
-		// Log error but don't fail the operation
-		// TODO: Use proper logger
-	}
+	_ = eventProcessor.SendPostNotification(notification.EventTypePostCreated, userID, post.ID, "New post created")
 
-	// Commit transaction
 	if err := tx.Commit().Error; err != nil {
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to commit transaction", err)
 	}
 
-	// After successful commit, create image references
+	// Create image references after commit (best-effort)
 	if processedContent != "" {
-		if err := s.CreateImageReferencesFromContent(context.Background(), post.ID, processedContent); err != nil {
-			// Log error but don't fail the operation since post is already created
-			// TODO: Use proper logger
-		}
+		_ = s.CreateImageReferencesFromContent(context.Background(), post.ID, processedContent)
 	}
 
-	// Load relationships for response
-	if err := s.DB.Preload("User").Preload("Categories").Preload("Tags").First(post, post.ID).Error; err != nil {
-		return nil, errors.New("internal server error")
+	if err := s.PostRepo.LoadRelationships(s.DB, post); err != nil {
+		return nil, apperror.NewInternal("failed to load post relationships", err)
 	}
 
 	return dto.NewPostResponse(post), nil
@@ -203,133 +130,93 @@ func (s *InsightService) ListPosts(req *dto.PaginationRequest) ([]*dto.PostRespo
 		req.Limit = 20
 	}
 
-	// Use read replica for better performance
-	posts, err := s.Post.FindAll(s.DBR2, req.Limit, req.Offset)
+	posts, err := s.PostRepo.FindAll(s.DBR2, req.Limit, req.Offset)
 	if err != nil {
-		return nil, 0, errors.New("internal server error")
+		return nil, 0, apperror.NewInternal("failed to list posts", err)
 	}
 
-	// Get total count
-	total, err := s.Post.Count(s.DBR2)
+	total, err := s.PostRepo.Count(s.DBR2)
 	if err != nil {
-		return nil, 0, errors.New("internal server error")
+		return nil, 0, apperror.NewInternal("failed to count posts", err)
 	}
 
-	// Calculate counts for all posts efficiently
-	if err := entities.CalculateCountsForPosts(s.DBR2, posts); err != nil {
-		// Log error but don't fail the request
-		// TODO: Use proper logger
-	}
+	_ = s.PostRepo.CalculateCountsForPosts(s.DBR2, posts)
 
-	var responses []*dto.PostResponse
+	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
 		responses = append(responses, dto.NewPostResponse(post))
 	}
-
-	// Ensure we return empty array instead of nil
-	if responses == nil {
-		responses = []*dto.PostResponse{}
-	}
-
 	return responses, total, nil
 }
 
 // GetPost retrieves a post by ID
 func (s *InsightService) GetPost(id uuid.UUID) (*dto.PostResponse, error) {
-	// Use read replica for better performance
-	post, err := s.Post.FindByID(s.DBR2, id)
+	post, err := s.PostRepo.FindByID(s.DBR2, id)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("not found")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperror.NewNotFound("post not found")
 		}
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to get post", err)
 	}
 
-	// Increment view count (use write database for this)
-	if err := s.DB.Model(post).UpdateColumn("views", gorm.Expr("views + ?", 1)).Error; err != nil {
-		// Log error but don't fail the request
-		// TODO: Use proper logger
-	}
+	// Increment view count (best-effort, write DB)
+	_ = s.PostRepo.IncrementViews(s.DB, post)
 
-	// Load post content using PostContentRepo
-	postContent, err := s.PostContent.FindByPostID(s.DBR2, id)
-	if err != nil && err != gorm.ErrRecordNotFound {
-		return nil, errors.New("internal server error")
-	}
-	if postContent != nil {
-		// Process content for display (convert data-image-id to URLs)
+	postContent, err := s.PostContentRepo.FindByPostID(s.DBR2, id)
+	if err == nil && postContent != nil {
 		post.Content = s.ProcessContentForDisplay(postContent.Content)
 	}
 
-	// Load categories and tags
-	if err := s.DBR2.Preload("User").Preload("Categories").Preload("Tags").First(post, post.ID).Error; err != nil {
-		return nil, errors.New("internal server error")
+	if err := s.PostRepo.LoadRelationships(s.DBR2, post); err != nil {
+		return nil, apperror.NewInternal("failed to load post relationships", err)
 	}
 
-	// Calculate clap_count and comments_count
-	if err := post.CalculateCounts(s.DBR2); err != nil {
-		// Log error but don't fail the request
-		// TODO: Use proper logger
-	}
-
+	_ = s.PostRepo.CalculateCounts(s.DBR2, post)
 	return dto.NewPostResponse(post), nil
 }
 
 // GetPostByTitleName retrieves a post by title name
 func (s *InsightService) GetPostByTitleName(titleName string) (*dto.PostResponse, error) {
-	// Use read replica for better performance
-	post, err := s.Post.FindByTitleName(s.DBR2, titleName)
+	post, err := s.PostRepo.FindByTitleName(s.DBR2, titleName)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("not found")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperror.NewNotFound("post not found")
 		}
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to get post by title name", err)
 	}
 
-	// Increment views count
-	if err := s.DB.Model(post).UpdateColumn("views", gorm.Expr("views + ?", 1)).Error; err != nil {
-		// TODO: Use proper logger
-	}
+	_ = s.PostRepo.IncrementViews(s.DB, post)
 
-	// Load post content
-	postContent, err := s.PostContent.FindByPostID(s.DBR2, post.ID)
+	postContent, err := s.PostContentRepo.FindByPostID(s.DBR2, post.ID)
 	if err == nil && postContent != nil {
-		// Process content for display (convert data-image-id to URLs)
 		post.Content = s.ProcessContentForDisplay(postContent.Content)
 	}
 
-	// Preload relationships
-	if err := s.DBR2.Preload("User").Preload("Categories").Preload("Tags").First(post, post.ID).Error; err != nil {
-		return nil, errors.New("internal server error")
+	if err := s.PostRepo.LoadRelationships(s.DBR2, post); err != nil {
+		return nil, apperror.NewInternal("failed to load post relationships", err)
 	}
 
-	// Calculate clap_count and comments_count
-	if err := post.CalculateCounts(s.DBR2); err != nil {
-		// Log error but don't fail the request
-		// TODO: Use proper logger
-	}
-
+	_ = s.PostRepo.CalculateCounts(s.DBR2, post)
 	return dto.NewPostResponse(post), nil
 }
 
 // GetPostEntity returns the raw post entity (for internal use)
 func (s *InsightService) GetPostEntity(id uuid.UUID) (*entities.Post, error) {
-	post, err := s.Post.FindByID(s.DB, id)
+	post, err := s.PostRepo.FindByID(s.DB, id)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("not found")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperror.NewNotFound("post not found")
 		}
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to get post entity", err)
 	}
 	return post, nil
 }
 
 // UpdatePost updates a post by ID
 func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.UpdatePostRequest) (*dto.PostResponse, error) {
-	// Start transaction for data consistency
 	tx := s.DB.Begin()
 	if tx.Error != nil {
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to start transaction", tx.Error)
 	}
 	defer func() {
 		if r := recover(); r != nil {
@@ -337,34 +224,26 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 		}
 	}()
 
-	post, err := s.Post.FindByID(tx, id)
+	post, err := s.PostRepo.FindByID(tx, id)
 	if err != nil {
 		tx.Rollback()
-		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("not found")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperror.NewNotFound("post not found")
 		}
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to find post", err)
 	}
 
-	// Check if user owns the post
 	if post.UserID != userID {
 		tx.Rollback()
-		return nil, errors.New("forbidden")
+		return nil, apperror.NewForbidden("you do not own this post")
 	}
 
-	// Update fields
 	if req.Title != "" {
 		post.Title = req.Title
-		// Generate new title_name (slug) from updated title
 		newTitleName := utils.CreateSlug(req.Title)
-
-		// Ensure unique title_name if it's different from current one
 		if newTitleName != post.TitleName {
-			var existingPost entities.Post
-			if err := tx.Where("title_name = ? AND id != ?", newTitleName, post.ID).First(&existingPost).Error; err == nil {
-				// Title name already exists, add unique prefix
-				uniquePrefix := utils.GetUniquePrefix()
-				newTitleName = fmt.Sprintf("%s-%s", newTitleName, uniquePrefix)
+			if s.PostRepo.ExistsByTitleNameExcluding(tx, newTitleName, post.ID) {
+				newTitleName = fmt.Sprintf("%s-%s", newTitleName, utils.GetUniquePrefix())
 			}
 			post.TitleName = newTitleName
 		}
@@ -375,164 +254,88 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 	if req.PreviewContent != "" {
 		post.PreviewContent = req.PreviewContent
 	}
-
-	// Auto-generate preview_content from content if not provided and content is being updated
 	if req.Content != "" && req.PreviewContent == "" {
 		post.PreviewContent = utils.ExtractPreviewContent(req.Content, 55)
 	}
 
 	post.UpdatedAt = time.Now()
-	if err := tx.Save(post).Error; err != nil {
+	if err := s.PostRepo.Update(tx, post); err != nil {
 		tx.Rollback()
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to update post", err)
 	}
 
-	// Update post content using PostContentRepo with V2 image processing
 	var oldContent string
 	if req.Content != "" {
-		postContent, err := s.PostContent.FindByPostID(tx, post.ID)
-		oldContent = ""
-
+		postContent, err := s.PostContentRepo.FindByPostID(tx, post.ID)
 		if err != nil {
-			if err == gorm.ErrRecordNotFound {
-				// Create new post content if it doesn't exist
+			if errors.Is(err, gorm.ErrRecordNotFound) {
 				processedContent := s.ProcessContentForSavingWithoutReferences(req.Content)
-
 				postContent = &entities.PostContent{
-					ID:        uuid.NewV4(),
-					PostID:    post.ID,
-					Content:   processedContent,
-					CreatedAt: time.Now(),
-					UpdatedAt: time.Now(),
+					ID: uuid.NewV4(), PostID: post.ID, Content: processedContent,
+					CreatedAt: time.Now(), UpdatedAt: time.Now(),
 				}
-				if err := postContent.Create(tx); err != nil {
+				if err := s.PostContentRepo.Create(tx, postContent); err != nil {
 					tx.Rollback()
-					return nil, errors.New("internal server error")
+					return nil, apperror.NewInternal("failed to create post content", err)
 				}
 			} else {
 				tx.Rollback()
-				return nil, errors.New("internal server error")
+				return nil, apperror.NewInternal("failed to find post content", err)
 			}
 		} else {
-			// Update existing post content with cleanup
 			oldContent = postContent.Content
-
 			processedContent := s.ProcessContentForSavingWithoutReferences(req.Content)
-
 			postContent.Content = processedContent
 			postContent.UpdatedAt = time.Now()
-			if err := postContent.Update(tx); err != nil {
+			if err := s.PostContentRepo.Update(tx, postContent); err != nil {
 				tx.Rollback()
-				return nil, errors.New("internal server error")
+				return nil, apperror.NewInternal("failed to update post content", err)
 			}
-
-			// Update image references after successful content update
 			if oldContent != processedContent {
-				if err := s.UpdateImageReferences(context.Background(), post.ID, oldContent, processedContent); err != nil {
-					// Log error but don't fail the operation
-					// TODO: Use proper logger
-				}
+				_ = s.UpdateImageReferences(context.Background(), post.ID, oldContent, processedContent)
 			}
 		}
 	}
 
-	// Update category associations
 	if len(req.CategoryNames) > 0 {
-		var categories []entities.Category
-		for _, categoryName := range req.CategoryNames {
-			// Try to find existing category by name
-			category, err := s.Category.FindByName(tx, categoryName)
-			if err != nil {
-				if err == gorm.ErrRecordNotFound {
-					// Create new category if it doesn't exist
-					category = &entities.Category{
-						ID:        uuid.NewV4(),
-						Name:      categoryName,
-						CreatedAt: time.Now(),
-						UpdatedAt: time.Now(),
-					}
-					if err := category.Create(tx); err != nil {
-						tx.Rollback()
-						return nil, errors.New("internal server error")
-					}
-				} else {
-					tx.Rollback()
-					return nil, errors.New("internal server error")
-				}
-			}
-			categories = append(categories, *category)
-		}
-
-		// Replace categories
-		if err := tx.Model(post).Association("Categories").Replace(&categories); err != nil {
+		categories, err := s.findOrCreateCategories(tx, req.CategoryNames)
+		if err != nil {
 			tx.Rollback()
-			return nil, errors.New("internal server error")
+			return nil, err
+		}
+		if err := s.PostRepo.ReplaceCategories(tx, post, categories); err != nil {
+			tx.Rollback()
+			return nil, apperror.NewInternal("failed to update categories", nil)
 		}
 	}
 
-	// Update tag associations
 	if len(req.TagNames) > 0 {
-		var tags []entities.Tag
-		for _, tagName := range req.TagNames {
-			// Try to find existing tag
-			tag, err := s.Tag.FindByName(tx, tagName)
-			if err != nil {
-				if err == gorm.ErrRecordNotFound {
-					// Create new tag if it doesn't exist
-					tag = &entities.Tag{
-						ID:        uuid.NewV4(),
-						Name:      tagName,
-						CreatedAt: time.Now(),
-						UpdatedAt: time.Now(),
-					}
-					if err := tag.Create(tx); err != nil {
-						tx.Rollback()
-						return nil, errors.New("internal server error")
-					}
-				} else {
-					tx.Rollback()
-					return nil, errors.New("internal server error")
-				}
-			}
-			tags = append(tags, *tag)
-		}
-
-		// Replace tags
-		if err := tx.Model(post).Association("Tags").Replace(&tags); err != nil {
+		tags, err := s.findOrCreateTags(tx, req.TagNames)
+		if err != nil {
 			tx.Rollback()
-			return nil, errors.New("internal server error")
+			return nil, err
+		}
+		if err := s.PostRepo.ReplaceTags(tx, post, tags); err != nil {
+			tx.Rollback()
+			return nil, apperror.NewInternal("failed to update tags", nil)
 		}
 	}
 
-	// Process images in updated content using V2 system
-	// The content processing is now handled by Storage Manager in ProcessContentForSaving
-	// No additional processing needed here
-
-	// Send update notifications using EventProcessor
+	// Send notifications (best-effort)
 	eventProcessor := notification.GetDefaultProcessor(s.DB)
-	err = eventProcessor.SendPostNotification(notification.EventTypePostUpdated, userID, post.ID, "Post updated")
-	if err != nil {
-		// Log error but don't fail the operation
-		// TODO: Use proper logger
-	}
+	_ = eventProcessor.SendPostNotification(notification.EventTypePostUpdated, userID, post.ID, "Post updated")
 
-	// Commit transaction
 	if err := tx.Commit().Error; err != nil {
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to commit transaction", err)
 	}
 
-	// After successful commit, update image references if content was changed
 	if req.Content != "" {
 		processedContent := s.ProcessContentForSavingWithoutReferences(req.Content)
-		if err := s.UpdateImageReferences(context.Background(), post.ID, oldContent, processedContent); err != nil {
-			// Log error but don't fail the operation since post is already updated
-			// TODO: Use proper logger
-		}
+		_ = s.UpdateImageReferences(context.Background(), post.ID, oldContent, processedContent)
 	}
 
-	// Load relationships for response
-	if err := s.DB.Preload("User").Preload("Categories").Preload("Tags").First(post, post.ID).Error; err != nil {
-		return nil, errors.New("internal server error")
+	if err := s.PostRepo.LoadRelationships(s.DB, post); err != nil {
+		return nil, apperror.NewInternal("failed to load post relationships", err)
 	}
 
 	return dto.NewPostResponse(post), nil
@@ -540,10 +343,9 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 
 // DeletePost soft deletes a post by ID
 func (s *InsightService) DeletePost(userID uuid.UUID, id uuid.UUID) error {
-	// Start transaction for data consistency
 	tx := s.DB.Begin()
 	if tx.Error != nil {
-		return errors.New("internal server error")
+		return apperror.NewInternal("failed to start transaction", tx.Error)
 	}
 	defer func() {
 		if r := recover(); r != nil {
@@ -551,93 +353,59 @@ func (s *InsightService) DeletePost(userID uuid.UUID, id uuid.UUID) error {
 		}
 	}()
 
-	post, err := s.Post.FindByID(tx, id)
+	post, err := s.PostRepo.FindByID(tx, id)
 	if err != nil {
 		tx.Rollback()
-		if err == gorm.ErrRecordNotFound {
-			return errors.New("not found")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperror.NewNotFound("post not found")
 		}
-		return errors.New("internal server error")
+		return apperror.NewInternal("failed to find post", err)
 	}
 
-	// Check if user owns the post
 	if post.UserID != userID {
 		tx.Rollback()
-		return errors.New("forbidden")
+		return apperror.NewForbidden("you do not own this post")
 	}
 
-	// Soft delete the post (GORM will automatically set deleted_at)
-	if err := tx.Delete(post).Error; err != nil {
+	if err := s.PostRepo.Delete(tx, post); err != nil {
 		tx.Rollback()
-		return errors.New("internal server error")
+		return apperror.NewInternal("failed to delete post", err)
 	}
 
-	//// Delete associated images using V2 system
-	//// Get post content before deletion to extract image references
-	//postContent, err := s.PostContent.FindByPostID(s.DB, id)
-	//if err == nil && postContent != nil && postContent.Content != "" {
-	//	// Delete images referenced in the post content
-	//	if err := s.DeletePostImages(context.Background(), id, userID); err != nil {
-	//		// Log error but don't fail the operation
-	//		// TODO: Use proper logger
-	//	}
-
-	// Soft delete associated comments
-	if err := tx.Where("post_id = ?", id).Delete(&entities.Comment{}).Error; err != nil {
+	if err := s.CommentRepo.DeleteByPostID(tx, id); err != nil {
 		tx.Rollback()
-		return errors.New("internal server error")
-
+		return apperror.NewInternal("failed to delete comments", err)
 	}
 
-	// Soft delete associated replies
-	if err := tx.Where("post_id = ?", id).Delete(&entities.Reply{}).Error; err != nil {
+	if err := s.ReplyRepo.DeleteByPostID(tx, id); err != nil {
 		tx.Rollback()
-		return errors.New("internal server error")
+		return apperror.NewInternal("failed to delete replies", err)
 	}
 
-	// Soft delete associated post content
-	if err := tx.Where("post_id = ?", id).Delete(&entities.PostContent{}).Error; err != nil {
+	if err := s.PostContentRepo.DeleteByPostID(tx, id); err != nil {
 		tx.Rollback()
-		return errors.New("internal server error")
+		return apperror.NewInternal("failed to delete post content", err)
 	}
 
-	// Note: We keep category and tag associations as they are many-to-many relationships
-	// and don't need to be deleted. They will be filtered out when querying posts.
-
-	// Send delete notifications using EventProcessor
+	// Send notifications (best-effort)
 	eventProcessor := notification.GetDefaultProcessor(s.DB)
-	err = eventProcessor.SendPostNotification(notification.EventTypePostDeleted, userID, id, "Post deleted")
-	if err != nil {
-		// Log error but don't fail the operation
-		// TODO: Use proper logger
-	}
+	_ = eventProcessor.SendPostNotification(notification.EventTypePostDeleted, userID, id, "Post deleted")
 
-	// Commit transaction
 	if err := tx.Commit().Error; err != nil {
-		return errors.New("internal server error")
+		return apperror.NewInternal("failed to commit transaction", err)
 	}
-
 	return nil
 }
 
 // DeletePostImages deletes all images referenced in a post
 func (s *InsightService) DeletePostImages(ctx context.Context, postID uuid.UUID, userID uuid.UUID) error {
-
-	// Find all image references for this post
-	var imageRefs []entities.ImageReference
-	if err := s.DB.Where("post_id = ?", postID).Find(&imageRefs).Error; err != nil {
-		return fmt.Errorf("failed to find image references: %w", err)
+	imageRefs, err := s.ImageRepo.FindReferencesByPostID(s.DB, postID)
+	if err != nil {
+		return fmt.Errorf("FindReferencesByPostID: %w", err)
 	}
-
-	// Delete each referenced image
 	for _, ref := range imageRefs {
-		// Verify the image belongs to the user before deleting
-		if err := s.DeleteImageV2(ctx, ref.ImageID.String(), userID); err != nil {
-			// Log error but continue with other images
-			// TODO: Use proper logger
-		}
+		_ = s.DeleteImageV2(ctx, ref.ImageID.String(), userID)
 	}
-
 	return nil
 }
 
@@ -647,23 +415,17 @@ func (s *InsightService) GetUserPosts(userID uuid.UUID, req *dto.PaginationReque
 		req.Limit = 20
 	}
 
-	// Use read replica for better performance
-	posts, err := s.Post.FindByUserID(s.DBR2, userID, req.Limit, req.Offset)
+	posts, err := s.PostRepo.FindByUserID(s.DBR2, userID, req.Limit, req.Offset)
 	if err != nil {
-		return nil, 0, errors.New("internal server error")
+		return nil, 0, apperror.NewInternal("failed to get user posts", err)
 	}
 
-	// Calculate counts for all posts efficiently
-	if err := entities.CalculateCountsForPosts(s.DBR2, posts); err != nil {
-		// Log error but don't fail the request
-		// TODO: Use proper logger
-	}
+	_ = s.PostRepo.CalculateCountsForPosts(s.DBR2, posts)
 
-	var responses []*dto.PostResponse
+	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
 		responses = append(responses, dto.NewPostResponse(post))
 	}
-
 	return responses, int64(len(responses)), nil
 }
 
@@ -673,26 +435,17 @@ func (s *InsightService) SearchPosts(query string, req *dto.PaginationRequest) (
 		req.Limit = 20
 	}
 
-	// Use read replica for search queries
-	posts, err := s.Post.Search(s.DBR2, query, req.Limit, req.Offset)
+	posts, err := s.PostRepo.Search(s.DBR2, query, req.Limit, req.Offset)
 	if err != nil {
-		return nil, 0, errors.New("internal server error")
+		return nil, 0, apperror.NewInternal("failed to search posts", err)
 	}
 
-	// Calculate counts for all posts efficiently
-	if err := entities.CalculateCountsForPosts(s.DBR2, posts); err != nil {
-		// Log error but don't fail the request
-		// TODO: Use proper logger
-	}
+	_ = s.PostRepo.CalculateCountsForPosts(s.DBR2, posts)
 
-	var responses []*dto.PostResponse
+	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
 		responses = append(responses, dto.NewPostResponse(post))
 	}
-
-	// TODO: Log search queries for analytics
-	// TODO: Use external search service if available
-
 	return responses, int64(len(responses)), nil
 }
 
@@ -702,35 +455,23 @@ func (s *InsightService) GetAllPosts(req *dto.PaginationRequest) ([]*dto.PostRes
 		req.Limit = 50
 	}
 
-	posts, err := s.Post.List(s.DB, req.Limit, req.Offset)
+	posts, err := s.PostRepo.List(s.DB, req.Limit, req.Offset)
 	if err != nil {
-		return nil, 0, errors.New("internal server error")
+		return nil, 0, apperror.NewInternal("failed to list all posts", err)
 	}
 
-	// Calculate counts for all posts efficiently
-	if err := entities.CalculateCountsForPosts(s.DB, posts); err != nil {
-		// Log error but don't fail the request
-		// TODO: Use proper logger
-	}
+	_ = s.PostRepo.CalculateCountsForPosts(s.DB, posts)
 
-	var responses []*dto.PostResponse
+	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
 		responses = append(responses, dto.NewPostResponse(post))
 	}
-
 	return responses, int64(len(responses)), nil
 }
 
 // SearchAll searches across all content
 func (s *InsightService) SearchAll(query string) (interface{}, error) {
-	// TODO: Implement comprehensive search across posts, users, categories, tags
-	// TODO: Use external search service if available
-	// TODO: Return structured search results
-
-	return map[string]interface{}{
-		"message": "Search all not implemented yet",
-		"query":   query,
-	}, nil
+	return map[string]interface{}{"message": "Search all not implemented yet", "query": query}, nil
 }
 
 // GetLatestPosts retrieves latest posts
@@ -739,23 +480,17 @@ func (s *InsightService) GetLatestPosts(limit int) ([]*dto.PostResponse, error) 
 		limit = 5
 	}
 
-	// Use read replica for better performance
-	posts, err := s.Post.List(s.DBR2, limit, 0)
+	posts, err := s.PostRepo.List(s.DBR2, limit, 0)
 	if err != nil {
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to get latest posts", err)
 	}
 
-	// Calculate counts for all posts efficiently
-	if err := entities.CalculateCountsForPosts(s.DBR2, posts); err != nil {
-		// Log error but don't fail the request
-		// TODO: Use proper logger
-	}
+	_ = s.PostRepo.CalculateCountsForPosts(s.DBR2, posts)
 
-	var responses []*dto.PostResponse
+	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
 		responses = append(responses, dto.NewPostResponse(post))
 	}
-
 	return responses, nil
 }
 
@@ -765,23 +500,17 @@ func (s *InsightService) GetPopularPosts(limit int) ([]*dto.PostResponse, error)
 		limit = 5
 	}
 
-	// Use read replica for better performance
-	posts, err := s.Post.GetPopular(s.DBR2, limit)
+	posts, err := s.PostRepo.GetPopular(s.DBR2, limit)
 	if err != nil {
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to get popular posts", err)
 	}
 
-	// Calculate counts for all posts efficiently
-	if err := entities.CalculateCountsForPosts(s.DBR2, posts); err != nil {
-		// Log error but don't fail the request
-		// TODO: Use proper logger
-	}
+	_ = s.PostRepo.CalculateCountsForPosts(s.DBR2, posts)
 
-	var responses []*dto.PostResponse
+	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
 		responses = append(responses, dto.NewPostResponse(post))
 	}
-
 	return responses, nil
 }
 
@@ -801,34 +530,22 @@ func (s *InsightService) GetPostsByYearMonth(year, month int, req *dto.Paginatio
 		req.Limit = 20
 	}
 
-	// Use read replica for better performance
-	posts, err := s.Post.FindByYearMonth(s.DBR2, year, month, req.Limit, req.Offset)
+	posts, err := s.PostRepo.FindByYearMonth(s.DBR2, year, month, req.Limit, req.Offset)
 	if err != nil {
-		return nil, 0, errors.New("internal server error")
+		return nil, 0, apperror.NewInternal("failed to get posts by year/month", err)
 	}
 
-	// Get total count for this year/month
-	total, err := s.Post.CountByYearMonth(s.DBR2, year, month)
+	total, err := s.PostRepo.CountByYearMonth(s.DBR2, year, month)
 	if err != nil {
-		return nil, 0, errors.New("internal server error")
+		return nil, 0, apperror.NewInternal("failed to count posts by year/month", err)
 	}
 
-	// Calculate counts for all posts efficiently
-	if err := entities.CalculateCountsForPosts(s.DBR2, posts); err != nil {
-		// Log error but don't fail the request
-		// TODO: Use proper logger
-	}
+	_ = s.PostRepo.CalculateCountsForPosts(s.DBR2, posts)
 
-	var responses []*dto.PostResponse
+	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
 		responses = append(responses, dto.NewPostResponse(post))
 	}
-
-	// Ensure we return empty array instead of nil
-	if responses == nil {
-		responses = []*dto.PostResponse{}
-	}
-
 	return responses, total, nil
 }
 
@@ -838,295 +555,212 @@ func (s *InsightService) GetPostsByCategory(categoryName string, req *dto.Pagina
 		req.Limit = 10
 	}
 
-	// Find category by name first
-	category, err := s.Category.FindByName(s.DBR2, categoryName)
+	category, err := s.CategoryRepo.FindByName(s.DBR2, categoryName)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, 0, errors.New("not found")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, 0, apperror.NewNotFound("category not found")
 		}
-		return nil, 0, errors.New("internal server error")
+		return nil, 0, apperror.NewInternal("failed to find category", err)
 	}
 
-	// Get posts by category ID
-	posts, err := s.Post.FindByCategory(s.DBR2, category.ID, req.Limit, req.Offset)
+	posts, err := s.PostRepo.FindByCategory(s.DBR2, category.ID, req.Limit, req.Offset)
 	if err != nil {
-		return nil, 0, errors.New("internal server error")
+		return nil, 0, apperror.NewInternal("failed to get posts by category", err)
 	}
 
-	// Get total count for this category
-	total, err := s.Post.CountByCategory(s.DBR2, category.ID)
+	total, err := s.PostRepo.CountByCategory(s.DBR2, category.ID)
 	if err != nil {
-		return nil, 0, errors.New("internal server error")
+		return nil, 0, apperror.NewInternal("failed to count posts by category", err)
 	}
 
-	// Calculate counts for all posts efficiently
-	if err := entities.CalculateCountsForPosts(s.DBR2, posts); err != nil {
-		// Log error but don't fail the request
-		// TODO: Use proper logger
-	}
+	_ = s.PostRepo.CalculateCountsForPosts(s.DBR2, posts)
 
-	var responses []*dto.PostResponse
+	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
 		responses = append(responses, dto.NewPostResponse(post))
 	}
-
-	// Ensure we return empty array instead of nil
-	if responses == nil {
-		responses = []*dto.PostResponse{}
-	}
-
 	return responses, total, nil
 }
 
 // HasUserClappedPost checks if a user has clapped a specific post
 func (s *InsightService) HasUserClappedPost(userID, postID uuid.UUID) (bool, error) {
-	var activity entities.UserActivity
-	err := s.DB.Where("user_id = ? AND post_id = ? AND action_type = ?", userID, postID, "clap_post").First(&activity).Error
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return false, nil
+	return s.UserActivityRepo.HasUserClapped(s.DB, userID, "post", postID)
+}
+
+// ClapPost adds a clap for a post
+func (s *InsightService) ClapPost(userID, postID uuid.UUID) (bool, error) {
+	existing, err := s.UserActivityRepo.FindByUserAndPost(s.DB, userID, postID, "clap_post")
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, apperror.NewInternal("failed to check clap status", err)
+	}
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		activity := &entities.UserActivity{
+			ID: uuid.NewV4(), UserID: userID, PostID: &postID,
+			ActionType: "clap_post", Count: 1, CreatedAt: time.Now(),
 		}
-		return false, err
+		if err := s.UserActivityRepo.Create(s.DB, activity); err != nil {
+			return false, apperror.NewInternal("failed to create clap", err)
+		}
+		return true, nil
+	}
+
+	if err := s.UserActivityRepo.IncrementCount(s.DB, existing); err != nil {
+		return false, apperror.NewInternal("failed to increment clap", err)
 	}
 	return true, nil
 }
 
-// ClapPost adds a clap for a post (supports multiple claps per user)
-func (s *InsightService) ClapPost(userID, postID uuid.UUID) (bool, error) {
-	// Check if user already has activity for this post
-	var existingActivity entities.UserActivity
-	err := s.DB.Where("user_id = ? AND post_id = ? AND action_type = ?", userID, postID, "clap_post").
-		First(&existingActivity).Error
-
-	if err != nil && err != gorm.ErrRecordNotFound {
-		return false, err
-	}
-
-	if err == gorm.ErrRecordNotFound {
-		// Create new activity with count = 1
-		activity := &entities.UserActivity{
-			ID:         uuid.NewV4(),
-			UserID:     userID,
-			PostID:     &postID,
-			ActionType: "clap_post",
-			Count:      1,
-			CreatedAt:  time.Now(),
-		}
-		err = s.DB.Create(activity).Error
-		if err != nil {
-			return false, err
-		}
-		return true, nil // true means clapped
-	} else {
-		// Increment existing count
-		err = s.DB.Model(&existingActivity).
-			Update("count", gorm.Expr("count + ?", 1)).Error
-		if err != nil {
-			return false, err
-		}
-		return true, nil // true means clapped (incremented)
-	}
-}
-
-// ClapComment adds a clap for a comment (supports multiple claps per user)
+// ClapComment adds a clap for a comment
 func (s *InsightService) ClapComment(userID, commentID uuid.UUID) (bool, error) {
-	// Check if user already has activity for this comment
-	var existingActivity entities.UserActivity
-	err := s.DB.Where("user_id = ? AND comment_id = ? AND action_type = ?", userID, commentID, "clap_comment").
-		First(&existingActivity).Error
-
-	if err != nil && err != gorm.ErrRecordNotFound {
-		return false, err
+	existing, err := s.UserActivityRepo.FindByUserAndComment(s.DB, userID, commentID, "clap_comment")
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, apperror.NewInternal("failed to check clap status", err)
 	}
 
-	if err == gorm.ErrRecordNotFound {
-		// Create new activity with count = 1
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		activity := &entities.UserActivity{
-			ID:         uuid.NewV4(),
-			UserID:     userID,
-			CommentID:  &commentID,
-			ActionType: "clap_comment",
-			Count:      1,
-			CreatedAt:  time.Now(),
+			ID: uuid.NewV4(), UserID: userID, CommentID: &commentID,
+			ActionType: "clap_comment", Count: 1, CreatedAt: time.Now(),
 		}
-		err = s.DB.Create(activity).Error
-		if err != nil {
-			return false, err
+		if err := s.UserActivityRepo.Create(s.DB, activity); err != nil {
+			return false, apperror.NewInternal("failed to create clap", err)
 		}
-		return true, nil // true means clapped
-	} else {
-		// Increment existing count
-		err = s.DB.Model(&existingActivity).
-			Update("count", gorm.Expr("count + ?", 1)).Error
-		if err != nil {
-			return false, err
-		}
-		return true, nil // true means clapped (incremented)
+		return true, nil
 	}
+
+	if err := s.UserActivityRepo.IncrementCount(s.DB, existing); err != nil {
+		return false, apperror.NewInternal("failed to increment clap", err)
+	}
+	return true, nil
 }
 
-// ClapReply adds a clap for a reply (supports multiple claps per user)
+// ClapReply adds a clap for a reply
 func (s *InsightService) ClapReply(userID, replyID uuid.UUID) (bool, error) {
-	// Check if user already has activity for this reply
-	var existingActivity entities.UserActivity
-	err := s.DB.Where("user_id = ? AND reply_id = ? AND action_type = ?", userID, replyID, "clap_reply").
-		First(&existingActivity).Error
-
-	if err != nil && err != gorm.ErrRecordNotFound {
-		return false, err
+	existing, err := s.UserActivityRepo.FindByUserAndReply(s.DB, userID, replyID, "clap_reply")
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return false, apperror.NewInternal("failed to check clap status", err)
 	}
 
-	if err == gorm.ErrRecordNotFound {
-		// Create new activity with count = 1
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		activity := &entities.UserActivity{
-			ID:         uuid.NewV4(),
-			UserID:     userID,
-			ReplyID:    &replyID,
-			ActionType: "clap_reply",
-			Count:      1,
-			CreatedAt:  time.Now(),
+			ID: uuid.NewV4(), UserID: userID, ReplyID: &replyID,
+			ActionType: "clap_reply", Count: 1, CreatedAt: time.Now(),
 		}
-		err = s.DB.Create(activity).Error
-		if err != nil {
-			return false, err
+		if err := s.UserActivityRepo.Create(s.DB, activity); err != nil {
+			return false, apperror.NewInternal("failed to create clap", err)
 		}
-		return true, nil // true means clapped
-	} else {
-		// Increment existing count
-		err = s.DB.Model(&existingActivity).
-			Update("count", gorm.Expr("count + ?", 1)).Error
-		if err != nil {
-			return false, err
-		}
-		return true, nil // true means clapped (incremented)
+		return true, nil
 	}
+
+	if err := s.UserActivityRepo.IncrementCount(s.DB, existing); err != nil {
+		return false, apperror.NewInternal("failed to increment clap", err)
+	}
+	return true, nil
 }
 
 // GetClapsCount returns clap count for post/comment/reply
 func (s *InsightService) GetClapsCount(itemType string, itemID uuid.UUID) (int64, error) {
-	var count int64
-	var actionType string
-	var query *gorm.DB
-
-	switch itemType {
-	case "post":
-		actionType = "clap_post"
-		query = s.DB.Model(&entities.UserActivity{}).Where("post_id = ? AND action_type = ?", itemID, actionType)
-	case "comment":
-		actionType = "clap_comment"
-		query = s.DB.Model(&entities.UserActivity{}).Where("comment_id = ? AND action_type = ?", itemID, actionType)
-	case "reply":
-		actionType = "clap_reply"
-		query = s.DB.Model(&entities.UserActivity{}).Where("reply_id = ? AND action_type = ?", itemID, actionType)
-	default:
-		return 0, fmt.Errorf("invalid item type: %s", itemType)
-	}
-
-	// Use SUM(count) instead of COUNT(*) to support multiple claps per user
-	err := query.Select("COALESCE(SUM(count), 0)").Row().Scan(&count)
-	return count, err
+	return s.UserActivityRepo.GetClapCount(s.DB, itemType, itemID)
 }
 
 // GetPostIDFromComment gets post ID from comment ID
 func (s *InsightService) GetPostIDFromComment(commentID uuid.UUID) (*uuid.UUID, error) {
-	var comment entities.Comment
-	err := s.DB.Select("post_id").Where("id = ?", commentID).First(&comment).Error
+	comment, err := s.CommentRepo.FindByID(s.DB, commentID)
 	if err != nil {
-		return nil, err
+		return nil, apperror.NewNotFound("comment not found")
 	}
 	return &comment.PostID, nil
 }
 
 // HasUserClapped checks if user has clapped an item
 func (s *InsightService) HasUserClapped(userID uuid.UUID, itemType string, itemID uuid.UUID) (bool, error) {
-	var count int64
-	var actionType string
-	var query *gorm.DB
-
-	switch itemType {
-	case "post":
-		actionType = "clap_post"
-		query = s.DB.Model(&entities.UserActivity{}).Where("user_id = ? AND post_id = ? AND action_type = ?", userID, itemID, actionType)
-	case "comment":
-		actionType = "clap_comment"
-		query = s.DB.Model(&entities.UserActivity{}).Where("user_id = ? AND comment_id = ? AND action_type = ?", userID, itemID, actionType)
-	case "reply":
-		actionType = "clap_reply"
-		query = s.DB.Model(&entities.UserActivity{}).Where("user_id = ? AND reply_id = ? AND action_type = ?", userID, itemID, actionType)
-	default:
-		return false, fmt.Errorf("invalid item type: %s", itemType)
-	}
-
-	err := query.Count(&count).Error
-	return count > 0, err
+	return s.UserActivityRepo.HasUserClapped(s.DB, userID, itemType, itemID)
 }
 
 // ProcessContentForSavingWithoutReferences converts image URLs to data-image-id without creating references
 func (s *InsightService) ProcessContentForSavingWithoutReferences(content string) string {
-	// Find all image URLs in content and replace with data-image-id
 	re := regexp.MustCompile(`src=['"]([^'"]*\/images\/v2\/([^'"\/]+))['"]`)
-
-	processedContent := re.ReplaceAllStringFunc(content, func(match string) string {
-		// Extract image ID from URL
+	return re.ReplaceAllStringFunc(content, func(match string) string {
 		matches := re.FindStringSubmatch(match)
 		if len(matches) < 3 {
 			return match
 		}
-
-		imageID := matches[2]
-		return fmt.Sprintf(`data-image-id="%s"`, imageID)
+		return fmt.Sprintf(`data-image-id="%s"`, matches[2])
 	})
-
-	return processedContent
 }
 
 // CreateImageReferencesFromContent creates image references after post is committed
 func (s *InsightService) CreateImageReferencesFromContent(ctx context.Context, postID uuid.UUID, content string) error {
-	// Extract image IDs from content
 	re := regexp.MustCompile(`data-image-id=['"]([^'"]+)['"]`)
 	matches := re.FindAllStringSubmatch(content, -1)
-
 	for _, match := range matches {
 		if len(match) > 1 {
-			imageID := match[1]
-			if err := s.createImageReference(imageID, postID, "content"); err != nil {
-				// Log error but continue with other images
-				// TODO: Use proper logger
-				fmt.Printf("Warning: failed to create image reference %s: %v\n", imageID, err)
-			}
+			_ = s.createImageReference(match[1], postID, "content")
 		}
 	}
-
 	return nil
 }
 
-// createImageReference creates a single image reference
 func (s *InsightService) createImageReference(imageID string, postID uuid.UUID, refType string) error {
 	id, err := uuid.FromString(imageID)
 	if err != nil {
 		return err
 	}
 
-	// Check if reference already exists
-	var existing entities.ImageReference
-	err = s.DB.Where("image_id = ? AND post_id = ? AND ref_type = ?", id, postID, refType).First(&existing).Error
-	if err == nil {
+	if _, err := s.ImageRepo.FindReference(s.DB, id, postID, refType); err == nil {
 		return nil // Already exists
 	}
-	if err != gorm.ErrRecordNotFound {
-		return err // Some other error
-	}
 
-	// Create new reference
 	ref := &entities.ImageReference{
-		ID:        uuid.NewV4(),
-		ImageID:   id,
-		PostID:    postID,
-		RefType:   refType,
-		CreatedAt: time.Now(),
+		ID: uuid.NewV4(), ImageID: id, PostID: postID,
+		RefType: refType, CreatedAt: time.Now(),
 	}
-
-	return s.DB.Create(ref).Error
+	return s.ImageRepo.CreateReference(s.DB, ref)
 }
 
-// SearchPosts searches posts by query
+// findOrCreateCategories finds or creates categories by name
+func (s *InsightService) findOrCreateCategories(tx *gorm.DB, names []string) ([]entities.Category, error) {
+	var categories []entities.Category
+	for _, name := range names {
+		category, err := s.CategoryRepo.FindByName(tx, name)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				category = &entities.Category{
+					ID: uuid.NewV4(), Name: name,
+					CreatedAt: time.Now(), UpdatedAt: time.Now(),
+				}
+				if err := s.CategoryRepo.Create(tx, category); err != nil {
+					return nil, apperror.NewInternal("failed to create category", err)
+				}
+			} else {
+				return nil, apperror.NewInternal("failed to find category", err)
+			}
+		}
+		categories = append(categories, *category)
+	}
+	return categories, nil
+}
+
+// findOrCreateTags finds or creates tags by name
+func (s *InsightService) findOrCreateTags(tx *gorm.DB, names []string) ([]entities.Tag, error) {
+	var tags []entities.Tag
+	for _, name := range names {
+		tag, err := s.TagRepo.FindByName(tx, name)
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				tag = &entities.Tag{
+					ID: uuid.NewV4(), Name: name,
+					CreatedAt: time.Now(), UpdatedAt: time.Now(),
+				}
+				if err := s.TagRepo.Create(tx, tag); err != nil {
+					return nil, apperror.NewInternal("failed to create tag", err)
+				}
+			} else {
+				return nil, apperror.NewInternal("failed to find tag", err)
+			}
+		}
+		tags = append(tags, *tag)
+	}
+	return tags, nil
+}

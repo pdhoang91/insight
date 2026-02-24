@@ -4,14 +4,12 @@ import (
 	"errors"
 	"time"
 
+	"github.com/pdhoang91/blog/internal/apperror"
 	"github.com/pdhoang91/blog/internal/dto"
 	"github.com/pdhoang91/blog/internal/entities"
-
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
-
-// ==================== CATEGORY METHODS ====================
 
 // ListCategories retrieves all categories with pagination
 func (s *InsightService) ListCategories(req *dto.PaginationRequest) ([]*dto.CategoryResponse, int64, error) {
@@ -19,32 +17,24 @@ func (s *InsightService) ListCategories(req *dto.PaginationRequest) ([]*dto.Cate
 		req.Limit = 10
 	}
 
-	// Use read replica for better performance
-	categories, err := s.Category.FindAll(s.DBR2, req.Limit, req.Offset)
+	categories, err := s.CategoryRepo.FindAll(s.DBR2, req.Limit, req.Offset)
 	if err != nil {
-		return nil, 0, errors.New("internal server error")
+		return nil, 0, apperror.NewInternal("failed to list categories", err)
 	}
 
-	// Get total count
-	total, err := s.Category.Count(s.DBR2)
+	total, err := s.CategoryRepo.Count(s.DBR2)
 	if err != nil {
-		return nil, 0, errors.New("internal server error")
+		return nil, 0, apperror.NewInternal("failed to count categories", err)
 	}
 
-	var responses []*dto.CategoryResponse
+	responses := make([]*dto.CategoryResponse, 0, len(categories))
 	for _, category := range categories {
 		responses = append(responses, dto.NewCategoryResponse(category))
 	}
-
-	// Ensure we return empty array instead of nil
-	if responses == nil {
-		responses = []*dto.CategoryResponse{}
-	}
-
 	return responses, total, nil
 }
 
-// GetTopCategories retrieves top categories (Technology, Music, Movies, AI, Golang)
+// GetTopCategories retrieves top categories
 func (s *InsightService) GetTopCategories(req *dto.PaginationRequest) ([]*dto.CategoryResponse, int64, error) {
 	if req.Limit == 0 {
 		req.Limit = 10
@@ -52,32 +42,20 @@ func (s *InsightService) GetTopCategories(req *dto.PaginationRequest) ([]*dto.Ca
 
 	topCategories := []string{"Technology", "Music", "Movies", "AI", "Golang"}
 
-	// Use DBR2 for general read queries
-	var categories []*entities.Category
-	var totalCount int64
-
-	// Count total categories in top list
-	if err := s.DBR2.Model(&entities.Category{}).
-		Where("name IN ?", topCategories).
-		Count(&totalCount).Error; err != nil {
-		return nil, 0, errors.New("internal server error")
+	totalCount, err := s.CategoryRepo.CountByNames(s.DBR2, topCategories)
+	if err != nil {
+		return nil, 0, apperror.NewInternal("failed to count top categories", err)
 	}
 
-	// Get categories with pagination
-	offset := req.Offset
-	if err := s.DBR2.Where("name IN ?", topCategories).
-		Order("created_at desc").
-		Limit(req.Limit).
-		Offset(offset).
-		Find(&categories).Error; err != nil {
-		return nil, 0, errors.New("internal server error")
+	categories, err := s.CategoryRepo.FindByNames(s.DBR2, topCategories, req.Limit, req.Offset)
+	if err != nil {
+		return nil, 0, apperror.NewInternal("failed to get top categories", err)
 	}
 
-	var responses []*dto.CategoryResponse
+	responses := make([]*dto.CategoryResponse, 0, len(categories))
 	for _, category := range categories {
 		responses = append(responses, dto.NewCategoryResponse(category))
 	}
-
 	return responses, totalCount, nil
 }
 
@@ -87,32 +65,17 @@ func (s *InsightService) GetPopularCategories(req *dto.PaginationRequest) ([]dto
 		req.Limit = 7
 	}
 
-	var categories []dto.CategoryWithCount
-	var totalCount int64
-
-	// Count total categories that have at least 1 post
-	countQuery := `
-		SELECT COUNT(DISTINCT c.id) 
-		FROM categories c 
-		INNER JOIN post_categories pc ON c.id = pc.category_id
-	`
-	if err := s.DBR2.Raw(countQuery).Scan(&totalCount).Error; err != nil {
-		return nil, 0, errors.New("internal server error")
+	results, totalCount, err := s.CategoryRepo.FindPopularByPostCount(s.DBR2, req.Limit, req.Offset)
+	if err != nil {
+		return nil, 0, apperror.NewInternal("failed to get popular categories", err)
 	}
 
-	// Query to get categories with post count, ordered by post count desc
-	query := `
-		SELECT c.id, c.name, c.description, c.created_at, c.updated_at, COUNT(pc.post_id) as post_count
-		FROM categories c 
-		INNER JOIN post_categories pc ON c.id = pc.category_id 
-		GROUP BY c.id, c.name, c.description, c.created_at, c.updated_at 
-		ORDER BY post_count DESC 
-		LIMIT ? OFFSET ?
-	`
-
-	offset := req.Offset
-	if err := s.DBR2.Raw(query, req.Limit, offset).Scan(&categories).Error; err != nil {
-		return nil, 0, errors.New("internal server error")
+	categories := make([]dto.CategoryWithCount, len(results))
+	for i, r := range results {
+		categories[i] = dto.CategoryWithCount{
+			CategoryResponse: *dto.NewCategoryResponse(r.Category),
+			PostCount:        r.PostCount,
+		}
 	}
 
 	return categories, totalCount, nil
@@ -120,66 +83,53 @@ func (s *InsightService) GetPopularCategories(req *dto.PaginationRequest) ([]dto
 
 // CreateCategory creates a new category
 func (s *InsightService) CreateCategory(req *dto.CreateCategoryRequest) (*dto.CategoryResponse, error) {
-	// Check if category already exists
-	existingCategory, err := s.Category.FindByName(s.DB, req.Name)
-	if err != nil && err != gorm.ErrRecordNotFound {
-		return nil, errors.New("internal server error")
+	existing, err := s.CategoryRepo.FindByName(s.DB, req.Name)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, apperror.NewInternal("failed to check category existence", err)
 	}
-	if existingCategory != nil {
-		return nil, errors.New("conflict")
+	if existing != nil {
+		return nil, apperror.NewConflict("category already exists")
 	}
 
-	// Create category
 	category := &entities.Category{
-		ID:          uuid.NewV4(),
-		Name:        req.Name,
-		Description: req.Description,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
+		ID: uuid.NewV4(), Name: req.Name, Description: req.Description,
+		CreatedAt: time.Now(), UpdatedAt: time.Now(),
 	}
-
-	if err := category.Create(s.DB); err != nil {
-		return nil, errors.New("internal server error")
+	if err := s.CategoryRepo.Create(s.DB, category); err != nil {
+		return nil, apperror.NewInternal("failed to create category", err)
 	}
-
-	// TODO: Index category to Elasticsearch using search service
-	// TODO: Send notification using EventProcessor
-
 	return dto.NewCategoryResponse(category), nil
 }
 
 // GetCategory retrieves a category by ID
 func (s *InsightService) GetCategory(id uuid.UUID) (*dto.CategoryResponse, error) {
-	category, err := s.Category.FindByID(s.DBR2, id)
+	category, err := s.CategoryRepo.FindByID(s.DBR2, id)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("not found")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperror.NewNotFound("category not found")
 		}
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to get category", err)
 	}
-
 	return dto.NewCategoryResponse(category), nil
 }
 
 // UpdateCategory updates a category by ID
 func (s *InsightService) UpdateCategory(id uuid.UUID, req *dto.UpdateCategoryRequest) (*dto.CategoryResponse, error) {
-	category, err := s.Category.FindByID(s.DB, id)
+	category, err := s.CategoryRepo.FindByID(s.DB, id)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("not found")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperror.NewNotFound("category not found")
 		}
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to find category", err)
 	}
 
-	// Update fields if provided
 	if req.Name != "" {
-		// Check if new name already exists (excluding current category)
-		existingCategory, err := s.Category.FindByName(s.DB, req.Name)
-		if err != nil && err != gorm.ErrRecordNotFound {
-			return nil, errors.New("internal server error")
+		existing, err := s.CategoryRepo.FindByName(s.DB, req.Name)
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperror.NewInternal("failed to check category name", err)
 		}
-		if existingCategory != nil && existingCategory.ID != id {
-			return nil, errors.New("conflict")
+		if existing != nil && existing.ID != id {
+			return nil, apperror.NewConflict("category name already exists")
 		}
 		category.Name = req.Name
 	}
@@ -188,43 +138,32 @@ func (s *InsightService) UpdateCategory(id uuid.UUID, req *dto.UpdateCategoryReq
 	}
 
 	category.UpdatedAt = time.Now()
-	if err := category.Update(s.DB); err != nil {
-		return nil, errors.New("internal server error")
+	if err := s.CategoryRepo.Update(s.DB, category); err != nil {
+		return nil, apperror.NewInternal("failed to update category", err)
 	}
-
-	// TODO: Update category in Elasticsearch
-	// TODO: Send update notification using EventProcessor
-
 	return dto.NewCategoryResponse(category), nil
 }
 
 // DeleteCategory deletes a category by ID
 func (s *InsightService) DeleteCategory(id uuid.UUID) error {
-	_, err := s.Category.FindByID(s.DB, id)
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return errors.New("not found")
+	if _, err := s.CategoryRepo.FindByID(s.DB, id); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperror.NewNotFound("category not found")
 		}
-		return errors.New("internal server error")
+		return apperror.NewInternal("failed to find category", err)
 	}
 
-	// Check if category is being used by posts
-	var postCount int64
-	if err := s.DB.Table("post_categories").Where("category_id = ?", id).Count(&postCount).Error; err != nil {
-		return errors.New("internal server error")
+	postCount, err := s.CategoryRepo.CountPostsByCategory(s.DB, id)
+	if err != nil {
+		return apperror.NewInternal("failed to check category usage", err)
 	}
-
 	if postCount > 0 {
-		return errors.New("bad request")
+		return apperror.NewBadRequest("category is in use by posts")
 	}
 
-	if err := s.Category.DeleteByID(s.DB, id); err != nil {
-		return errors.New("internal server error")
+	if err := s.CategoryRepo.Delete(s.DB, id); err != nil {
+		return apperror.NewInternal("failed to delete category", err)
 	}
-
-	// TODO: Remove category from Elasticsearch
-	// TODO: Send delete notification using EventProcessor
-
 	return nil
 }
 
@@ -234,33 +173,22 @@ func (s *InsightService) GetCategoriesWithPostCount(req *dto.PaginationRequest) 
 		req.Limit = 10
 	}
 
-	// Use read replica for better performance
-	categories, err := s.Category.FindAll(s.DBR2, req.Limit, req.Offset)
+	categories, err := s.CategoryRepo.FindAll(s.DBR2, req.Limit, req.Offset)
 	if err != nil {
-		return nil, 0, errors.New("internal server error")
+		return nil, 0, apperror.NewInternal("failed to list categories", err)
 	}
 
-	// Get total count
-	total, err := s.Category.Count(s.DBR2)
+	total, err := s.CategoryRepo.Count(s.DBR2)
 	if err != nil {
-		return nil, 0, errors.New("internal server error")
+		return nil, 0, apperror.NewInternal("failed to count categories", err)
 	}
 
-	var responses []*dto.CategoryWithCount
+	responses := make([]*dto.CategoryWithCount, 0, len(categories))
 	for _, category := range categories {
-		// TODO: Get actual post count for each category
-		categoryWithCount := &dto.CategoryWithCount{
+		responses = append(responses, &dto.CategoryWithCount{
 			CategoryResponse: *dto.NewCategoryResponse(category),
-			PostCount:        0, // Placeholder
-		}
-		responses = append(responses, categoryWithCount)
+			PostCount:        0,
+		})
 	}
-
-	// Ensure we return empty array instead of nil
-	if responses == nil {
-		responses = []*dto.CategoryWithCount{}
-	}
-
 	return responses, total, nil
 }
-

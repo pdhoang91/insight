@@ -4,15 +4,13 @@ import (
 	"errors"
 	"time"
 
+	"github.com/pdhoang91/blog/internal/apperror"
 	"github.com/pdhoang91/blog/internal/dto"
 	"github.com/pdhoang91/blog/internal/entities"
-
 	"github.com/pdhoang91/blog/pkg/notification"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
-
-// ==================== COMMENT METHODS ====================
 
 // GetPostComments retrieves comments for a post with pagination
 func (s *InsightService) GetPostComments(postID uuid.UUID, req *dto.PaginationRequest) ([]*dto.CommentResponse, int64, int64, error) {
@@ -20,147 +18,111 @@ func (s *InsightService) GetPostComments(postID uuid.UUID, req *dto.PaginationRe
 		req.Limit = 10
 	}
 
-	// Count total comments
-	var totalComments int64
-	if err := s.DB.Model(&entities.Comment{}).Where("post_id = ?", postID).Count(&totalComments).Error; err != nil {
-		return nil, 0, 0, errors.New("internal server error")
+	totalComments, err := s.CommentRepo.CountByPostID(s.DB, postID)
+	if err != nil {
+		return nil, 0, 0, apperror.NewInternal("failed to count comments", err)
 	}
 
-	// Get comments with pagination and preload replies with their users
-	var comments []*entities.Comment
-	if err := s.DB.Preload("User").Preload("Replies.User").
-		Where("post_id = ?", postID).
-		Order("created_at DESC").
-		Limit(req.Limit).
-		Offset(req.Offset).
-		Find(&comments).Error; err != nil {
-		return nil, 0, 0, errors.New("internal server error")
+	comments, err := s.CommentRepo.FindByPostID(s.DB, postID, req.Limit, req.Offset)
+	if err != nil {
+		return nil, 0, 0, apperror.NewInternal("failed to get comments", err)
 	}
 
-	// Count total replies for all comments
-	var totalReplies int64
-	if err := s.DB.Model(&entities.Reply{}).Where("post_id = ?", postID).Count(&totalReplies).Error; err != nil {
-		return nil, 0, 0, errors.New("internal server error")
+	totalReplies, err := s.ReplyRepo.CountByPostID(s.DB, postID)
+	if err != nil {
+		return nil, 0, 0, apperror.NewInternal("failed to count replies", err)
 	}
 
-	// Optimize counts calculation with bulk queries to avoid N+1 problem
-	if err := s.calculateCommentsAndRepliesCounts(comments); err != nil {
-		// Log error but don't fail the request
-		// TODO: Use proper logger
-	}
+	_ = s.UserActivityRepo.CalculateCommentsAndRepliesCounts(s.DB, comments)
 
-	// Convert to response format
-	var responses []*dto.CommentResponse
+	responses := make([]*dto.CommentResponse, 0, len(comments))
 	for _, comment := range comments {
 		responses = append(responses, dto.NewCommentResponse(comment))
 	}
-
 	return responses, totalComments, totalReplies, nil
 }
 
 // CreateComment creates a new comment
 func (s *InsightService) CreateComment(userID uuid.UUID, req *dto.CreateCommentRequest) (*dto.CommentResponse, error) {
-	// Parse post ID
 	postID, err := uuid.FromString(req.PostID)
 	if err != nil {
-		return nil, errors.New("bad request")
+		return nil, apperror.NewBadRequest("invalid post ID")
 	}
 
-	// Verify post exists
-	_, err = s.Post.FindByID(s.DB, postID)
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("not found")
+	if _, err := s.PostRepo.FindByID(s.DB, postID); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperror.NewNotFound("post not found")
 		}
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to verify post", err)
 	}
 
-	// Create comment
 	comment := &entities.Comment{
-		ID:        uuid.NewV4(),
-		PostID:    postID,
-		UserID:    userID,
-		Content:   req.Content,
-		CreatedAt: time.Now(),
+		ID: uuid.NewV4(), PostID: postID, UserID: userID,
+		Content: req.Content, CreatedAt: time.Now(),
 	}
 
-	if err := s.DB.Create(comment).Error; err != nil {
-		return nil, errors.New("internal server error")
+	if err := s.CommentRepo.Create(s.DB, comment); err != nil {
+		return nil, apperror.NewInternal("failed to create comment", err)
 	}
 
-	// Load user information
-	if err := s.DB.Preload("User").First(comment, comment.ID).Error; err != nil {
-		return nil, errors.New("internal server error")
+	comment, err = s.CommentRepo.FindByID(s.DB, comment.ID)
+	if err != nil {
+		return nil, apperror.NewInternal("failed to load comment user", err)
 	}
 
-	// TODO: Create UserActivityRepo and use it
 	s.createUserActivity(userID, "comment", postID)
-	if err != nil {
-		// TODO: Use Logger to log this error
-	}
 
-	// Send notification to post author using EventProcessor
+	// Send notification (best-effort)
 	eventProcessor := notification.GetDefaultProcessor(s.DB)
-	err = eventProcessor.SendCommentNotification(userID, postID, comment.ID, "New comment on your post")
-	if err != nil {
-		// Log error but don't fail the operation
-		// TODO: Use proper logger
-	}
+	_ = eventProcessor.SendCommentNotification(userID, postID, comment.ID, "New comment on your post")
 
 	return dto.NewCommentResponse(comment), nil
 }
 
 // UpdateComment updates a comment by ID
 func (s *InsightService) UpdateComment(userID uuid.UUID, commentID uuid.UUID, req *dto.UpdateCommentRequest) (*dto.CommentResponse, error) {
-	// Find comment
-	var comment entities.Comment
-	if err := s.DB.Where("id = ?", commentID).First(&comment).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("not found")
+	comment, err := s.CommentRepo.FindByID(s.DB, commentID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperror.NewNotFound("comment not found")
 		}
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to find comment", err)
 	}
 
-	// Check ownership
 	if comment.UserID != userID {
-		return nil, errors.New("forbidden")
+		return nil, apperror.NewForbidden("you do not own this comment")
 	}
 
-	// Update comment
 	comment.Content = req.Content
-
-	if err := s.DB.Save(&comment).Error; err != nil {
-		return nil, errors.New("internal server error")
+	if err := s.CommentRepo.Update(s.DB, comment); err != nil {
+		return nil, apperror.NewInternal("failed to update comment", err)
 	}
 
-	// Load user information
-	if err := s.DB.Preload("User").First(&comment, comment.ID).Error; err != nil {
-		return nil, errors.New("internal server error")
+	comment, err = s.CommentRepo.FindByID(s.DB, comment.ID)
+	if err != nil {
+		return nil, apperror.NewInternal("failed to load comment user", err)
 	}
 
-	return dto.NewCommentResponse(&comment), nil
+	return dto.NewCommentResponse(comment), nil
 }
 
 // DeleteComment deletes a comment by ID
 func (s *InsightService) DeleteComment(userID uuid.UUID, commentID uuid.UUID) error {
-	// Find comment
-	var comment entities.Comment
-	if err := s.DB.Where("id = ?", commentID).First(&comment).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return errors.New("not found")
+	comment, err := s.CommentRepo.FindByID(s.DB, commentID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperror.NewNotFound("comment not found")
 		}
-		return errors.New("internal server error")
+		return apperror.NewInternal("failed to find comment", err)
 	}
 
-	// Check ownership
 	if comment.UserID != userID {
-		return errors.New("forbidden")
+		return apperror.NewForbidden("you do not own this comment")
 	}
 
-	// Start transaction
 	tx := s.DB.Begin()
 	if tx.Error != nil {
-		return errors.New("internal server error")
+		return apperror.NewInternal("failed to start transaction", tx.Error)
 	}
 	defer func() {
 		if r := recover(); r != nil {
@@ -168,136 +130,108 @@ func (s *InsightService) DeleteComment(userID uuid.UUID, commentID uuid.UUID) er
 		}
 	}()
 
-	// Delete all replies to this comment
-	if err := tx.Where("comment_id = ?", commentID).Delete(&entities.Reply{}).Error; err != nil {
+	if err := s.ReplyRepo.DeleteByCommentID(tx, commentID); err != nil {
 		tx.Rollback()
-		return errors.New("internal server error")
+		return apperror.NewInternal("failed to delete replies", err)
 	}
 
-	// Delete the comment
-	if err := tx.Delete(&comment).Error; err != nil {
+	if err := s.CommentRepo.Delete(tx, comment); err != nil {
 		tx.Rollback()
-		return errors.New("internal server error")
+		return apperror.NewInternal("failed to delete comment", err)
 	}
 
-	// Commit transaction
 	if err := tx.Commit().Error; err != nil {
-		return errors.New("internal server error")
+		return apperror.NewInternal("failed to commit transaction", err)
 	}
-
 	return nil
 }
 
 // CreateReply creates a new reply to a comment
 func (s *InsightService) CreateReply(userID uuid.UUID, req *dto.CreateReplyRequest) (*dto.ReplyResponse, error) {
-	// Parse IDs
 	commentID, err := uuid.FromString(req.CommentID)
 	if err != nil {
-		return nil, errors.New("bad request")
+		return nil, apperror.NewBadRequest("invalid comment ID")
 	}
 
 	postID, err := uuid.FromString(req.PostID)
 	if err != nil {
-		return nil, errors.New("bad request")
+		return nil, apperror.NewBadRequest("invalid post ID")
 	}
 
-	// Verify comment exists
-	var comment entities.Comment
-	if err := s.DB.Where("id = ?", commentID).First(&comment).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("not found")
+	if _, err := s.CommentRepo.FindByID(s.DB, commentID); err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperror.NewNotFound("comment not found")
 		}
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to verify comment", err)
 	}
 
-	// Create reply
 	reply := &entities.Reply{
-		ID:        uuid.NewV4(),
-		CommentID: commentID,
-		PostID:    postID,
-		UserID:    userID,
-		Content:   req.Content,
-		CreatedAt: time.Now(),
+		ID: uuid.NewV4(), CommentID: commentID, PostID: postID,
+		UserID: userID, Content: req.Content, CreatedAt: time.Now(),
 	}
 
-	if err := s.DB.Create(reply).Error; err != nil {
-		return nil, errors.New("internal server error")
+	if err := s.ReplyRepo.Create(s.DB, reply); err != nil {
+		return nil, apperror.NewInternal("failed to create reply", err)
 	}
 
-	// Load user information
-	if err := s.DB.Preload("User").First(reply, reply.ID).Error; err != nil {
-		return nil, errors.New("internal server error")
+	reply, err = s.ReplyRepo.FindByID(s.DB, reply.ID)
+	if err != nil {
+		return nil, apperror.NewInternal("failed to load reply user", err)
 	}
 
-	// TODO: Create UserActivityRepo and use it
 	s.createUserActivity(userID, "reply", postID)
-	if err != nil {
-		// TODO: Use Logger to log this error
-	}
 
-	// Send notification to comment author using EventProcessor
+	// Send notification (best-effort)
 	eventProcessor := notification.GetDefaultProcessor(s.DB)
-	err = eventProcessor.SendReplyNotification(userID, commentID, reply.ID, "New reply to your comment")
-	if err != nil {
-		// Log error but don't fail the operation
-		// TODO: Use proper logger
-	}
+	_ = eventProcessor.SendReplyNotification(userID, commentID, reply.ID, "New reply to your comment")
 
 	return dto.NewReplyResponse(reply), nil
 }
 
 // UpdateReply updates a reply by ID
 func (s *InsightService) UpdateReply(userID uuid.UUID, replyID uuid.UUID, req *dto.UpdateReplyRequest) (*dto.ReplyResponse, error) {
-	// Find reply
-	var reply entities.Reply
-	if err := s.DB.Where("id = ?", replyID).First(&reply).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("not found")
+	reply, err := s.ReplyRepo.FindByID(s.DB, replyID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperror.NewNotFound("reply not found")
 		}
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to find reply", err)
 	}
 
-	// Check ownership
 	if reply.UserID != userID {
-		return nil, errors.New("forbidden")
+		return nil, apperror.NewForbidden("you do not own this reply")
 	}
 
-	// Update reply
 	reply.Content = req.Content
-
-	if err := s.DB.Save(&reply).Error; err != nil {
-		return nil, errors.New("internal server error")
+	if err := s.ReplyRepo.Update(s.DB, reply); err != nil {
+		return nil, apperror.NewInternal("failed to update reply", err)
 	}
 
-	// Load user information
-	if err := s.DB.Preload("User").First(&reply, reply.ID).Error; err != nil {
-		return nil, errors.New("internal server error")
+	reply, err = s.ReplyRepo.FindByID(s.DB, reply.ID)
+	if err != nil {
+		return nil, apperror.NewInternal("failed to load reply user", err)
 	}
 
-	return dto.NewReplyResponse(&reply), nil
+	return dto.NewReplyResponse(reply), nil
 }
 
 // DeleteReply deletes a reply by ID
 func (s *InsightService) DeleteReply(userID uuid.UUID, replyID uuid.UUID) error {
-	// Find reply
-	var reply entities.Reply
-	if err := s.DB.Where("id = ?", replyID).First(&reply).Error; err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return errors.New("not found")
+	reply, err := s.ReplyRepo.FindByID(s.DB, replyID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperror.NewNotFound("reply not found")
 		}
-		return errors.New("internal server error")
+		return apperror.NewInternal("failed to find reply", err)
 	}
 
-	// Check ownership
 	if reply.UserID != userID {
-		return errors.New("forbidden")
+		return apperror.NewForbidden("you do not own this reply")
 	}
 
-	// Delete the reply
-	if err := s.DB.Delete(&reply).Error; err != nil {
-		return errors.New("internal server error")
+	if err := s.ReplyRepo.Delete(s.DB, reply); err != nil {
+		return apperror.NewInternal("failed to delete reply", err)
 	}
-
 	return nil
 }
 
@@ -307,151 +241,40 @@ func (s *InsightService) GetCommentReplies(commentID uuid.UUID, req *dto.Paginat
 		req.Limit = 10
 	}
 
-	// Count total replies
-	var total int64
-	if err := s.DB.Model(&entities.Reply{}).Where("comment_id = ?", commentID).Count(&total).Error; err != nil {
-		return nil, 0, errors.New("internal server error")
+	total, err := s.ReplyRepo.CountByCommentID(s.DB, commentID)
+	if err != nil {
+		return nil, 0, apperror.NewInternal("failed to count replies", err)
 	}
 
-	// Get replies with pagination
-	var replies []*entities.Reply
-	if err := s.DB.Preload("User").
-		Where("comment_id = ?", commentID).
-		Order("created_at ASC").
-		Limit(req.Limit).
-		Offset(req.Offset).
-		Find(&replies).Error; err != nil {
-		return nil, 0, errors.New("internal server error")
+	replies, err := s.ReplyRepo.FindByCommentID(s.DB, commentID, req.Limit, req.Offset)
+	if err != nil {
+		return nil, 0, apperror.NewInternal("failed to get replies", err)
 	}
 
-	// Convert to response format
-	var responses []*dto.ReplyResponse
+	responses := make([]*dto.ReplyResponse, 0, len(replies))
 	for _, reply := range replies {
 		responses = append(responses, dto.NewReplyResponse(reply))
 	}
-
 	return responses, total, nil
-}
-
-// ==================== HELPER METHODS ====================
-
-// calculateCommentsAndRepliesCounts calculates clap counts and reply counts efficiently
-func (s *InsightService) calculateCommentsAndRepliesCounts(comments []*entities.Comment) error {
-	if len(comments) == 0 {
-		return nil
-	}
-
-	// Extract comment IDs and reply IDs
-	commentIDs := make([]uuid.UUID, len(comments))
-	var replyIDs []uuid.UUID
-
-	for i, comment := range comments {
-		commentIDs[i] = comment.ID
-		for _, reply := range comment.Replies {
-			replyIDs = append(replyIDs, reply.ID)
-		}
-	}
-
-	// Bulk query for comment reply counts
-	type ReplyCountResult struct {
-		CommentID  uuid.UUID `json:"comment_id"`
-		ReplyCount int64     `json:"reply_count"`
-	}
-	var replyCounts []ReplyCountResult
-	if err := s.DB.Model(&entities.Reply{}).
-		Select("comment_id, COUNT(*) as reply_count").
-		Where("comment_id IN ?", commentIDs).
-		Group("comment_id").
-		Scan(&replyCounts).Error; err != nil {
-		return err
-	}
-
-	// Bulk query for comment clap counts
-	type ClapCountResult struct {
-		CommentID uuid.UUID `json:"comment_id"`
-		ClapCount int64     `json:"clap_count"`
-	}
-	var commentClaps []ClapCountResult
-	if err := s.DB.Model(&entities.UserActivity{}).
-		Select("comment_id, COALESCE(SUM(count), 0) as clap_count").
-		Where("comment_id IN ? AND action_type = ?", commentIDs, "clap_comment").
-		Group("comment_id").
-		Scan(&commentClaps).Error; err != nil {
-		return err
-	}
-
-	// Bulk query for reply clap counts (if there are replies)
-	var replyClaps []struct {
-		ReplyID   uuid.UUID `json:"reply_id"`
-		ClapCount int64     `json:"clap_count"`
-	}
-	if len(replyIDs) > 0 {
-		if err := s.DB.Model(&entities.UserActivity{}).
-			Select("reply_id, COALESCE(SUM(count), 0) as clap_count").
-			Where("reply_id IN ? AND action_type = ?", replyIDs, "clap_reply").
-			Group("reply_id").
-			Scan(&replyClaps).Error; err != nil {
-			return err
-		}
-	}
-
-	// Create maps for quick lookup
-	replyCountMap := make(map[uuid.UUID]int64)
-	for _, result := range replyCounts {
-		replyCountMap[result.CommentID] = result.ReplyCount
-	}
-
-	commentClapMap := make(map[uuid.UUID]int64)
-	for _, result := range commentClaps {
-		commentClapMap[result.CommentID] = result.ClapCount
-	}
-
-	replyClapMap := make(map[uuid.UUID]int64)
-	for _, result := range replyClaps {
-		replyClapMap[result.ReplyID] = result.ClapCount
-	}
-
-	// Assign counts to comments and replies
-	for _, comment := range comments {
-		comment.RepliesCount = uint64(replyCountMap[comment.ID])
-		comment.ClapCount = uint64(commentClapMap[comment.ID])
-
-		// Assign clap counts to replies
-		for i := range comment.Replies {
-			comment.Replies[i].ClapCount = uint64(replyClapMap[comment.Replies[i].ID])
-		}
-	}
-
-	return nil
-}
-
-// createUserActivity creates a user activity record
-func (s *InsightService) createUserActivity(userID uuid.UUID, actionType string, postID uuid.UUID) {
-	activity := &entities.UserActivity{
-		ID:         uuid.NewV4(),
-		UserID:     userID,
-		PostID:     &postID,
-		ActionType: actionType,
-		Count:      1,
-		CreatedAt:  time.Now(),
-	}
-
-	// TODO: Create UserActivityRepo and use it
-	if err := s.DB.Create(activity).Error; err != nil {
-		// Log error but don't fail the main operation
-		// TODO: Use Logger to log this error
-	}
 }
 
 // GetComment retrieves a comment by ID
 func (s *InsightService) GetComment(id uuid.UUID) (*dto.CommentResponse, error) {
-	comment, err := s.Comment.FindByID(s.DB, id)
+	comment, err := s.CommentRepo.FindByID(s.DB, id)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("not found")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperror.NewNotFound("comment not found")
 		}
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to get comment", err)
 	}
-
 	return dto.NewCommentResponse(comment), nil
+}
+
+// createUserActivity creates a user activity record (best-effort)
+func (s *InsightService) createUserActivity(userID uuid.UUID, actionType string, postID uuid.UUID) {
+	activity := &entities.UserActivity{
+		ID: uuid.NewV4(), UserID: userID, PostID: &postID,
+		ActionType: actionType, Count: 1, CreatedAt: time.Now(),
+	}
+	_ = s.UserActivityRepo.Create(s.DB, activity)
 }

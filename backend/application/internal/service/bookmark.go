@@ -4,99 +4,75 @@ import (
 	"errors"
 	"time"
 
-	"github.com/pdhoang91/blog/internal/entities"
+	"github.com/pdhoang91/blog/internal/apperror"
 	"github.com/pdhoang91/blog/internal/dto"
-	
+	"github.com/pdhoang91/blog/internal/entities"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
 
-// ==================== BOOKMARK METHODS ====================
-
 // CreateBookmark creates or reactivates a bookmark
 func (s *InsightService) CreateBookmark(userID uuid.UUID, req *dto.CreateBookmarkRequest) (*dto.BookmarkResponse, error) {
-	// Convert PostID from string to UUID
 	postID, err := uuid.FromString(req.PostID)
 	if err != nil {
-		return nil, errors.New("bad request")
+		return nil, apperror.NewBadRequest("invalid post ID")
 	}
 
-	// Check if bookmark already exists
-	var bookmark *entities.Bookmark
-	err = s.DB.Where("user_id = ? AND post_id = ?", userID, postID).First(&bookmark).Error
+	bookmark, err := s.BookmarkRepo.FindByUserAndPost(s.DB, userID, postID)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			// Bookmark doesn't exist, create new one
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			bookmark = &entities.Bookmark{
-				ID:           uuid.NewV4(),
-				PostID:       postID,
-				UserID:       userID,
-				IsBookmarked: true,
-				CreatedAt:    time.Now(),
-				UpdatedAt:    time.Now(),
+				ID: uuid.NewV4(), PostID: postID, UserID: userID,
+				IsBookmarked: true, CreatedAt: time.Now(), UpdatedAt: time.Now(),
 			}
-			if err = bookmark.Create(s.DB); err != nil {
-				return nil, errors.New("internal server error")
+			if err := s.BookmarkRepo.Create(s.DB, bookmark); err != nil {
+				return nil, apperror.NewInternal("failed to create bookmark", err)
 			}
-
-			// Load related data
-			if err = s.DB.Preload("Post.User").First(bookmark, bookmark.ID).Error; err != nil {
-				return nil, errors.New("internal server error")
+			bookmark, err = s.BookmarkRepo.FindByIDWithPost(s.DB, bookmark.ID)
+			if err != nil {
+				return nil, apperror.NewInternal("failed to load bookmark", err)
 			}
-
 			return dto.NewBookmarkResponse(bookmark), nil
-		} else {
-			// Other error
-			return nil, errors.New("internal server error")
 		}
+		return nil, apperror.NewInternal("failed to check bookmark", err)
 	}
 
 	if bookmark.IsBookmarked {
-		// Bookmark already exists and is active
 		return dto.NewBookmarkResponse(bookmark), nil
 	}
 
-	// Bookmark exists but is inactive, reactivate it
 	bookmark.IsBookmarked = true
 	bookmark.UpdatedAt = time.Now()
-	if err = s.DB.Save(bookmark).Error; err != nil {
-		return nil, errors.New("internal server error")
+	if err := s.BookmarkRepo.Save(s.DB, bookmark); err != nil {
+		return nil, apperror.NewInternal("failed to reactivate bookmark", err)
 	}
-
 	return dto.NewBookmarkResponse(bookmark), nil
 }
 
 // Unbookmark removes or deactivates a bookmark
 func (s *InsightService) Unbookmark(userID uuid.UUID, req *dto.CreateBookmarkRequest) error {
-	// Convert PostID from string to UUID
 	postID, err := uuid.FromString(req.PostID)
 	if err != nil {
-		return errors.New("bad request")
+		return apperror.NewBadRequest("invalid post ID")
 	}
 
-	var bookmark *entities.Bookmark
-	err = s.DB.Where("user_id = ? AND post_id = ?", userID, postID).First(&bookmark).Error
+	bookmark, err := s.BookmarkRepo.FindByUserAndPost(s.DB, userID, postID)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			// Bookmark doesn't exist, nothing to do
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil
-		} else {
-			return errors.New("internal server error")
 		}
+		return apperror.NewInternal("failed to find bookmark", err)
 	}
 
 	if !bookmark.IsBookmarked {
-		// Bookmark is already inactive
 		return nil
 	}
 
-	// Deactivate bookmark
 	bookmark.IsBookmarked = false
 	bookmark.UpdatedAt = time.Now()
-	if err = s.DB.Save(bookmark).Error; err != nil {
-		return errors.New("internal server error")
+	if err := s.BookmarkRepo.Save(s.DB, bookmark); err != nil {
+		return apperror.NewInternal("failed to deactivate bookmark", err)
 	}
-
 	return nil
 }
 
@@ -106,78 +82,45 @@ func (s *InsightService) GetUserBookmarks(userID uuid.UUID, req *dto.PaginationR
 		req.Limit = 10
 	}
 
-	// Get user information to return username
-	user, err := s.User.FindByID(s.DB, userID)
+	user, err := s.UserRepo.FindByID(s.DB, userID)
 	if err != nil {
-		return nil, "", 0, errors.New("internal server error")
+		return nil, "", 0, apperror.NewInternal("failed to find user", err)
 	}
 
-	// Count total bookmarks
-	var totalCount int64
-	if err := s.DBR2.Model(&entities.Bookmark{}).
-		Where("user_id = ? AND is_bookmarked = ?", userID, true).
-		Count(&totalCount).Error; err != nil {
-		return nil, "", 0, errors.New("internal server error")
+	totalCount, err := s.BookmarkRepo.CountByUser(s.DBR2, userID)
+	if err != nil {
+		return nil, "", 0, apperror.NewInternal("failed to count bookmarks", err)
 	}
 
-	// Get bookmarks with preloaded posts and users
-	var bookmarks []*entities.Bookmark
-	offset := req.Offset
-	if err := s.DBR2.
-		Where("user_id = ? AND is_bookmarked = ?", userID, true).
-		Preload("Post.User").
-		Limit(req.Limit).
-		Offset(offset).
-		Find(&bookmarks).Error; err != nil {
-		return nil, "", 0, errors.New("internal server error")
+	bookmarks, err := s.BookmarkRepo.FindByUserID(s.DBR2, userID, req.Limit, req.Offset)
+	if err != nil {
+		return nil, "", 0, apperror.NewInternal("failed to get bookmarks", err)
 	}
 
-	// Extract posts from bookmarks
 	var posts []*entities.Post
 	for _, bookmark := range bookmarks {
 		posts = append(posts, &bookmark.Post)
 	}
 
-	// Calculate clap_count and comments_count for each post
 	s.calculatePostCounts(posts)
 
-	// Convert to response format
-	var responses []*dto.PostResponse
+	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
 		responses = append(responses, dto.NewPostResponse(post))
 	}
-
 	return responses, user.Username, totalCount, nil
 }
 
 // CheckBookmarkStatus checks if a post is bookmarked by user
 func (s *InsightService) CheckBookmarkStatus(userID uuid.UUID, postID uuid.UUID) (bool, error) {
-	isBookmarked, err := s.Bookmark.CheckIsBookmarked(s.DBR2, userID, postID)
+	isBookmarked, err := s.BookmarkRepo.CheckIsBookmarked(s.DBR2, userID, postID)
 	if err != nil {
-		return false, errors.New("internal server error")
+		return false, apperror.NewInternal("failed to check bookmark status", err)
 	}
-
 	return isBookmarked, nil
 }
 
-// ==================== HELPER METHODS ====================
-
-// calculatePostCounts calculates clap_count and comments_count for posts
+// calculatePostCounts calculates clap_count and comments_count for posts (best-effort)
 func (s *InsightService) calculatePostCounts(posts []*entities.Post) {
-	for _, post := range posts {
-		// Calculate clap count (ratings)
-		var clapCount int64
-		if err := s.DBR2.Model(&entities.Rating{}).Where("post_id = ?", post.ID).Count(&clapCount).Error; err == nil {
-			post.ClapCount = uint64(clapCount)
-		}
-
-		// Calculate comments count
-		var commentsCount int64
-		if err := s.DBR2.Model(&entities.Comment{}).Where("post_id = ?", post.ID).Count(&commentsCount).Error; err == nil {
-			post.CommentsCount = uint64(commentsCount)
-		}
-
-		// TODO: Calculate average rating
-		// TODO: Get post content if needed
-	}
+	_ = s.PostRepo.CalculateCountsForPosts(s.DBR2, posts)
 }

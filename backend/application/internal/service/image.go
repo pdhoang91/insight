@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"mime/multipart"
 
+	"github.com/pdhoang91/blog/internal/apperror"
 	"github.com/pdhoang91/blog/internal/entities"
 	"github.com/pdhoang91/blog/pkg/storage"
 	uuid "github.com/satori/go.uuid"
@@ -12,13 +12,9 @@ import (
 
 // UploadImageV2 uploads an image using the new storage system
 func (s *InsightService) UploadImageV2(ctx context.Context, file *multipart.FileHeader, userID uuid.UUID, imageType string) (*storage.UploadResponse, error) {
-	uploadReq := &storage.UploadRequest{
-		File:   file,
-		UserID: userID,
-		Type:   imageType,
-	}
-
-	return s.StorageManager.UploadImage(ctx, uploadReq)
+	return s.StorageManager.UploadImage(ctx, &storage.UploadRequest{
+		File: file, UserID: userID, Type: imageType,
+	})
 }
 
 // GetImageByID retrieves an image by ID
@@ -28,39 +24,23 @@ func (s *InsightService) GetImageByID(ctx context.Context, imageID string) (*ent
 
 // DeleteImageV2 deletes an image by ID
 func (s *InsightService) DeleteImageV2(ctx context.Context, imageID string, userID uuid.UUID) error {
-	// Check if user owns the image
 	image, err := s.StorageManager.GetImageByID(ctx, imageID)
 	if err != nil {
-		return err
+		return apperror.NewNotFound("image not found")
 	}
-
 	if image.UserID != userID {
-		return fmt.Errorf("not authorized to delete this image")
+		return apperror.NewForbidden("not authorized to delete this image")
 	}
-
 	return s.StorageManager.DeleteImage(ctx, imageID)
 }
 
 // ListUserImages returns images uploaded by a user
 func (s *InsightService) ListUserImages(ctx context.Context, userID uuid.UUID, imageType string, page, limit int) ([]entities.Image, int64, error) {
 	offset := (page - 1) * limit
-
-	// Build query
-	query := s.DB.Where("user_id = ?", userID)
-	if imageType != "" {
-		query = query.Where("image_type = ?", imageType)
+	images, total, err := s.ImageRepo.FindByUserID(s.DB, userID, imageType, limit, offset)
+	if err != nil {
+		return nil, 0, apperror.NewInternal("failed to get images", err)
 	}
-
-	// Get total count
-	var total int64
-	query.Model(&entities.Image{}).Count(&total)
-
-	// Get images
-	var images []entities.Image
-	if err := query.Order("created_at DESC").Limit(limit).Offset(offset).Find(&images).Error; err != nil {
-		return nil, 0, fmt.Errorf("failed to get images: %w", err)
-	}
-
 	return images, total, nil
 }
 
@@ -107,4 +87,35 @@ func (s *InsightService) MigrateLegacyImage(ctx context.Context, legacyURL, user
 // MigrateLegacyImagesForUser migrates all legacy images for a user
 func (s *InsightService) MigrateLegacyImagesForUser(ctx context.Context, userID string) (int, error) {
 	return s.StorageManager.MigrateLegacyImagesForUser(ctx, userID)
+}
+
+// GetImageURL returns the public URL for an image by ID
+func (s *InsightService) GetImageURL(imageID string) string {
+	return s.StorageManager.GetImageURL(imageID)
+}
+
+// GetImageRedirectURL returns a redirect URL for serving an image
+func (s *InsightService) GetImageRedirectURL(ctx context.Context, imageID string) (string, error) {
+	image, err := s.StorageManager.GetImageByID(ctx, imageID)
+	if err != nil {
+		return "", apperror.NewNotFound("image not found")
+	}
+	provider, err := s.StorageManager.GetProvider(image.StorageProvider)
+	if err != nil {
+		return "", apperror.NewInternal("storage provider not available", err)
+	}
+	url, err := provider.GetURL(ctx, image.StorageKey)
+	if err != nil {
+		return "", apperror.NewInternal("failed to generate URL", err)
+	}
+	return url, nil
+}
+
+// ResolveLegacyImageURL resolves a legacy image URL to a new image URL if migrated
+func (s *InsightService) ResolveLegacyImageURL(legacyURL string) (string, bool) {
+	imageID, err := s.StorageManager.LegacyURLToImageID(legacyURL)
+	if err != nil {
+		return "", false
+	}
+	return s.StorageManager.GetImageURL(imageID), true
 }

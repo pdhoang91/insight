@@ -11,17 +11,9 @@ import (
 
 // ==================== POST ROUTES ====================
 
-// CreatePost creates a new post
 func (c *Controller) CreatePost(ctx *gin.Context) {
-	userIDStr, exists := ctx.Get("userID")
-	if !exists {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
-		return
-	}
-
-	userID, err := uuid.FromString(userIDStr.(string))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+	userID, ok := requireUserID(ctx)
+	if !ok {
 		return
 	}
 
@@ -33,17 +25,14 @@ func (c *Controller) CreatePost(ctx *gin.Context) {
 
 	response, err := c.service.CreatePost(userID, &req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		respondError(ctx, err)
 		return
 	}
-
 	ctx.JSON(http.StatusCreated, gin.H{"data": response})
 }
 
-// GetPost retrieves a post by ID
 func (c *Controller) GetPost(ctx *gin.Context) {
-	idStr := ctx.Param("id")
-	id, err := uuid.FromString(idStr)
+	id, err := uuid.FromString(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid post ID"})
 		return
@@ -51,77 +40,46 @@ func (c *Controller) GetPost(ctx *gin.Context) {
 
 	response, err := c.service.GetPost(id)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		respondError(ctx, err)
 		return
 	}
 
-	// Check if user has clapped this post (if authenticated)
 	var hasClapped bool
-	if userIDStr, exists := ctx.Get("userID"); exists {
-		if userID, err := uuid.FromString(userIDStr.(string)); err == nil {
-			hasClapped, _ = c.service.HasUserClappedPost(userID, id)
-		}
+	if userID, ok := optionalUserID(ctx); ok {
+		hasClapped, _ = c.service.HasUserClappedPost(userID, id)
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"data": map[string]interface{}{
-			"post":        response,
-			"has_clapped": hasClapped,
-		},
+		"data": map[string]interface{}{"post": response, "has_clapped": hasClapped},
 	})
 }
 
-// ListPosts retrieves all posts with pagination
 func (c *Controller) ListPosts(ctx *gin.Context) {
-	var req dto.PaginationRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil {
+	req, err := parsePagination(ctx)
+	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
 		return
 	}
 
-	// Convert page-based pagination to offset-based
-	if req.Page > 0 && req.Limit > 0 {
-		req.Offset = (req.Page - 1) * req.Limit
-	}
-	if req.Limit == 0 {
-		req.Limit = 10 // Default limit
-	}
-
-	responses, total, err := c.service.ListPosts(&req)
+	responses, total, err := c.service.ListPosts(req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		respondError(ctx, err)
 		return
-	}
-
-	// Ensure data is never null - use empty array if nil
-	if responses == nil {
-		responses = []*dto.PostResponse{}
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"data":        responses,
-		"total_count": total,
-		"limit":       req.Limit,
-		"offset":      req.Offset,
+		"data": ensureNotNil(responses), "total_count": total,
+		"limit": req.Limit, "offset": req.Offset,
 	})
 }
 
-// UpdatePost updates a post
 func (c *Controller) UpdatePost(ctx *gin.Context) {
-	userIDStr, exists := ctx.Get("userID")
-	if !exists {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+	userID, ok := requireUserID(ctx)
+	if !ok {
 		return
 	}
 
-	userID, err := uuid.FromString(userIDStr.(string))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return
-	}
-
-	idStr := ctx.Param("id")
-	id, err := uuid.FromString(idStr)
+	id, err := uuid.FromString(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid post ID"})
 		return
@@ -135,184 +93,115 @@ func (c *Controller) UpdatePost(ctx *gin.Context) {
 
 	response, err := c.service.UpdatePost(userID, id, &req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		respondError(ctx, err)
 		return
 	}
-
 	ctx.JSON(http.StatusOK, gin.H{"data": response})
 }
 
-// DeletePost deletes a post
 func (c *Controller) DeletePost(ctx *gin.Context) {
-	userIDStr, exists := ctx.Get("userID")
-	if !exists {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+	userID, ok := requireUserID(ctx)
+	if !ok {
 		return
 	}
 
-	userID, err := uuid.FromString(userIDStr.(string))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return
-	}
-
-	idStr := ctx.Param("id")
-	id, err := uuid.FromString(idStr)
+	id, err := uuid.FromString(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid post ID"})
 		return
 	}
 
-	err = c.service.DeletePost(userID, id)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	if err := c.service.DeletePost(userID, id); err != nil {
+		respondError(ctx, err)
 		return
 	}
-
 	ctx.JSON(http.StatusOK, gin.H{"message": "Post deleted successfully"})
 }
 
 // TestDeletePost tests soft delete functionality without auth checks (for development)
 func (c *Controller) TestDeletePost(ctx *gin.Context) {
-	idStr := ctx.Param("id")
-	id, err := uuid.FromString(idStr)
+	id, err := uuid.FromString(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid post ID"})
 		return
 	}
 
-	// Get the post to find its owner
 	post, err := c.service.GetPostEntity(id)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": "Post not found"})
+		respondError(ctx, err)
 		return
 	}
 
-	// Use the post owner's ID for the delete operation
-	err = c.service.DeletePost(post.UserID, id)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	if err := c.service.DeletePost(post.UserID, id); err != nil {
+		respondError(ctx, err)
 		return
 	}
-
 	ctx.JSON(http.StatusOK, gin.H{"message": "Post soft deleted successfully (test)"})
 }
 
-// GetLatestPosts retrieves latest posts
 func (c *Controller) GetLatestPosts(ctx *gin.Context) {
-	var req dto.PaginationRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil {
+	req, err := parsePagination(ctx)
+	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
 		return
-	}
-
-	// Convert page-based pagination to offset-based
-	if req.Page > 0 && req.Limit > 0 {
-		req.Offset = (req.Page - 1) * req.Limit
-	}
-	if req.Limit == 0 {
-		req.Limit = 10 // Default limit
 	}
 
 	responses, err := c.service.GetLatestPosts(req.Limit)
-	total := int64(len(responses))
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		respondError(ctx, err)
 		return
 	}
 
-	// Ensure data is never null - use empty array if nil
-	if responses == nil {
-		responses = []*dto.PostResponse{}
-	}
-
 	ctx.JSON(http.StatusOK, gin.H{
-		"data":        responses,
-		"total_count": total,
-		"limit":       req.Limit,
-		"offset":      req.Offset,
+		"data": ensureNotNil(responses), "total_count": int64(len(responses)),
+		"limit": req.Limit, "offset": req.Offset,
 	})
 }
 
-// GetRecentPosts retrieves recent posts
 func (c *Controller) GetRecentPosts(ctx *gin.Context) {
-	var req dto.PaginationRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil {
+	req, err := parsePagination(ctx)
+	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
 		return
 	}
 
-	// Convert page-based pagination to offset-based
-	if req.Page > 0 && req.Limit > 0 {
-		req.Offset = (req.Page - 1) * req.Limit
-	}
-	if req.Limit == 0 {
-		req.Limit = 10 // Default limit
-	}
-
 	responses, err := c.service.GetRecentPosts(req.Limit)
-	total := int64(len(responses))
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		respondError(ctx, err)
 		return
 	}
 
-	// Ensure data is never null - use empty array if nil
-	if responses == nil {
-		responses = []*dto.PostResponse{}
-	}
-
 	ctx.JSON(http.StatusOK, gin.H{
-		"data":        responses,
-		"total_count": total,
-		"limit":       req.Limit,
-		"offset":      req.Offset,
+		"data": ensureNotNil(responses), "total_count": int64(len(responses)),
+		"limit": req.Limit, "offset": req.Offset,
 	})
 }
 
-// GetUserPosts retrieves posts by user ID
 func (c *Controller) GetUserPosts(ctx *gin.Context) {
-	userIDStr := ctx.Param("id")
-	userID, err := uuid.FromString(userIDStr)
+	userID, err := uuid.FromString(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 		return
 	}
 
-	var req dto.PaginationRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil {
+	req, pErr := parsePagination(ctx)
+	if pErr != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
 		return
 	}
 
-	// Convert page-based pagination to offset-based
-	if req.Page > 0 && req.Limit > 0 {
-		req.Offset = (req.Page - 1) * req.Limit
-	}
-	if req.Limit == 0 {
-		req.Limit = 10 // Default limit
-	}
-
-	responses, total, err := c.service.GetUserPosts(userID, &req)
+	responses, total, err := c.service.GetUserPosts(userID, req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		respondError(ctx, err)
 		return
 	}
 
-	// Ensure data is never null - use empty array if nil
-	if responses == nil {
-		responses = []*dto.PostResponse{}
-	}
-
 	ctx.JSON(http.StatusOK, gin.H{
-		"data":        responses,
-		"total_count": total,
-		"limit":       req.Limit,
-		"offset":      req.Offset,
+		"data": ensureNotNil(responses), "total_count": total,
+		"limit": req.Limit, "offset": req.Offset,
 	})
 }
 
-// GetUserPostsByUsername retrieves posts by username
 func (c *Controller) GetUserPostsByUsername(ctx *gin.Context) {
 	username := ctx.Param("username")
 	if username == "" {
@@ -320,47 +209,30 @@ func (c *Controller) GetUserPostsByUsername(ctx *gin.Context) {
 		return
 	}
 
-	// Get user by username first
 	user, err := c.service.GetUserByUsername(username)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		respondError(ctx, err)
 		return
 	}
 
-	var req dto.PaginationRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil {
+	req, pErr := parsePagination(ctx)
+	if pErr != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
 		return
 	}
 
-	// Convert page-based pagination to offset-based
-	if req.Page > 0 && req.Limit > 0 {
-		req.Offset = (req.Page - 1) * req.Limit
-	}
-	if req.Limit == 0 {
-		req.Limit = 10 // Default limit
-	}
-
-	responses, total, err := c.service.GetUserPosts(user.ID, &req)
+	responses, total, err := c.service.GetUserPosts(user.ID, req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		respondError(ctx, err)
 		return
 	}
 
-	// Ensure data is never null - use empty array if nil
-	if responses == nil {
-		responses = []*dto.PostResponse{}
-	}
-
 	ctx.JSON(http.StatusOK, gin.H{
-		"data":        responses,
-		"total_count": total,
-		"limit":       req.Limit,
-		"offset":      req.Offset,
+		"data": ensureNotNil(responses), "total_count": total,
+		"limit": req.Limit, "offset": req.Offset,
 	})
 }
 
-// GetPostByTitleName retrieves a post by title name
 func (c *Controller) GetPostByTitleName(ctx *gin.Context) {
 	titleName := ctx.Param("titleName")
 	if titleName == "" {
@@ -370,31 +242,23 @@ func (c *Controller) GetPostByTitleName(ctx *gin.Context) {
 
 	response, err := c.service.GetPostByTitleName(titleName)
 	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		respondError(ctx, err)
 		return
 	}
 
-	// Check if user has clapped this post (if authenticated)
 	var hasClapped bool
-	if userIDStr, exists := ctx.Get("userID"); exists {
-		if userID, err := uuid.FromString(userIDStr.(string)); err == nil {
-			// Get post ID from response
-			if postID, err := uuid.FromString(response.ID.String()); err == nil {
-				hasClapped, _ = c.service.HasUserClappedPost(userID, postID)
-			}
+	if userID, ok := optionalUserID(ctx); ok {
+		if postID, err := uuid.FromString(response.ID.String()); err == nil {
+			hasClapped, _ = c.service.HasUserClappedPost(userID, postID)
 		}
 	}
 
 	// Frontend expects { data: { post: ..., has_clapped: ... } }
 	ctx.JSON(http.StatusOK, gin.H{
-		"data": gin.H{
-			"post":        response,
-			"has_clapped": hasClapped,
-		},
+		"data": gin.H{"post": response, "has_clapped": hasClapped},
 	})
 }
 
-// GetPostsByCategory retrieves posts by category
 func (c *Controller) GetPostsByCategory(ctx *gin.Context) {
 	categoryName := ctx.Param("name")
 	if categoryName == "" {
@@ -402,81 +266,47 @@ func (c *Controller) GetPostsByCategory(ctx *gin.Context) {
 		return
 	}
 
-	var req dto.PaginationRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil {
+	req, err := parsePagination(ctx)
+	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
 		return
 	}
 
-	// Convert page-based pagination to offset-based
-	if req.Page > 0 && req.Limit > 0 {
-		req.Offset = (req.Page - 1) * req.Limit
-	}
-	if req.Limit == 0 {
-		req.Limit = 10 // Default limit
-	}
-
-	responses, total, err := c.service.GetPostsByCategory(categoryName, &req)
+	responses, total, err := c.service.GetPostsByCategory(categoryName, req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		respondError(ctx, err)
 		return
-	}
-
-	// Ensure data is never null - use empty array if nil
-	if responses == nil {
-		responses = []*dto.PostResponse{}
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"data":        responses,
-		"total_count": total,
-		"limit":       req.Limit,
-		"offset":      req.Offset,
+		"data": ensureNotNil(responses), "total_count": total,
+		"limit": req.Limit, "offset": req.Offset,
 	})
 }
 
-// GetPopularPosts retrieves popular posts
 func (c *Controller) GetPopularPosts(ctx *gin.Context) {
-	var req dto.PaginationRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil {
+	req, err := parsePagination(ctx)
+	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
 		return
-	}
-
-	// Convert page-based pagination to offset-based
-	if req.Page > 0 && req.Limit > 0 {
-		req.Offset = (req.Page - 1) * req.Limit
-	}
-	if req.Limit == 0 {
-		req.Limit = 10 // Default limit
 	}
 
 	responses, err := c.service.GetPopularPosts(req.Limit)
-	total := int64(len(responses))
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		respondError(ctx, err)
 		return
 	}
 
-	// Ensure data is never null - use empty array if nil
-	if responses == nil {
-		responses = []*dto.PostResponse{}
-	}
-
 	ctx.JSON(http.StatusOK, gin.H{
-		"data":        responses,
-		"total_count": total,
-		"limit":       req.Limit,
-		"offset":      req.Offset,
+		"data": ensureNotNil(responses), "total_count": int64(len(responses)),
+		"limit": req.Limit, "offset": req.Offset,
 	})
 }
 
-// GetTopPosts retrieves top posts (alias for popular posts)
 func (c *Controller) GetTopPosts(ctx *gin.Context) {
 	c.GetPopularPosts(ctx)
 }
 
-// SearchPosts searches posts by query - proxies to search service
 func (c *Controller) SearchPosts(ctx *gin.Context) {
 	query := ctx.Query("q")
 	if query == "" {
@@ -489,8 +319,6 @@ func (c *Controller) SearchPosts(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
 		return
 	}
-
-	// Set defaults
 	if req.Page == 0 {
 		req.Page = 1
 	}
@@ -498,7 +326,6 @@ func (c *Controller) SearchPosts(ctx *gin.Context) {
 		req.Limit = 10
 	}
 
-	// Call search service via HTTP client
 	searchClient := c.service.GetSearchClient()
 	searchResp, err := searchClient.SearchPosts(query, req.Page, req.Limit)
 	if err != nil {
@@ -506,178 +333,108 @@ func (c *Controller) SearchPosts(ctx *gin.Context) {
 		return
 	}
 
-	// Convert search service response to our DTO format
 	var responses []*dto.PostResponse
 	for _, searchPost := range searchResp.Data {
-		// Parse UUID from string
 		postID, err := uuid.FromString(searchPost.ID)
 		if err != nil {
-			continue // Skip invalid posts
+			continue
 		}
 
 		postResp := &dto.PostResponse{
-			ID:             postID,
-			Title:          searchPost.Title,
-			TitleName:      searchPost.TitleName,
-			PreviewContent: searchPost.PreviewContent,
-			Content:        searchPost.Content,
-			CreatedAt:      searchPost.CreatedAt,
-			UpdatedAt:      searchPost.CreatedAt, // Use CreatedAt as fallback for UpdatedAt
-			Views:          searchPost.Views,
-			ClapCount:      searchPost.ClapCount,
-			CommentsCount:  searchPost.CommentsCount,
-			AverageRating:  searchPost.AverageRating,
+			ID: postID, Title: searchPost.Title, TitleName: searchPost.TitleName,
+			PreviewContent: searchPost.PreviewContent, Content: searchPost.Content,
+			CreatedAt: searchPost.CreatedAt, UpdatedAt: searchPost.CreatedAt,
+			Views: searchPost.Views, ClapCount: searchPost.ClapCount,
+			CommentsCount: searchPost.CommentsCount, AverageRating: searchPost.AverageRating,
 		}
 
-		// Convert tags from []string to []*dto.TagResponse
 		for _, tagName := range searchPost.Tags {
-			postResp.Tags = append(postResp.Tags, &dto.TagResponse{
-				Name: tagName,
-			})
+			postResp.Tags = append(postResp.Tags, &dto.TagResponse{Name: tagName})
 		}
-
-		// Convert categories from []string to []*dto.CategoryResponse
 		for _, categoryName := range searchPost.Categories {
-			postResp.Categories = append(postResp.Categories, &dto.CategoryResponse{
-				Name: categoryName,
-			})
+			postResp.Categories = append(postResp.Categories, &dto.CategoryResponse{Name: categoryName})
 		}
 
-		// Map user info
 		if searchPost.User.ID != "" {
-			userID, err := uuid.FromString(searchPost.User.ID)
-			if err == nil {
+			if userID, err := uuid.FromString(searchPost.User.ID); err == nil {
 				postResp.User = &dto.UserResponse{
-					ID:        userID,
-					Email:     searchPost.User.Email,
-					Name:      searchPost.User.Name,
-					Username:  searchPost.User.Username,
-					AvatarURL: searchPost.User.AvatarURL,
-					Bio:       searchPost.User.Bio,
-					Phone:     searchPost.User.Phone,
-					Dob:       searchPost.User.Dob,
-					Role:      searchPost.User.Role,
+					ID: userID, Email: searchPost.User.Email, Name: searchPost.User.Name,
+					Username: searchPost.User.Username, AvatarURL: searchPost.User.AvatarURL,
+					Bio: searchPost.User.Bio, Phone: searchPost.User.Phone,
+					Dob: searchPost.User.Dob, Role: searchPost.User.Role,
 				}
 			}
 		}
-
 		responses = append(responses, postResp)
 	}
 
-	// Ensure data is never null - use empty array if nil
-	if responses == nil {
-		responses = []*dto.PostResponse{}
-	}
-
-	// Calculate offset for compatibility
-	offset := (req.Page - 1) * req.Limit
-
 	ctx.JSON(http.StatusOK, gin.H{
-		"data":        responses,
-		"total_count": searchResp.TotalCount,
-		"limit":       req.Limit,
-		"offset":      offset,
+		"data": ensureNotNil(responses), "total_count": searchResp.TotalCount,
+		"limit": req.Limit, "offset": (req.Page - 1) * req.Limit,
 	})
 }
 
-// ClapPost handles clap/unclap action for a post
 func (c *Controller) ClapPost(ctx *gin.Context) {
-	// Get post ID from URL
-	postIDStr := ctx.Param("id")
-	postID, err := uuid.FromString(postIDStr)
+	postID, err := uuid.FromString(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid post ID"})
 		return
 	}
 
-	// Get user ID from context (authentication required)
-	userIDStr, exists := ctx.Get("userID")
-	if !exists {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+	userID, ok := requireUserID(ctx)
+	if !ok {
 		return
 	}
 
-	userID, err := uuid.FromString(userIDStr.(string))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return
-	}
-
-	// Toggle clap
 	isClapped, err := c.service.ClapPost(userID, postID)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to clap post"})
+		respondError(ctx, err)
 		return
 	}
 
-	// Get updated post with clap count
 	postResponse, err := c.service.GetPost(postID)
 	if err != nil {
-		// If we can't get updated post, just return clap status
-		ctx.JSON(http.StatusOK, gin.H{
-			"clapped": isClapped,
-			"message": "Post clapped successfully",
-		})
+		ctx.JSON(http.StatusOK, gin.H{"clapped": isClapped, "message": "Post clapped successfully"})
 		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"clapped":    isClapped,
-		"clap_count": postResponse.ClapCount,
-		"message":    "Post clapped successfully",
+		"clapped": isClapped, "clap_count": postResponse.ClapCount,
+		"message": "Post clapped successfully",
 	})
 }
 
-// GetPostsByYearMonth retrieves posts by year and month for archive
 func (c *Controller) GetPostsByYearMonth(ctx *gin.Context) {
-	yearStr := ctx.Param("year")
-	monthStr := ctx.Param("month")
-
-	// Parse year and month
-	var year, month int
-	var err error
-
-	if year, err = strconv.Atoi(yearStr); err != nil || year < 1900 || year > 2100 {
+	year, err := strconv.Atoi(ctx.Param("year"))
+	if err != nil || year < 1900 || year > 2100 {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid year"})
 		return
 	}
 
-	if month, err = strconv.Atoi(monthStr); err != nil || month < 1 || month > 12 {
+	month, err := strconv.Atoi(ctx.Param("month"))
+	if err != nil || month < 1 || month > 12 {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid month"})
 		return
 	}
 
-	var req dto.PaginationRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil {
+	req, pErr := parsePagination(ctx)
+	if pErr != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
 		return
 	}
-
-	// Convert page-based pagination to offset-based
-	if req.Page > 0 && req.Limit > 0 {
-		req.Offset = (req.Page - 1) * req.Limit
-	}
 	if req.Limit == 0 {
-		req.Limit = 20 // Default limit for archive
+		req.Limit = 20
 	}
 
-	responses, total, err := c.service.GetPostsByYearMonth(year, month, &req)
+	responses, total, err := c.service.GetPostsByYearMonth(year, month, req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		respondError(ctx, err)
 		return
 	}
 
-	// Ensure data is never null - use empty array if nil
-	if responses == nil {
-		responses = []*dto.PostResponse{}
-	}
-
 	ctx.JSON(http.StatusOK, gin.H{
-		"data":        responses,
-		"total_count": total,
-		"year":        year,
-		"month":       month,
-		"limit":       req.Limit,
-		"offset":      req.Offset,
+		"data": ensureNotNil(responses), "total_count": total,
+		"year": year, "month": month,
+		"limit": req.Limit, "offset": req.Offset,
 	})
 }

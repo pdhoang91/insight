@@ -2,7 +2,6 @@ package service
 
 import (
 	"github.com/pdhoang91/blog/internal/dto"
-	"github.com/pdhoang91/blog/internal/entities"
 	"github.com/pdhoang91/blog/pkg/httpclient"
 	uuid "github.com/satori/go.uuid"
 )
@@ -11,49 +10,14 @@ import (
 type InsightService struct {
 	*BaseService
 
-	// Entity instances for method calls
-	User        *entities.User
-	Post        *entities.Post
-	Category    *entities.Category
-	Comment     *entities.Comment
-	Reply       *entities.Reply
-	Bookmark    *entities.Bookmark
-	Tag         *entities.Tag
-	PostContent *entities.PostContent
-	Image       *entities.Image
-
 	// External clients
 	SearchClient *httpclient.SearchClient
-
-	// Other external clients (to be implemented later)
-	// Logger         *clog.Clog
-	// HttpCnt        httpCnt.IHttpClient
-	// AhCnt          ahclient.IAutoHelperClient
-	// KeyCnt         keyclient.IKeyClient
-	// MCnt           modelclient.IModelClient
-	// SCnt           sourceclient.ISourceClient
-	// UserCnt        userClient.IUserClient
-	// ImgCvt         imgconvert.IImageConvert
-	// WebHookCnt     webhook.WebhookClient
-	// TokenMaker     token.IMakerV1
-	// EventProcessor eventprocessor.IEventProcessor
 }
 
 // NewInsightService creates a new insight service with all dependencies
-func NewInsightService(
-	baseService *BaseService,
-) *InsightService {
+func NewInsightService(baseService *BaseService) *InsightService {
 	return &InsightService{
 		BaseService:  baseService,
-		User:         &entities.User{},
-		Post:         &entities.Post{},
-		Category:     &entities.Category{},
-		Comment:      &entities.Comment{},
-		Reply:        &entities.Reply{},
-		Bookmark:     &entities.Bookmark{},
-		Tag:          &entities.Tag{},
-		PostContent:  &entities.PostContent{},
-		Image:        &entities.Image{},
 		SearchClient: httpclient.NewSearchClient(),
 	}
 }

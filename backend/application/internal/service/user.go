@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
-	"log"
 	"mime/multipart"
 	"regexp"
 	"strings"
@@ -13,6 +11,7 @@ import (
 
 	"github.com/pdhoang91/blog/config"
 	"github.com/pdhoang91/blog/constants"
+	"github.com/pdhoang91/blog/internal/apperror"
 	"github.com/pdhoang91/blog/internal/dto"
 	"github.com/pdhoang91/blog/internal/entities"
 	"github.com/pdhoang91/blog/pkg/storage"
@@ -24,147 +23,95 @@ import (
 	"gorm.io/gorm"
 )
 
-// ==================== USER METHODS ====================
-
 // Register creates a new user account
 func (s *InsightService) Register(req *dto.CreateUserRequest) (*dto.LoginResponse, error) {
-	// Check if user already exists
-	existingUser, err := s.User.FindByEmail(s.DB, req.Email)
-	if err != nil && err != gorm.ErrRecordNotFound {
-		return nil, errors.New("internal server error")
+	existing, err := s.UserRepo.FindByEmail(s.DB, req.Email)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, apperror.NewInternal("failed to check email", err)
 	}
-	if existingUser != nil {
-		return nil, errors.New("conflict")
-	}
-
-	// Check if username already exists
-	existingUser, err = s.User.FindByUsername(s.DB, req.Username)
-	if err != nil && err != gorm.ErrRecordNotFound {
-		return nil, errors.New("internal server error")
-	}
-	if existingUser != nil {
-		return nil, errors.New("conflict")
+	if existing != nil && existing.ID != uuid.Nil {
+		return nil, apperror.NewConflict("email already registered")
 	}
 
-	// Hash password
+	existing, err = s.UserRepo.FindByUsername(s.DB, req.Username)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, apperror.NewInternal("failed to check username", err)
+	}
+	if existing != nil && existing.ID != uuid.Nil {
+		return nil, apperror.NewConflict("username already taken")
+	}
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to hash password", err)
 	}
 
-	// Create user
 	user := &entities.User{
-		ID:            uuid.NewV4(),
-		Name:          req.Name,
-		Email:         req.Email,
-		Username:      req.Username,
-		Password:      string(hashedPassword),
-		Role:          constants.RoleUser,
-		EmailVerified: false,
-		CreatedAt:     time.Now(),
-		UpdatedAt:     time.Now(),
+		ID: uuid.NewV4(), Name: req.Name, Email: req.Email,
+		Username: req.Username, Password: string(hashedPassword),
+		Role: constants.RoleUser, EmailVerified: false,
+		CreatedAt: time.Now(), UpdatedAt: time.Now(),
 	}
 
-	log.Printf("Register: About to create user in database")
-	if err := user.Create(s.DB); err != nil {
-		log.Printf("Register: Failed to create user in database: %v", err)
-		return nil, errors.New("internal server error")
+	if err := s.UserRepo.Create(s.DB, user); err != nil {
+		return nil, apperror.NewInternal("failed to create user", err)
 	}
-	log.Printf("Register: User created successfully in database with ID: %s", user.ID)
-
-	// Generate JWT token for immediate login
-	log.Printf("Register: About to generate JWT for user: ID=%s, Email=%s, Role=%s, Name=%s", user.ID, user.Email, user.Role, user.Name)
-	log.Printf("Register: User object details: %+v", user)
 
 	jwtToken, err := jwtUtil.GenerateJWT(user)
 	if err != nil {
-		log.Printf("Register: JWT generation FAILED with error: %v", err)
-		log.Printf("Register: Error type: %T", err)
-		return nil, errors.New("internal server error")
-	}
-	log.Printf("Register: JWT token generated SUCCESSFULLY: %s", jwtToken[:20]+"...")
-
-	response := &dto.LoginResponse{
-		Token: jwtToken,
-		User:  dto.NewUserResponse(user),
+		return nil, apperror.NewInternal("failed to generate token", err)
 	}
 
-	return response, nil
+	return &dto.LoginResponse{Token: jwtToken, User: dto.NewUserResponse(user)}, nil
 }
 
 // Login authenticates a user
 func (s *InsightService) Login(req *dto.LoginRequest) (*dto.LoginResponse, error) {
-	log.Printf("Login: Starting login process for email: %s", req.Email)
-	user, err := s.User.FindByEmail(s.DB, req.Email)
+	user, err := s.UserRepo.FindByEmail(s.DB, req.Email)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("unauthorized")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperror.NewUnauthorized("invalid credentials")
 		}
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to find user", err)
 	}
 
-	// Check password
-	log.Printf("Login: Checking password for user: %s", user.Email)
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password)); err != nil {
-		log.Printf("Login: Password check failed: %v", err)
-		return nil, errors.New("unauthorized")
+		return nil, apperror.NewUnauthorized("invalid credentials")
 	}
-	log.Printf("Login: Password check passed")
 
-	// Generate JWT token using TokenMaker
-	log.Printf("Generating JWT for user: ID=%s, Email=%s, Role=%s, Name=%s", user.ID, user.Email, user.Role, user.Name)
-	log.Printf("User object: %+v", user)
 	jwtToken, err := jwtUtil.GenerateJWT(user)
 	if err != nil {
-		log.Printf("Failed to generate token: %v", err)
-		return nil, errors.New("internal server error")
-	}
-	log.Printf("JWT token generated successfully: %s", jwtToken[:20]+"...")
-
-	response := &dto.LoginResponse{
-		Token: jwtToken,
-		User:  dto.NewUserResponse(user),
+		return nil, apperror.NewInternal("failed to generate token", err)
 	}
 
-	return response, nil
+	return &dto.LoginResponse{Token: jwtToken, User: dto.NewUserResponse(user)}, nil
 }
 
 // GoogleLogin initiates Google OAuth login
 func (s *InsightService) GoogleLogin() (string, error) {
 	cfg := config.Get()
 	if cfg == nil {
-		return "", errors.New("internal server error")
+		return "", apperror.NewInternal("OAuth configuration not available", nil)
 	}
-
-	url := cfg.AuthCodeURL("state", oauth2.AccessTypeOffline)
-	return url, nil
+	return cfg.AuthCodeURL("state", oauth2.AccessTypeOffline), nil
 }
 
 // GoogleCallback handles Google OAuth callback
 func (s *InsightService) GoogleCallback(code string) (*dto.LoginResponse, error) {
-	log.Printf("GoogleCallback called with code: %s", code)
-
 	cfg := config.Get()
 	if cfg == nil {
-		log.Printf("OAuth configuration not available")
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("OAuth configuration not available", nil)
 	}
 
-	// Exchange code for token
 	token, err := cfg.Exchange(context.Background(), code)
 	if err != nil {
-		log.Printf("Could not exchange token: %v", err)
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to exchange token", err)
 	}
 
-	// Create client from token
 	client := cfg.Client(context.Background(), token)
-
-	// Get user info from Google
 	resp, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
 	if err != nil {
-		log.Printf("Could not fetch user info: %v", err)
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to fetch user info", err)
 	}
 	defer resp.Body.Close()
 
@@ -173,133 +120,95 @@ func (s *InsightService) GoogleCallback(code string) (*dto.LoginResponse, error)
 		Name  string `json:"name"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
-		log.Printf("Could not decode user info: %v", err)
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to decode user info", err)
 	}
 
-	log.Printf("User info received: email=%s, name=%s", userInfo.Email, userInfo.Name)
-
-	// Check if user exists in database
-	user, err := s.User.FindByEmail(s.DB, userInfo.Email)
-	if err != nil && err != gorm.ErrRecordNotFound {
-		return nil, errors.New("internal server error")
+	user, err := s.UserRepo.FindByEmail(s.DB, userInfo.Email)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, apperror.NewInternal("failed to find user", err)
 	}
 
-	// Create user if doesn't exist
-	if err == gorm.ErrRecordNotFound {
-		log.Printf("Creating new user for email: %s", userInfo.Email)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		user = &entities.User{
-			ID:            uuid.NewV4(),
-			Email:         userInfo.Email,
-			Username:      "@" + strings.Split(userInfo.Email, "@")[0],
-			Name:          userInfo.Name,
-			AvatarURL:     "https://www.w3schools.com/w3images/avatar2.png",
-			Role:          constants.RoleUser,
-			EmailVerified: true, // Google users are pre-verified
-			CreatedAt:     time.Now(),
-			UpdatedAt:     time.Now(),
+			ID: uuid.NewV4(), Email: userInfo.Email,
+			Username:  "@" + strings.Split(userInfo.Email, "@")[0],
+			Name:      userInfo.Name,
+			AvatarURL: "https://www.w3schools.com/w3images/avatar2.png",
+			Role:      constants.RoleUser, EmailVerified: true,
+			CreatedAt: time.Now(), UpdatedAt: time.Now(),
 		}
-
-		if err := user.Create(s.DB); err != nil {
-			log.Printf("Could not create user: %v", err)
-			return nil, errors.New("internal server error")
+		if err := s.UserRepo.Create(s.DB, user); err != nil {
+			return nil, apperror.NewInternal("failed to create user", err)
 		}
-		log.Printf("User created successfully with ID: %s", user.ID)
-	} else {
-		log.Printf("User found with ID: %s", user.ID)
 	}
 
-	// Generate JWT token using TokenMaker
 	jwtToken, err := jwtUtil.GenerateJWT(user)
 	if err != nil {
-		log.Printf("Failed to generate token: %v", err)
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to generate token", err)
 	}
 
-	log.Printf("JWT token generated successfully")
-
-	response := &dto.LoginResponse{
-		Token: jwtToken,
-		User:  dto.NewUserResponse(user),
-	}
-
-	return response, nil
+	return &dto.LoginResponse{Token: jwtToken, User: dto.NewUserResponse(user)}, nil
 }
 
 // GetUserByUsername gets a user by username
 func (s *InsightService) GetUserByUsername(username string) (*entities.User, error) {
-	user, err := s.User.FindByUsername(s.DBR2, username)
+	user, err := s.UserRepo.FindByUsername(s.DBR2, username)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("not found")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperror.NewNotFound("user not found")
 		}
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to find user", err)
 	}
 	return user, nil
 }
 
 // Logout handles user logout
-func (s *InsightService) Logout() error {
-	// TODO: Implement logout logic (invalidate token)
-	return nil
-}
+func (s *InsightService) Logout() error { return nil }
 
 // RefreshToken handles token refresh
 func (s *InsightService) RefreshToken() error {
-	// TODO: Implement token refresh logic using TokenMaker
-	return errors.New("bad request")
+	return apperror.NewBadRequest("not implemented")
 }
 
 // GetUser retrieves a user by ID
 func (s *InsightService) GetUser(id uuid.UUID) (*dto.UserResponse, error) {
-	user, err := s.User.FindByID(s.DB, id)
+	user, err := s.UserRepo.FindByID(s.DB, id)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("not found")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperror.NewNotFound("user not found")
 		}
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to find user", err)
 	}
-
 	return dto.NewUserResponse(user), nil
 }
 
 // GetUserByID retrieves a user entity by ID (for internal use)
 func (s *InsightService) GetUserByID(id uuid.UUID) (*entities.User, error) {
-	user, err := s.User.FindByID(s.DB, id)
+	user, err := s.UserRepo.FindByID(s.DB, id)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("not found")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperror.NewNotFound("user not found")
 		}
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to find user", err)
 	}
-
 	return user, nil
 }
 
 // GetProfile retrieves the current user's profile
 func (s *InsightService) GetProfile(userID uuid.UUID) (*dto.UserResponse, error) {
-	user, err := s.User.FindByID(s.DB, userID)
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("not found")
-		}
-		return nil, errors.New("internal server error")
-	}
-
-	return dto.NewUserResponse(user), nil
+	return s.GetUser(userID)
 }
 
 // UpdateProfile updates the current user's profile
 func (s *InsightService) UpdateProfile(userID uuid.UUID, req *dto.UpdateUserRequest) (*dto.UserResponse, error) {
-	user, err := s.User.FindByID(s.DB, userID)
+	user, err := s.UserRepo.FindByID(s.DB, userID)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("not found")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperror.NewNotFound("user not found")
 		}
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to find user", err)
 	}
 
-	// Update fields if provided
 	if req.Name != "" {
 		user.Name = req.Name
 	}
@@ -317,35 +226,30 @@ func (s *InsightService) UpdateProfile(userID uuid.UUID, req *dto.UpdateUserRequ
 	}
 
 	user.UpdatedAt = time.Now()
-	if err := user.Update(s.DB); err != nil {
-		return nil, errors.New("internal server error")
+	if err := s.UserRepo.Update(s.DB, user); err != nil {
+		return nil, apperror.NewInternal("failed to update user", err)
 	}
-
 	return dto.NewUserResponse(user), nil
 }
 
 // UpdateProfileWithAvatar updates user profile with optional avatar upload
 func (s *InsightService) UpdateProfileWithAvatar(ctx context.Context, userID uuid.UUID, req *dto.UpdateUserRequest, avatarFile *multipart.FileHeader) (*dto.UserResponse, error) {
-	user, err := s.User.FindByID(s.DB, userID)
+	user, err := s.UserRepo.FindByID(s.DB, userID)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return nil, errors.New("not found")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperror.NewNotFound("user not found")
 		}
-		return nil, errors.New("internal server error")
+		return nil, apperror.NewInternal("failed to find user", err)
 	}
 
-	// Handle avatar upload if provided
 	if avatarFile != nil {
-		// Upload new avatar using V2 system
 		uploadResponse, err := s.UpdateUserAvatarV2(ctx, avatarFile, userID)
 		if err != nil {
-			return nil, fmt.Errorf("failed to upload avatar: %w", err)
+			return nil, apperror.Wrap("failed to upload avatar", err)
 		}
-		// Update avatar URL in request
 		req.AvatarURL = uploadResponse.URL
 	}
 
-	// Update user fields
 	if req.Name != "" {
 		user.Name = req.Name
 	}
@@ -357,39 +261,33 @@ func (s *InsightService) UpdateProfileWithAvatar(ctx context.Context, userID uui
 	}
 
 	user.UpdatedAt = time.Now()
-	if err := user.Update(s.DB); err != nil {
-		return nil, errors.New("internal server error")
+	if err := s.UserRepo.Update(s.DB, user); err != nil {
+		return nil, apperror.NewInternal("failed to update user", err)
 	}
-
 	return dto.NewUserResponse(user), nil
 }
 
 // DeleteProfile deletes the current user's account
 func (s *InsightService) DeleteProfile(userID uuid.UUID) error {
-	// Get user to check if avatar exists
-	user, err := s.User.FindByID(s.DB, userID)
+	user, err := s.UserRepo.FindByID(s.DB, userID)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return errors.New("not found")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return apperror.NewNotFound("user not found")
 		}
-		return errors.New("internal server error")
+		return apperror.NewInternal("failed to find user", err)
 	}
 
-	// Delete avatar image if it exists and uses V2 system
 	if user.AvatarURL != "" {
 		if imageID := s.extractImageIDFromURL(user.AvatarURL); imageID != "" {
-			// Delete avatar image from V2 system
 			_ = s.DeleteImageV2(context.Background(), imageID, userID)
 		}
 	}
 
-	// Cleanup all user images
 	_ = s.CleanupUserImages(context.Background(), userID)
 
-	if err := s.User.DeleteByID(s.DB, userID); err != nil {
-		return errors.New("internal server error")
+	if err := s.UserRepo.Delete(s.DB, userID); err != nil {
+		return apperror.NewInternal("failed to delete user", err)
 	}
-
 	return nil
 }
 
@@ -399,25 +297,23 @@ func (s *InsightService) GetAllUsers(req *dto.PaginationRequest) ([]*dto.UserRes
 		req.Limit = 50
 	}
 
-	users, err := s.User.List(s.DB, req.Limit, req.Offset)
+	users, err := s.UserRepo.List(s.DB, req.Limit, req.Offset)
 	if err != nil {
-		return nil, 0, errors.New("internal server error")
+		return nil, 0, apperror.NewInternal("failed to list users", err)
 	}
 
-	var responses []*dto.UserResponse
+	responses := make([]*dto.UserResponse, 0, len(users))
 	for _, user := range users {
 		responses = append(responses, dto.NewUserResponse(user))
 	}
-
 	return responses, int64(len(responses)), nil
 }
 
 // DeleteUser deletes a user by ID (admin only)
 func (s *InsightService) DeleteUser(id uuid.UUID) error {
-	if err := s.User.DeleteByID(s.DB, id); err != nil {
-		return errors.New("internal server error")
+	if err := s.UserRepo.Delete(s.DB, id); err != nil {
+		return apperror.NewInternal("failed to delete user", err)
 	}
-
 	return nil
 }
 
@@ -428,30 +324,24 @@ func (s *InsightService) UploadAvatarV2(ctx context.Context, file *multipart.Fil
 
 // UpdateUserAvatarV2 updates user avatar using V2 system with cleanup
 func (s *InsightService) UpdateUserAvatarV2(ctx context.Context, file *multipart.FileHeader, userID uuid.UUID) (*storage.UploadResponse, error) {
-	// Get current user to check existing avatar
-	user, err := s.User.FindByID(s.DB, userID)
+	user, err := s.UserRepo.FindByID(s.DB, userID)
 	if err != nil {
-		return nil, errors.New("user not found")
+		return nil, apperror.NewNotFound("user not found")
 	}
 
-	// Upload new avatar
 	uploadResponse, err := s.UploadAvatarV2(ctx, file, userID)
 	if err != nil {
 		return nil, err
 	}
 
-	// Update user avatar URL
 	user.AvatarURL = uploadResponse.URL
-	if err := user.Update(s.DB); err != nil {
-		// If user update fails, cleanup the uploaded image
+	if err := s.UserRepo.Update(s.DB, user); err != nil {
 		_ = s.DeleteImageV2(ctx, uploadResponse.ImageID.String(), userID)
-		return nil, errors.New("failed to update user profile")
+		return nil, apperror.NewInternal("failed to update user profile", err)
 	}
 
-	// Cleanup old avatar if it exists and uses V2 system
 	if user.AvatarURL != "" && user.AvatarURL != uploadResponse.URL {
 		if oldImageID := s.extractImageIDFromURL(user.AvatarURL); oldImageID != "" {
-			// Delete old avatar image (ignore errors as this is cleanup)
 			_ = s.DeleteImageV2(ctx, oldImageID, userID)
 		}
 	}
@@ -461,7 +351,6 @@ func (s *InsightService) UpdateUserAvatarV2(ctx context.Context, file *multipart
 
 // extractImageIDFromURL extracts image ID from V2 image URL
 func (s *InsightService) extractImageIDFromURL(imageURL string) string {
-	// Pattern: /images/v2/{imageID}
 	re := regexp.MustCompile(`/images/v2/([a-f0-9-]{36})`)
 	matches := re.FindStringSubmatch(imageURL)
 	if len(matches) > 1 {
@@ -469,3 +358,4 @@ func (s *InsightService) extractImageIDFromURL(imageURL string) string {
 	}
 	return ""
 }
+

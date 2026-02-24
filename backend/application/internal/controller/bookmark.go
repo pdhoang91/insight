@@ -10,17 +10,9 @@ import (
 
 // ==================== BOOKMARK ROUTES ====================
 
-// CreateBookmark creates a new bookmark
 func (c *Controller) CreateBookmark(ctx *gin.Context) {
-	userIDStr, exists := ctx.Get("userID")
-	if !exists {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
-		return
-	}
-
-	userID, err := uuid.FromString(userIDStr.(string))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+	userID, ok := requireUserID(ctx)
+	if !ok {
 		return
 	}
 
@@ -32,105 +24,59 @@ func (c *Controller) CreateBookmark(ctx *gin.Context) {
 
 	response, err := c.service.CreateBookmark(userID, &req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		respondError(ctx, err)
 		return
 	}
-
 	ctx.JSON(http.StatusCreated, gin.H{"data": response})
 }
 
-// Unbookmark removes a bookmark
 func (c *Controller) Unbookmark(ctx *gin.Context) {
-	userIDStr, exists := ctx.Get("userID")
-	if !exists {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
-		return
-	}
-
-	userID, err := uuid.FromString(userIDStr.(string))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+	userID, ok := requireUserID(ctx)
+	if !ok {
 		return
 	}
 
 	postIDStr := ctx.Param("post_id")
+	req := &dto.CreateBookmarkRequest{PostID: postIDStr}
 
-	req := &dto.CreateBookmarkRequest{
-		PostID: postIDStr,
-	}
-
-	err = c.service.Unbookmark(userID, req)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	if err := c.service.Unbookmark(userID, req); err != nil {
+		respondError(ctx, err)
 		return
 	}
-
 	ctx.JSON(http.StatusOK, gin.H{"message": "Bookmark removed successfully"})
 }
 
-// GetUserBookmarks retrieves user's bookmarks
 func (c *Controller) GetUserBookmarks(ctx *gin.Context) {
-	userIDStr, exists := ctx.Get("userID")
-	if !exists {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+	userID, ok := requireUserID(ctx)
+	if !ok {
 		return
 	}
 
-	userID, err := uuid.FromString(userIDStr.(string))
+	req, err := parsePagination(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return
-	}
-
-	var req dto.PaginationRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
 		return
 	}
 
-	// Convert page-based pagination to offset-based
-	if req.Page > 0 && req.Limit > 0 {
-		req.Offset = (req.Page - 1) * req.Limit
-	}
-	if req.Limit == 0 {
-		req.Limit = 10 // Default limit
-	}
-
-	responses, _, total, err := c.service.GetUserBookmarks(userID, &req)
+	responses, _, total, err := c.service.GetUserBookmarks(userID, req)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		respondError(ctx, err)
 		return
-	}
-
-	// Ensure data is never null - use empty array if nil
-	if responses == nil {
-		responses = []*dto.PostResponse{}
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"data":        responses,
-		"total_count": total,
-		"limit":       req.Limit,
-		"offset":      req.Offset,
+		"data": ensureNotNil(responses), "total_count": total,
+		"limit": req.Limit, "offset": req.Offset,
 	})
 }
 
-// CheckBookmarkStatus checks if a post is bookmarked by user
 func (c *Controller) CheckBookmarkStatus(ctx *gin.Context) {
-	userIDStr, exists := ctx.Get("userID")
-	if !exists {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "User not authenticated"})
+	userID, ok := requireUserID(ctx)
+	if !ok {
 		return
 	}
 
-	userID, err := uuid.FromString(userIDStr.(string))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return
-	}
-
-	postIDStr := ctx.Param("post_id")
-	postID, err := uuid.FromString(postIDStr)
+	postID, err := uuid.FromString(ctx.Param("post_id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid post ID"})
 		return
@@ -138,9 +84,8 @@ func (c *Controller) CheckBookmarkStatus(ctx *gin.Context) {
 
 	isBookmarked, err := c.service.CheckBookmarkStatus(userID, postID)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		respondError(ctx, err)
 		return
 	}
-
 	ctx.JSON(http.StatusOK, gin.H{"is_bookmarked": isBookmarked})
 }
