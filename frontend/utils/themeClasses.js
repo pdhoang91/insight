@@ -83,16 +83,16 @@ export const themeClasses = {
     subtitle: 'font-sans font-normal text-lg md:text-xl leading-relaxed text-medium-text-secondary',
   },
 
-  // Layout - Mobile-first with minimal padding on small screens, heavy padding on large screens
+  // Layout - Mobile-first with minimal padding on small screens, EXTREME padding on large screens for maximum centering
   layout: {
-    // Container patterns - Minimal padding on mobile, dramatically increasing on large screens
-    container: 'max-w-container mx-auto px-4 sm:px-6 md:px-8 lg:px-16 xl:px-24 2xl:px-40',        // Progressive padding increase
-    containerSmall: 'max-w-compact mx-auto px-4 sm:px-6 md:px-8 lg:px-12 xl:px-20',              // Smaller but still progressive
-    containerWide: 'max-w-wide mx-auto px-4 sm:px-6 md:px-8 lg:px-16 xl:px-24 2xl:px-40',         // Same progressive strategy
+    // Container patterns - Mobile minimal, large screens HEAVILY centered
+    container: 'max-w-container mx-auto px-4 sm:px-6 md:px-16 lg:px-32 xl:px-48 2xl:px-64',      // Aggressive padding for large screens
+    containerSmall: 'max-w-compact mx-auto px-4 sm:px-6 md:px-14 lg:px-28 xl:px-40',            // Strong centering
+    containerWide: 'max-w-wide mx-auto px-4 sm:px-6 md:px-16 lg:px-32 xl:px-48 2xl:px-64',       // Same aggressive strategy
     
-    // Content patterns - Prioritize width on mobile, constrain on desktop with better padding
-    article: 'max-w-reading mx-auto px-4 sm:px-6 md:px-8 lg:px-16 xl:px-24',                     // Better mobile padding
-    reading: 'max-w-reading mx-auto px-4 sm:px-6 md:px-8 lg:px-16 xl:px-24',                     // Same as article
+    // Content patterns - Mobile full-width, large screens heavily centered
+    article: 'max-w-reading mx-auto px-4 sm:px-6 md:px-16 lg:px-32 xl:px-48',                   // Heavy padding for large screens
+    reading: 'max-w-reading mx-auto px-4 sm:px-6 md:px-16 lg:px-32 xl:px-48',                   // Same as article
     
     // Layout utilities
     fullHeight: 'min-h-screen',
@@ -235,15 +235,15 @@ export const themeClasses = {
     sidebarMobileHidden: 'hidden md:block',
     sidebarMobileCollapsed: 'md:hidden',
     sidebarDesktopSticky: 'md:sticky md:top-20 lg:top-24',
-    sidebarWidth: 'w-full md:w-72 lg:w-80 xl:w-72 md:ml-6 lg:ml-8 xl:ml-12',
+    sidebarWidth: 'w-full md:w-60 lg:w-64 xl:w-60 md:ml-6 lg:ml-8 xl:ml-10',
     
     // Text alignment
     textMobileCenter: 'text-center lg:text-left',
     textMobileLeft: 'text-left',
     
-    // Progressive spacing utilities for smooth scaling
-    paddingProgressive: 'px-4 sm:px-6 md:px-8 lg:px-16 xl:px-24 2xl:px-40',
-    marginProgressive: 'mx-4 sm:mx-6 md:mx-8 lg:mx-16 xl:mx-24 2xl:mx-40',
+    // Progressive spacing utilities for smooth scaling - Heavy centering for large screens
+    paddingProgressive: 'px-4 sm:px-6 md:px-16 lg:px-32 xl:px-48 2xl:px-64',
+    marginProgressive: 'mx-4 sm:mx-6 md:mx-16 lg:mx-32 xl:mx-48 2xl:mx-64',
     gapProgressive: 'gap-4 sm:gap-6 md:gap-8 lg:gap-12 xl:gap-16',
     
     // Content responsive behavior

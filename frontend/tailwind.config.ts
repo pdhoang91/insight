@@ -113,14 +113,14 @@ module.exports = {
         '30': '7.5rem',   // 120px
       },
       maxWidth: {
-        // Medium 2024 Layout Widths - Optimized for better content containment
-        'article': '680px',       // Medium's optimal reading width
-        'container': '1080px',    // Main container (further reduced for better padding)
-        'sidebar': '320px',       // Sidebar width
-        'content': '800px',       // Content area (article + padding)
-        'wide': '1200px',         // Wide container (reduced for better control)
-        'reading': '720px',       // Reading-optimized width
-        'compact': '900px',       // Compact layout for forms/profiles (reduced)
+        // Medium 2024 Layout Widths - More aggressive centering for large screens
+        'article': '640px',       // Tighter reading width for better focus
+        'container': '800px',     // More centered container (reduced from 900px)
+        'sidebar': '280px',       // Smaller sidebar for more content focus
+        'content': '680px',       // Tighter content area
+        'wide': '900px',          // More centered wide container (reduced from 1000px)
+        'reading': '640px',       // Consistent with article width
+        'compact': '720px',       // More compact layout
       },
       
       // Standardized responsive breakpoints - Optimized for better scaling
