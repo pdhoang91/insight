@@ -68,7 +68,7 @@ const Navbar = () => {
               isWritePage ? (
                 <button
                   onClick={() => handlePublish?.()}
-                  className="px-4 py-2 text-sm font-medium bg-medium-accent-green text-white rounded-full hover:bg-medium-accent-green/90 transition-colors"
+                  className="px-4 py-2 text-sm font-medium bg-medium-accent-green text-white rounded-full hover:opacity-90 transition-opacity"
                 >
                   {t('nav.publish')}
                 </button>
@@ -82,8 +82,6 @@ const Navbar = () => {
                 </button>
               )
             )}
-
-            <LanguageSwitcher />
 
             {user ? (
               <div className="relative" ref={userMenuRef}>
@@ -127,6 +125,10 @@ const Navbar = () => {
                         </div>
                       </Link>
                       <div className="border-t border-medium-border" />
+                      <div className="px-4 py-2">
+                        <LanguageSwitcher />
+                      </div>
+                      <div className="border-t border-medium-border" />
                       <button
                         onClick={handleLogout}
                         className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-medium-text-secondary hover:text-medium-text-primary transition-colors"
@@ -139,12 +141,15 @@ const Navbar = () => {
                 </AnimatePresence>
               </div>
             ) : (
-              <button
-                onClick={() => setModalOpen(true)}
-                className="px-4 py-2 text-sm font-medium text-medium-accent-green border border-medium-accent-green rounded-full hover:bg-medium-accent-green hover:text-white transition-colors"
-              >
-                {t('nav.login')}
-              </button>
+              <>
+                <LanguageSwitcher />
+                <button
+                  onClick={() => setModalOpen(true)}
+                  className="px-4 py-2 text-sm font-medium text-medium-accent-green border border-medium-accent-green rounded-full hover:opacity-80 transition-opacity"
+                >
+                  {t('nav.login')}
+                </button>
+              </>
             )}
           </div>
 
@@ -214,7 +219,7 @@ const Navbar = () => {
               ) : (
                 <button
                   onClick={() => { setModalOpen(true); setIsMobileMenuOpen(false); }}
-                  className="w-full px-4 py-2.5 text-sm font-medium text-medium-accent-green border border-medium-accent-green rounded-lg hover:bg-medium-accent-green hover:text-white transition-colors"
+                  className="w-full px-4 py-2.5 text-sm font-medium text-medium-accent-green border border-medium-accent-green rounded-lg hover:opacity-80 transition-opacity"
                 >
                   {t('nav.login')}
                 </button>

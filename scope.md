@@ -1,216 +1,154 @@
-# UI/UX Refactor Plan — Round 2
+# UI/UX Refactor Plan — Round 3 (Medium-style Polish)
 
 ## Goals
-1. Remove unnecessary hover effects (green/gray background hovers)
-2. Redesign Publish Article popup (categories, tags UX)
-3. Redesign editor to match Medium's writing flow
-4. Redesign comment/clap UX and verify count logic
-5. Redesign TOC + Post Detail to match 200lab.io/blog style
-6. Add language switcher (Vietnamese / English)
+1. Clean up remaining hover effects — follow Medium.com's subtle hover patterns
+2. Redesign FloatingToolbar to Medium's "+" toggle pattern
+3. Redesign Publish popup to Medium's full-page publish flow
+4. Fix i18n — move LanguageSwitcher into user dropdown, translate sidebar & footer strings
+5. Redesign comment/clap UX to match Medium's inline style
 
 ---
 
-## Phase 1: Remove Unnecessary Hover Effects
+## Phase 1: Hover & Interaction Cleanup (Medium-style)
 
-Strip distracting hover backgrounds across the app. Keep only meaningful hover states (links → color change, buttons → subtle opacity/color).
+**Reference:** Medium uses almost no background hovers. Links get underline or subtle color shift. Buttons get slight opacity change. No bg-green, no bg-gray on text elements.
 
-**Principle:** Hover should communicate "this is clickable", not decorate. No `hover:bg-*` on non-button elements. No `hover:scale-*` anywhere.
+### 1a. `Navbar.js`
+- Logo: keep `hover:text-medium-accent-green` — that's fine
+- "Viết bài" button: keep text color hover — OK
+- "Đăng bài" green button: change `hover:bg-medium-accent-green/90` → `hover:opacity-90` (Medium pattern)
+- "Đăng nhập" border button: remove `hover:bg-medium-accent-green hover:text-white` → use `hover:opacity-80` only
+- Mobile login button: same treatment
+- User avatar: no hover ring needed — already clean
 
-**Files & specific changes:**
+### 1b. `BasePostItem.js`
+- Post title: `hover:text-medium-accent-green` — keep, but ensure it's underline-free (Medium uses no underline on titles)
+- Category pills: already `hover:text-medium-accent-green` — OK
+- Clap/comment/view buttons: already text-color-only hover — OK
+- FeaturedPost in `index.js`: remove `hover:shadow-md` from article, remove `hover:scale-[1.02]` from image
 
-### 1a. `BasePostItem.js`
-- Category tags: Remove `hover:bg-medium-accent-green hover:text-white` → use `hover:text-medium-accent-green` only
-- Horizontal variant: Remove `hover:bg-medium-hover` from link wrapper
-- Profile variant: Remove `hover:shadow-md` from article
+### 1c. `PostDetail.js`
+- Clap/comment/share buttons: already text-color-only — OK
+- Category tags at bottom: already `hover:text-medium-accent-green` — OK
 
-### 1b. `CategoryTagsPopup.js`
-- Close button: Remove `hover:bg-medium-hover`
-- Category buttons: Remove `hover:bg-medium-hover hover:shadow-md hover:scale-102`
-- Selected tags: Remove `hover:scale-105`
-- Cancel button: Remove `hover:bg-medium-hover hover:scale-105`
-- Publish button: Remove `hover:shadow-xl hover:scale-105 hover:-translate-y-0.5`
+### 1d. `Layout.js` — MobileSidebarContent
+- Remove `hover:bg-medium-hover` from the expand button
 
-### 1c. `Navbar.js`
-- User menu items: Remove `hover:bg-medium-bg-secondary` → keep `hover:text-medium-accent-green` only
-- Mobile menu items: Same treatment
-
-### 1d. `PopularPosts.js`
-- Post links: Remove `hover:bg-medium-accent-green/5`
-
-### 1e. `PostDetail.js`
-- Action buttons (clap, comment, share): Remove `hover:bg-medium-hover` → keep `hover:text-medium-accent-green`
-
-### 1f. `CommentItem.js`
-- Uses `themeClasses.text.accentHover` which is fine (text color only)
-- No background hover to remove
-
-### 1g. `AddCommentForm.js`
-- Submit button: Remove `hover:scale-105`
-
-### 1h. `LimitedCommentList.js`
-- Load more button: Remove `hover:bg-medium-hover hover:shadow-md`
-
-### 1i. `PersonalBlogSidebar.js`
-- Category links: Remove `hover:bg-medium-accent-green hover:text-white` → use `hover:text-medium-accent-green`
+### 1e. `PostList.js`
+- "You've reached the end!" → translate with `t()` key
 
 **Status:** [x] Completed
 
 ---
 
-## Phase 2: Redesign Publish Article Popup
+## Phase 2: FloatingToolbar — Medium "+" Toggle
 
-Current issues: Over-decorated, too many icons, excessive animations, `themeClasses` indirection makes it hard to read.
+**Reference:** Medium's editor shows a single `+` circle icon at the left of empty lines. Clicking it expands a horizontal row of block-type buttons (image, embed, separator, code). NOT a vertical dropdown.
 
-**Target design:** Clean modal like Medium's publish flow — simple, focused, minimal chrome.
+### Changes to `FloatingToolbar.js`
+- **Default state:** Show only a `+` circle button (32×32, border, green on hover)
+- **Expanded state:** On click, animate open a horizontal row of icons to the right of the `+`
+- **Icons:** Image, Code, Table, YouTube, Quote, Horizontal Rule, Task List (same as current, but icon-only, no labels)
+- **Close:** Click `+` again (rotates to `×`) or click outside
+- **Animation:** Smooth horizontal expand with `framer-motion`
+- **Positioning:** Still uses TipTap `FloatingMenu`, but renders the toggle + expandable row instead of the dropdown
 
-**Changes to `CategoryTagsPopup.js`:**
-
-1. **Header**: Simplify — just title + close X, no subtitle
-2. **Categories section**:
-   - Replace grid cards with simple checkbox list or pill toggles
-   - Remove FaTag icons from each category
-   - Remove green check badge overlay
-   - Simple selected state: filled pill (green bg + white text)
-   - Unselected: outlined pill (border + gray text)
-3. **Tags section**:
-   - Replace comma-separated input with tag chips input (type → Enter to add)
-   - Show tags as removable pills below input
-   - Remove suggested tags section (or make it subtle)
-4. **Footer**: Simple two buttons — "Cancel" (text) and "Publish" (green filled)
-5. **Remove all**: `hover:scale-*`, `hover:shadow-*`, `transform`, excessive `themeClasses` usage
-6. **Use plain Tailwind** classes directly (consistent with Navbar rewrite)
+### Implementation
+- Add `isOpen` state to `FloatingToolbar`
+- Render `+` button always; render icon row conditionally
+- Each icon is a small circle button (28×28) with tooltip
+- Use `AnimatePresence` + `motion.div` for the expand animation
 
 **Status:** [x] Completed
 
 ---
 
-## Phase 3: Redesign Editor — Medium-style Writing Flow
+## Phase 3: Publish Popup — Medium Full-Page Flow
 
-Current issues: Toolbar is cluttered, PostForm uses heavy `themeClasses` indirection, editor area doesn't feel like Medium's clean writing surface.
+**Reference:** Medium's publish flow is a full-page overlay (not a small modal). It has:
+- Left side: Story preview (title, subtitle, cover image thumbnail)
+- Right side: Publishing options (tags, topic selection)
+- Clean white background, no border/shadow modal
+- "Publish now" green button at top-right
 
-**Target:** Medium.com's writing experience — clean white canvas, minimal toolbar, focus on content.
+### Changes to `CategoryTagsPopup.js` → Full rewrite
+- **Layout:** Full-screen overlay (`fixed inset-0 z-50 bg-white`)
+- **Header:** Simple top bar with "X" close on left, "Publish now" green button on right
+- **Two-column layout** (desktop):
+  - **Left column:** Story preview card — title, subtitle/excerpt (first ~160 chars of content), cover image thumbnail
+  - **Right column:** Publishing options — Categories (pill toggles), Tags (chip input, same as current)
+- **Mobile:** Stack vertically (preview on top, options below)
+- **No backdrop blur** — just solid white
+- **Subtitle field:** Add a text input for excerpt/subtitle that user can edit before publishing
 
-**Changes:**
-
-### 3a. `PostForm.js`
-- Remove `themeClasses`/`combineClasses` — use plain Tailwind
-- Editor area: white background, generous padding, `max-w-[720px]` centered
-- Title input: Large serif font, no border, placeholder "Title"
-- Content area: Serif font for body text, clean prose styling
-- Word count: subtle, bottom-right
-
-### 3b. `Toolbar.js`
-- Already fixed for horizontal scroll — keep that
-- Reduce visual weight: lighter border, smaller icons
-- Consider hiding toolbar on scroll (show on hover/focus)
-
-### 3c. `TitleInput.js`
-- Large, clean title field — Medium uses ~42px serif bold
-- Cover image upload: subtle "Add cover image" button, not a separate section
-
-### 3d. `pages/write.js` & `pages/edit/[id].js`
-- Remove `themeClasses` usage
-- Clean layout: just the editor, centered, white background
+### Props change
+- Add `excerpt` prop (auto-generated from content, editable)
+- Keep `onPublish(categories, tags)` signature but could extend to include excerpt
 
 **Status:** [x] Completed
 
 ---
 
-## Phase 4: Redesign Comment & Clap UX + Verify Counts
+## Phase 4: i18n Fixes — LanguageSwitcher in Dropdown + Sidebar/Footer Translation
 
-### 4a. Comment Design
-Current `CommentItem.js` uses heavy `themeClasses` indirection. Redesign to be cleaner.
+### 4a. Move LanguageSwitcher into user dropdown
+- **Remove** standalone `<LanguageSwitcher />` from desktop nav and mobile menu
+- **Add** language toggle inside the user dropdown menu (below profile link, above logout)
+- **For logged-out users:** Add language toggle in mobile menu only (small, subtle)
+- **Style:** Simple "VI | EN" text toggle, not pill buttons
 
-**Target design (Medium-inspired):**
+### 4b. Translate sidebar strings
+- `PersonalBlogSidebar.js`: Use `t('sidebar.popularPosts')`, `t('sidebar.categories')`, `t('sidebar.archive')`
+- `PopularPosts.js`: Translate "Hiện tại chưa có bài viết phổ biến nào." and "Không có bài viết phổ biến"
+- `CommentSection.js`: Translate "Bình luận" header
+
+### 4c. Translate footer/end-of-list
+- `PostList.js`: Translate "You've reached the end!" → `t('post.reachedEnd')`
+- `PostList.js`: Translate "Đã xảy ra lỗi", "Không thể tải bài viết", "Thử lại", "No stories yet", "Be the first..."
+
+### 4d. Update translation files
+- Add missing keys to both `vi/common.json` and `en/common.json`
+
+**Status:** [x] Completed
+
+---
+
+## Phase 5: Comment & Clap UX Redesign (Medium-inspired)
+
+**Reference:** Medium shows comments inline below the article (not in a sidebar popup). Each comment has:
 - Avatar + name + time on one line
-- Comment text below
-- Actions: heart + reply — inline, subtle
-- Reply form: inline textarea, appears on click
-- Nested replies: left border indent (not card-in-card)
+- Comment text
+- Clap (heart) count + Reply link
+- Replies indented with a thin left border
+- Clean, minimal — no card borders, no shadows on individual comments
 
-**Files:**
-- `CommentItem.js` — full rewrite with plain Tailwind
-- `AddCommentForm.js` — simplify, remove hover:scale
-- `LimitedCommentList.js` — simplify load more button
-- `ReplyList.js` — check and align style
+### 5a. `CommentSection.js`
+- Remove `themeClasses` usage → plain Tailwind
+- Header: "Responses ({count})" — Medium calls them "Responses"
+- Add comment form: Simple textarea with avatar, "Respond" button
 
-### 4b. Clap UX
-- Current: `useClapsCount` hook fetches `getClapInfo(type, id)` returning `{ clapCount, hasClapped }`
-- Verify: Does `clapPost()` increment correctly? Does `mutateClaps()` refetch?
-- UX: Clap button should animate on click (brief scale pulse), show count update immediately (optimistic)
+### 5b. `CommentItem.js`
+- Already close to Medium style (avatar + name + time, content, heart + reply)
+- **Tweak:** Use `FaHandsClapping` instead of `FaHeart` for claps (consistency with post claps)
+- **Tweak:** "Reply" text should show reply count only when > 0, otherwise just "Reply"
+- Already capped at 2 levels — good
 
-**Files to verify:**
-- `hooks/useClapsCount.js` — check SWR key and mutate behavior
-- `services/activityService.js` — check `clapPost()` and `getClapInfo()` API calls
-- `BasePostItem.js` — clap handler
-- `PostDetail.js` — clap handler
+### 5c. `AddCommentForm.js`
+- Medium style: Show user avatar next to textarea
+- Textarea: No visible border initially, just a bottom line. On focus, expand and show border
+- Submit button: "Respond" text button (green), not an icon
 
-**Status:** [x] Completed
+### 5d. `ReplyItem.js`
+- Use `FaHandsClapping` instead of `FaHeart` for consistency
+- Otherwise already clean
 
----
+### 5e. `LimitedCommentList.js`
+- "Xem thêm" → translate
+- Already clean style
 
-## Phase 5: Redesign TOC + Post Detail — 200lab.io Style
-
-### Reference: 200lab.io/blog
-- TOC: "Mục Lục" header, collapsible, shows numbered headings
-- Post detail: Clean article layout, author info at top, tags at bottom
-- Reading progress indicator (optional)
-- Content: well-spaced, serif body, code blocks with language labels
-
-### 5a. `TableOfContents.js` — Redesign
-Current: left-border indicator, "On this page" header. Good start but needs:
-- **Collapsible** on mobile (accordion)
-- **Numbered items** matching heading hierarchy
-- **Progress indicator**: highlight current section as user scrolls
-- **200lab style**: Card with "Mục Lục" header, list items with dotted lines or numbers
-- Position: sticky sidebar on desktop, collapsible card above content on mobile
-
-### 5b. `PostDetail.js` — Redesign
-Current layout is good (article + TOC sidebar). Enhance:
-- **Author info section**: avatar + name + date + read time (like 200lab)
-- **Tags at bottom**: pill-style tags after content
-- **Share buttons**: at bottom of article, not in header
-- **Related articles**: card grid at bottom (like 200lab's "Bài viết liên quan")
-- **Reading progress bar**: thin green bar at top of page showing scroll progress
-
-### 5c. `pages/p/[id].js`
-- Add reading progress bar
-- Ensure TOC is properly positioned in sidebar
-
-**Status:** [x] Completed
-
----
-
-## Phase 6: Language Switcher (Vietnamese / English)
-
-No i18n system exists currently. Need to add one.
-
-**Approach: `next-i18next`** (most popular for Next.js Pages Router)
-
-### 6a. Setup
-- Install `next-i18next` + `i18next` + `react-i18next`
-- Create `next-i18next.config.js` with locales: `['vi', 'en']`, default: `'vi'`
-- Update `next.config.js` with i18n config
-- Create translation files: `public/locales/vi/common.json` and `public/locales/en/common.json`
-
-### 6b. Translation Files
-Extract all user-facing strings:
-- Navbar: "Viết bài", "Đăng nhập", "Đăng xuất", "Tìm kiếm..."
-- Post cards: "min read", "Featured"
-- Comments: "Viết bình luận...", "Gửi", "Xem thêm bình luận"
-- Editor: "Nhập / để xem các lệnh...", "Publish Article", "Cancel"
-- TOC: "Mục Lục" / "Table of Contents"
-- Errors: "Đã xảy ra lỗi", "Thử lại"
-
-### 6c. Language Switcher Component
-- Small dropdown or toggle in Navbar (right side, before user menu)
-- Shows "VI" / "EN" flags or text
-- Persists choice in localStorage + cookie (for SSR)
-
-### 6d. Wrap Components
-- Wrap `_app.js` with `appWithTranslation`
-- Use `useTranslation('common')` hook in components
-- Replace hardcoded strings with `t('key')`
+### 5f. Clap animation
+- Add a brief scale pulse on clap button click (CSS `animate-ping` for 200ms)
+- Optimistic update: increment count immediately, then revalidate
 
 **Status:** [x] Completed
 
@@ -218,16 +156,16 @@ Extract all user-facing strings:
 
 ## Implementation Order
 
-**Recommended:** 1 → 2 → 3 → 4 → 5 → 6
+**Recommended:** 1 → 2 → 3 → 4 → 5
 
-Phases 1-5 are independent UI changes. Phase 6 (i18n) touches many files so should be last.
+Phase 1 is quick cleanup. Phase 2 is self-contained editor change. Phase 3 is the biggest visual change. Phase 4 is i18n plumbing. Phase 5 is comment polish.
+
+**All 5 phases completed.**
 
 ---
 
 ## Confirmed Decisions
 
-1. **i18n**: Use `next-i18next` ✅
-2. **Editor**: Hide top toolbar, use BubbleMenu/FloatingMenu only (Medium style) ✅
-3. **TOC mobile**: Collapsible card above content (200lab style) ✅
-4. **Reading progress bar**: Yes, thin green bar below navbar ✅
-5. **Comment nesting**: Cap at 2 levels (comment → reply) ✅
+1. **Publish flow**: Full-page white overlay with two columns (Medium-style exactly) ✅
+2. **Excerpt field**: Add editable excerpt field in publish flow ✅
+3. **Comment clap icon**: Switch FaHeart → FaHandsClapping everywhere ✅

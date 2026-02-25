@@ -1,7 +1,8 @@
-// components/Category/CategoryTagsPopup.js
-import React, { useState, useEffect, useRef } from 'react';
+// components/Category/CategoryTagsPopup.js — Medium-style full-page publish flow
+import React, { useState, useRef, useMemo } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { useCategories } from '../../hooks/useCategories';
+import { getContentPlainText } from '../../utils/renderContent';
 
 const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) => {
   const { categories, isLoading } = useCategories();
@@ -9,6 +10,14 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState('');
   const tagInputRef = useRef(null);
+
+  const autoExcerpt = useMemo(() => {
+    const plain = getContentPlainText(content);
+    return plain?.substring(0, 160) || '';
+  }, [content]);
+
+  const [excerpt, setExcerpt] = useState('');
+  const displayExcerpt = excerpt || autoExcerpt;
 
   const toggleCategory = (category) => {
     const isSelected = selectedCategories.some(c => c.id === category.id);
@@ -46,130 +55,170 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
   const canPublish = selectedCategories.length > 0;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
-      onClick={(e) => e.target === e.currentTarget && onCancel()}
-    >
-      <div className="max-w-lg w-full mx-4 bg-white rounded-xl shadow-xl border border-medium-border overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-medium-border">
-          <h3 className="font-serif text-lg font-bold text-medium-text-primary">
-            Publish Article
-          </h3>
+    <div className="fixed inset-0 z-50 bg-white overflow-y-auto">
+      {/* Top bar */}
+      <div className="sticky top-0 z-10 bg-white border-b border-medium-border">
+        <div className="max-w-[1200px] mx-auto px-4 md:px-8 flex items-center justify-between h-14">
           <button
             onClick={onCancel}
-            className="p-1 text-medium-text-muted hover:text-medium-text-primary transition-colors"
+            className="p-2 -ml-2 text-medium-text-muted hover:text-medium-text-primary transition-colors"
           >
-            <FaTimes className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Body */}
-        <div className="px-6 py-5 space-y-6 max-h-[65vh] overflow-y-auto">
-          {/* Categories */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <label className="text-sm font-semibold text-medium-text-primary">
-                Categories
-              </label>
-              <span className="text-xs text-medium-text-muted">
-                {selectedCategories.length}/3
-              </span>
-            </div>
-            {isLoading ? (
-              <div className="flex gap-2 flex-wrap">
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="h-8 w-20 bg-medium-bg-secondary rounded-full animate-pulse" />
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-wrap gap-2">
-                {categories?.map((cat) => {
-                  const isSelected = selectedCategories.some(c => c.id === cat.id);
-                  const isDisabled = !isSelected && selectedCategories.length >= 3;
-                  return (
-                    <button
-                      key={cat.id}
-                      onClick={() => !isDisabled && toggleCategory(cat)}
-                      disabled={isDisabled}
-                      className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
-                        isSelected
-                          ? 'bg-medium-accent-green text-white border-medium-accent-green'
-                          : isDisabled
-                          ? 'border-medium-border text-medium-text-muted opacity-40 cursor-not-allowed'
-                          : 'border-medium-border text-medium-text-secondary hover:border-medium-accent-green hover:text-medium-accent-green'
-                      }`}
-                    >
-                      {cat.name}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
-          {/* Tags */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <label className="text-sm font-semibold text-medium-text-primary">
-                Tags
-              </label>
-              <span className="text-xs text-medium-text-muted">
-                {tags.length}/5
-              </span>
-            </div>
-            <div
-              className="flex flex-wrap items-center gap-2 px-3 py-2 border border-medium-border rounded-lg focus-within:ring-2 focus-within:ring-medium-accent-green/30 focus-within:border-medium-accent-green transition-all min-h-[42px]"
-              onClick={() => tagInputRef.current?.focus()}
-            >
-              {tags.map((tag, i) => (
-                <span
-                  key={i}
-                  className="flex items-center gap-1 px-2.5 py-1 bg-medium-accent-green/10 text-medium-accent-green text-sm rounded-full"
-                >
-                  {tag}
-                  <button
-                    onClick={(e) => { e.stopPropagation(); removeTag(i); }}
-                    className="hover:text-red-500 transition-colors"
-                  >
-                    <FaTimes className="w-3 h-3" />
-                  </button>
-                </span>
-              ))}
-              {tags.length < 5 && (
-                <input
-                  ref={tagInputRef}
-                  type="text"
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyDown={handleTagKeyDown}
-                  placeholder={tags.length === 0 ? 'Type a tag and press Enter...' : ''}
-                  className="flex-1 min-w-[120px] text-sm outline-none bg-transparent text-medium-text-primary placeholder:text-medium-text-muted"
-                />
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-medium-border">
-          <button
-            onClick={onCancel}
-            className="px-5 py-2 text-sm font-medium text-medium-text-secondary hover:text-medium-text-primary transition-colors"
-          >
-            Cancel
+            <FaTimes className="w-5 h-5" />
           </button>
           <button
             onClick={handlePublish}
             disabled={!canPublish}
-            className={`px-6 py-2 text-sm font-semibold rounded-full transition-colors ${
+            className={`px-5 py-2 text-sm font-semibold rounded-full transition-opacity ${
               canPublish
                 ? 'bg-medium-accent-green text-white hover:opacity-90'
                 : 'bg-gray-200 text-gray-400 cursor-not-allowed'
             }`}
           >
-            Publish
+            Publish now
           </button>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="max-w-[1000px] mx-auto px-4 md:px-8 py-10">
+        <div className="flex flex-col lg:flex-row gap-12">
+          {/* Left — Story preview */}
+          <div className="flex-1 min-w-0">
+            <h2 className="text-sm font-semibold text-medium-text-muted uppercase tracking-wider mb-6">
+              Story Preview
+            </h2>
+
+            {/* Cover image */}
+            {imageTitle ? (
+              <div className="aspect-[16/9] rounded-lg overflow-hidden bg-medium-bg-secondary mb-6">
+                <img src={imageTitle} alt="Cover" className="w-full h-full object-cover" />
+              </div>
+            ) : (
+              <div className="aspect-[16/9] rounded-lg bg-medium-bg-secondary mb-6 flex items-center justify-center">
+                <p className="text-sm text-medium-text-muted">No cover image</p>
+              </div>
+            )}
+
+            {/* Title preview */}
+            <h3 className="font-serif text-2xl font-bold text-medium-text-primary mb-3 line-clamp-2">
+              {title || 'Untitled'}
+            </h3>
+
+            {/* Editable excerpt */}
+            <div>
+              <label className="text-xs text-medium-text-muted mb-1 block">
+                Subtitle / Excerpt
+              </label>
+              <textarea
+                value={excerpt}
+                onChange={(e) => setExcerpt(e.target.value)}
+                placeholder={autoExcerpt || 'Write a preview subtitle...'}
+                className="w-full text-sm text-medium-text-secondary leading-relaxed resize-none border-0 border-b border-medium-border focus:border-medium-accent-green focus:outline-none py-2 bg-transparent placeholder:text-medium-text-muted/60"
+                rows={3}
+                maxLength={280}
+              />
+              <div className="text-xs text-medium-text-muted mt-1 text-right">
+                {(excerpt || autoExcerpt).length}/280
+              </div>
+            </div>
+          </div>
+
+          {/* Right — Publishing options */}
+          <div className="lg:w-[340px] flex-shrink-0">
+            <h2 className="text-sm font-semibold text-medium-text-muted uppercase tracking-wider mb-6">
+              Publishing Options
+            </h2>
+
+            {/* Categories */}
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-sm font-medium text-medium-text-primary">
+                  Topic
+                </label>
+                <span className="text-xs text-medium-text-muted">
+                  {selectedCategories.length}/3
+                </span>
+              </div>
+              <p className="text-xs text-medium-text-muted mb-3">
+                Add up to 3 topics so readers can find your story.
+              </p>
+              {isLoading ? (
+                <div className="flex gap-2 flex-wrap">
+                  {[...Array(6)].map((_, i) => (
+                    <div key={i} className="h-8 w-20 bg-medium-bg-secondary rounded-full animate-pulse" />
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {categories?.map((cat) => {
+                    const isSelected = selectedCategories.some(c => c.id === cat.id);
+                    const isDisabled = !isSelected && selectedCategories.length >= 3;
+                    return (
+                      <button
+                        key={cat.id}
+                        onClick={() => !isDisabled && toggleCategory(cat)}
+                        disabled={isDisabled}
+                        className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
+                          isSelected
+                            ? 'bg-medium-text-primary text-white border-medium-text-primary'
+                            : isDisabled
+                            ? 'border-medium-border text-medium-text-muted opacity-40 cursor-not-allowed'
+                            : 'border-medium-border text-medium-text-secondary hover:border-medium-text-primary hover:text-medium-text-primary'
+                        }`}
+                      >
+                        {cat.name}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Tags */}
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-sm font-medium text-medium-text-primary">
+                  Tags
+                </label>
+                <span className="text-xs text-medium-text-muted">
+                  {tags.length}/5
+                </span>
+              </div>
+              <p className="text-xs text-medium-text-muted mb-3">
+                Add tags (up to 5) to help categorize your story.
+              </p>
+              <div
+                className="flex flex-wrap items-center gap-2 px-3 py-2 border border-medium-border rounded-lg focus-within:border-medium-text-primary transition-colors min-h-[42px]"
+                onClick={() => tagInputRef.current?.focus()}
+              >
+                {tags.map((tag, i) => (
+                  <span
+                    key={i}
+                    className="flex items-center gap-1 px-2.5 py-1 bg-medium-bg-secondary text-medium-text-primary text-sm rounded-full"
+                  >
+                    {tag}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); removeTag(i); }}
+                      className="text-medium-text-muted hover:text-medium-text-primary transition-colors"
+                    >
+                      <FaTimes className="w-2.5 h-2.5" />
+                    </button>
+                  </span>
+                ))}
+                {tags.length < 5 && (
+                  <input
+                    ref={tagInputRef}
+                    type="text"
+                    value={tagInput}
+                    onChange={(e) => setTagInput(e.target.value)}
+                    onKeyDown={handleTagKeyDown}
+                    placeholder={tags.length === 0 ? 'Add a tag...' : ''}
+                    className="flex-1 min-w-[100px] text-sm outline-none bg-transparent text-medium-text-primary placeholder:text-medium-text-muted"
+                  />
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

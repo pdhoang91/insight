@@ -1,5 +1,6 @@
 // components/Post/PostList.js
 import React from 'react';
+import { useTranslation } from 'next-i18next';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import BasePostItem from './BasePostItem';
 
@@ -13,6 +14,8 @@ const PostList = ({
   skipFirst = false,
   className = '',
 }) => {
+  const { t } = useTranslation('common');
+
   const fetchMore = () => {
     if (!isReachingEnd && !isLoading) {
       setSize((prev) => prev + 1);
@@ -22,13 +25,13 @@ const PostList = ({
   if (isError) {
     return (
       <div className="text-center py-12">
-        <h3 className="font-serif text-xl font-bold text-medium-text-primary mb-2">Đã xảy ra lỗi</h3>
-        <p className="text-medium-text-secondary mb-4">Không thể tải bài viết. Vui lòng thử lại.</p>
+        <h3 className="font-serif text-xl font-bold text-medium-text-primary mb-2">{t('post.errorOccurred')}</h3>
+        <p className="text-medium-text-secondary mb-4">{t('post.loadFailed')}</p>
         <button
           onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-medium-accent-green text-white rounded-full text-sm hover:bg-medium-accent-green/90 transition-colors"
+          className="px-4 py-2 bg-medium-accent-green text-white rounded-full text-sm hover:opacity-90 transition-opacity"
         >
-          Thử lại
+          {t('common.retry')}
         </button>
       </div>
     );
@@ -60,8 +63,8 @@ const PostList = ({
   if (!posts || posts.length === 0) {
     return (
       <div className="text-center py-16">
-        <h3 className="font-serif text-2xl font-bold text-medium-text-primary mb-2">No stories yet</h3>
-        <p className="text-medium-text-secondary">Be the first to share your thoughts and experiences.</p>
+        <h3 className="font-serif text-2xl font-bold text-medium-text-primary mb-2">{t('post.noStories')}</h3>
+        <p className="text-medium-text-secondary">{t('post.beFirst')}</p>
       </div>
     );
   }
@@ -95,7 +98,7 @@ const PostList = ({
         }
         endMessage={
           flatPosts.length > 0 && (
-            <p className="text-center text-medium-text-muted py-8 mt-6">You've reached the end!</p>
+            <p className="text-center text-medium-text-muted py-8 mt-6">{t('post.reachedEnd')}</p>
           )
         }
       >

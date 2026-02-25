@@ -14,13 +14,13 @@ const FeaturedPost = ({ post }) => {
 
   return (
     <Link href={`/p/${post.slug}`} className="block group mb-8">
-      <article className="bg-white rounded-lg border border-medium-border overflow-hidden hover:shadow-md transition-shadow">
+      <article className="bg-white rounded-lg border border-medium-border overflow-hidden">
         {post.cover_image && (
           <div className="aspect-[21/9] overflow-hidden">
             <img
               src={post.cover_image}
               alt={post.title}
-              className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+              className="w-full h-full object-cover"
             />
           </div>
         )}

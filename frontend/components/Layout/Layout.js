@@ -78,7 +78,7 @@ const MobileSidebarContent = ({ sidebar }) => {
           themeClasses.effects.rounded,
           themeClasses.effects.shadow,
           themeClasses.text.primary,
-          'hover:bg-medium-hover',
+          'hover:text-medium-accent-green',
           themeClasses.animations.smooth,
           themeClasses.interactive.touchTarget,
           themeClasses.focus.ring

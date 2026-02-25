@@ -1,6 +1,7 @@
 // components/Comment/ReplyItem.js
 import React from 'react';
-import { FaHeart, FaUser } from 'react-icons/fa';
+import { FaUser } from 'react-icons/fa';
+import { FaHandsClapping } from 'react-icons/fa6';
 import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapReply } from '../../services/activityService';
 import { useUser } from '../../context/UserContext';
@@ -22,7 +23,6 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
 
   return (
     <div className="flex gap-2.5 py-2">
-      {/* Avatar */}
       <div className="flex-shrink-0 w-6 h-6 rounded-full bg-medium-bg-secondary flex items-center justify-center overflow-hidden">
         {reply.user?.avatar_url ? (
           <img src={reply.user.avatar_url} alt={reply.user.name} className="w-full h-full object-cover" />
@@ -52,8 +52,8 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
             hasClapped ? 'text-medium-accent-green' : 'text-medium-text-muted hover:text-medium-accent-green'
           }`}
         >
-          <FaHeart className={`w-2.5 h-2.5 ${clapsLoading ? 'animate-pulse' : ''}`} />
-          <span>{clapsLoading ? '...' : clapsCount}</span>
+          <FaHandsClapping className={`w-3 h-3 ${clapsLoading ? 'animate-pulse' : ''}`} />
+          {clapsCount > 0 && <span>{clapsCount}</span>}
         </button>
       </div>
     </div>

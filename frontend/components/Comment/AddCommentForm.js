@@ -1,22 +1,24 @@
-// components/Comment/AddCommentForm.js
-import React, { useState } from 'react';
-import { FaPaperPlane } from 'react-icons/fa';
+// components/Comment/AddCommentForm.js — Medium-style comment form
+import React, { useState, useRef } from 'react';
+import { FaUser } from 'react-icons/fa';
+import { useTranslation } from 'next-i18next';
 import { addComment } from '../../services/commentService';
 
-const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId = null, placeholder }) => {
+const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId = null }) => {
+  const { t } = useTranslation('common');
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const textareaRef = useRef(null);
 
-  const defaultPlaceholder = parentId
-    ? 'Viết phản hồi...'
-    : 'Viết bình luận...';
+  const placeholder = parentId ? t('comment.replyPlaceholder') : t('comment.placeholder');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (content.trim() === '') return;
 
     if (!user) {
-      alert('Vui lòng đăng nhập để bình luận.');
+      alert(t('comment.loginToComment'));
       return;
     }
 
@@ -29,35 +31,68 @@ const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId =
         onCommentAdded();
       }
       setContent('');
+      setIsFocused(false);
     } catch (error) {
       console.error('Failed to add comment:', error);
-      alert('Không thể thêm bình luận. Vui lòng thử lại.');
+      alert(t('comment.addError'));
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="relative">
-      <textarea
-        className="w-full p-3 pr-12 resize-none bg-white rounded-lg border border-medium-border text-sm text-medium-text-primary placeholder:text-medium-text-muted focus:outline-none focus:ring-2 focus:ring-medium-accent-green/30 focus:border-medium-accent-green transition-all"
-        placeholder={placeholder || defaultPlaceholder}
-        value={content}
-        onChange={(e) => setContent(e.target.value)}
-        rows={parentId ? 2 : 3}
-        required
-      />
-      <button
-        type="submit"
-        className={`absolute right-3 bottom-3 p-2 rounded-lg transition-colors ${
-          isSubmitting
-            ? 'text-medium-text-muted cursor-not-allowed'
-            : 'text-medium-accent-green hover:bg-medium-accent-green hover:text-white'
-        }`}
-        disabled={isSubmitting || !content.trim()}
-      >
-        <FaPaperPlane className="w-3.5 h-3.5" />
-      </button>
+    <form onSubmit={handleSubmit} className="flex gap-3">
+      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-medium-bg-secondary flex items-center justify-center overflow-hidden">
+        {user?.avatar_url ? (
+          <img src={user.avatar_url} alt={user?.name} className="w-full h-full object-cover" />
+        ) : (
+          <FaUser className="w-3.5 h-3.5 text-medium-text-muted" />
+        )}
+      </div>
+
+      <div className="flex-1 min-w-0">
+        <textarea
+          ref={textareaRef}
+          className={`w-full resize-none bg-transparent text-sm text-medium-text-primary placeholder:text-medium-text-muted focus:outline-none transition-all ${
+            isFocused
+              ? 'border-b border-medium-accent-green pb-2'
+              : 'border-b border-transparent pb-2'
+          }`}
+          placeholder={placeholder}
+          value={content}
+          onChange={(e) => {
+            setContent(e.target.value);
+            e.target.style.height = 'auto';
+            e.target.style.height = e.target.scrollHeight + 'px';
+          }}
+          onFocus={() => setIsFocused(true)}
+          rows={1}
+        />
+
+        {/* Show button row only when focused */}
+        {isFocused && (
+          <div className="flex items-center justify-end gap-2 mt-2">
+            <button
+              type="button"
+              onClick={() => { setContent(''); setIsFocused(false); }}
+              className="px-3 py-1.5 text-xs text-medium-text-muted hover:text-medium-text-primary transition-colors"
+            >
+              {t('editor.cancel')}
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting || !content.trim()}
+              className={`px-4 py-1.5 text-xs font-medium rounded-full transition-opacity ${
+                content.trim()
+                  ? 'bg-medium-accent-green text-white hover:opacity-90'
+                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              }`}
+            >
+              {isSubmitting ? '...' : t('comment.respond')}
+            </button>
+          </div>
+        )}
+      </div>
     </form>
   );
 };

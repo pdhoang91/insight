@@ -1,6 +1,7 @@
 // components/Sidebar/PersonalBlogSidebar.js
 import React from 'react';
 import Link from 'next/link';
+import { useTranslation } from 'next-i18next';
 import { useCategories } from '../../hooks/useCategories';
 import { useRecentPosts } from '../../hooks/useRecentPosts';
 import PopularPosts from '../Post/PopularPosts';
@@ -14,16 +15,17 @@ const SidebarSection = ({ title, children }) => (
 );
 
 const PersonalBlogSidebar = () => {
+  const { t } = useTranslation('common');
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { posts: recentPosts, isLoading: postsLoading } = useRecentPosts(5);
 
   return (
     <div>
-      <SidebarSection title="Popular Posts">
+      <SidebarSection title={t('sidebar.popularPosts')}>
         <PopularPosts limit={5} showImages={false} className="" />
       </SidebarSection>
 
-      <SidebarSection title="Categories">
+      <SidebarSection title={t('sidebar.categories')}>
         {categoriesLoading ? (
           <div className="flex flex-wrap gap-2">
             {[...Array(5)].map((_, i) => (
@@ -48,7 +50,7 @@ const PersonalBlogSidebar = () => {
         )}
       </SidebarSection>
 
-      <SidebarSection title="Archive">
+      <SidebarSection title={t('sidebar.archive')}>
         <Archive posts={recentPosts} className="" />
       </SidebarSection>
     </div>

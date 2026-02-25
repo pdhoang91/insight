@@ -13,21 +13,29 @@
     "share": "Share",
     "loading": "Loading post...",
     "loadError": "Failed to load post",
-    "tryAgain": "Please try again later"
+    "tryAgain": "Please try again later",
+    "reachedEnd": "You've reached the end!",
+    "noStories": "No stories yet",
+    "beFirst": "Be the first to share your thoughts and experiences.",
+    "loadFailed": "Could not load posts. Please try again.",
+    "errorOccurred": "An error occurred"
   },
   "comment": {
     "placeholder": "Write a comment...",
     "replyPlaceholder": "Write a reply...",
     "submit": "Submit",
+    "respond": "Respond",
     "loadMore": "Load more",
     "remaining": "remaining",
     "showing": "Showing",
     "of": "/",
     "comments": "comments",
+    "responses": "Responses",
     "noComments": "No comments yet",
     "reply": "Reply",
     "loginToComment": "Please sign in to comment.",
-    "addError": "Failed to add comment. Please try again."
+    "addError": "Failed to add comment. Please try again.",
+    "invalidData": "Invalid comment data."
   },
   "editor": {
     "titlePlaceholder": "Title",
@@ -51,7 +59,9 @@
     "popularPosts": "Popular Posts",
     "categories": "Categories",
     "archive": "Archive",
-    "noPopularPosts": "No popular posts yet."
+    "noPopularPosts": "No popular posts yet.",
+    "noPopular": "No popular posts",
+    "moreFromBlog": "More from this blog"
   },
   "common": {
     "error": "An error occurred",

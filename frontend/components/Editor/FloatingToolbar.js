@@ -1,7 +1,9 @@
-import React from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { FloatingMenu } from '@tiptap/react'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
-  FaHeading,
+  FaPlus,
+  FaTimes,
   FaImage,
   FaCode,
   FaTable,
@@ -11,26 +13,47 @@ import {
   FaTasks,
 } from 'react-icons/fa'
 
-const FloatingButton = ({ icon: Icon, label, onClick }) => (
+const FloatingIcon = ({ icon: Icon, onClick, title }) => (
   <button
     onClick={onClick}
-    className="flex items-center gap-2 w-full px-3 py-1.5 text-sm rounded-md text-medium-text-secondary hover:text-medium-accent-green transition-colors"
+    className="w-8 h-8 flex items-center justify-center rounded-full text-medium-text-secondary hover:text-medium-accent-green transition-colors"
+    title={title}
   >
-    <Icon className="w-3.5 h-3.5 opacity-60" />
-    <span>{label}</span>
+    <Icon className="w-4 h-4" />
   </button>
 )
 
 const FloatingToolbar = ({ editor, onImageUpload, onYoutubeClick }) => {
+  const [isOpen, setIsOpen] = useState(false)
+  const containerRef = useRef(null)
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // Close when editor content changes (user typed or inserted something)
+  useEffect(() => {
+    if (!editor) return
+    const handler = () => setIsOpen(false)
+    editor.on('update', handler)
+    return () => editor.off('update', handler)
+  }, [editor])
+
   if (!editor) return null
 
   return (
     <FloatingMenu
       editor={editor}
       tippyOptions={{
-        duration: 150,
+        duration: 100,
         placement: 'left-start',
-        offset: [0, 8],
+        offset: [-4, 8],
       }}
       shouldShow={({ state }) => {
         const { $from } = state.selection
@@ -39,47 +62,66 @@ const FloatingToolbar = ({ editor, onImageUpload, onYoutubeClick }) => {
         return isEmptyLine && !currentLineText
       }}
     >
-      <div className="py-1.5 px-1 min-w-[180px] rounded-lg bg-white border border-medium-border shadow-lg">
-        <FloatingButton
-          icon={FaHeading}
-          label="Tiêu đề"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-        />
-        <FloatingButton
-          icon={FaImage}
-          label="Hình ảnh"
-          onClick={onImageUpload}
-        />
-        <FloatingButton
-          icon={FaCode}
-          label="Khối mã"
-          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-        />
-        <FloatingButton
-          icon={FaTable}
-          label="Bảng"
-          onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
-        />
-        <FloatingButton
-          icon={FaYoutube}
-          label="Video YouTube"
-          onClick={onYoutubeClick}
-        />
-        <FloatingButton
-          icon={FaQuoteRight}
-          label="Trích dẫn"
-          onClick={() => editor.chain().focus().toggleBlockquote().run()}
-        />
-        <FloatingButton
-          icon={FaMinus}
-          label="Đường kẻ ngang"
-          onClick={() => editor.chain().focus().setHorizontalRule().run()}
-        />
-        <FloatingButton
-          icon={FaTasks}
-          label="Danh sách việc cần làm"
-          onClick={() => editor.chain().focus().toggleTaskList().run()}
-        />
+      <div ref={containerRef} className="flex items-center gap-1">
+        {/* + toggle button */}
+        <button
+          onClick={() => setIsOpen(prev => !prev)}
+          className={`w-8 h-8 flex items-center justify-center rounded-full border border-medium-border text-medium-text-muted hover:text-medium-accent-green hover:border-medium-accent-green transition-all ${
+            isOpen ? 'rotate-45 border-medium-accent-green text-medium-accent-green' : ''
+          }`}
+          style={{ transition: 'transform 0.15s ease, color 0.15s ease, border-color 0.15s ease' }}
+        >
+          <FaPlus className="w-3.5 h-3.5" />
+        </button>
+
+        {/* Expandable icon row */}
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 'auto', opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.15, ease: 'easeOut' }}
+              className="flex items-center gap-0.5 overflow-hidden"
+            >
+              <FloatingIcon
+                icon={FaImage}
+                onClick={() => { onImageUpload(); setIsOpen(false) }}
+                title="Hình ảnh"
+              />
+              <FloatingIcon
+                icon={FaCode}
+                onClick={() => { editor.chain().focus().toggleCodeBlock().run(); setIsOpen(false) }}
+                title="Khối mã"
+              />
+              <FloatingIcon
+                icon={FaTable}
+                onClick={() => { editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(); setIsOpen(false) }}
+                title="Bảng"
+              />
+              <FloatingIcon
+                icon={FaYoutube}
+                onClick={() => { onYoutubeClick(); setIsOpen(false) }}
+                title="Video YouTube"
+              />
+              <FloatingIcon
+                icon={FaQuoteRight}
+                onClick={() => { editor.chain().focus().toggleBlockquote().run(); setIsOpen(false) }}
+                title="Trích dẫn"
+              />
+              <FloatingIcon
+                icon={FaMinus}
+                onClick={() => { editor.chain().focus().setHorizontalRule().run(); setIsOpen(false) }}
+                title="Đường kẻ ngang"
+              />
+              <FloatingIcon
+                icon={FaTasks}
+                onClick={() => { editor.chain().focus().toggleTaskList().run(); setIsOpen(false) }}
+                title="Danh sách việc cần làm"
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </FloatingMenu>
   )

@@ -1,12 +1,13 @@
 // components/Comment/CommentSection.js
 import React from 'react';
+import { useTranslation } from 'next-i18next';
 import { useUser } from '../../context/UserContext';
 import { useInfiniteComments } from '../../hooks/useInfiniteComments';
 import LimitedCommentList from './LimitedCommentList';
 import AddCommentForm from './AddCommentForm';
-import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const CommentSection = ({ postId }) => {
+  const { t } = useTranslation('common');
   const { user } = useUser();
   
   const { 
@@ -22,28 +23,21 @@ const CommentSection = ({ postId }) => {
   const flatComments = comments ? comments.flat() : [];
 
   const handleCommentAdded = () => {
-    mutate(); // Refresh comments
+    mutate();
   };
 
   return (
-    <div className={themeClasses.spacing.stackLarge}>
-      {/* Section Header */}
-      <h3 className={combineClasses(
-        themeClasses.typography.h3,
-        themeClasses.typography.weightBold,
-        themeClasses.text.primary
-      )}>
-        Bình luận ({totalCount || 0})
+    <div className="space-y-6">
+      <h3 className="font-serif text-xl font-bold text-medium-text-primary">
+        {t('comment.responses')} ({totalCount || 0})
       </h3>
 
-      {/* Add Comment Form */}
       <AddCommentForm 
         postId={postId}
         user={user}
         onCommentAdded={handleCommentAdded}
       />
 
-      {/* Comments List */}
       <LimitedCommentList
         comments={flatComments}
         postId={postId}

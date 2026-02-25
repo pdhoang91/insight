@@ -1,7 +1,9 @@
 // components/Comment/CommentItem.js
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { FaHeart, FaComment, FaUser } from 'react-icons/fa';
+import { FaUser } from 'react-icons/fa';
+import { FaHandsClapping } from 'react-icons/fa6';
+import { useTranslation } from 'next-i18next';
 import { useCommentClap } from '../../hooks/useCommentClap';
 import { useUser } from '../../context/UserContext';
 import { addReply } from '../../services/commentService';
@@ -12,6 +14,7 @@ import TimeAgo from '../Utils/TimeAgo';
 
 const CommentItem = ({ comment, postId, mutate }) => {
   const [showReplyForm, setShowReplyForm] = useState(false);
+  const { t } = useTranslation('common');
   const { user } = useUser();
   const repliesCount = comment.replies?.length || 0;
 
@@ -22,7 +25,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
 
   const handleReply = async (content, commentID) => {
     if (!user) {
-      alert('Vui lòng đăng nhập để trả lời.');
+      alert(t('comment.loginToComment'));
       return;
     }
     if (!content.trim()) return;
@@ -32,7 +35,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
       mutate();
     } catch (err) {
       console.error('Failed to add reply:', err);
-      alert('Không thể thêm phản hồi. Vui lòng thử lại.');
+      alert(t('comment.addError'));
     }
   };
 
@@ -44,7 +47,6 @@ const CommentItem = ({ comment, postId, mutate }) => {
       transition={{ duration: 0.15 }}
     >
       <div className="flex gap-3">
-        {/* Avatar */}
         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-medium-bg-secondary flex items-center justify-center overflow-hidden">
           {comment.user?.avatar_url ? (
             <img src={comment.user.avatar_url} alt={comment.user.name} className="w-full h-full object-cover" />
@@ -54,7 +56,6 @@ const CommentItem = ({ comment, postId, mutate }) => {
         </div>
 
         <div className="flex-1 min-w-0">
-          {/* Name + time */}
           <div className="flex items-center gap-2 mb-1">
             <span className="text-sm font-medium text-medium-text-primary">
               {comment.user?.name || 'Anonymous'}
@@ -64,12 +65,10 @@ const CommentItem = ({ comment, postId, mutate }) => {
             </span>
           </div>
 
-          {/* Content */}
           <div className="text-sm text-medium-text-secondary leading-relaxed mb-2">
             <CommentContent content={comment.content} />
           </div>
 
-          {/* Actions */}
           <div className="flex items-center gap-4">
             <button
               onClick={handleClap}
@@ -77,16 +76,15 @@ const CommentItem = ({ comment, postId, mutate }) => {
                 hasClapped ? 'text-medium-accent-green' : 'text-medium-text-muted hover:text-medium-accent-green'
               }`}
             >
-              <FaHeart className={`w-3 h-3 ${clapsLoading ? 'animate-pulse' : ''}`} />
-              <span>{clapsCount}</span>
+              <FaHandsClapping className={`w-3.5 h-3.5 ${clapsLoading ? 'animate-pulse' : ''}`} />
+              {clapsCount > 0 && <span>{clapsCount}</span>}
             </button>
 
             <button
               onClick={() => setShowReplyForm(prev => !prev)}
               className="flex items-center gap-1 text-xs text-medium-text-muted hover:text-medium-accent-green transition-colors"
             >
-              <FaComment className="w-3 h-3" />
-              <span>{repliesCount > 0 ? repliesCount : 'Reply'}</span>
+              <span>{repliesCount > 0 ? `${repliesCount} ${t('comment.reply')}` : t('comment.reply')}</span>
             </button>
           </div>
 
