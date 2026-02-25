@@ -38,7 +38,7 @@ const PersonalBlogSidebar = () => {
               <Link
                 key={category.id}
                 href={`/category/${category.name}`}
-                className="px-3 py-1 bg-medium-bg-secondary text-medium-text-secondary text-sm rounded-full hover:text-medium-accent-green transition-colors"
+                className="px-3 py-1 bg-medium-bg-secondary text-medium-text-secondary text-sm rounded-full hover:underline transition-colors"
               >
                 {category.name}
                 {category.post_count && (

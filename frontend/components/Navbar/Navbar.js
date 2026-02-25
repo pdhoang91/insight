@@ -54,7 +54,7 @@ const Navbar = () => {
       <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="font-serif text-2xl font-bold text-medium-text-primary hover:text-medium-accent-green transition-colors">
+          <Link href="/" className="font-serif text-2xl font-bold text-medium-text-primary hover:opacity-80 transition-opacity">
             Insight
           </Link>
 
@@ -75,7 +75,7 @@ const Navbar = () => {
               ) : (
                 <button
                   onClick={() => user ? router.push('/write') : setModalOpen(true)}
-                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-medium-text-secondary hover:text-medium-accent-green transition-colors"
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-medium-text-secondary hover:text-[#242424] transition-colors"
                 >
                   <FaEdit className="w-4 h-4" />
                   {t('nav.write')}
@@ -181,7 +181,7 @@ const Navbar = () => {
               {user && canWritePosts(user) && !isWritePage && (
                 <button
                   onClick={() => { router.push('/write'); setIsMobileMenuOpen(false); }}
-                  className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-medium-text-secondary hover:text-medium-accent-green rounded-lg transition-colors"
+                  className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-medium-text-secondary hover:text-[#242424] rounded-lg transition-colors"
                 >
                   <FaEdit className="w-4 h-4" />
                   {t('nav.write')}

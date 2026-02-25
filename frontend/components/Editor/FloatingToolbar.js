@@ -3,23 +3,20 @@ import { FloatingMenu } from '@tiptap/react'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
   FaPlus,
-  FaTimes,
   FaImage,
   FaCode,
-  FaTable,
   FaYoutube,
   FaMinus,
   FaQuoteRight,
-  FaTasks,
 } from 'react-icons/fa'
 
 const FloatingIcon = ({ icon: Icon, onClick, title }) => (
   <button
     onClick={onClick}
-    className="w-8 h-8 flex items-center justify-center rounded-full text-medium-text-secondary hover:text-medium-accent-green transition-colors"
+    className="w-7 h-7 flex items-center justify-center rounded-full text-[#6b6b6b] hover:text-[#242424] transition-colors"
     title={title}
   >
-    <Icon className="w-4 h-4" />
+    <Icon className="w-[15px] h-[15px]" />
   </button>
 )
 
@@ -37,7 +34,6 @@ const FloatingToolbar = ({ editor, onImageUpload, onYoutubeClick }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Close when editor content changes (user typed or inserted something)
   useEffect(() => {
     if (!editor) return
     const handler = () => setIsOpen(false)
@@ -62,19 +58,18 @@ const FloatingToolbar = ({ editor, onImageUpload, onYoutubeClick }) => {
         return isEmptyLine && !currentLineText
       }}
     >
-      <div ref={containerRef} className="flex items-center gap-1">
-        {/* + toggle button */}
+      <div ref={containerRef} className="flex items-center gap-0.5">
         <button
           onClick={() => setIsOpen(prev => !prev)}
-          className={`w-8 h-8 flex items-center justify-center rounded-full border border-medium-border text-medium-text-muted hover:text-medium-accent-green hover:border-medium-accent-green transition-all ${
-            isOpen ? 'rotate-45 border-medium-accent-green text-medium-accent-green' : ''
+          className={`w-[33px] h-[33px] flex items-center justify-center rounded-full border transition-all duration-150 ${
+            isOpen
+              ? 'border-[#242424] text-[#242424] rotate-45'
+              : 'border-[#b3b3b1] text-[#b3b3b1] hover:border-[#6b6b6b] hover:text-[#6b6b6b]'
           }`}
-          style={{ transition: 'transform 0.15s ease, color 0.15s ease, border-color 0.15s ease' }}
         >
           <FaPlus className="w-3.5 h-3.5" />
         </button>
 
-        {/* Expandable icon row */}
         <AnimatePresence>
           {isOpen && (
             <motion.div
@@ -82,42 +77,32 @@ const FloatingToolbar = ({ editor, onImageUpload, onYoutubeClick }) => {
               animate={{ width: 'auto', opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
               transition={{ duration: 0.15, ease: 'easeOut' }}
-              className="flex items-center gap-0.5 overflow-hidden"
+              className="flex items-center gap-0.5 overflow-hidden ml-1"
             >
               <FloatingIcon
                 icon={FaImage}
                 onClick={() => { onImageUpload(); setIsOpen(false) }}
-                title="Hình ảnh"
+                title="Image"
               />
               <FloatingIcon
                 icon={FaCode}
                 onClick={() => { editor.chain().focus().toggleCodeBlock().run(); setIsOpen(false) }}
-                title="Khối mã"
-              />
-              <FloatingIcon
-                icon={FaTable}
-                onClick={() => { editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run(); setIsOpen(false) }}
-                title="Bảng"
+                title="Code block"
               />
               <FloatingIcon
                 icon={FaYoutube}
                 onClick={() => { onYoutubeClick(); setIsOpen(false) }}
-                title="Video YouTube"
-              />
-              <FloatingIcon
-                icon={FaQuoteRight}
-                onClick={() => { editor.chain().focus().toggleBlockquote().run(); setIsOpen(false) }}
-                title="Trích dẫn"
+                title="YouTube"
               />
               <FloatingIcon
                 icon={FaMinus}
                 onClick={() => { editor.chain().focus().setHorizontalRule().run(); setIsOpen(false) }}
-                title="Đường kẻ ngang"
+                title="Divider"
               />
               <FloatingIcon
-                icon={FaTasks}
-                onClick={() => { editor.chain().focus().toggleTaskList().run(); setIsOpen(false) }}
-                title="Danh sách việc cần làm"
+                icon={FaQuoteRight}
+                onClick={() => { editor.chain().focus().toggleBlockquote().run(); setIsOpen(false) }}
+                title="Quote"
               />
             </motion.div>
           )}

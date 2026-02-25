@@ -54,7 +54,7 @@ const BasePostItem = ({
     return (
       <article className="py-3 border-b border-medium-border last:border-0">
         <Link href={`/p/${post.slug}`} className="block group">
-          <h4 className="font-serif font-semibold text-sm text-medium-text-primary group-hover:text-medium-accent-green transition-colors line-clamp-2">
+          <h4 className="font-serif font-semibold text-sm text-medium-text-primary group-hover:underline line-clamp-2">
             {post.title}
           </h4>
           <div className="flex items-center gap-2 mt-1 text-xs text-medium-text-muted">
@@ -81,7 +81,7 @@ const BasePostItem = ({
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <h4 className="font-serif font-semibold text-sm text-medium-text-primary group-hover:text-medium-accent-green transition-colors line-clamp-2 mb-1">
+            <h4 className="font-serif font-semibold text-sm text-medium-text-primary group-hover:underline line-clamp-2 mb-1">
               {post.title}
             </h4>
             <p className="text-xs text-medium-text-secondary line-clamp-1">
@@ -111,7 +111,7 @@ const BasePostItem = ({
         <button
           onClick={handleClap}
           disabled={clapsLoading}
-          className="flex items-center gap-1.5 text-sm text-medium-text-secondary hover:text-medium-accent-green transition-colors"
+          className="flex items-center gap-1.5 text-sm text-[#6b6b6b] hover:text-[#242424] transition-colors"
         >
           <FaHandsClapping className="w-4 h-4" />
           <span>{clapsCount || 0}</span>
@@ -119,7 +119,7 @@ const BasePostItem = ({
         {showComments && (
           <button
             onClick={() => setCommentsOpen(prev => !prev)}
-            className="flex items-center gap-1.5 text-sm text-medium-text-secondary hover:text-medium-accent-green transition-colors"
+            className="flex items-center gap-1.5 text-sm text-[#6b6b6b] hover:text-[#242424] transition-colors"
           >
             <FaComment className="w-4 h-4" />
             <span>{totalCount || 0}</span>
@@ -135,7 +135,7 @@ const BasePostItem = ({
         <div className="flex items-center gap-2">
           <Link
             href={`/edit/${post.id}`}
-            className="p-1.5 rounded text-medium-text-secondary hover:text-medium-accent-green transition-colors"
+            className="p-1.5 rounded text-[#6b6b6b] hover:text-[#242424] transition-colors"
           >
             <FaEdit className="w-4 h-4" />
           </Link>
@@ -176,7 +176,7 @@ const BasePostItem = ({
         <div className="flex flex-col lg:flex-row gap-5">
           <div className="flex-1 min-w-0">
             <Link href={`/p/${post.slug}`}>
-              <h2 className="font-serif text-xl font-bold text-medium-text-primary hover:text-medium-accent-green transition-colors line-clamp-2">
+              <h2 className="font-serif text-xl font-bold text-medium-text-primary hover:underline line-clamp-2">
                 {post.title}
               </h2>
             </Link>
@@ -189,7 +189,7 @@ const BasePostItem = ({
                   <Link
                     key={cat.id}
                     href={`/category/${cat.name}`}
-                    className="px-2.5 py-0.5 bg-medium-bg-secondary text-medium-text-secondary text-xs rounded-full hover:text-medium-accent-green transition-colors"
+                    className="px-2.5 py-0.5 bg-medium-bg-secondary text-medium-text-secondary text-xs rounded-full hover:underline transition-colors"
                   >
                     {cat.name}
                   </Link>
@@ -220,7 +220,7 @@ const BasePostItem = ({
       <div className="flex flex-col lg:flex-row gap-5">
         <div className="flex-1 min-w-0">
           <Link href={`/p/${post.slug}`}>
-            <h2 className="font-serif text-xl lg:text-2xl font-bold text-medium-text-primary hover:text-medium-accent-green transition-colors line-clamp-2">
+            <h2 className="font-serif text-xl lg:text-2xl font-bold text-medium-text-primary hover:underline line-clamp-2">
               {post.title}
             </h2>
           </Link>
@@ -233,7 +233,7 @@ const BasePostItem = ({
                 <Link
                   key={cat.id}
                   href={`/category/${cat.name}`}
-                    className="px-2.5 py-0.5 bg-medium-bg-secondary text-medium-text-secondary text-xs rounded-full hover:text-medium-accent-green transition-colors"
+                    className="px-2.5 py-0.5 bg-medium-bg-secondary text-medium-text-secondary text-xs rounded-full hover:underline transition-colors"
                 >
                   {cat.name}
                 </Link>

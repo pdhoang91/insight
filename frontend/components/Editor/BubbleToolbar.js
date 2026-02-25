@@ -3,32 +3,24 @@ import { BubbleMenu } from '@tiptap/react'
 import {
   FaBold,
   FaItalic,
-  FaUnderline,
-  FaStrikethrough,
   FaLink,
-  FaEraser,
+  FaQuoteRight,
+  FaCode,
 } from 'react-icons/fa'
 
-const QUICK_HIGHLIGHTS = [
-  { color: '#fef08a', label: 'Vàng' },
-  { color: '#bbf7d0', label: 'Xanh' },
-  { color: '#bfdbfe', label: 'Dương' },
-  { color: '#fce7f3', label: 'Hồng' },
-]
-
-const BubbleButton = ({ icon: Icon, onClick, isActive, title }) => (
+const BubbleButton = ({ icon: Icon, label, onClick, isActive, title }) => (
   <button
     onClick={onClick}
-    className={`p-1.5 rounded transition-colors ${
-      isActive
-        ? 'bg-white/20 text-white'
-        : 'text-white/70 hover:text-white hover:bg-white/10'
+    className={`px-2 py-1.5 text-sm transition-opacity ${
+      isActive ? 'text-white opacity-100' : 'text-white/60 hover:opacity-100'
     }`}
     title={title}
   >
-    <Icon className="w-3.5 h-3.5" />
+    {Icon ? <Icon className="w-[15px] h-[15px]" /> : <span className="text-xs font-bold">{label}</span>}
   </button>
 )
+
+const Separator = () => <div className="w-px h-4 bg-white/20 mx-0.5" />
 
 const BubbleToolbar = ({ editor, onLinkClick }) => {
   if (!editor) return null
@@ -48,64 +40,54 @@ const BubbleToolbar = ({ editor, onLinkClick }) => {
         return true
       }}
     >
-      <div className="flex items-center gap-0.5 px-2 py-1 rounded-lg shadow-lg bg-gray-900 border border-gray-700">
+      <div className="flex items-center px-1.5 py-0.5 rounded bg-[#292929] shadow-lg">
         <BubbleButton
           icon={FaBold}
           onClick={() => editor.chain().focus().toggleBold().run()}
           isActive={editor.isActive('bold')}
-          title="Đậm"
+          title="Bold"
         />
         <BubbleButton
           icon={FaItalic}
           onClick={() => editor.chain().focus().toggleItalic().run()}
           isActive={editor.isActive('italic')}
-          title="Nghiêng"
+          title="Italic"
         />
-        <BubbleButton
-          icon={FaUnderline}
-          onClick={() => editor.chain().focus().toggleUnderline().run()}
-          isActive={editor.isActive('underline')}
-          title="Gạch chân"
-        />
-        <BubbleButton
-          icon={FaStrikethrough}
-          onClick={() => editor.chain().focus().toggleStrike().run()}
-          isActive={editor.isActive('strike')}
-          title="Gạch ngang"
-        />
-
-        <div className="w-px h-4 bg-gray-600 mx-1" />
-
         <BubbleButton
           icon={FaLink}
           onClick={onLinkClick}
           isActive={editor.isActive('link')}
-          title="Liên kết"
+          title="Link"
         />
 
-        <div className="w-px h-4 bg-gray-600 mx-1" />
-
-        {QUICK_HIGHLIGHTS.map((h) => (
-          <button
-            key={h.color}
-            onClick={() => editor.chain().focus().toggleHighlight({ color: h.color }).run()}
-            className={`w-5 h-5 rounded-sm border transition-opacity hover:opacity-80 ${
-              editor.isActive('highlight', { color: h.color })
-                ? 'border-white ring-1 ring-white'
-                : 'border-transparent'
-            }`}
-            style={{ backgroundColor: h.color }}
-            title={h.label}
-          />
-        ))}
-
-        <div className="w-px h-4 bg-gray-600 mx-1" />
+        <Separator />
 
         <BubbleButton
-          icon={FaEraser}
-          onClick={() => editor.chain().focus().clearNodes().unsetAllMarks().run()}
-          isActive={false}
-          title="Xóa định dạng"
+          label="H1"
+          onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
+          isActive={editor.isActive('heading', { level: 1 })}
+          title="Heading 1"
+        />
+        <BubbleButton
+          label="H2"
+          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          isActive={editor.isActive('heading', { level: 2 })}
+          title="Heading 2"
+        />
+
+        <Separator />
+
+        <BubbleButton
+          icon={FaQuoteRight}
+          onClick={() => editor.chain().focus().toggleBlockquote().run()}
+          isActive={editor.isActive('blockquote')}
+          title="Quote"
+        />
+        <BubbleButton
+          icon={FaCode}
+          onClick={() => editor.chain().focus().toggleCode().run()}
+          isActive={editor.isActive('code')}
+          title="Inline code"
         />
       </div>
     </BubbleMenu>

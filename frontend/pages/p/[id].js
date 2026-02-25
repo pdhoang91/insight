@@ -4,7 +4,6 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import React, { useRef } from 'react';
 import { usePostName } from '../../hooks/usePost';
 import CommentSection from '../../components/Comment/CommentSection';
-import { ReadingLayout } from '../../components/Layout/Layout';
 import PostDetail from '../../components/Post/PostDetail';
 import LoadingSpinner from '../../components/Shared/LoadingSpinner';
 
@@ -25,7 +24,7 @@ const PostPage = () => {
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
         <LoadingSpinner size="lg" />
-        <p className="mt-4 text-medium-text-secondary">Loading post...</p>
+        <p className="mt-4 text-[#6b6b6b] text-sm">Loading...</p>
       </div>
     </div>
   );
@@ -33,23 +32,23 @@ const PostPage = () => {
   if (isError) return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
-        <div className="text-red-500 mb-2 font-serif text-lg">Failed to load post</div>
-        <p className="text-medium-text-muted text-sm">Please try again later</p>
+        <div className="text-[#242424] mb-2 font-serif text-lg">Failed to load post</div>
+        <p className="text-[#6b6b6b] text-sm">Please try again later</p>
       </div>
     </div>
   );
 
   return (
-    <ReadingLayout>
+    <div className="pt-20 pb-16 px-5 md:px-6">
       <PostDetail
         post={post}
         onScrollToComments={scrollToComments}
       />
 
-      <section ref={commentSectionRef} className="mt-12 pt-8 border-t border-medium-border">
+      <section ref={commentSectionRef} className="max-w-[680px] mx-auto mt-12 pt-8 border-t border-medium-border">
         <CommentSection postId={post.id} />
       </section>
-    </ReadingLayout>
+    </div>
   );
 };
 

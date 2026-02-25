@@ -6,8 +6,9 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install all dependencies first
-RUN npm install --frozen-lockfile
+# Use npm install instead of npm ci to properly resolve
+# platform-specific optional deps (SWC binaries) for the container's arch
+RUN npm install --prefer-offline --no-audit --no-fund
 
 # Builder stage
 FROM node:22-alpine AS builder
@@ -27,6 +28,7 @@ ARG NEXT_PUBLIC_BASE_FE_URL
 # Set environment variables for build
 ENV NEXT_PUBLIC_BASE_API_URL=$NEXT_PUBLIC_BASE_API_URL
 ENV NEXT_PUBLIC_BASE_FE_URL=$NEXT_PUBLIC_BASE_FE_URL
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build the application
 RUN npm run build
@@ -35,7 +37,8 @@ RUN npm run build
 FROM node:22-alpine AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Create non-root user
 RUN addgroup --system --gid 1001 nodejs && \
@@ -53,8 +56,8 @@ USER nextjs
 # Expose port
 EXPOSE 3000
 
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 # Start the application
 CMD ["node", "server.js"]

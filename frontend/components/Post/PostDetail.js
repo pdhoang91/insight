@@ -1,13 +1,12 @@
-// components/Post/PostDetail.js
+// components/Post/PostDetail.js — Medium-style post detail
 import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { useUser } from '../../context/UserContext';
 import { FaHandsClapping, FaShare } from 'react-icons/fa6';
-import { FaEye, FaComment, FaUser } from 'react-icons/fa';
+import { FaComment, FaUser, FaBookmark } from 'react-icons/fa';
 import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapPost } from '../../services/activityService';
 import { useComments } from '../../hooks/useComments';
-import TableOfContents from '../Shared/TableOfContents';
 import ReadingProgressBar from '../Shared/ReadingProgressBar';
 import SEOHead from '../SEO/SEOHead';
 import RelatedPosts from './RelatedPosts';
@@ -16,8 +15,8 @@ import { renderPostContent, getContentPlainText } from '../../utils/renderConten
 export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
   if (!post) {
     return (
-      <div className="flex justify-center items-center h-64 text-medium-text-muted">
-        Đang tải bài viết...
+      <div className="flex justify-center items-center h-64 text-[#6b6b6b]">
+        Loading...
       </div>
     );
   }
@@ -61,160 +60,180 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
 
       <ReadingProgressBar />
 
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Main Article */}
-        <article className="flex-1 min-w-0 max-w-[720px]">
-          {/* Header */}
-          <header className="mb-8">
-            <h1 className="font-serif text-3xl lg:text-4xl font-bold text-medium-text-primary leading-tight mb-6">
-              {post.title}
-            </h1>
+      <article className="max-w-[680px] mx-auto">
+        {/* Title */}
+        <h1 className="font-serif text-[32px] lg:text-[42px] font-bold text-[#242424] leading-[1.2] mb-8">
+          {post.title}
+        </h1>
 
-            {/* Author info — 200lab style */}
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-full bg-medium-bg-secondary flex items-center justify-center overflow-hidden flex-shrink-0">
-                {post.author?.avatar_url ? (
-                  <img src={post.author.avatar_url} alt={post.author.name} className="w-full h-full object-cover" />
-                ) : (
-                  <FaUser className="w-4 h-4 text-medium-text-muted" />
-                )}
-              </div>
-              <div>
-                <div className="text-sm font-medium text-medium-text-primary">
-                  {post.author?.name || 'Anonymous'}
-                </div>
-                <div className="flex items-center gap-2 text-xs text-medium-text-muted">
-                  <time dateTime={post.created_at}>
-                    {new Date(post.created_at).toLocaleDateString('vi-VN', {
-                      year: 'numeric', month: 'long', day: 'numeric',
-                    })}
-                  </time>
-                  <span>·</span>
-                  <span>{readTime} min read</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Stats bar */}
-            <div className="flex items-center justify-between py-3 border-y border-medium-border">
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={handleClap}
-                  className={`flex items-center gap-1.5 text-sm transition-colors ${
-                    hasClapped ? 'text-medium-accent-green' : 'text-medium-text-secondary hover:text-medium-accent-green'
-                  }`}
-                >
-                  <FaHandsClapping className="w-4 h-4" />
-                  <span>{postClapsCount}</span>
-                </button>
-
-                <button
-                  onClick={onScrollToComments}
-                  className="flex items-center gap-1.5 text-sm text-medium-text-secondary hover:text-medium-accent-green transition-colors"
-                >
-                  <FaComment className="w-4 h-4" />
-                  <span>{totalCommentReply || 0}</span>
-                </button>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1.5 text-sm text-medium-text-muted">
-                  <FaEye className="w-4 h-4" />
-                  <span>{post.views || 0}</span>
-                </div>
-                <button
-                  onClick={handleShare}
-                  className="text-sm text-medium-text-secondary hover:text-medium-accent-green transition-colors"
-                  title="Copy link"
-                >
-                  <FaShare className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </header>
-
-          {/* Mobile TOC — collapsible card */}
-          <div className="lg:hidden mb-8">
-            <TableOfContents content={renderedHTML} collapsible />
+        {/* Author info */}
+        <div className="flex items-center gap-3 mb-8">
+          <div className="w-11 h-11 rounded-full bg-medium-bg-secondary flex items-center justify-center overflow-hidden flex-shrink-0">
+            {post.author?.avatar_url ? (
+              <img src={post.author.avatar_url} alt={post.author.name} className="w-full h-full object-cover" />
+            ) : (
+              <FaUser className="w-4 h-4 text-[#6b6b6b]" />
+            )}
           </div>
-
-          {/* Cover Image */}
-          {post.cover_image && (
-            <div className="mb-8">
-              <img
-                src={post.cover_image}
-                alt={post.title}
-                className="w-full h-auto rounded-lg"
-                loading="eager"
-              />
+          <div>
+            <div className="text-sm font-medium text-[#242424] hover:underline cursor-pointer">
+              {post.author?.name || 'Anonymous'}
             </div>
-          )}
-
-          {/* Content */}
-          <div className="prose prose-lg prose-gray max-w-none">
-            <div
-              className="post-content reading-content leading-relaxed text-medium-text-primary"
-              dangerouslySetInnerHTML={{ __html: renderedHTML }}
-            />
+            <div className="flex items-center gap-1 text-sm text-[#6b6b6b]">
+              <span>{readTime} min read</span>
+              <span>·</span>
+              <time dateTime={post.created_at}>
+                {new Date(post.created_at).toLocaleDateString('en-US', {
+                  month: 'short', day: 'numeric', year: 'numeric',
+                })}
+              </time>
+            </div>
           </div>
+        </div>
 
-          {/* Tags at bottom */}
-          {post.categories?.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-10 pt-6 border-t border-medium-border">
-              {post.categories.map(cat => (
-                <Link
-                  key={cat.id || cat.name}
-                  href={`/category/${cat.name}`}
-                  className="px-3 py-1 bg-medium-bg-secondary text-medium-text-secondary text-sm rounded-full hover:text-medium-accent-green transition-colors"
-                >
-                  {cat.name}
-                </Link>
-              ))}
-            </div>
-          )}
-
-          {/* Share at bottom */}
-          <div className="flex items-center gap-4 mt-6 py-4 border-t border-medium-border">
+        {/* Stats bar */}
+        <div className="flex items-center justify-between py-3 border-y border-medium-border mb-8">
+          <div className="flex items-center gap-5">
             <button
               onClick={handleClap}
               className={`flex items-center gap-1.5 text-sm transition-colors ${
-                hasClapped ? 'text-medium-accent-green' : 'text-medium-text-secondary hover:text-medium-accent-green'
+                hasClapped ? 'text-medium-accent-green' : 'text-[#6b6b6b] hover:text-[#242424]'
               }`}
             >
-              <FaHandsClapping className="w-4 h-4" />
-              <span>{postClapsCount}</span>
+              <FaHandsClapping className="w-5 h-5" />
+              {postClapsCount > 0 && <span>{postClapsCount}</span>}
             </button>
+
             <button
               onClick={onScrollToComments}
-              className="flex items-center gap-1.5 text-sm text-medium-text-secondary hover:text-medium-accent-green transition-colors"
+              className="flex items-center gap-1.5 text-sm text-[#6b6b6b] hover:text-[#242424] transition-colors"
             >
-              <FaComment className="w-4 h-4" />
-              <span>{totalCommentReply || 0}</span>
+              <FaComment className="w-5 h-5" />
+              {totalCommentReply > 0 && <span>{totalCommentReply}</span>}
+            </button>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <button
+              className="text-[#6b6b6b] hover:text-[#242424] transition-colors"
+              title="Bookmark"
+            >
+              <FaBookmark className="w-4 h-4" />
             </button>
             <button
               onClick={handleShare}
-              className="flex items-center gap-1.5 text-sm text-medium-text-secondary hover:text-medium-accent-green transition-colors"
+              className="text-[#6b6b6b] hover:text-[#242424] transition-colors"
+              title="Share"
             >
               <FaShare className="w-4 h-4" />
-              <span>Share</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Cover Image */}
+        {post.cover_image && (
+          <div className="mb-10">
+            <img
+              src={post.cover_image}
+              alt={post.title}
+              className="w-full h-auto"
+              loading="eager"
+            />
+          </div>
+        )}
+
+        {/* Content */}
+        <div
+          className="post-content reading-content text-[#242424]"
+          style={{ fontSize: '21px', lineHeight: '1.58' }}
+          dangerouslySetInnerHTML={{ __html: renderedHTML }}
+        />
+
+        {/* Tags — plain text with · separators */}
+        {post.categories?.length > 0 && (
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-12 pt-8 border-t border-medium-border">
+            {post.categories.map((cat, i) => (
+              <React.Fragment key={cat.id || cat.name}>
+                {i > 0 && <span className="text-[#6b6b6b]">·</span>}
+                <Link
+                  href={`/category/${cat.name}`}
+                  className="text-sm text-[#6b6b6b] hover:text-[#242424] hover:underline transition-colors"
+                >
+                  {cat.name}
+                </Link>
+              </React.Fragment>
+            ))}
+          </div>
+        )}
+
+        {/* Bottom stats bar */}
+        <div className="flex items-center justify-between py-3 border-y border-medium-border mt-8">
+          <div className="flex items-center gap-5">
+            <button
+              onClick={handleClap}
+              className={`flex items-center gap-1.5 text-sm transition-colors ${
+                hasClapped ? 'text-medium-accent-green' : 'text-[#6b6b6b] hover:text-[#242424]'
+              }`}
+            >
+              <FaHandsClapping className="w-5 h-5" />
+              {postClapsCount > 0 && <span>{postClapsCount}</span>}
+            </button>
+
+            <button
+              onClick={onScrollToComments}
+              className="flex items-center gap-1.5 text-sm text-[#6b6b6b] hover:text-[#242424] transition-colors"
+            >
+              <FaComment className="w-5 h-5" />
+              {totalCommentReply > 0 && <span>{totalCommentReply}</span>}
             </button>
           </div>
 
-          {/* Related Posts */}
-          {relatedPosts.length > 0 && (
-            <div className="mt-12">
-              <RelatedPosts posts={relatedPosts} currentPostId={post.id} />
-            </div>
-          )}
-        </article>
-
-        {/* TOC Sidebar — desktop only */}
-        <aside className="hidden lg:block w-[250px] flex-shrink-0">
-          <div className="sticky top-20 max-h-[calc(100vh-5rem)] overflow-y-auto">
-            <TableOfContents content={renderedHTML} />
+          <div className="flex items-center gap-4">
+            <button
+              className="text-[#6b6b6b] hover:text-[#242424] transition-colors"
+              title="Bookmark"
+            >
+              <FaBookmark className="w-4 h-4" />
+            </button>
+            <button
+              onClick={handleShare}
+              className="text-[#6b6b6b] hover:text-[#242424] transition-colors"
+              title="Share"
+            >
+              <FaShare className="w-4 h-4" />
+            </button>
           </div>
-        </aside>
-      </div>
+        </div>
+
+        {/* Author bio card */}
+        <div className="flex items-start gap-4 mt-10 py-6">
+          <div className="w-[72px] h-[72px] rounded-full bg-medium-bg-secondary flex items-center justify-center overflow-hidden flex-shrink-0">
+            {post.author?.avatar_url ? (
+              <img src={post.author.avatar_url} alt={post.author.name} className="w-full h-full object-cover" />
+            ) : (
+              <FaUser className="w-6 h-6 text-[#6b6b6b]" />
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-[#6b6b6b] uppercase tracking-wider mb-1">Written by</p>
+            <h3 className="text-lg font-bold text-[#242424] hover:underline cursor-pointer">
+              {post.author?.name || 'Anonymous'}
+            </h3>
+            {post.author?.bio && (
+              <p className="text-sm text-[#6b6b6b] mt-1 leading-relaxed">
+                {post.author.bio}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Related Posts */}
+        {relatedPosts.length > 0 && (
+          <div className="mt-12 pt-8 border-t border-medium-border">
+            <RelatedPosts posts={relatedPosts} currentPostId={post.id} />
+          </div>
+        )}
+      </article>
     </>
   );
 };

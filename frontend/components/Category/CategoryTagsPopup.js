@@ -113,13 +113,16 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
                 value={excerpt}
                 onChange={(e) => setExcerpt(e.target.value)}
                 placeholder={autoExcerpt || 'Write a preview subtitle...'}
-                className="w-full text-sm text-medium-text-secondary leading-relaxed resize-none border-0 border-b border-medium-border focus:border-medium-accent-green focus:outline-none py-2 bg-transparent placeholder:text-medium-text-muted/60"
+                className="w-full text-sm text-medium-text-secondary leading-relaxed resize-none border-0 border-b border-medium-border focus:border-[#242424] focus:outline-none py-2 bg-transparent placeholder:text-medium-text-muted/60"
                 rows={3}
                 maxLength={280}
               />
               <div className="text-xs text-medium-text-muted mt-1 text-right">
                 {(excerpt || autoExcerpt).length}/280
               </div>
+              <p className="text-xs text-medium-text-muted mt-3 leading-relaxed">
+                Changes here will affect how your story appears in public places like the homepage and in subscribers' inboxes — not the contents of the story itself.
+              </p>
             </div>
           </div>
 
@@ -160,10 +163,10 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
                         disabled={isDisabled}
                         className={`px-3 py-1.5 text-sm rounded-full border transition-colors ${
                           isSelected
-                            ? 'bg-medium-text-primary text-white border-medium-text-primary'
+                            ? 'bg-[#242424] text-white border-[#242424]'
                             : isDisabled
                             ? 'border-medium-border text-medium-text-muted opacity-40 cursor-not-allowed'
-                            : 'border-medium-border text-medium-text-secondary hover:border-medium-text-primary hover:text-medium-text-primary'
+                            : 'border-[#b3b3b1] text-[#6b6b6b] hover:border-[#242424] hover:text-[#242424]'
                         }`}
                       >
                         {cat.name}
@@ -188,7 +191,7 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
                 Add tags (up to 5) to help categorize your story.
               </p>
               <div
-                className="flex flex-wrap items-center gap-2 px-3 py-2 border border-medium-border rounded-lg focus-within:border-medium-text-primary transition-colors min-h-[42px]"
+                className="flex flex-wrap items-center gap-2 px-3 py-2 border border-[#b3b3b1] rounded-lg focus-within:border-[#242424] transition-colors min-h-[42px]"
                 onClick={() => tagInputRef.current?.focus()}
               >
                 {tags.map((tag, i) => (

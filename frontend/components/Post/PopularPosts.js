@@ -23,7 +23,7 @@ const PopularPostItem = ({ post, rank, showImages }) => {
           themeClasses.text.bodySmall,
           'lg:text-base',
           themeClasses.text.secondary,
-          'group-hover:text-medium-accent-green',
+          'group-hover:underline',
           'line-clamp-2'
         )}>
           {post.title}

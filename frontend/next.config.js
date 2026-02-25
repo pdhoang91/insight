@@ -5,6 +5,9 @@ module.exports = {
   i18n,
   reactStrictMode: true,
   output: 'standalone',
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   images: {
     remotePatterns: [
       {

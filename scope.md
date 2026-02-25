@@ -1,154 +1,169 @@
-# UI/UX Refactor Plan — Round 3 (Medium-style Polish)
+# UI/UX Refactor Plan — Round 4 (True Medium.com Alignment)
 
 ## Goals
-1. Clean up remaining hover effects — follow Medium.com's subtle hover patterns
-2. Redesign FloatingToolbar to Medium's "+" toggle pattern
-3. Redesign Publish popup to Medium's full-page publish flow
-4. Fix i18n — move LanguageSwitcher into user dropdown, translate sidebar & footer strings
-5. Redesign comment/clap UX to match Medium's inline style
+1. Final hover cleanup — follow Medium's grayscale hover philosophy (no green accent on hover for icons/buttons)
+2. Redesign FloatingToolbar + BubbleToolbar to match Medium's exact style
+3. Redesign Publish popup — separate full-page route (not inside editor), Medium submission flow
+4. Redesign Comment/Reply UX — no avatar in form, Medium's exact comment style
+5. Redesign Post Detail page — closer to Medium's layout (content width, author section, stats bar, bottom actions)
 
 ---
 
-## Phase 1: Hover & Interaction Cleanup (Medium-style)
+## Phase 1: Hover & Interaction Cleanup — True Medium Style
 
-**Reference:** Medium uses almost no background hovers. Links get underline or subtle color shift. Buttons get slight opacity change. No bg-green, no bg-gray on text elements.
+**Reference:** Medium uses **grayscale** for hover states. Icons go from `#6b6b6b` → slightly darker on hover. No green accent on hover. Green is ONLY used for filled CTA buttons and active/clapped states.
 
-### 1a. `Navbar.js`
-- Logo: keep `hover:text-medium-accent-green` — that's fine
-- "Viết bài" button: keep text color hover — OK
-- "Đăng bài" green button: change `hover:bg-medium-accent-green/90` → `hover:opacity-90` (Medium pattern)
-- "Đăng nhập" border button: remove `hover:bg-medium-accent-green hover:text-white` → use `hover:opacity-80` only
-- Mobile login button: same treatment
-- User avatar: no hover ring needed — already clean
+### 1a. Global hover philosophy change
+- **Icons/action buttons** (clap, comment, share, etc.): `text-[#6b6b6b]` → `hover:text-[#242424]` (darker gray, NOT green)
+- **Clapped/active state**: Keep green for active/clapped state only
+- **CTA buttons** (Publish, Login): `hover:opacity-90` — already correct
+- **Text links** (titles, categories): `hover:underline` instead of `hover:text-green`
+- **Category pills**: `hover:bg-gray-100` (subtle bg) or `hover:underline`
 
-### 1b. `BasePostItem.js`
-- Post title: `hover:text-medium-accent-green` — keep, but ensure it's underline-free (Medium uses no underline on titles)
-- Category pills: already `hover:text-medium-accent-green` — OK
-- Clap/comment/view buttons: already text-color-only hover — OK
-- FeaturedPost in `index.js`: remove `hover:shadow-md` from article, remove `hover:scale-[1.02]` from image
-
-### 1c. `PostDetail.js`
-- Clap/comment/share buttons: already text-color-only — OK
-- Category tags at bottom: already `hover:text-medium-accent-green` — OK
-
-### 1d. `Layout.js` — MobileSidebarContent
-- Remove `hover:bg-medium-hover` from the expand button
-
-### 1e. `PostList.js`
-- "You've reached the end!" → translate with `t()` key
+### 1b. Files to update
+- `PostDetail.js`: Clap/comment/share buttons → `hover:text-[#242424]` instead of `hover:text-medium-accent-green`
+- `BasePostItem.js`: Title hover → `group-hover:underline` instead of `group-hover:text-medium-accent-green`; action buttons → grayscale hover
+- `CommentItem.js`: Clap/reply buttons → grayscale hover
+- `ReplyItem.js`: Clap button → grayscale hover
+- `PopularPosts.js`: Title hover → underline
+- `PersonalBlogSidebar.js`: Category links → `hover:underline`
+- `Navbar.js`: Write/logo links → `hover:opacity-80` or `hover:underline`
+- `FloatingToolbar.js`: Icon hover → darker gray, not green
+- `BubbleToolbar.js`: Already dark bg with white icons — OK, but tweak active states
 
 **Status:** [x] Completed
 
 ---
 
-## Phase 2: FloatingToolbar — Medium "+" Toggle
+## Phase 2: FloatingToolbar + BubbleToolbar — Medium Style
 
-**Reference:** Medium's editor shows a single `+` circle icon at the left of empty lines. Clicking it expands a horizontal row of block-type buttons (image, embed, separator, code). NOT a vertical dropdown.
+### 2a. FloatingToolbar (the "+" button)
 
-### Changes to `FloatingToolbar.js`
-- **Default state:** Show only a `+` circle button (32×32, border, green on hover)
-- **Expanded state:** On click, animate open a horizontal row of icons to the right of the `+`
-- **Icons:** Image, Code, Table, YouTube, Quote, Horizontal Rule, Task List (same as current, but icon-only, no labels)
-- **Close:** Click `+` again (rotates to `×`) or click outside
-- **Animation:** Smooth horizontal expand with `framer-motion`
-- **Positioning:** Still uses TipTap `FloatingMenu`, but renders the toggle + expandable row instead of the dropdown
+**Current issues:**
+- Hover goes green — should stay grayscale
+- Active/expanded state goes green — should go dark gray/black
+- Has too many options (Table, TaskList) — Medium only shows ~4-5 icons
 
-### Implementation
-- Add `isOpen` state to `FloatingToolbar`
-- Render `+` button always; render icon row conditionally
-- Each icon is a small circle button (28×28) with tooltip
-- Use `AnimatePresence` + `motion.div` for the expand animation
+**Target (Medium exact):**
+- `+` button: 33px circle, 1px border `#b3b3b1`, icon `#b3b3b1`
+- Hover: border and icon go to `#6b6b6b` (darker gray), NO green
+- Expanded: `+` rotates 45° to `×`, color goes to `#242424`
+- Icon row slides in horizontally: Image, Code, Embed (YouTube), Separator (---), Quote
+- Each icon: outline-style, ~20px, `#6b6b6b`, hover → `#242424`
+- Remove Table and TaskList from floating menu (keep them in slash commands only)
 
-**Status:** [x] Completed
+### 2b. BubbleToolbar (text selection popup)
 
----
+**Current issues:**
+- Has highlight colors (yellow, green, blue, pink) — Medium doesn't have these
+- Missing heading toggles (H1, H2) — Medium has these
+- Missing blockquote toggle — Medium has this
+- Background is `bg-gray-900` — close but should be `#292929`
 
-## Phase 3: Publish Popup — Medium Full-Page Flow
-
-**Reference:** Medium's publish flow is a full-page overlay (not a small modal). It has:
-- Left side: Story preview (title, subtitle, cover image thumbnail)
-- Right side: Publishing options (tags, topic selection)
-- Clean white background, no border/shadow modal
-- "Publish now" green button at top-right
-
-### Changes to `CategoryTagsPopup.js` → Full rewrite
-- **Layout:** Full-screen overlay (`fixed inset-0 z-50 bg-white`)
-- **Header:** Simple top bar with "X" close on left, "Publish now" green button on right
-- **Two-column layout** (desktop):
-  - **Left column:** Story preview card — title, subtitle/excerpt (first ~160 chars of content), cover image thumbnail
-  - **Right column:** Publishing options — Categories (pill toggles), Tags (chip input, same as current)
-- **Mobile:** Stack vertically (preview on top, options below)
-- **No backdrop blur** — just solid white
-- **Subtitle field:** Add a text input for excerpt/subtitle that user can edit before publishing
-
-### Props change
-- Add `excerpt` prop (auto-generated from content, editable)
-- Keep `onPublish(categories, tags)` signature but could extend to include excerpt
+**Target (Medium exact):**
+- Background: `#292929`, border-radius `4px`, subtle shadow
+- Icons left to right: **Bold** | **Italic** | **Link** | separator | **H1** | **H2** | separator | **Quote** | **Code** (inline)
+- Remove: Underline, Strikethrough, Highlight colors, Clear format
+- Icon style: white outline, 16px, `opacity-0.7` default → `opacity-1` on hover/active
+- Active state: icon goes full white (opacity 1), no background highlight
+- No `bg-white/20` active background — just brightness change
 
 **Status:** [x] Completed
 
 ---
 
-## Phase 4: i18n Fixes — LanguageSwitcher in Dropdown + Sidebar/Footer Translation
+## Phase 3: Publish Flow — Medium Full-Page Submission
 
-### 4a. Move LanguageSwitcher into user dropdown
-- **Remove** standalone `<LanguageSwitcher />` from desktop nav and mobile menu
-- **Add** language toggle inside the user dropdown menu (below profile link, above logout)
-- **For logged-out users:** Add language toggle in mobile menu only (small, subtle)
-- **Style:** Simple "VI | EN" text toggle, not pill buttons
+**Current:** `CategoryTagsPopup.js` is a full-page overlay opened from within the editor page. This is already close but needs refinement.
 
-### 4b. Translate sidebar strings
-- `PersonalBlogSidebar.js`: Use `t('sidebar.popularPosts')`, `t('sidebar.categories')`, `t('sidebar.archive')`
-- `PopularPosts.js`: Translate "Hiện tại chưa có bài viết phổ biến nào." and "Không có bài viết phổ biến"
-- `CommentSection.js`: Translate "Bình luận" header
+**Target (Medium exact):**
+- Full-page white overlay, `fixed inset-0 z-50 bg-white`
+- Top bar: `×` close left, "Publish now" green pill button right
+- Two-column grid (desktop): left = story preview, right = publishing options
+- **Left column:**
+  - "Story Preview" label
+  - Cover image thumbnail (if exists) or gray placeholder
+  - Title in serif font
+  - Editable subtitle/excerpt textarea (max 280 chars)
+  - Helper text: "Changes here will affect how your story appears in public places..."
+- **Right column:**
+  - "Publishing to:" label
+  - Topics/categories: pill toggles (max 3), selected = dark fill
+  - Tags: chip input with autocomplete (max 5)
+- Mobile: stacks vertically
 
-### 4c. Translate footer/end-of-list
-- `PostList.js`: Translate "You've reached the end!" → `t('post.reachedEnd')`
-- `PostList.js`: Translate "Đã xảy ra lỗi", "Không thể tải bài viết", "Thử lại", "No stories yet", "Be the first..."
-
-### 4d. Update translation files
-- Add missing keys to both `vi/common.json` and `en/common.json`
+**Changes needed:**
+- Refine the existing `CategoryTagsPopup.js` layout to match Medium more closely
+- Add helper text below excerpt
+- Improve category pill styling (selected = `bg-[#242424] text-white`, unselected = `border border-[#b3b3b1]`)
+- Improve tag chip styling
 
 **Status:** [x] Completed
 
 ---
 
-## Phase 5: Comment & Clap UX Redesign (Medium-inspired)
+## Phase 4: Comment & Reply UX — Medium Style
 
-**Reference:** Medium shows comments inline below the article (not in a sidebar popup). Each comment has:
-- Avatar + name + time on one line
-- Comment text
-- Clap (heart) count + Reply link
-- Replies indented with a thin left border
-- Clean, minimal — no card borders, no shadows on individual comments
+**Current issues:**
+- `AddCommentForm` shows user avatar — Medium does NOT show avatar in the form
+- Form has cancel/respond buttons — Medium shows just a textarea that expands, with "Respond" appearing on focus
+- Comment clap uses `FaHandsClapping` — correct, but hover should be grayscale not green
+- Reply text says "Reply" — Medium uses just the count or "Reply"
 
-### 5a. `CommentSection.js`
-- Remove `themeClasses` usage → plain Tailwind
-- Header: "Responses ({count})" — Medium calls them "Responses"
-- Add comment form: Simple textarea with avatar, "Respond" button
+### 4a. `AddCommentForm.js`
+- **Remove avatar** from the form
+- Textarea: borderless, placeholder "What are your thoughts?", bottom border appears on focus
+- On focus: textarea expands, "Cancel" and "Respond" buttons appear
+- "Respond" button: green text, no fill, no border
+- No avatar displayed
 
-### 5b. `CommentItem.js`
-- Already close to Medium style (avatar + name + time, content, heart + reply)
-- **Tweak:** Use `FaHandsClapping` instead of `FaHeart` for claps (consistency with post claps)
-- **Tweak:** "Reply" text should show reply count only when > 0, otherwise just "Reply"
-- Already capped at 2 levels — good
+### 4b. `CommentItem.js`
+- Clap button hover: `hover:text-[#242424]` (grayscale, not green)
+- Active/clapped state: keep green
+- Reply button: plain text "Reply", grayscale hover
 
-### 5c. `AddCommentForm.js`
-- Medium style: Show user avatar next to textarea
-- Textarea: No visible border initially, just a bottom line. On focus, expand and show border
-- Submit button: "Respond" text button (green), not an icon
+### 4c. `ReplyItem.js`
+- Same grayscale hover treatment for clap
 
-### 5d. `ReplyItem.js`
-- Use `FaHandsClapping` instead of `FaHeart` for consistency
-- Otherwise already clean
+### 4d. `CommentSection.js`
+- Header: "Responses ({count})" — already correct
+- Separator: thin `border-top` above section — already in `p/[id].js`
 
-### 5e. `LimitedCommentList.js`
-- "Xem thêm" → translate
-- Already clean style
+**Status:** [x] Completed
 
-### 5f. Clap animation
-- Add a brief scale pulse on clap button click (CSS `animate-ping` for 200ms)
-- Optimistic update: increment count immediately, then revalidate
+---
+
+## Phase 5: Post Detail Page — Medium Layout
+
+**Current issues:**
+- Cover image is below the stats bar — Medium shows it above the title or just below title
+- Stats bar has `FaEye` (views) — Medium doesn't show view count publicly
+- Bottom action bar duplicates the top stats bar — Medium has a floating bottom bar or just the top one
+- Author section uses 200lab style — should be more Medium-like
+- Content max-width is 720px — Medium uses ~680px for the text column
+- TOC sidebar on desktop — Medium doesn't have a TOC sidebar (keep it but make it optional/subtle)
+
+### 5a. Layout changes
+- Move cover image to just below the title (before author info)
+- Remove `FaEye` view count from stats bar (not Medium-like)
+- Content area: `max-w-[680px]` for the text column
+- Author section: avatar (44px) + name (bold, hover:underline) + date + read time
+- Stats bar: clap + comment on left, share + bookmark on right (no views)
+
+### 5b. Bottom actions
+- Remove the duplicate bottom action bar
+- Instead, add an author bio card at the bottom (avatar larger ~72px, name, bio, "Follow" concept)
+- Tags displayed as plain text with `#` prefix, not pills
+
+### 5c. Mobile
+- Keep mobile TOC collapsible — already good
+- Content padding: `px-5` on mobile for comfortable reading
+
+### 5d. Typography refinement
+- Body text: `text-[21px]` on desktop, `text-[18px]` on mobile
+- Line-height: `leading-[1.58]` (Medium's exact ratio)
+- Paragraph spacing: `mb-[29px]`
+- Text color: `text-[#242424]` (near-black, not pure black)
 
 **Status:** [x] Completed
 
@@ -156,9 +171,9 @@
 
 ## Implementation Order
 
-**Recommended:** 1 → 2 → 3 → 4 → 5
+**Recommended:** 1 → 2 → 5 → 3 → 4
 
-Phase 1 is quick cleanup. Phase 2 is self-contained editor change. Phase 3 is the biggest visual change. Phase 4 is i18n plumbing. Phase 5 is comment polish.
+Phase 1 is quick global cleanup. Phase 2 is editor toolbars. Phase 5 is the biggest visual change (post detail). Phase 3 is publish flow refinement. Phase 4 is comment polish.
 
 **All 5 phases completed.**
 
@@ -166,6 +181,7 @@ Phase 1 is quick cleanup. Phase 2 is self-contained editor change. Phase 3 is th
 
 ## Confirmed Decisions
 
-1. **Publish flow**: Full-page white overlay with two columns (Medium-style exactly) ✅
-2. **Excerpt field**: Add editable excerpt field in publish flow ✅
-3. **Comment clap icon**: Switch FaHeart → FaHandsClapping everywhere ✅
+1. **TOC sidebar**: Remove entirely (no TOC on post detail) ✅
+2. **View count**: Remove `FaEye` from stats bar ✅
+3. **Author bio card**: Add Medium-style author bio card at bottom ✅
+4. **Tags style**: Plain text with `·` separators (Medium style) ✅

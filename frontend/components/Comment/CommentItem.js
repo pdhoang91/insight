@@ -73,7 +73,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
             <button
               onClick={handleClap}
               className={`flex items-center gap-1 text-xs transition-colors ${
-                hasClapped ? 'text-medium-accent-green' : 'text-medium-text-muted hover:text-medium-accent-green'
+                hasClapped ? 'text-medium-accent-green' : 'text-[#6b6b6b] hover:text-[#242424]'
               }`}
             >
               <FaHandsClapping className={`w-3.5 h-3.5 ${clapsLoading ? 'animate-pulse' : ''}`} />
@@ -82,7 +82,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
 
             <button
               onClick={() => setShowReplyForm(prev => !prev)}
-              className="flex items-center gap-1 text-xs text-medium-text-muted hover:text-medium-accent-green transition-colors"
+              className="flex items-center gap-1 text-xs text-[#6b6b6b] hover:text-[#242424] transition-colors"
             >
               <span>{repliesCount > 0 ? `${repliesCount} ${t('comment.reply')}` : t('comment.reply')}</span>
             </button>
