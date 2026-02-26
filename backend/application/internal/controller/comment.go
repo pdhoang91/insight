@@ -5,12 +5,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/pdhoang91/blog/internal/dto"
+	"github.com/pdhoang91/blog/internal/service"
 	uuid "github.com/satori/go.uuid"
 )
 
-// ==================== COMMENT ROUTES ====================
+type CommentController struct {
+	svc service.CommentService
+}
 
-func (c *Controller) CreateComment(ctx *gin.Context) {
+func (c *CommentController) CreateComment(ctx *gin.Context) {
 	userID, ok := requireUserID(ctx)
 	if !ok {
 		return
@@ -22,7 +25,7 @@ func (c *Controller) CreateComment(ctx *gin.Context) {
 		return
 	}
 
-	response, err := c.service.CreateComment(userID, &req)
+	response, err := c.svc.CreateComment(userID, &req)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -30,7 +33,7 @@ func (c *Controller) CreateComment(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"data": response})
 }
 
-func (c *Controller) CreateCommentForPost(ctx *gin.Context) {
+func (c *CommentController) CreateCommentForPost(ctx *gin.Context) {
 	postID, err := uuid.FromString(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid post ID"})
@@ -49,7 +52,7 @@ func (c *Controller) CreateCommentForPost(ctx *gin.Context) {
 	}
 	req.PostID = postID.String()
 
-	response, err := c.service.CreateComment(userID, &req)
+	response, err := c.svc.CreateComment(userID, &req)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -57,7 +60,7 @@ func (c *Controller) CreateCommentForPost(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"data": response})
 }
 
-func (c *Controller) GetPostComments(ctx *gin.Context) {
+func (c *CommentController) GetPostComments(ctx *gin.Context) {
 	postID, err := uuid.FromString(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid post ID"})
@@ -70,7 +73,7 @@ func (c *Controller) GetPostComments(ctx *gin.Context) {
 		return
 	}
 
-	responses, total, totalCommentReply, err := c.service.GetPostComments(postID, req)
+	responses, total, totalCommentReply, err := c.svc.GetPostComments(postID, req)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -83,7 +86,7 @@ func (c *Controller) GetPostComments(ctx *gin.Context) {
 	})
 }
 
-func (c *Controller) UpdateComment(ctx *gin.Context) {
+func (c *CommentController) UpdateComment(ctx *gin.Context) {
 	userID, ok := requireUserID(ctx)
 	if !ok {
 		return
@@ -101,7 +104,7 @@ func (c *Controller) UpdateComment(ctx *gin.Context) {
 		return
 	}
 
-	response, err := c.service.UpdateComment(userID, id, &req)
+	response, err := c.svc.UpdateComment(userID, id, &req)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -109,7 +112,7 @@ func (c *Controller) UpdateComment(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"data": response})
 }
 
-func (c *Controller) DeleteComment(ctx *gin.Context) {
+func (c *CommentController) DeleteComment(ctx *gin.Context) {
 	userID, ok := requireUserID(ctx)
 	if !ok {
 		return
@@ -121,14 +124,14 @@ func (c *Controller) DeleteComment(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.DeleteComment(userID, id); err != nil {
+	if err := c.svc.DeleteComment(userID, id); err != nil {
 		respondError(ctx, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"message": "Comment deleted successfully"})
 }
 
-func (c *Controller) CreateReply(ctx *gin.Context) {
+func (c *CommentController) CreateReply(ctx *gin.Context) {
 	userID, ok := requireUserID(ctx)
 	if !ok {
 		return
@@ -140,7 +143,7 @@ func (c *Controller) CreateReply(ctx *gin.Context) {
 		return
 	}
 
-	response, err := c.service.CreateReply(userID, &req)
+	response, err := c.svc.CreateReply(userID, &req)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -148,7 +151,7 @@ func (c *Controller) CreateReply(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"data": response})
 }
 
-func (c *Controller) DeleteReply(ctx *gin.Context) {
+func (c *CommentController) DeleteReply(ctx *gin.Context) {
 	userID, ok := requireUserID(ctx)
 	if !ok {
 		return
@@ -160,14 +163,14 @@ func (c *Controller) DeleteReply(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.DeleteReply(userID, id); err != nil {
+	if err := c.svc.DeleteReply(userID, id); err != nil {
 		respondError(ctx, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"message": "Reply deleted successfully"})
 }
 
-func (c *Controller) GetCommentReplies(ctx *gin.Context) {
+func (c *CommentController) GetCommentReplies(ctx *gin.Context) {
 	commentID, err := uuid.FromString(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid comment ID"})
@@ -180,7 +183,7 @@ func (c *Controller) GetCommentReplies(ctx *gin.Context) {
 		return
 	}
 
-	responses, total, err := c.service.GetCommentReplies(commentID, req)
+	responses, total, err := c.svc.GetCommentReplies(commentID, req)
 	if err != nil {
 		respondError(ctx, err)
 		return

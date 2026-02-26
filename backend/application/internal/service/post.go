@@ -13,6 +13,7 @@ import (
 	"github.com/pdhoang91/blog/internal/dto"
 	"github.com/pdhoang91/blog/internal/entities"
 	"github.com/pdhoang91/blog/pkg/notification"
+	"github.com/pdhoang91/blog/pkg/revalidation"
 	"github.com/pdhoang91/blog/pkg/utils"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
@@ -30,6 +31,9 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 		}
 	}()
 
+	txPostRepo := s.PostRepo.WithTx(tx)
+	txPostContentRepo := s.PostContentRepo.WithTx(tx)
+
 	coverImage := req.CoverImage
 	if coverImage == "" {
 		feURL := os.Getenv("BASE_FE_URL")
@@ -40,7 +44,7 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 	}
 
 	slug := utils.CreateSlug(req.Title)
-	if _, err := s.PostRepo.FindBySlug(s.DB, slug); err == nil {
+	if _, err := s.PostRepo.FindBySlug(slug); err == nil {
 		slug = fmt.Sprintf("%s-%s", slug, utils.GetUniquePrefix())
 	}
 
@@ -60,7 +64,7 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 		UpdatedAt:  time.Now(),
 	}
 
-	if err := s.PostRepo.Create(tx, post); err != nil {
+	if err := txPostRepo.Create(post); err != nil {
 		tx.Rollback()
 		return nil, apperror.NewInternal("failed to create post", err)
 	}
@@ -75,31 +79,31 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 			CreatedAt: time.Now(),
 			UpdatedAt: time.Now(),
 		}
-		if err := s.PostContentRepo.Create(tx, postContent); err != nil {
+		if err := txPostContentRepo.Create(postContent); err != nil {
 			tx.Rollback()
 			return nil, apperror.NewInternal("failed to create post content", err)
 		}
 	}
 
 	if len(req.CategoryNames) > 0 {
-		categories, err := s.findOrCreateCategories(tx, req.CategoryNames)
+		categories, err := s.findOrCreateCategories(req.CategoryNames)
 		if err != nil {
 			tx.Rollback()
 			return nil, err
 		}
-		if err := s.PostRepo.AppendCategories(tx, post, categories); err != nil {
+		if err := txPostRepo.AppendCategories(post, categories); err != nil {
 			tx.Rollback()
 			return nil, apperror.NewInternal("failed to associate categories", nil)
 		}
 	}
 
 	if len(req.TagNames) > 0 {
-		tags, err := s.findOrCreateTags(tx, req.TagNames)
+		tags, err := s.findOrCreateTags(req.TagNames)
 		if err != nil {
 			tx.Rollback()
 			return nil, err
 		}
-		if err := s.PostRepo.AppendTags(tx, post, tags); err != nil {
+		if err := txPostRepo.AppendTags(post, tags); err != nil {
 			tx.Rollback()
 			return nil, apperror.NewInternal("failed to associate tags", nil)
 		}
@@ -121,9 +125,11 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 		}
 	}
 
-	if err := s.PostRepo.LoadRelationships(s.DB, post); err != nil {
+	if err := s.PostRepo.LoadRelationships(post); err != nil {
 		return nil, apperror.NewInternal("failed to load post relationships", err)
 	}
+
+	revalidation.TriggerPostRevalidation(post.Slug)
 
 	return dto.NewPostResponse(post), nil
 }
@@ -134,17 +140,17 @@ func (s *InsightService) ListPosts(req *dto.PaginationRequest) ([]*dto.PostRespo
 		req.Limit = 20
 	}
 
-	posts, err := s.PostRepo.FindAll(s.DBR2, req.Limit, req.Offset)
+	posts, err := s.PostRepo.FindAll(req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to list posts", err)
 	}
 
-	total, err := s.PostRepo.Count(s.DBR2)
+	total, err := s.PostRepo.Count()
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to count posts", err)
 	}
 
-	_ = s.PostRepo.CalculateCountsForPosts(s.DBR2, posts)
+	_ = s.PostRepo.CalculateCountsForPosts(posts)
 
 	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
@@ -155,7 +161,7 @@ func (s *InsightService) ListPosts(req *dto.PaginationRequest) ([]*dto.PostRespo
 
 // GetPost retrieves a post by ID
 func (s *InsightService) GetPost(id uuid.UUID) (*dto.PostResponse, error) {
-	post, err := s.PostRepo.FindByID(s.DBR2, id)
+	post, err := s.PostRepo.FindByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewNotFound("post not found")
@@ -163,22 +169,22 @@ func (s *InsightService) GetPost(id uuid.UUID) (*dto.PostResponse, error) {
 		return nil, apperror.NewInternal("failed to get post", err)
 	}
 
-	// Increment view count (best-effort, write DB)
-	_ = s.PostRepo.IncrementViews(s.DB, post)
+	// Increment view count (best-effort)
+	_ = s.PostRepo.IncrementViews(post)
 
 	s.loadPostContent(post)
 
-	if err := s.PostRepo.LoadRelationships(s.DBR2, post); err != nil {
+	if err := s.PostRepo.LoadRelationships(post); err != nil {
 		return nil, apperror.NewInternal("failed to load post relationships", err)
 	}
 
-	_ = s.PostRepo.CalculateCounts(s.DBR2, post)
+	_ = s.PostRepo.CalculateCounts(post)
 	return dto.NewPostResponse(post), nil
 }
 
 // GetPostBySlug retrieves a post by slug
 func (s *InsightService) GetPostBySlug(slug string) (*dto.PostResponse, error) {
-	post, err := s.PostRepo.FindBySlug(s.DBR2, slug)
+	post, err := s.PostRepo.FindBySlug(slug)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewNotFound("post not found")
@@ -186,21 +192,21 @@ func (s *InsightService) GetPostBySlug(slug string) (*dto.PostResponse, error) {
 		return nil, apperror.NewInternal("failed to get post by slug", err)
 	}
 
-	_ = s.PostRepo.IncrementViews(s.DB, post)
+	_ = s.PostRepo.IncrementViews(post)
 
 	s.loadPostContent(post)
 
-	if err := s.PostRepo.LoadRelationships(s.DBR2, post); err != nil {
+	if err := s.PostRepo.LoadRelationships(post); err != nil {
 		return nil, apperror.NewInternal("failed to load post relationships", err)
 	}
 
-	_ = s.PostRepo.CalculateCounts(s.DBR2, post)
+	_ = s.PostRepo.CalculateCounts(post)
 	return dto.NewPostResponse(post), nil
 }
 
 // loadPostContent loads and processes post content for display
 func (s *InsightService) loadPostContent(post *entities.Post) {
-	postContent, err := s.PostContentRepo.FindByPostID(s.DBR2, post.ID)
+	postContent, err := s.PostContentRepo.FindByPostID(post.ID)
 	if err != nil || postContent == nil {
 		return
 	}
@@ -209,7 +215,7 @@ func (s *InsightService) loadPostContent(post *entities.Post) {
 
 // GetPostEntity returns the raw post entity (for internal use)
 func (s *InsightService) GetPostEntity(id uuid.UUID) (*entities.Post, error) {
-	post, err := s.PostRepo.FindByID(s.DB, id)
+	post, err := s.PostRepo.FindByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewNotFound("post not found")
@@ -231,7 +237,10 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 		}
 	}()
 
-	post, err := s.PostRepo.FindByID(tx, id)
+	txPostRepo := s.PostRepo.WithTx(tx)
+	txPostContentRepo := s.PostContentRepo.WithTx(tx)
+
+	post, err := txPostRepo.FindByID(id)
 	if err != nil {
 		tx.Rollback()
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -249,7 +258,7 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 		post.Title = req.Title
 		newSlug := utils.CreateSlug(req.Title)
 		if newSlug != post.Slug {
-			if s.PostRepo.ExistsBySlugExcluding(tx, newSlug, post.ID) {
+			if txPostRepo.ExistsBySlugExcluding(newSlug, post.ID) {
 				newSlug = fmt.Sprintf("%s-%s", newSlug, utils.GetUniquePrefix())
 			}
 			post.Slug = newSlug
@@ -266,13 +275,13 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 	}
 
 	post.UpdatedAt = time.Now()
-	if err := s.PostRepo.Update(tx, post); err != nil {
+	if err := txPostRepo.Update(post); err != nil {
 		tx.Rollback()
 		return nil, apperror.NewInternal("failed to update post", err)
 	}
 
 	if len(req.Content) > 0 {
-		postContent, err := s.PostContentRepo.FindByPostID(tx, post.ID)
+		postContent, err := txPostContentRepo.FindByPostID(post.ID)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				postContent = &entities.PostContent{
@@ -293,12 +302,12 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 
 		if postContent.ID == uuid.Nil {
 			postContent.ID = uuid.NewV4()
-			if err := s.PostContentRepo.Create(tx, postContent); err != nil {
+			if err := txPostContentRepo.Create(postContent); err != nil {
 				tx.Rollback()
 				return nil, apperror.NewInternal("failed to create post content", err)
 			}
 		} else {
-			if err := s.PostContentRepo.Update(tx, postContent); err != nil {
+			if err := txPostContentRepo.Update(postContent); err != nil {
 				tx.Rollback()
 				return nil, apperror.NewInternal("failed to update post content", err)
 			}
@@ -309,24 +318,24 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 	}
 
 	if len(req.CategoryNames) > 0 {
-		categories, err := s.findOrCreateCategories(tx, req.CategoryNames)
+		categories, err := s.findOrCreateCategories(req.CategoryNames)
 		if err != nil {
 			tx.Rollback()
 			return nil, err
 		}
-		if err := s.PostRepo.ReplaceCategories(tx, post, categories); err != nil {
+		if err := txPostRepo.ReplaceCategories(post, categories); err != nil {
 			tx.Rollback()
 			return nil, apperror.NewInternal("failed to update categories", nil)
 		}
 	}
 
 	if len(req.TagNames) > 0 {
-		tags, err := s.findOrCreateTags(tx, req.TagNames)
+		tags, err := s.findOrCreateTags(req.TagNames)
 		if err != nil {
 			tx.Rollback()
 			return nil, err
 		}
-		if err := s.PostRepo.ReplaceTags(tx, post, tags); err != nil {
+		if err := txPostRepo.ReplaceTags(post, tags); err != nil {
 			tx.Rollback()
 			return nil, apperror.NewInternal("failed to update tags", nil)
 		}
@@ -340,9 +349,11 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 		return nil, apperror.NewInternal("failed to commit transaction", err)
 	}
 
-	if err := s.PostRepo.LoadRelationships(s.DB, post); err != nil {
+	if err := s.PostRepo.LoadRelationships(post); err != nil {
 		return nil, apperror.NewInternal("failed to load post relationships", err)
 	}
+
+	revalidation.TriggerPostRevalidation(post.Slug)
 
 	return dto.NewPostResponse(post), nil
 }
@@ -359,7 +370,10 @@ func (s *InsightService) DeletePost(userID uuid.UUID, id uuid.UUID) error {
 		}
 	}()
 
-	post, err := s.PostRepo.FindByID(tx, id)
+	txPostRepo := s.PostRepo.WithTx(tx)
+	txPostContentRepo := s.PostContentRepo.WithTx(tx)
+
+	post, err := txPostRepo.FindByID(id)
 	if err != nil {
 		tx.Rollback()
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -373,22 +387,22 @@ func (s *InsightService) DeletePost(userID uuid.UUID, id uuid.UUID) error {
 		return apperror.NewForbidden("you do not own this post")
 	}
 
-	if err := s.PostRepo.Delete(tx, post); err != nil {
+	if err := txPostRepo.Delete(post); err != nil {
 		tx.Rollback()
 		return apperror.NewInternal("failed to delete post", err)
 	}
 
-	if err := s.CommentRepo.DeleteByPostID(tx, id); err != nil {
+	if err := s.CommentRepo.DeleteByPostID(id); err != nil {
 		tx.Rollback()
 		return apperror.NewInternal("failed to delete comments", err)
 	}
 
-	if err := s.ReplyRepo.DeleteByPostID(tx, id); err != nil {
+	if err := s.ReplyRepo.DeleteByPostID(id); err != nil {
 		tx.Rollback()
 		return apperror.NewInternal("failed to delete replies", err)
 	}
 
-	if err := s.PostContentRepo.DeleteByPostID(tx, id); err != nil {
+	if err := txPostContentRepo.DeleteByPostID(id); err != nil {
 		tx.Rollback()
 		return apperror.NewInternal("failed to delete post content", err)
 	}
@@ -400,12 +414,15 @@ func (s *InsightService) DeletePost(userID uuid.UUID, id uuid.UUID) error {
 	if err := tx.Commit().Error; err != nil {
 		return apperror.NewInternal("failed to commit transaction", err)
 	}
+
+	revalidation.TriggerPostRevalidation(post.Slug)
+
 	return nil
 }
 
 // DeletePostImages deletes all images referenced in a post
 func (s *InsightService) DeletePostImages(ctx context.Context, postID uuid.UUID, userID uuid.UUID) error {
-	imageRefs, err := s.ImageRepo.FindReferencesByPostID(s.DB, postID)
+	imageRefs, err := s.ImageRepo.FindReferencesByPostID(postID)
 	if err != nil {
 		return fmt.Errorf("FindReferencesByPostID: %w", err)
 	}
@@ -421,12 +438,12 @@ func (s *InsightService) GetUserPosts(userID uuid.UUID, req *dto.PaginationReque
 		req.Limit = 20
 	}
 
-	posts, err := s.PostRepo.FindByUserID(s.DBR2, userID, req.Limit, req.Offset)
+	posts, err := s.PostRepo.FindByUserID(userID, req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to get user posts", err)
 	}
 
-	_ = s.PostRepo.CalculateCountsForPosts(s.DBR2, posts)
+	_ = s.PostRepo.CalculateCountsForPosts(posts)
 
 	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
@@ -441,12 +458,12 @@ func (s *InsightService) SearchPosts(query string, req *dto.PaginationRequest) (
 		req.Limit = 20
 	}
 
-	posts, err := s.PostRepo.Search(s.DBR2, query, req.Limit, req.Offset)
+	posts, err := s.PostRepo.Search(query, req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to search posts", err)
 	}
 
-	_ = s.PostRepo.CalculateCountsForPosts(s.DBR2, posts)
+	_ = s.PostRepo.CalculateCountsForPosts(posts)
 
 	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
@@ -461,12 +478,12 @@ func (s *InsightService) GetAllPosts(req *dto.PaginationRequest) ([]*dto.PostRes
 		req.Limit = 50
 	}
 
-	posts, err := s.PostRepo.List(s.DB, req.Limit, req.Offset)
+	posts, err := s.PostRepo.List(req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to list all posts", err)
 	}
 
-	_ = s.PostRepo.CalculateCountsForPosts(s.DB, posts)
+	_ = s.PostRepo.CalculateCountsForPosts(posts)
 
 	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
@@ -486,12 +503,12 @@ func (s *InsightService) GetLatestPosts(limit int) ([]*dto.PostResponse, error) 
 		limit = 5
 	}
 
-	posts, err := s.PostRepo.List(s.DBR2, limit, 0)
+	posts, err := s.PostRepo.List(limit, 0)
 	if err != nil {
 		return nil, apperror.NewInternal("failed to get latest posts", err)
 	}
 
-	_ = s.PostRepo.CalculateCountsForPosts(s.DBR2, posts)
+	_ = s.PostRepo.CalculateCountsForPosts(posts)
 
 	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
@@ -506,12 +523,12 @@ func (s *InsightService) GetPopularPosts(limit int) ([]*dto.PostResponse, error)
 		limit = 5
 	}
 
-	posts, err := s.PostRepo.GetPopular(s.DBR2, limit)
+	posts, err := s.PostRepo.GetPopular(limit)
 	if err != nil {
 		return nil, apperror.NewInternal("failed to get popular posts", err)
 	}
 
-	_ = s.PostRepo.CalculateCountsForPosts(s.DBR2, posts)
+	_ = s.PostRepo.CalculateCountsForPosts(posts)
 
 	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
@@ -536,17 +553,17 @@ func (s *InsightService) GetPostsByYearMonth(year, month int, req *dto.Paginatio
 		req.Limit = 20
 	}
 
-	posts, err := s.PostRepo.FindByYearMonth(s.DBR2, year, month, req.Limit, req.Offset)
+	posts, err := s.PostRepo.FindByYearMonth(year, month, req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to get posts by year/month", err)
 	}
 
-	total, err := s.PostRepo.CountByYearMonth(s.DBR2, year, month)
+	total, err := s.PostRepo.CountByYearMonth(year, month)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to count posts by year/month", err)
 	}
 
-	_ = s.PostRepo.CalculateCountsForPosts(s.DBR2, posts)
+	_ = s.PostRepo.CalculateCountsForPosts(posts)
 
 	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
@@ -561,7 +578,7 @@ func (s *InsightService) GetPostsByCategory(categoryName string, req *dto.Pagina
 		req.Limit = 10
 	}
 
-	category, err := s.CategoryRepo.FindByName(s.DBR2, categoryName)
+	category, err := s.CategoryRepo.FindByName(categoryName)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, 0, apperror.NewNotFound("category not found")
@@ -569,17 +586,17 @@ func (s *InsightService) GetPostsByCategory(categoryName string, req *dto.Pagina
 		return nil, 0, apperror.NewInternal("failed to find category", err)
 	}
 
-	posts, err := s.PostRepo.FindByCategory(s.DBR2, category.ID, req.Limit, req.Offset)
+	posts, err := s.PostRepo.FindByCategory(category.ID, req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to get posts by category", err)
 	}
 
-	total, err := s.PostRepo.CountByCategory(s.DBR2, category.ID)
+	total, err := s.PostRepo.CountByCategory(category.ID)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to count posts by category", err)
 	}
 
-	_ = s.PostRepo.CalculateCountsForPosts(s.DBR2, posts)
+	_ = s.PostRepo.CalculateCountsForPosts(posts)
 
 	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
@@ -590,12 +607,12 @@ func (s *InsightService) GetPostsByCategory(categoryName string, req *dto.Pagina
 
 // HasUserClappedPost checks if a user has clapped a specific post
 func (s *InsightService) HasUserClappedPost(userID, postID uuid.UUID) (bool, error) {
-	return s.UserActivityRepo.HasUserClapped(s.DB, userID, "post", postID)
+	return s.UserActivityRepo.HasUserClapped(userID, "post", postID)
 }
 
 // ClapPost adds a clap for a post
 func (s *InsightService) ClapPost(userID, postID uuid.UUID) (bool, error) {
-	existing, err := s.UserActivityRepo.FindByUserAndPost(s.DB, userID, postID, "clap_post")
+	existing, err := s.UserActivityRepo.FindByUserAndPost(userID, postID, "clap_post")
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return false, apperror.NewInternal("failed to check clap status", err)
 	}
@@ -605,13 +622,13 @@ func (s *InsightService) ClapPost(userID, postID uuid.UUID) (bool, error) {
 			ID: uuid.NewV4(), UserID: userID, PostID: &postID,
 			ActionType: "clap_post", Count: 1, CreatedAt: time.Now(),
 		}
-		if err := s.UserActivityRepo.Create(s.DB, activity); err != nil {
+		if err := s.UserActivityRepo.Create(activity); err != nil {
 			return false, apperror.NewInternal("failed to create clap", err)
 		}
 		return true, nil
 	}
 
-	if err := s.UserActivityRepo.IncrementCount(s.DB, existing); err != nil {
+	if err := s.UserActivityRepo.IncrementCount(existing); err != nil {
 		return false, apperror.NewInternal("failed to increment clap", err)
 	}
 	return true, nil
@@ -619,7 +636,7 @@ func (s *InsightService) ClapPost(userID, postID uuid.UUID) (bool, error) {
 
 // ClapComment adds a clap for a comment
 func (s *InsightService) ClapComment(userID, commentID uuid.UUID) (bool, error) {
-	existing, err := s.UserActivityRepo.FindByUserAndComment(s.DB, userID, commentID, "clap_comment")
+	existing, err := s.UserActivityRepo.FindByUserAndComment(userID, commentID, "clap_comment")
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return false, apperror.NewInternal("failed to check clap status", err)
 	}
@@ -629,13 +646,13 @@ func (s *InsightService) ClapComment(userID, commentID uuid.UUID) (bool, error) 
 			ID: uuid.NewV4(), UserID: userID, CommentID: &commentID,
 			ActionType: "clap_comment", Count: 1, CreatedAt: time.Now(),
 		}
-		if err := s.UserActivityRepo.Create(s.DB, activity); err != nil {
+		if err := s.UserActivityRepo.Create(activity); err != nil {
 			return false, apperror.NewInternal("failed to create clap", err)
 		}
 		return true, nil
 	}
 
-	if err := s.UserActivityRepo.IncrementCount(s.DB, existing); err != nil {
+	if err := s.UserActivityRepo.IncrementCount(existing); err != nil {
 		return false, apperror.NewInternal("failed to increment clap", err)
 	}
 	return true, nil
@@ -643,7 +660,7 @@ func (s *InsightService) ClapComment(userID, commentID uuid.UUID) (bool, error) 
 
 // ClapReply adds a clap for a reply
 func (s *InsightService) ClapReply(userID, replyID uuid.UUID) (bool, error) {
-	existing, err := s.UserActivityRepo.FindByUserAndReply(s.DB, userID, replyID, "clap_reply")
+	existing, err := s.UserActivityRepo.FindByUserAndReply(userID, replyID, "clap_reply")
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return false, apperror.NewInternal("failed to check clap status", err)
 	}
@@ -653,13 +670,13 @@ func (s *InsightService) ClapReply(userID, replyID uuid.UUID) (bool, error) {
 			ID: uuid.NewV4(), UserID: userID, ReplyID: &replyID,
 			ActionType: "clap_reply", Count: 1, CreatedAt: time.Now(),
 		}
-		if err := s.UserActivityRepo.Create(s.DB, activity); err != nil {
+		if err := s.UserActivityRepo.Create(activity); err != nil {
 			return false, apperror.NewInternal("failed to create clap", err)
 		}
 		return true, nil
 	}
 
-	if err := s.UserActivityRepo.IncrementCount(s.DB, existing); err != nil {
+	if err := s.UserActivityRepo.IncrementCount(existing); err != nil {
 		return false, apperror.NewInternal("failed to increment clap", err)
 	}
 	return true, nil
@@ -667,12 +684,12 @@ func (s *InsightService) ClapReply(userID, replyID uuid.UUID) (bool, error) {
 
 // GetClapsCount returns clap count for post/comment/reply
 func (s *InsightService) GetClapsCount(itemType string, itemID uuid.UUID) (int64, error) {
-	return s.UserActivityRepo.GetClapCount(s.DB, itemType, itemID)
+	return s.UserActivityRepo.GetClapCount(itemType, itemID)
 }
 
 // GetPostIDFromComment gets post ID from comment ID
 func (s *InsightService) GetPostIDFromComment(commentID uuid.UUID) (*uuid.UUID, error) {
-	comment, err := s.CommentRepo.FindByID(s.DB, commentID)
+	comment, err := s.CommentRepo.FindByID(commentID)
 	if err != nil {
 		return nil, apperror.NewNotFound("comment not found")
 	}
@@ -681,7 +698,7 @@ func (s *InsightService) GetPostIDFromComment(commentID uuid.UUID) (*uuid.UUID, 
 
 // HasUserClapped checks if user has clapped an item
 func (s *InsightService) HasUserClapped(userID uuid.UUID, itemType string, itemID uuid.UUID) (bool, error) {
-	return s.UserActivityRepo.HasUserClapped(s.DB, userID, itemType, itemID)
+	return s.UserActivityRepo.HasUserClapped(userID, itemType, itemID)
 }
 
 func (s *InsightService) createImageReference(imageID string, postID uuid.UUID, refType string) error {
@@ -690,7 +707,7 @@ func (s *InsightService) createImageReference(imageID string, postID uuid.UUID, 
 		return err
 	}
 
-	if _, err := s.ImageRepo.FindReference(s.DB, id, postID, refType); err == nil {
+	if _, err := s.ImageRepo.FindReference(id, postID, refType); err == nil {
 		return nil // Already exists
 	}
 
@@ -698,21 +715,21 @@ func (s *InsightService) createImageReference(imageID string, postID uuid.UUID, 
 		ID: uuid.NewV4(), ImageID: id, PostID: postID,
 		RefType: refType, CreatedAt: time.Now(),
 	}
-	return s.ImageRepo.CreateReference(s.DB, ref)
+	return s.ImageRepo.CreateReference(ref)
 }
 
 // findOrCreateCategories finds or creates categories by name
-func (s *InsightService) findOrCreateCategories(tx *gorm.DB, names []string) ([]entities.Category, error) {
+func (s *InsightService) findOrCreateCategories(names []string) ([]entities.Category, error) {
 	var categories []entities.Category
 	for _, name := range names {
-		category, err := s.CategoryRepo.FindByName(tx, name)
+		category, err := s.CategoryRepo.FindByName(name)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				category = &entities.Category{
 					ID: uuid.NewV4(), Name: name,
 					CreatedAt: time.Now(), UpdatedAt: time.Now(),
 				}
-				if err := s.CategoryRepo.Create(tx, category); err != nil {
+				if err := s.CategoryRepo.Create(category); err != nil {
 					return nil, apperror.NewInternal("failed to create category", err)
 				}
 			} else {
@@ -725,17 +742,17 @@ func (s *InsightService) findOrCreateCategories(tx *gorm.DB, names []string) ([]
 }
 
 // findOrCreateTags finds or creates tags by name
-func (s *InsightService) findOrCreateTags(tx *gorm.DB, names []string) ([]entities.Tag, error) {
+func (s *InsightService) findOrCreateTags(names []string) ([]entities.Tag, error) {
 	var tags []entities.Tag
 	for _, name := range names {
-		tag, err := s.TagRepo.FindByName(tx, name)
+		tag, err := s.TagRepo.FindByName(name)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				tag = &entities.Tag{
 					ID: uuid.NewV4(), Name: name,
 					CreatedAt: time.Now(), UpdatedAt: time.Now(),
 				}
-				if err := s.TagRepo.Create(tx, tag); err != nil {
+				if err := s.TagRepo.Create(tag); err != nil {
 					return nil, apperror.NewInternal("failed to create tag", err)
 				}
 			} else {

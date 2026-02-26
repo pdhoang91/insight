@@ -7,32 +7,23 @@ import ErrorState from '../Shared/ErrorState';
 import EmptyState from '../Shared/EmptyState';
 import PostSkeleton from '../Shared/PostSkeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const SearchResults = ({ query }) => {
   const { data, totalCount, isLoading, isValidating, isError, loadMore, hasMore } = useSearch(query);
 
-  // Track search when query changes and results are loaded
   useEffect(() => {
     if (query && data && data.stories && Array.isArray(data.stories) && data.stories.length > 0) {
       trackSearch(query, null, totalCount || 0);
     }
   }, [query, totalCount]);
 
-  // Error State
   if (isError) {
-    return (
-      <ErrorState 
-        title="Tìm kiếm thất bại"
-        message="Có lỗi xảy ra khi tìm kiếm. Vui lòng kiểm tra kết nối và thử lại."
-      />
-    );
+    return <ErrorState title="Search failed" message="An error occurred while searching. Please try again." />;
   }
 
-  // Initial Loading State
   if (isLoading && (!data || !data.stories || data.stories.length === 0)) {
     return (
-      <div className={themeClasses.spacing.stackSmall}>
+      <div className="space-y-4">
         {Array.from({ length: 5 }).map((_, index) => (
           <PostSkeleton key={index} variant="timeline" />
         ))}
@@ -42,65 +33,42 @@ const SearchResults = ({ query }) => {
 
   const stories = (data?.stories && Array.isArray(data.stories)) ? data.stories : [];
 
-  // Empty State
   if (stories.length === 0) {
     return (
-      <EmptyState 
-        title="Không tìm thấy bài viết"
-        message={`Không tìm thấy bài viết nào cho "${query}". Hãy thử các từ khóa khác hoặc duyệt các danh mục.`}
-        icon="search"
+      <EmptyState
+        title="No posts found"
+        message={`No posts found for "${query}". Try different keywords or browse categories.`}
       />
     );
   }
 
   return (
     <>
-      {/* Results summary */}
-      <header className={combineClasses(
-        'text-center lg:text-left'
-      )}>
-        <h1 className={combineClasses(
-          themeClasses.typography.serif,
-          themeClasses.typography.weightBold,
-          'text-2xl sm:text-3xl lg:text-4xl',
-          themeClasses.text.primary,
-          'mb-2 lg:mb-3'
-        )}>
-          Kết quả tìm kiếm
+      <header className="mb-8">
+        <h1 className="font-serif text-3xl font-bold text-[#292929] mb-2">
+          Search results
         </h1>
-        <p className={combineClasses(
-          'text-sm sm:text-base',
-          themeClasses.text.secondary
-        )}>
-          Tìm thấy {totalCount || 0} bài viết cho "{query}"
+        <p className="text-[#757575]">
+          Found {totalCount || 0} posts for &ldquo;{query}&rdquo;
           {stories.length < (totalCount || 0) && (
-            <span className={combineClasses(
-              themeClasses.text.muted,
-              'ml-2'
-            )}>
-              (hiển thị {stories.length})
-            </span>
+            <span className="text-[#b3b3b1] ml-2">(showing {stories.length})</span>
           )}
         </p>
       </header>
 
-      {/* Articles list with infinite scroll */}
       <InfiniteScroll
         dataLength={stories.length}
         next={loadMore}
         hasMore={hasMore}
         loader={
-          <div className={combineClasses(
-            themeClasses.spacing.stackLarge,
-            'mt-8'
-          )}>
+          <div className="space-y-6 mt-8">
             {Array.from({ length: 3 }).map((_, index) => (
               <PostSkeleton key={`loading-${index}`} variant="timeline" />
             ))}
           </div>
         }
       >
-        <div className={themeClasses.spacing.stackNone}>
+        <div>
           {stories.map((story, index) => (
             <BasePostItem key={`${story?.id || index}-${index}`} post={story} />
           ))}

@@ -6,18 +6,18 @@ import (
 	"gorm.io/gorm"
 )
 
-type imageRepo struct{}
+type imageRepo struct{ db *gorm.DB }
 
-func NewImageRepository() ImageRepository { return &imageRepo{} }
+func NewImageRepository(db *gorm.DB) ImageRepository { return &imageRepo{db: db} }
 
-func (r *imageRepo) FindByID(db *gorm.DB, id uuid.UUID) (*entities.Image, error) {
+func (r *imageRepo) FindByID(id uuid.UUID) (*entities.Image, error) {
 	var image entities.Image
-	err := db.Where("id = ?", id).First(&image).Error
+	err := r.db.Where("id = ?", id).First(&image).Error
 	return &image, err
 }
 
-func (r *imageRepo) FindByUserID(db *gorm.DB, userID uuid.UUID, imageType string, limit, offset int) ([]entities.Image, int64, error) {
-	query := db.Where("user_id = ?", userID)
+func (r *imageRepo) FindByUserID(userID uuid.UUID, imageType string, limit, offset int) ([]entities.Image, int64, error) {
+	query := r.db.Where("user_id = ?", userID)
 	if imageType != "" {
 		query = query.Where("image_type = ?", imageType)
 	}
@@ -30,18 +30,18 @@ func (r *imageRepo) FindByUserID(db *gorm.DB, userID uuid.UUID, imageType string
 	return images, total, err
 }
 
-func (r *imageRepo) CreateReference(db *gorm.DB, ref *entities.ImageReference) error {
-	return db.Create(ref).Error
+func (r *imageRepo) CreateReference(ref *entities.ImageReference) error {
+	return r.db.Create(ref).Error
 }
 
-func (r *imageRepo) FindReferencesByPostID(db *gorm.DB, postID uuid.UUID) ([]entities.ImageReference, error) {
+func (r *imageRepo) FindReferencesByPostID(postID uuid.UUID) ([]entities.ImageReference, error) {
 	var refs []entities.ImageReference
-	err := db.Where("post_id = ?", postID).Find(&refs).Error
+	err := r.db.Where("post_id = ?", postID).Find(&refs).Error
 	return refs, err
 }
 
-func (r *imageRepo) FindReference(db *gorm.DB, imageID, postID uuid.UUID, refType string) (*entities.ImageReference, error) {
+func (r *imageRepo) FindReference(imageID, postID uuid.UUID, refType string) (*entities.ImageReference, error) {
 	var ref entities.ImageReference
-	err := db.Where("image_id = ? AND post_id = ? AND ref_type = ?", imageID, postID, refType).First(&ref).Error
+	err := r.db.Where("image_id = ? AND post_id = ? AND ref_type = ?", imageID, postID, refType).First(&ref).Error
 	return &ref, err
 }

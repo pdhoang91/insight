@@ -1,10 +1,10 @@
-// components/Comment/AddCommentForm.js — Medium-style: no avatar, just textarea
+// components/Comment/AddCommentForm.js
 import React, { useState, useRef } from 'react';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import { addComment } from '../../services/commentService';
 
 const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId = null }) => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -43,8 +43,8 @@ const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId =
     <form onSubmit={handleSubmit}>
       <textarea
         ref={textareaRef}
-        className={`w-full resize-none bg-transparent text-sm text-[#242424] placeholder:text-[#b3b3b1] focus:outline-none transition-all pb-2 ${
-          isFocused ? 'border-b border-[#242424]' : 'border-b border-medium-border'
+        className={`w-full resize-none bg-transparent text-[14px] text-[#292929] placeholder:text-[#b3b3b1] focus:outline-none transition-colors pb-2 ${
+          isFocused ? 'border-b border-[#292929]' : 'border-b border-[#e6e6e6]'
         }`}
         placeholder={placeholder}
         value={content}
@@ -62,17 +62,17 @@ const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId =
           <button
             type="button"
             onClick={() => { setContent(''); setIsFocused(false); }}
-            className="text-xs text-[#6b6b6b] hover:text-[#242424] transition-colors"
+            className="text-[13px] text-[#6b6b6b] hover:text-[#292929] transition-colors"
           >
             {t('editor.cancel')}
           </button>
           <button
             type="submit"
             disabled={isSubmitting || !content.trim()}
-            className={`px-4 py-1.5 text-xs font-medium rounded-full transition-opacity ${
+            className={`px-4 py-1.5 text-[13px] rounded-full transition-all ${
               content.trim()
-                ? 'bg-medium-accent-green text-white hover:opacity-90'
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                ? 'bg-[#1a8917] text-white hover:bg-[#156d12]'
+                : 'bg-[#e6e6e6] text-[#b3b3b1] cursor-not-allowed'
             }`}
           >
             {isSubmitting ? '...' : t('comment.respond')}

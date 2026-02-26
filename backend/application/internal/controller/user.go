@@ -1,11 +1,9 @@
 package controller
 
 import (
-	"fmt"
 	"log"
 	"mime/multipart"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -13,83 +11,21 @@ import (
 	"github.com/pdhoang91/blog/internal/dto"
 	"github.com/pdhoang91/blog/internal/entities"
 	"github.com/pdhoang91/blog/internal/middleware"
+	"github.com/pdhoang91/blog/internal/service"
 	uuid "github.com/satori/go.uuid"
 )
 
-// ==================== USER ROUTES ====================
-
-func (c *Controller) Register(ctx *gin.Context) {
-	var req dto.CreateUserRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		return
-	}
-
-	response, err := c.service.Register(&req)
-	if err != nil {
-		respondError(ctx, err)
-		return
-	}
-	ctx.JSON(http.StatusCreated, response)
+type UserController struct {
+	svc service.UserService
 }
 
-func (c *Controller) Login(ctx *gin.Context) {
-	var req dto.LoginRequest
-	if err := ctx.ShouldBindJSON(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
-		return
-	}
-
-	response, err := c.service.Login(&req)
-	if err != nil {
-		respondError(ctx, err)
-		return
-	}
-	ctx.JSON(http.StatusOK, response)
-}
-
-func (c *Controller) GoogleLogin(ctx *gin.Context) {
-	url, err := c.service.GoogleLogin()
-	if err != nil {
-		respondError(ctx, err)
-		return
-	}
-	ctx.Redirect(http.StatusTemporaryRedirect, url)
-}
-
-func (c *Controller) GoogleCallback(ctx *gin.Context) {
-	code := ctx.Query("code")
-	if code == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Code not provided"})
-		return
-	}
-
-	response, err := c.service.GoogleCallback(code)
-	if err != nil {
-		respondError(ctx, err)
-		return
-	}
-
-	baseFeURL := os.Getenv("BASE_FE_URL")
-	frontendURL := fmt.Sprintf("%s/#token=%s", baseFeURL, response.Token)
-	ctx.Redirect(http.StatusTemporaryRedirect, frontendURL)
-}
-
-func (c *Controller) Logout(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
-}
-
-func (c *Controller) RefreshToken(ctx *gin.Context) {
-	ctx.JSON(http.StatusNotImplemented, gin.H{"error": "Not implemented"})
-}
-
-func (c *Controller) GetProfile(ctx *gin.Context) {
+func (c *UserController) GetProfile(ctx *gin.Context) {
 	userID, ok := requireUserID(ctx)
 	if !ok {
 		return
 	}
 
-	response, err := c.service.GetProfile(userID)
+	response, err := c.svc.GetProfile(userID)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -100,14 +36,14 @@ func (c *Controller) GetProfile(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"data": response})
 }
 
-func (c *Controller) GetUserProfileByUsername(ctx *gin.Context) {
+func (c *UserController) GetUserProfileByUsername(ctx *gin.Context) {
 	username := ctx.Param("username")
 	if username == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Username is required"})
 		return
 	}
 
-	user, err := c.service.GetUserByUsername(username)
+	user, err := c.svc.GetUserByUsername(username)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -115,7 +51,7 @@ func (c *Controller) GetUserProfileByUsername(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"data": user})
 }
 
-func (c *Controller) UpdateProfile(ctx *gin.Context) {
+func (c *UserController) UpdateProfile(ctx *gin.Context) {
 	userID, ok := requireUserID(ctx)
 	if !ok {
 		return
@@ -144,7 +80,7 @@ func (c *Controller) UpdateProfile(ctx *gin.Context) {
 		}
 	}
 
-	response, err := c.service.UpdateProfileWithAvatar(ctx.Request.Context(), userID, &req, avatarFile)
+	response, err := c.svc.UpdateProfileWithAvatar(ctx.Request.Context(), userID, &req, avatarFile)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -152,14 +88,14 @@ func (c *Controller) UpdateProfile(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"data": response})
 }
 
-func (c *Controller) GetUser(ctx *gin.Context) {
+func (c *UserController) GetUser(ctx *gin.Context) {
 	id, err := uuid.FromString(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 		return
 	}
 
-	response, err := c.service.GetUser(id)
+	response, err := c.svc.GetUser(id)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -167,7 +103,7 @@ func (c *Controller) GetUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"data": response})
 }
 
-func (c *Controller) DebugJWT(ctx *gin.Context) {
+func (c *UserController) DebugJWT(ctx *gin.Context) {
 	userIDStr := ctx.Query("user_id")
 
 	var user *entities.User
@@ -179,7 +115,7 @@ func (c *Controller) DebugJWT(ctx *gin.Context) {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
 			return
 		}
-		user, err = c.service.GetUserByID(userID)
+		user, err = c.svc.GetUserByID(userID)
 		if err != nil {
 			respondError(ctx, err)
 			return
@@ -200,13 +136,13 @@ func (c *Controller) DebugJWT(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"success": true, "token": token, "user": user})
 }
 
-func (c *Controller) DeleteProfile(ctx *gin.Context) {
+func (c *UserController) DeleteProfile(ctx *gin.Context) {
 	userID, ok := requireUserID(ctx)
 	if !ok {
 		return
 	}
 
-	if err := c.service.DeleteProfile(userID); err != nil {
+	if err := c.svc.DeleteProfile(userID); err != nil {
 		respondError(ctx, err)
 		return
 	}

@@ -10,23 +10,43 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-// Controller is the main controller that handles all HTTP requests.
-// It depends on the Service interface for testability.
+// Controller aggregates domain-specific controllers.
+// Each sub-controller depends only on the interface it needs (ISP).
 type Controller struct {
-	service service.Service
+	Auth       *AuthController
+	User       *UserController
+	Post       *PostController
+	Comment    *CommentController
+	Engagement *EngagementController
+	Bookmark   *BookmarkController
+	Category   *CategoryController
+	Tag        *TagController
+	Image      *ImageController
+	Search     *SearchController
 }
 
-// NewController creates a new controller instance
+// NewController creates a Controller from a composite Service.
 func NewController(svc service.Service) *Controller {
-	return &Controller{service: svc}
+	return &Controller{
+		Auth:       &AuthController{svc: svc},
+		User:       &UserController{svc: svc},
+		Post:       &PostController{svc: svc, engagement: svc, user: svc},
+		Comment:    &CommentController{svc: svc},
+		Engagement: &EngagementController{svc: svc, post: svc, comment: svc},
+		Bookmark:   &BookmarkController{svc: svc},
+		Category:   &CategoryController{svc: svc},
+		Tag:        &TagController{svc: svc},
+		Image:      &ImageController{svc: svc},
+		Search:     &SearchController{svc: svc},
+	}
 }
 
-// respondError maps AppError to HTTP response
+// --- Shared helpers ---
+
 func respondError(ctx *gin.Context, err error) {
 	ctx.JSON(apperror.HTTPCode(err), gin.H{"error": apperror.UserMessage(err)})
 }
 
-// parsePagination extracts and normalizes pagination from query params
 func parsePagination(ctx *gin.Context) (*dto.PaginationRequest, error) {
 	var req dto.PaginationRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {
@@ -41,7 +61,6 @@ func parsePagination(ctx *gin.Context) (*dto.PaginationRequest, error) {
 	return &req, nil
 }
 
-// requireUserID extracts authenticated user ID from context
 func requireUserID(ctx *gin.Context) (uuid.UUID, bool) {
 	userIDStr, exists := ctx.Get("userID")
 	if !exists {
@@ -56,7 +75,6 @@ func requireUserID(ctx *gin.Context) (uuid.UUID, bool) {
 	return userID, true
 }
 
-// optionalUserID extracts user ID if authenticated, returns nil UUID if not
 func optionalUserID(ctx *gin.Context) (uuid.UUID, bool) {
 	userIDStr, exists := ctx.Get("userID")
 	if !exists {
@@ -69,7 +87,6 @@ func optionalUserID(ctx *gin.Context) (uuid.UUID, bool) {
 	return userID, true
 }
 
-// ensureNotNil returns empty slice if input is nil (prevents null in JSON)
 func ensureNotNil[T any](slice []T) []T {
 	if slice == nil {
 		return []T{}

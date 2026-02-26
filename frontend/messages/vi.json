@@ -1,0 +1,73 @@
+{
+  "nav": {
+    "write": "Viết bài",
+    "publish": "Đăng bài",
+    "login": "Đăng nhập",
+    "logout": "Đăng xuất",
+    "search": "Tìm kiếm..."
+  },
+  "post": {
+    "minRead": "phút đọc",
+    "featured": "Nổi bật",
+    "relatedPosts": "Bài viết liên quan",
+    "share": "Chia sẻ",
+    "loading": "Đang tải bài viết...",
+    "loadError": "Không thể tải bài viết",
+    "tryAgain": "Vui lòng thử lại sau",
+    "reachedEnd": "Bạn đã xem hết rồi!",
+    "noStories": "Chưa có bài viết nào",
+    "beFirst": "Hãy là người đầu tiên chia sẻ suy nghĩ và trải nghiệm của bạn.",
+    "loadFailed": "Không thể tải bài viết. Vui lòng thử lại.",
+    "errorOccurred": "Đã xảy ra lỗi"
+  },
+  "comment": {
+    "placeholder": "Viết bình luận...",
+    "replyPlaceholder": "Viết phản hồi...",
+    "submit": "Gửi",
+    "respond": "Phản hồi",
+    "loadMore": "Xem thêm",
+    "remaining": "còn lại",
+    "showing": "Hiển thị",
+    "of": "/",
+    "comments": "bình luận",
+    "responses": "Phản hồi",
+    "noComments": "Chưa có bình luận nào",
+    "reply": "Trả lời",
+    "loginToComment": "Vui lòng đăng nhập để bình luận.",
+    "addError": "Không thể thêm bình luận. Vui lòng thử lại.",
+    "invalidData": "Dữ liệu bình luận không hợp lệ."
+  },
+  "editor": {
+    "titlePlaceholder": "Tiêu đề bài viết của bạn...",
+    "contentPlaceholder": "Nhập / để xem các lệnh...",
+    "addCoverImage": "Thêm ảnh bìa",
+    "uploadingImage": "Đang tải ảnh lên...",
+    "words": "từ",
+    "publishArticle": "Đăng bài viết",
+    "cancel": "Hủy",
+    "categories": "Danh mục",
+    "tags": "Thẻ",
+    "tagPlaceholder": "Nhập thẻ và nhấn Enter...",
+    "publish": "Đăng",
+    "selectCategories": "Chọn danh mục trước",
+    "loadingEditor": "Đang tải trình soạn thảo..."
+  },
+  "toc": {
+    "title": "Mục Lục"
+  },
+  "sidebar": {
+    "popularPosts": "Bài viết phổ biến",
+    "categories": "Danh mục",
+    "archive": "Lưu trữ",
+    "noPopularPosts": "Hiện tại chưa có bài viết phổ biến nào.",
+    "noPopular": "Không có bài viết phổ biến",
+    "moreFromBlog": "Xem thêm từ blog"
+  },
+  "common": {
+    "error": "Đã xảy ra lỗi",
+    "retry": "Thử lại",
+    "delete": "Xóa",
+    "edit": "Chỉnh sửa",
+    "confirmDelete": "Bạn có chắc chắn muốn xóa bài viết này?"
+  }
+}

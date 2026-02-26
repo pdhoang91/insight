@@ -12,7 +12,6 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/pdhoang91/blog/config"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -22,10 +21,10 @@ type ImageProcessor struct {
 	bucketName string
 }
 
-// NewImageProcessor creates a new image processor
-func NewImageProcessor(bucketName string) *ImageProcessor {
+// NewImageProcessor creates a new image processor with an injected S3 client.
+func NewImageProcessor(client *s3.Client, bucketName string) *ImageProcessor {
 	return &ImageProcessor{
-		s3Client:   config.S3Client,
+		s3Client:   client,
 		bucketName: bucketName,
 	}
 }
@@ -168,8 +167,3 @@ func (p *ImageProcessor) extractKeyFromURL(imageURL string) (string, error) {
 	return "", fmt.Errorf("invalid S3 URL format")
 }
 
-// GetDefaultProcessor returns a default image processor instance
-func GetDefaultProcessor() *ImageProcessor {
-	bucketName := config.GetString("AWS_S3_BUCKET", "insight-blog-images")
-	return NewImageProcessor(bucketName)
-}

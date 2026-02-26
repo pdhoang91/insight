@@ -5,12 +5,15 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/pdhoang91/blog/internal/dto"
+	"github.com/pdhoang91/blog/internal/service"
 	uuid "github.com/satori/go.uuid"
 )
 
-// ==================== BOOKMARK ROUTES ====================
+type BookmarkController struct {
+	svc service.BookmarkService
+}
 
-func (c *Controller) CreateBookmark(ctx *gin.Context) {
+func (c *BookmarkController) CreateBookmark(ctx *gin.Context) {
 	userID, ok := requireUserID(ctx)
 	if !ok {
 		return
@@ -22,7 +25,7 @@ func (c *Controller) CreateBookmark(ctx *gin.Context) {
 		return
 	}
 
-	response, err := c.service.CreateBookmark(userID, &req)
+	response, err := c.svc.CreateBookmark(userID, &req)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -30,7 +33,7 @@ func (c *Controller) CreateBookmark(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"data": response})
 }
 
-func (c *Controller) Unbookmark(ctx *gin.Context) {
+func (c *BookmarkController) Unbookmark(ctx *gin.Context) {
 	userID, ok := requireUserID(ctx)
 	if !ok {
 		return
@@ -39,14 +42,14 @@ func (c *Controller) Unbookmark(ctx *gin.Context) {
 	postIDStr := ctx.Param("post_id")
 	req := &dto.CreateBookmarkRequest{PostID: postIDStr}
 
-	if err := c.service.Unbookmark(userID, req); err != nil {
+	if err := c.svc.Unbookmark(userID, req); err != nil {
 		respondError(ctx, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"message": "Bookmark removed successfully"})
 }
 
-func (c *Controller) GetUserBookmarks(ctx *gin.Context) {
+func (c *BookmarkController) GetUserBookmarks(ctx *gin.Context) {
 	userID, ok := requireUserID(ctx)
 	if !ok {
 		return
@@ -58,7 +61,7 @@ func (c *Controller) GetUserBookmarks(ctx *gin.Context) {
 		return
 	}
 
-	responses, _, total, err := c.service.GetUserBookmarks(userID, req)
+	responses, _, total, err := c.svc.GetUserBookmarks(userID, req)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -70,7 +73,7 @@ func (c *Controller) GetUserBookmarks(ctx *gin.Context) {
 	})
 }
 
-func (c *Controller) CheckBookmarkStatus(ctx *gin.Context) {
+func (c *BookmarkController) CheckBookmarkStatus(ctx *gin.Context) {
 	userID, ok := requireUserID(ctx)
 	if !ok {
 		return
@@ -82,7 +85,7 @@ func (c *Controller) CheckBookmarkStatus(ctx *gin.Context) {
 		return
 	}
 
-	isBookmarked, err := c.service.CheckBookmarkStatus(userID, postID)
+	isBookmarked, err := c.svc.CheckBookmarkStatus(userID, postID)
 	if err != nil {
 		respondError(ctx, err)
 		return

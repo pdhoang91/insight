@@ -1,5 +1,4 @@
 // components/Auth/LoginModal.js
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaGoogle, FaTimes, FaUser, FaLock } from 'react-icons/fa';
@@ -7,7 +6,6 @@ import { loginWithEmailAndPassword, registerUser, loginWithGoogle } from '../../
 import { getUserProfile } from '../../services/userService';
 import { useLoginModal } from '../../hooks/useLoginModal';
 import { useUser } from '../../context/UserContext';
-import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
 const LoginModal = ({ isOpen, onClose }) => {
   const [email, setEmail] = useState('');
@@ -21,14 +19,11 @@ const LoginModal = ({ isOpen, onClose }) => {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
-      setError(''); // Clear error when modal opens
+      setError('');
     } else {
       document.body.style.overflow = 'auto';
     }
-
-    return () => {
-      document.body.style.overflow = 'auto';
-    };
+    return () => { document.body.style.overflow = 'auto'; };
   }, [isOpen]);
 
   if (!isOpen) return null;
@@ -37,7 +32,6 @@ const LoginModal = ({ isOpen, onClose }) => {
     if (isLoading) return;
     setIsLoading(true);
     setError('');
-
     try {
       await loginWithEmailAndPassword(email, password);
       const userData = await getUserProfile();
@@ -45,7 +39,7 @@ const LoginModal = ({ isOpen, onClose }) => {
       onClose();
     } catch (error) {
       console.error('Login failed:', error);
-      setError('Xác thực thất bại. Vui lòng kiểm tra lại thông tin đăng nhập.');
+      setError('Authentication failed. Please check your credentials.');
     } finally {
       setIsLoading(false);
     }
@@ -55,7 +49,6 @@ const LoginModal = ({ isOpen, onClose }) => {
     if (isLoading) return;
     setIsLoading(true);
     setError('');
-
     try {
       await registerUser(email, password);
       const userData = await getUserProfile();
@@ -64,7 +57,7 @@ const LoginModal = ({ isOpen, onClose }) => {
       onClose();
     } catch (error) {
       console.error('Sign up failed:', error);
-      setError('Đăng ký thất bại. Vui lòng thử lại.');
+      setError('Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -74,17 +67,16 @@ const LoginModal = ({ isOpen, onClose }) => {
     if (isLoading) return;
     setIsLoading(true);
     setError('');
-
     try {
-      // loginWithGoogle() redirects to Google OAuth, no need to await
-      // User authentication and profile fetching will be handled by useAuth hook after redirect
       loginWithGoogle();
     } catch (error) {
       console.error('Google login failed:', error);
-      setError('Xác thực Google thất bại. Vui lòng thử lại.');
+      setError('Google authentication failed. Please try again.');
       setIsLoading(false);
     }
   };
+
+  const inputClass = 'w-full pl-10 pr-4 py-3 bg-white border border-[#e6e6e6] rounded-lg text-[#292929] placeholder:text-[#b3b3b1] focus:border-[#292929] focus:outline-none transition-colors';
 
   return (
     <AnimatePresence>
@@ -93,165 +85,95 @@ const LoginModal = ({ isOpen, onClose }) => {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.2 }}
-        className={combineClasses(
-          'fixed inset-0 z-50 flex items-center justify-center',
-          'bg-black/60 backdrop-blur-sm'
-        )}
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
         onClick={onClose}
       >
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          transition={{ duration: 0.3, ease: "easeOut" }}
-          className={combineClasses(
-            'relative w-full max-w-md mx-4 p-6',
-            themeClasses.bg.card,
-            'border',
-            themeClasses.border.primary,
-            'rounded-lg shadow-2xl backdrop-blur-sm'
-          )}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+          className="relative w-full max-w-md mx-4 p-8 bg-white border border-[#e6e6e6] rounded-xl shadow-2xl"
           onClick={(e) => e.stopPropagation()}
         >
-          <div className={themeClasses.form.fieldsetLarge}>
-            {/* Close Button */}
+          <div className="space-y-6">
             <button
               onClick={onClose}
-              className={combineClasses(
-                'absolute top-4 right-4 p-2 rounded-full',
-                themeClasses.text.muted,
-                'hover:bg-medium-bg-secondary',
-                themeClasses.animations.smooth,
-                'focus:outline-none focus-visible:ring-2 focus-visible:ring-medium-accent-green'
-              )}
+              className="absolute top-4 right-4 p-2 text-[#b3b3b1] hover:text-[#292929] transition-colors"
             >
-              <FaTimes className={themeClasses.icons.sm} />
+              <FaTimes className="w-4 h-4" />
             </button>
 
-            {/* Simple Header */}
-            <div className={combineClasses('text-center', themeClasses.spacing.stackSmall)}>
-              <h2 className={combineClasses(
-                themeClasses.typography.h2,
-                themeClasses.text.primary
-              )}>
-                {isSignUp ? 'Đăng Ký' : 'Đăng Nhập'}
+            <div className="text-center">
+              <h2 className="font-serif text-2xl font-bold text-[#292929]">
+                {isSignUp ? 'Sign Up' : 'Sign In'}
               </h2>
             </div>
 
-            {/* Error Display */}
             {error && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`${themeClasses.error.bg} ${themeClasses.effects.blur} ${themeClasses.effects.rounded} p-3 ${themeClasses.error.text} ${themeClasses.text.bodySmall} text-center`}
+                className="p-3 bg-red-50 rounded-lg text-red-600 text-sm text-center"
               >
                 {error}
               </motion.div>
             )}
 
-            {/* Form */}
-            <div className={themeClasses.form.fieldset}>
+            <div className="space-y-3">
               <div className="relative">
-                <FaUser className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${themeClasses.text.accent}/60 ${themeClasses.icons.sm}`} />
+                <FaUser className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#b3b3b1]" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className={combineClasses(
-                    'w-full pl-10 pr-4 py-3 font-mono',
-                    themeClasses.bg.primary,
-                    'border',
-                    themeClasses.border.primary,
-                    themeClasses.effects.rounded,
-                    themeClasses.text.primary,
-                    'placeholder:text-medium-text-muted',
-                    'focus:bg-medium-bg-secondary',
-                    themeClasses.focus.ring,
-                    themeClasses.animations.smooth
-                  )}
+                  className={inputClass}
                   placeholder="Email"
                   disabled={isLoading}
                 />
               </div>
-              
+
               <div className="relative">
-                <FaLock className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${themeClasses.text.accent}/60 ${themeClasses.icons.sm}`} />
+                <FaLock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#b3b3b1]" />
                 <input
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className={combineClasses(
-                    'w-full pl-10 pr-4 py-3 font-mono',
-                    themeClasses.bg.primary,
-                    'border',
-                    themeClasses.border.primary,
-                    themeClasses.effects.rounded,
-                    themeClasses.text.primary,
-                    'placeholder:text-medium-text-muted',
-                    'focus:bg-medium-bg-secondary',
-                    themeClasses.focus.ring,
-                    themeClasses.animations.smooth
-                  )}
-                  placeholder="Mật khẩu"
+                  className={inputClass}
+                  placeholder="Password"
                   disabled={isLoading}
                 />
               </div>
             </div>
 
-            {/* Action Buttons */}
-            <div className={themeClasses.form.fieldset}>
+            <div className="space-y-3">
               <button
                 onClick={isSignUp ? handleSignUp : handleLogin}
                 disabled={isLoading || !email || !password}
-                className={combineClasses(
-                  'w-full py-3 font-mono disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center',
-                  'bg-medium-accent-green/20 hover:bg-medium-accent-green/30',
-                  themeClasses.effects.blur,
-                  themeClasses.text.accent,
-                  themeClasses.effects.rounded,
-                  themeClasses.typography.weightMedium,
-                  themeClasses.animations.smooth
-                )}
+                className="w-full py-3 bg-[#1a8917] text-white rounded-full font-medium hover:bg-[#156d12] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
               >
                 {isLoading ? (
-                  <div className={combineClasses(
-                    themeClasses.icons.sm,
-                    'border-2 border-medium-accent-green/30 border-t-medium-accent-green rounded-full animate-spin'
-                  )}></div>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
-                  <span>{isSignUp ? 'Đăng Ký' : 'Đăng Nhập'}</span>
+                  <span>{isSignUp ? 'Sign Up' : 'Sign In'}</span>
                 )}
               </button>
 
               <button
                 onClick={handleGoogleLogin}
                 disabled={isLoading}
-                className={combineClasses(
-                  'w-full py-3 font-mono disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2',
-                  themeClasses.bg.secondary,
-                  'hover:bg-medium-bg-secondary/80',
-                  themeClasses.effects.blur,
-                  themeClasses.text.primary,
-                  themeClasses.effects.rounded,
-                  themeClasses.typography.weightMedium,
-                  themeClasses.animations.smooth
-                )}
+                className="w-full py-3 bg-[#f2f2f2] text-[#292929] rounded-full font-medium hover:bg-[#e6e6e6] disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
               >
-                <FaGoogle className={themeClasses.icons.sm} />
-                <span>Tiếp tục với Google</span>
+                <FaGoogle className="w-4 h-4" />
+                <span>Continue with Google</span>
               </button>
 
               <button
                 onClick={() => setIsSignUp(!isSignUp)}
                 disabled={isLoading}
-                className={combineClasses(
-                  'w-full py-2 font-mono disabled:opacity-50',
-                  'text-medium-text-muted/80 hover:text-medium-accent-green',
-                  themeClasses.text.bodySmall,
-                  themeClasses.animations.smooth
-                )}
+                className="w-full py-2 text-sm text-[#6b6b6b] hover:text-[#1a8917] disabled:opacity-50 transition-colors"
               >
-                {isSignUp ? 'Đã có tài khoản?' : 'Chưa có tài khoản?'}
+                {isSignUp ? 'Already have an account?' : "Don't have an account?"}
               </button>
             </div>
           </div>

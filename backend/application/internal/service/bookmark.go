@@ -18,17 +18,17 @@ func (s *InsightService) CreateBookmark(userID uuid.UUID, req *dto.CreateBookmar
 		return nil, apperror.NewBadRequest("invalid post ID")
 	}
 
-	bookmark, err := s.BookmarkRepo.FindByUserAndPost(s.DB, userID, postID)
+	bookmark, err := s.BookmarkRepo.FindByUserAndPost(userID, postID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			bookmark = &entities.Bookmark{
 				ID: uuid.NewV4(), PostID: postID, UserID: userID,
 				IsBookmarked: true, CreatedAt: time.Now(), UpdatedAt: time.Now(),
 			}
-			if err := s.BookmarkRepo.Create(s.DB, bookmark); err != nil {
+			if err := s.BookmarkRepo.Create(bookmark); err != nil {
 				return nil, apperror.NewInternal("failed to create bookmark", err)
 			}
-			bookmark, err = s.BookmarkRepo.FindByIDWithPost(s.DB, bookmark.ID)
+			bookmark, err = s.BookmarkRepo.FindByIDWithPost(bookmark.ID)
 			if err != nil {
 				return nil, apperror.NewInternal("failed to load bookmark", err)
 			}
@@ -43,7 +43,7 @@ func (s *InsightService) CreateBookmark(userID uuid.UUID, req *dto.CreateBookmar
 
 	bookmark.IsBookmarked = true
 	bookmark.UpdatedAt = time.Now()
-	if err := s.BookmarkRepo.Save(s.DB, bookmark); err != nil {
+	if err := s.BookmarkRepo.Save(bookmark); err != nil {
 		return nil, apperror.NewInternal("failed to reactivate bookmark", err)
 	}
 	return dto.NewBookmarkResponse(bookmark), nil
@@ -56,7 +56,7 @@ func (s *InsightService) Unbookmark(userID uuid.UUID, req *dto.CreateBookmarkReq
 		return apperror.NewBadRequest("invalid post ID")
 	}
 
-	bookmark, err := s.BookmarkRepo.FindByUserAndPost(s.DB, userID, postID)
+	bookmark, err := s.BookmarkRepo.FindByUserAndPost(userID, postID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil
@@ -70,7 +70,7 @@ func (s *InsightService) Unbookmark(userID uuid.UUID, req *dto.CreateBookmarkReq
 
 	bookmark.IsBookmarked = false
 	bookmark.UpdatedAt = time.Now()
-	if err := s.BookmarkRepo.Save(s.DB, bookmark); err != nil {
+	if err := s.BookmarkRepo.Save(bookmark); err != nil {
 		return apperror.NewInternal("failed to deactivate bookmark", err)
 	}
 	return nil
@@ -82,17 +82,17 @@ func (s *InsightService) GetUserBookmarks(userID uuid.UUID, req *dto.PaginationR
 		req.Limit = 10
 	}
 
-	user, err := s.UserRepo.FindByID(s.DB, userID)
+	user, err := s.UserRepo.FindByID(userID)
 	if err != nil {
 		return nil, "", 0, apperror.NewInternal("failed to find user", err)
 	}
 
-	totalCount, err := s.BookmarkRepo.CountByUser(s.DBR2, userID)
+	totalCount, err := s.BookmarkRepo.CountByUser(userID)
 	if err != nil {
 		return nil, "", 0, apperror.NewInternal("failed to count bookmarks", err)
 	}
 
-	bookmarks, err := s.BookmarkRepo.FindByUserID(s.DBR2, userID, req.Limit, req.Offset)
+	bookmarks, err := s.BookmarkRepo.FindByUserID(userID, req.Limit, req.Offset)
 	if err != nil {
 		return nil, "", 0, apperror.NewInternal("failed to get bookmarks", err)
 	}
@@ -113,7 +113,7 @@ func (s *InsightService) GetUserBookmarks(userID uuid.UUID, req *dto.PaginationR
 
 // CheckBookmarkStatus checks if a post is bookmarked by user
 func (s *InsightService) CheckBookmarkStatus(userID uuid.UUID, postID uuid.UUID) (bool, error) {
-	isBookmarked, err := s.BookmarkRepo.CheckIsBookmarked(s.DBR2, userID, postID)
+	isBookmarked, err := s.BookmarkRepo.CheckIsBookmarked(userID, postID)
 	if err != nil {
 		return false, apperror.NewInternal("failed to check bookmark status", err)
 	}
@@ -122,5 +122,5 @@ func (s *InsightService) CheckBookmarkStatus(userID uuid.UUID, postID uuid.UUID)
 
 // calculatePostCounts calculates clap_count and comments_count for posts (best-effort)
 func (s *InsightService) calculatePostCounts(posts []*entities.Post) {
-	_ = s.PostRepo.CalculateCountsForPosts(s.DBR2, posts)
+	_ = s.PostRepo.CalculateCountsForPosts(posts)
 }

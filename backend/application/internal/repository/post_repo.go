@@ -6,78 +6,80 @@ import (
 	"gorm.io/gorm"
 )
 
-type postRepo struct{}
+type postRepo struct{ db *gorm.DB }
 
-func NewPostRepository() PostRepository { return &postRepo{} }
+func NewPostRepository(db *gorm.DB) PostRepository { return &postRepo{db: db} }
 
-func (r *postRepo) Create(db *gorm.DB, post *entities.Post) error {
-	return db.Create(post).Error
+func (r *postRepo) WithTx(tx *gorm.DB) PostRepository { return &postRepo{db: tx} }
+
+func (r *postRepo) Create(post *entities.Post) error {
+	return r.db.Create(post).Error
 }
 
-func (r *postRepo) Update(db *gorm.DB, post *entities.Post) error {
-	return db.Save(post).Error
+func (r *postRepo) Update(post *entities.Post) error {
+	return r.db.Save(post).Error
 }
 
-func (r *postRepo) Delete(db *gorm.DB, post *entities.Post) error {
-	return db.Delete(post).Error
+func (r *postRepo) Delete(post *entities.Post) error {
+	return r.db.Delete(post).Error
 }
 
-func (r *postRepo) FindByID(db *gorm.DB, id uuid.UUID) (*entities.Post, error) {
+func (r *postRepo) FindByID(id uuid.UUID) (*entities.Post, error) {
 	var post entities.Post
-	err := db.Preload("User").Preload("Categories").Preload("Tags").Where("id = ?", id).First(&post).Error
+	err := r.db.Preload("User").Preload("Categories").Preload("Tags").Where("id = ?", id).First(&post).Error
 	return &post, err
 }
 
-func (r *postRepo) FindBySlug(db *gorm.DB, slug string) (*entities.Post, error) {
+func (r *postRepo) FindBySlug(slug string) (*entities.Post, error) {
 	var post entities.Post
-	err := db.Where("slug = ?", slug).First(&post).Error
+	err := r.db.Where("slug = ?", slug).First(&post).Error
 	return &post, err
 }
 
-func (r *postRepo) FindByUserID(db *gorm.DB, userID uuid.UUID, limit, offset int) ([]*entities.Post, error) {
+func (r *postRepo) FindByUserID(userID uuid.UUID, limit, offset int) ([]*entities.Post, error) {
 	var posts []*entities.Post
-	err := db.Preload("User").Preload("Categories").Preload("Tags").
+	err := r.db.Preload("User").Preload("Categories").Preload("Tags").
 		Where("user_id = ?", userID).
 		Limit(limit).Offset(offset).
 		Find(&posts).Error
 	return posts, err
 }
 
-func (r *postRepo) FindAll(db *gorm.DB, limit, offset int) ([]*entities.Post, error) {
+func (r *postRepo) FindAll(limit, offset int) ([]*entities.Post, error) {
 	var posts []*entities.Post
-	err := db.Preload("User").Preload("Categories").Preload("Tags").
+	err := r.db.Preload("User").Preload("Categories").Preload("Tags").
 		Order("created_at DESC").
 		Limit(limit).Offset(offset).
 		Find(&posts).Error
 	return posts, err
 }
 
-func (r *postRepo) Count(db *gorm.DB) (int64, error) {
+func (r *postRepo) Count() (int64, error) {
 	var count int64
-	err := db.Model(&entities.Post{}).Count(&count).Error
+	err := r.db.Model(&entities.Post{}).Count(&count).Error
 	return count, err
 }
 
-func (r *postRepo) List(db *gorm.DB, limit, offset int) ([]*entities.Post, error) {
+func (r *postRepo) List(limit, offset int) ([]*entities.Post, error) {
 	var posts []*entities.Post
-	err := db.Preload("User").Preload("Categories").Preload("Tags").
+	err := r.db.Preload("User").Preload("Categories").Preload("Tags").
 		Limit(limit).Offset(offset).
 		Find(&posts).Error
 	return posts, err
 }
 
-func (r *postRepo) Search(db *gorm.DB, query string, limit, offset int) ([]*entities.Post, error) {
+func (r *postRepo) Search(query string, limit, offset int) ([]*entities.Post, error) {
 	var posts []*entities.Post
-	err := db.Preload("User").Preload("Categories").Preload("Tags").
+	err := r.db.Preload("User").Preload("Categories").Preload("Tags").
 		Where("title ILIKE ? OR excerpt ILIKE ?", "%"+query+"%", "%"+query+"%").
 		Limit(limit).Offset(offset).
 		Find(&posts).Error
 	return posts, err
 }
 
-func (r *postRepo) GetPopular(db *gorm.DB, limit int) ([]*entities.Post, error) {
+func (r *postRepo) GetPopular(limit int) ([]*entities.Post, error) {
 	var posts []*entities.Post
-	err := db.Preload("User").Preload("Categories").Preload("Tags").
+	err := r.db.Preload("User").Preload("Categories").Preload("Tags").
 		Select("posts.*, COALESCE((SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id), 0) as comments_count").
 		Order("(posts.views * 0.7 + COALESCE((SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id), 0) * 0.3) DESC").
 		Limit(limit).
@@ -85,9 +87,9 @@ func (r *postRepo) GetPopular(db *gorm.DB, limit int) ([]*entities.Post, error) 
 	return posts, err
 }
 
-func (r *postRepo) FindByCategory(db *gorm.DB, categoryID uuid.UUID, limit, offset int) ([]*entities.Post, error) {
+func (r *postRepo) FindByCategory(categoryID uuid.UUID, limit, offset int) ([]*entities.Post, error) {
 	var posts []*entities.Post
-	err := db.Preload("User").Preload("Categories").Preload("Tags").
+	err := r.db.Preload("User").Preload("Categories").Preload("Tags").
 		Joins("JOIN post_categories ON posts.id = post_categories.post_id").
 		Where("post_categories.category_id = ?", categoryID).
 		Order("posts.created_at DESC").
@@ -96,18 +98,18 @@ func (r *postRepo) FindByCategory(db *gorm.DB, categoryID uuid.UUID, limit, offs
 	return posts, err
 }
 
-func (r *postRepo) CountByCategory(db *gorm.DB, categoryID uuid.UUID) (int64, error) {
+func (r *postRepo) CountByCategory(categoryID uuid.UUID) (int64, error) {
 	var count int64
-	err := db.Model(&entities.Post{}).
+	err := r.db.Model(&entities.Post{}).
 		Joins("JOIN post_categories ON posts.id = post_categories.post_id").
 		Where("post_categories.category_id = ?", categoryID).
 		Count(&count).Error
 	return count, err
 }
 
-func (r *postRepo) FindByYearMonth(db *gorm.DB, year, month int, limit, offset int) ([]*entities.Post, error) {
+func (r *postRepo) FindByYearMonth(year, month int, limit, offset int) ([]*entities.Post, error) {
 	var posts []*entities.Post
-	err := db.Preload("User").Preload("Categories").Preload("Tags").
+	err := r.db.Preload("User").Preload("Categories").Preload("Tags").
 		Where("EXTRACT(YEAR FROM created_at) = ? AND EXTRACT(MONTH FROM created_at) = ?", year, month).
 		Order("created_at DESC").
 		Limit(limit).Offset(offset).
@@ -115,21 +117,21 @@ func (r *postRepo) FindByYearMonth(db *gorm.DB, year, month int, limit, offset i
 	return posts, err
 }
 
-func (r *postRepo) CountByYearMonth(db *gorm.DB, year, month int) (int64, error) {
+func (r *postRepo) CountByYearMonth(year, month int) (int64, error) {
 	var count int64
-	err := db.Model(&entities.Post{}).
+	err := r.db.Model(&entities.Post{}).
 		Where("EXTRACT(YEAR FROM created_at) = ? AND EXTRACT(MONTH FROM created_at) = ?", year, month).
 		Count(&count).Error
 	return count, err
 }
 
-func (r *postRepo) IncrementViews(db *gorm.DB, post *entities.Post) error {
-	return db.Model(post).UpdateColumn("views", gorm.Expr("views + ?", 1)).Error
+func (r *postRepo) IncrementViews(post *entities.Post) error {
+	return r.db.Model(post).UpdateColumn("views", gorm.Expr("views + ?", 1)).Error
 }
 
-func (r *postRepo) CalculateCounts(db *gorm.DB, post *entities.Post) error {
+func (r *postRepo) CalculateCounts(post *entities.Post) error {
 	var clapCount int64
-	if err := db.Model(&entities.UserActivity{}).
+	if err := r.db.Model(&entities.UserActivity{}).
 		Where("post_id = ? AND action_type = ?", post.ID, "clap_post").
 		Select("COALESCE(SUM(count), 0)").Row().Scan(&clapCount); err != nil {
 		return err
@@ -137,7 +139,7 @@ func (r *postRepo) CalculateCounts(db *gorm.DB, post *entities.Post) error {
 	post.ClapCount = uint64(clapCount)
 
 	var commentCount int64
-	if err := db.Model(&entities.Comment{}).
+	if err := r.db.Model(&entities.Comment{}).
 		Where("post_id = ?", post.ID).
 		Count(&commentCount).Error; err != nil {
 		return err
@@ -146,33 +148,33 @@ func (r *postRepo) CalculateCounts(db *gorm.DB, post *entities.Post) error {
 	return nil
 }
 
-func (r *postRepo) AppendCategories(db *gorm.DB, post *entities.Post, categories []entities.Category) error {
-	return db.Model(post).Association("Categories").Append(&categories)
+func (r *postRepo) AppendCategories(post *entities.Post, categories []entities.Category) error {
+	return r.db.Model(post).Association("Categories").Append(&categories)
 }
 
-func (r *postRepo) ReplaceCategories(db *gorm.DB, post *entities.Post, categories []entities.Category) error {
-	return db.Model(post).Association("Categories").Replace(&categories)
+func (r *postRepo) ReplaceCategories(post *entities.Post, categories []entities.Category) error {
+	return r.db.Model(post).Association("Categories").Replace(&categories)
 }
 
-func (r *postRepo) AppendTags(db *gorm.DB, post *entities.Post, tags []entities.Tag) error {
-	return db.Model(post).Association("Tags").Append(&tags)
+func (r *postRepo) AppendTags(post *entities.Post, tags []entities.Tag) error {
+	return r.db.Model(post).Association("Tags").Append(&tags)
 }
 
-func (r *postRepo) ReplaceTags(db *gorm.DB, post *entities.Post, tags []entities.Tag) error {
-	return db.Model(post).Association("Tags").Replace(&tags)
+func (r *postRepo) ReplaceTags(post *entities.Post, tags []entities.Tag) error {
+	return r.db.Model(post).Association("Tags").Replace(&tags)
 }
 
-func (r *postRepo) LoadRelationships(db *gorm.DB, post *entities.Post) error {
-	return db.Preload("User").Preload("Categories").Preload("Tags").First(post, post.ID).Error
+func (r *postRepo) LoadRelationships(post *entities.Post) error {
+	return r.db.Preload("User").Preload("Categories").Preload("Tags").First(post, post.ID).Error
 }
 
-func (r *postRepo) ExistsBySlugExcluding(db *gorm.DB, slug string, excludeID uuid.UUID) bool {
+func (r *postRepo) ExistsBySlugExcluding(slug string, excludeID uuid.UUID) bool {
 	var count int64
-	db.Model(&entities.Post{}).Where("slug = ? AND id != ?", slug, excludeID).Count(&count)
+	r.db.Model(&entities.Post{}).Where("slug = ? AND id != ?", slug, excludeID).Count(&count)
 	return count > 0
 }
 
-func (r *postRepo) CalculateCountsForPosts(db *gorm.DB, posts []*entities.Post) error {
+func (r *postRepo) CalculateCountsForPosts(posts []*entities.Post) error {
 	if len(posts) == 0 {
 		return nil
 	}
@@ -187,7 +189,7 @@ func (r *postRepo) CalculateCountsForPosts(db *gorm.DB, posts []*entities.Post) 
 		ClapCount int64
 	}
 	var clapCounts []ClapResult
-	if err := db.Model(&entities.UserActivity{}).
+	if err := r.db.Model(&entities.UserActivity{}).
 		Select("post_id, COALESCE(SUM(count), 0) as clap_count").
 		Where("post_id IN ? AND action_type = ?", postIDs, "clap_post").
 		Group("post_id").
@@ -200,7 +202,7 @@ func (r *postRepo) CalculateCountsForPosts(db *gorm.DB, posts []*entities.Post) 
 		CommentCount int64
 	}
 	var commentCounts []CommentResult
-	if err := db.Model(&entities.Comment{}).
+	if err := r.db.Model(&entities.Comment{}).
 		Select("post_id, COUNT(*) as comment_count").
 		Where("post_id IN ?", postIDs).
 		Group("post_id").

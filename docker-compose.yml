@@ -157,9 +157,6 @@ services:
       - DB_NAME=postgres
 
       - BASE_API_URL=${BASE_API_URL}
-      - logger.level=debug
-      - discovery.type=single-node
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
       - LOG_LEVEL=DEBUG
     networks:
       - app-network

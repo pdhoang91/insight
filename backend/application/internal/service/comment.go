@@ -18,22 +18,22 @@ func (s *InsightService) GetPostComments(postID uuid.UUID, req *dto.PaginationRe
 		req.Limit = 10
 	}
 
-	totalComments, err := s.CommentRepo.CountByPostID(s.DB, postID)
+	totalComments, err := s.CommentRepo.CountByPostID(postID)
 	if err != nil {
 		return nil, 0, 0, apperror.NewInternal("failed to count comments", err)
 	}
 
-	comments, err := s.CommentRepo.FindByPostID(s.DB, postID, req.Limit, req.Offset)
+	comments, err := s.CommentRepo.FindByPostID(postID, req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, 0, apperror.NewInternal("failed to get comments", err)
 	}
 
-	totalReplies, err := s.ReplyRepo.CountByPostID(s.DB, postID)
+	totalReplies, err := s.ReplyRepo.CountByPostID(postID)
 	if err != nil {
 		return nil, 0, 0, apperror.NewInternal("failed to count replies", err)
 	}
 
-	_ = s.UserActivityRepo.CalculateCommentsAndRepliesCounts(s.DB, comments)
+	_ = s.UserActivityRepo.CalculateCommentsAndRepliesCounts(comments)
 
 	responses := make([]*dto.CommentResponse, 0, len(comments))
 	for _, comment := range comments {
@@ -49,7 +49,7 @@ func (s *InsightService) CreateComment(userID uuid.UUID, req *dto.CreateCommentR
 		return nil, apperror.NewBadRequest("invalid post ID")
 	}
 
-	if _, err := s.PostRepo.FindByID(s.DB, postID); err != nil {
+	if _, err := s.PostRepo.FindByID(postID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewNotFound("post not found")
 		}
@@ -61,11 +61,11 @@ func (s *InsightService) CreateComment(userID uuid.UUID, req *dto.CreateCommentR
 		Content: req.Content, CreatedAt: time.Now(),
 	}
 
-	if err := s.CommentRepo.Create(s.DB, comment); err != nil {
+	if err := s.CommentRepo.Create(comment); err != nil {
 		return nil, apperror.NewInternal("failed to create comment", err)
 	}
 
-	comment, err = s.CommentRepo.FindByID(s.DB, comment.ID)
+	comment, err = s.CommentRepo.FindByID(comment.ID)
 	if err != nil {
 		return nil, apperror.NewInternal("failed to load comment user", err)
 	}
@@ -81,7 +81,7 @@ func (s *InsightService) CreateComment(userID uuid.UUID, req *dto.CreateCommentR
 
 // UpdateComment updates a comment by ID
 func (s *InsightService) UpdateComment(userID uuid.UUID, commentID uuid.UUID, req *dto.UpdateCommentRequest) (*dto.CommentResponse, error) {
-	comment, err := s.CommentRepo.FindByID(s.DB, commentID)
+	comment, err := s.CommentRepo.FindByID(commentID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewNotFound("comment not found")
@@ -94,11 +94,11 @@ func (s *InsightService) UpdateComment(userID uuid.UUID, commentID uuid.UUID, re
 	}
 
 	comment.Content = req.Content
-	if err := s.CommentRepo.Update(s.DB, comment); err != nil {
+	if err := s.CommentRepo.Update(comment); err != nil {
 		return nil, apperror.NewInternal("failed to update comment", err)
 	}
 
-	comment, err = s.CommentRepo.FindByID(s.DB, comment.ID)
+	comment, err = s.CommentRepo.FindByID(comment.ID)
 	if err != nil {
 		return nil, apperror.NewInternal("failed to load comment user", err)
 	}
@@ -108,7 +108,7 @@ func (s *InsightService) UpdateComment(userID uuid.UUID, commentID uuid.UUID, re
 
 // DeleteComment deletes a comment by ID
 func (s *InsightService) DeleteComment(userID uuid.UUID, commentID uuid.UUID) error {
-	comment, err := s.CommentRepo.FindByID(s.DB, commentID)
+	comment, err := s.CommentRepo.FindByID(commentID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return apperror.NewNotFound("comment not found")
@@ -120,29 +120,14 @@ func (s *InsightService) DeleteComment(userID uuid.UUID, commentID uuid.UUID) er
 		return apperror.NewForbidden("you do not own this comment")
 	}
 
-	tx := s.DB.Begin()
-	if tx.Error != nil {
-		return apperror.NewInternal("failed to start transaction", tx.Error)
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
-	if err := s.ReplyRepo.DeleteByCommentID(tx, commentID); err != nil {
-		tx.Rollback()
+	if err := s.ReplyRepo.DeleteByCommentID(commentID); err != nil {
 		return apperror.NewInternal("failed to delete replies", err)
 	}
 
-	if err := s.CommentRepo.Delete(tx, comment); err != nil {
-		tx.Rollback()
+	if err := s.CommentRepo.Delete(comment); err != nil {
 		return apperror.NewInternal("failed to delete comment", err)
 	}
 
-	if err := tx.Commit().Error; err != nil {
-		return apperror.NewInternal("failed to commit transaction", err)
-	}
 	return nil
 }
 
@@ -158,7 +143,7 @@ func (s *InsightService) CreateReply(userID uuid.UUID, req *dto.CreateReplyReque
 		return nil, apperror.NewBadRequest("invalid post ID")
 	}
 
-	if _, err := s.CommentRepo.FindByID(s.DB, commentID); err != nil {
+	if _, err := s.CommentRepo.FindByID(commentID); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewNotFound("comment not found")
 		}
@@ -170,11 +155,11 @@ func (s *InsightService) CreateReply(userID uuid.UUID, req *dto.CreateReplyReque
 		UserID: userID, Content: req.Content, CreatedAt: time.Now(),
 	}
 
-	if err := s.ReplyRepo.Create(s.DB, reply); err != nil {
+	if err := s.ReplyRepo.Create(reply); err != nil {
 		return nil, apperror.NewInternal("failed to create reply", err)
 	}
 
-	reply, err = s.ReplyRepo.FindByID(s.DB, reply.ID)
+	reply, err = s.ReplyRepo.FindByID(reply.ID)
 	if err != nil {
 		return nil, apperror.NewInternal("failed to load reply user", err)
 	}
@@ -190,7 +175,7 @@ func (s *InsightService) CreateReply(userID uuid.UUID, req *dto.CreateReplyReque
 
 // UpdateReply updates a reply by ID
 func (s *InsightService) UpdateReply(userID uuid.UUID, replyID uuid.UUID, req *dto.UpdateReplyRequest) (*dto.ReplyResponse, error) {
-	reply, err := s.ReplyRepo.FindByID(s.DB, replyID)
+	reply, err := s.ReplyRepo.FindByID(replyID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewNotFound("reply not found")
@@ -203,11 +188,11 @@ func (s *InsightService) UpdateReply(userID uuid.UUID, replyID uuid.UUID, req *d
 	}
 
 	reply.Content = req.Content
-	if err := s.ReplyRepo.Update(s.DB, reply); err != nil {
+	if err := s.ReplyRepo.Update(reply); err != nil {
 		return nil, apperror.NewInternal("failed to update reply", err)
 	}
 
-	reply, err = s.ReplyRepo.FindByID(s.DB, reply.ID)
+	reply, err = s.ReplyRepo.FindByID(reply.ID)
 	if err != nil {
 		return nil, apperror.NewInternal("failed to load reply user", err)
 	}
@@ -217,7 +202,7 @@ func (s *InsightService) UpdateReply(userID uuid.UUID, replyID uuid.UUID, req *d
 
 // DeleteReply deletes a reply by ID
 func (s *InsightService) DeleteReply(userID uuid.UUID, replyID uuid.UUID) error {
-	reply, err := s.ReplyRepo.FindByID(s.DB, replyID)
+	reply, err := s.ReplyRepo.FindByID(replyID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return apperror.NewNotFound("reply not found")
@@ -229,7 +214,7 @@ func (s *InsightService) DeleteReply(userID uuid.UUID, replyID uuid.UUID) error 
 		return apperror.NewForbidden("you do not own this reply")
 	}
 
-	if err := s.ReplyRepo.Delete(s.DB, reply); err != nil {
+	if err := s.ReplyRepo.Delete(reply); err != nil {
 		return apperror.NewInternal("failed to delete reply", err)
 	}
 	return nil
@@ -241,12 +226,12 @@ func (s *InsightService) GetCommentReplies(commentID uuid.UUID, req *dto.Paginat
 		req.Limit = 10
 	}
 
-	total, err := s.ReplyRepo.CountByCommentID(s.DB, commentID)
+	total, err := s.ReplyRepo.CountByCommentID(commentID)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to count replies", err)
 	}
 
-	replies, err := s.ReplyRepo.FindByCommentID(s.DB, commentID, req.Limit, req.Offset)
+	replies, err := s.ReplyRepo.FindByCommentID(commentID, req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to get replies", err)
 	}
@@ -260,7 +245,7 @@ func (s *InsightService) GetCommentReplies(commentID uuid.UUID, req *dto.Paginat
 
 // GetComment retrieves a comment by ID
 func (s *InsightService) GetComment(id uuid.UUID) (*dto.CommentResponse, error) {
-	comment, err := s.CommentRepo.FindByID(s.DB, id)
+	comment, err := s.CommentRepo.FindByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewNotFound("comment not found")
@@ -276,5 +261,5 @@ func (s *InsightService) createUserActivity(userID uuid.UUID, actionType string,
 		ID: uuid.NewV4(), UserID: userID, PostID: &postID,
 		ActionType: actionType, Count: 1, CreatedAt: time.Now(),
 	}
-	_ = s.UserActivityRepo.Create(s.DB, activity)
+	_ = s.UserActivityRepo.Create(activity)
 }

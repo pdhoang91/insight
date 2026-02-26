@@ -1,7 +1,8 @@
+'use client';
 // components/Navbar/Navbar.js
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useRouter, usePathname } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { FaUser, FaSignOutAlt, FaEdit, FaBars, FaTimes } from 'react-icons/fa';
 import { useUser } from '../../context/UserContext';
@@ -9,14 +10,15 @@ import { usePostContext } from '../../context/PostContext';
 import SimpleSearchBar from '../Shared/SimpleSearchBar';
 import { canWritePosts } from '../../services/authService';
 import LanguageSwitcher from '../Shared/LanguageSwitcher';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 
 const Navbar = () => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
   const { user, setUser, setModalOpen } = useUser();
   const { handlePublish } = usePostContext();
   const router = useRouter();
-  const isWritePage = router.pathname === '/write' || router.pathname.startsWith('/edit/');
+  const pathname = usePathname();
+  const isWritePage = pathname === '/write' || pathname.startsWith('/edit/');
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -40,7 +42,7 @@ const Navbar = () => {
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
-  }, [router.asPath]);
+  }, [pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -51,7 +53,7 @@ const Navbar = () => {
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 bg-white transition-shadow duration-200 ${scrolled ? 'shadow-sm border-b border-medium-border' : 'border-b border-transparent'}`}>
-      <div className="max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8">
+      <div className="max-w-[1192px] mx-auto px-4 md:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="font-serif text-2xl font-bold text-medium-text-primary hover:opacity-80 transition-opacity">

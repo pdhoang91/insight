@@ -1,6 +1,6 @@
 // components/Post/PostList.js
 import React from 'react';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import BasePostItem from './BasePostItem';
 
@@ -14,7 +14,7 @@ const PostList = ({
   skipFirst = false,
   className = '',
 }) => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
 
   const fetchMore = () => {
     if (!isReachingEnd && !isLoading) {

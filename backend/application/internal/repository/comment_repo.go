@@ -6,31 +6,31 @@ import (
 	"gorm.io/gorm"
 )
 
-type commentRepo struct{}
+type commentRepo struct{ db *gorm.DB }
 
-func NewCommentRepository() CommentRepository { return &commentRepo{} }
+func NewCommentRepository(db *gorm.DB) CommentRepository { return &commentRepo{db: db} }
 
-func (r *commentRepo) Create(db *gorm.DB, comment *entities.Comment) error {
-	return db.Create(comment).Error
+func (r *commentRepo) Create(comment *entities.Comment) error {
+	return r.db.Create(comment).Error
 }
 
-func (r *commentRepo) Update(db *gorm.DB, comment *entities.Comment) error {
-	return db.Save(comment).Error
+func (r *commentRepo) Update(comment *entities.Comment) error {
+	return r.db.Save(comment).Error
 }
 
-func (r *commentRepo) Delete(db *gorm.DB, comment *entities.Comment) error {
-	return db.Delete(comment).Error
+func (r *commentRepo) Delete(comment *entities.Comment) error {
+	return r.db.Delete(comment).Error
 }
 
-func (r *commentRepo) FindByID(db *gorm.DB, id uuid.UUID) (*entities.Comment, error) {
+func (r *commentRepo) FindByID(id uuid.UUID) (*entities.Comment, error) {
 	var comment entities.Comment
-	err := db.Preload("User").Where("id = ?", id).First(&comment).Error
+	err := r.db.Preload("User").Where("id = ?", id).First(&comment).Error
 	return &comment, err
 }
 
-func (r *commentRepo) FindByPostID(db *gorm.DB, postID uuid.UUID, limit, offset int) ([]*entities.Comment, error) {
+func (r *commentRepo) FindByPostID(postID uuid.UUID, limit, offset int) ([]*entities.Comment, error) {
 	var comments []*entities.Comment
-	err := db.Preload("User").Preload("Replies.User").
+	err := r.db.Preload("User").Preload("Replies.User").
 		Where("post_id = ?", postID).
 		Order("created_at DESC").
 		Limit(limit).Offset(offset).
@@ -38,12 +38,12 @@ func (r *commentRepo) FindByPostID(db *gorm.DB, postID uuid.UUID, limit, offset 
 	return comments, err
 }
 
-func (r *commentRepo) CountByPostID(db *gorm.DB, postID uuid.UUID) (int64, error) {
+func (r *commentRepo) CountByPostID(postID uuid.UUID) (int64, error) {
 	var count int64
-	err := db.Model(&entities.Comment{}).Where("post_id = ?", postID).Count(&count).Error
+	err := r.db.Model(&entities.Comment{}).Where("post_id = ?", postID).Count(&count).Error
 	return count, err
 }
 
-func (r *commentRepo) DeleteByPostID(db *gorm.DB, postID uuid.UUID) error {
-	return db.Where("post_id = ?", postID).Delete(&entities.Comment{}).Error
+func (r *commentRepo) DeleteByPostID(postID uuid.UUID) error {
+	return r.db.Where("post_id = ?", postID).Delete(&entities.Comment{}).Error
 }

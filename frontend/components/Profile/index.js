@@ -1,6 +1,6 @@
-// components/profile/index.js
-export { ProfileHeader, ProfileForm, UserPostsSection } from './ProfileSection';
-
-// Re-export existing components (for gradual migration)
-export { default as ProfileUpdateForm } from '../Profile/ProfileUpdateForm';
-export { default as UserPostList } from '../Profile/UserPostList';
+// components/Profile/index.js
+export { default as ProfileHeader } from './ProfileHeader';
+export { default as ProfileSection } from './ProfileSection';
+export { default as UserPostsSection } from './UserPostsSection';
+export { default as UserPostList } from './UserPostList';
+export { default as AvatarUpdateModal } from './AvatarUpdateModal';

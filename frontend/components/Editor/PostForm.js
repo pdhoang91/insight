@@ -26,7 +26,7 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
     extensions: [
       ...getExtensions(),
       Placeholder.configure({
-        placeholder: 'Nhập / để xem các lệnh...',
+        placeholder: 'Tell your story...',
       }),
       CharacterCount,
       SlashCommands,
@@ -174,10 +174,10 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         </>
       )}
 
-      {/* Word count — subtle, bottom-right */}
-      {editor && (
-        <div className="text-right mt-4 text-xs text-medium-text-muted">
-          {wordCount} từ
+      {/* Word count */}
+      {editor && wordCount > 0 && (
+        <div className="text-right mt-6 text-[12px] text-[#b3b3b1]">
+          {wordCount} words
         </div>
       )}
 

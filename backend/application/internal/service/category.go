@@ -17,12 +17,12 @@ func (s *InsightService) ListCategories(req *dto.PaginationRequest) ([]*dto.Cate
 		req.Limit = 10
 	}
 
-	categories, err := s.CategoryRepo.FindAll(s.DBR2, req.Limit, req.Offset)
+	categories, err := s.CategoryRepo.FindAll(req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to list categories", err)
 	}
 
-	total, err := s.CategoryRepo.Count(s.DBR2)
+	total, err := s.CategoryRepo.Count()
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to count categories", err)
 	}
@@ -42,12 +42,12 @@ func (s *InsightService) GetTopCategories(req *dto.PaginationRequest) ([]*dto.Ca
 
 	topCategories := []string{"Technology", "Music", "Movies", "AI", "Golang"}
 
-	totalCount, err := s.CategoryRepo.CountByNames(s.DBR2, topCategories)
+	totalCount, err := s.CategoryRepo.CountByNames(topCategories)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to count top categories", err)
 	}
 
-	categories, err := s.CategoryRepo.FindByNames(s.DBR2, topCategories, req.Limit, req.Offset)
+	categories, err := s.CategoryRepo.FindByNames(topCategories, req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to get top categories", err)
 	}
@@ -65,7 +65,7 @@ func (s *InsightService) GetPopularCategories(req *dto.PaginationRequest) ([]dto
 		req.Limit = 7
 	}
 
-	results, totalCount, err := s.CategoryRepo.FindPopularByPostCount(s.DBR2, req.Limit, req.Offset)
+	results, totalCount, err := s.CategoryRepo.FindPopularByPostCount(req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to get popular categories", err)
 	}
@@ -83,7 +83,7 @@ func (s *InsightService) GetPopularCategories(req *dto.PaginationRequest) ([]dto
 
 // CreateCategory creates a new category
 func (s *InsightService) CreateCategory(req *dto.CreateCategoryRequest) (*dto.CategoryResponse, error) {
-	existing, err := s.CategoryRepo.FindByName(s.DB, req.Name)
+	existing, err := s.CategoryRepo.FindByName(req.Name)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, apperror.NewInternal("failed to check category existence", err)
 	}
@@ -95,7 +95,7 @@ func (s *InsightService) CreateCategory(req *dto.CreateCategoryRequest) (*dto.Ca
 		ID: uuid.NewV4(), Name: req.Name, Description: req.Description,
 		CreatedAt: time.Now(), UpdatedAt: time.Now(),
 	}
-	if err := s.CategoryRepo.Create(s.DB, category); err != nil {
+	if err := s.CategoryRepo.Create(category); err != nil {
 		return nil, apperror.NewInternal("failed to create category", err)
 	}
 	return dto.NewCategoryResponse(category), nil
@@ -103,7 +103,7 @@ func (s *InsightService) CreateCategory(req *dto.CreateCategoryRequest) (*dto.Ca
 
 // GetCategory retrieves a category by ID
 func (s *InsightService) GetCategory(id uuid.UUID) (*dto.CategoryResponse, error) {
-	category, err := s.CategoryRepo.FindByID(s.DBR2, id)
+	category, err := s.CategoryRepo.FindByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewNotFound("category not found")
@@ -115,7 +115,7 @@ func (s *InsightService) GetCategory(id uuid.UUID) (*dto.CategoryResponse, error
 
 // UpdateCategory updates a category by ID
 func (s *InsightService) UpdateCategory(id uuid.UUID, req *dto.UpdateCategoryRequest) (*dto.CategoryResponse, error) {
-	category, err := s.CategoryRepo.FindByID(s.DB, id)
+	category, err := s.CategoryRepo.FindByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewNotFound("category not found")
@@ -124,7 +124,7 @@ func (s *InsightService) UpdateCategory(id uuid.UUID, req *dto.UpdateCategoryReq
 	}
 
 	if req.Name != "" {
-		existing, err := s.CategoryRepo.FindByName(s.DB, req.Name)
+		existing, err := s.CategoryRepo.FindByName(req.Name)
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewInternal("failed to check category name", err)
 		}
@@ -138,7 +138,7 @@ func (s *InsightService) UpdateCategory(id uuid.UUID, req *dto.UpdateCategoryReq
 	}
 
 	category.UpdatedAt = time.Now()
-	if err := s.CategoryRepo.Update(s.DB, category); err != nil {
+	if err := s.CategoryRepo.Update(category); err != nil {
 		return nil, apperror.NewInternal("failed to update category", err)
 	}
 	return dto.NewCategoryResponse(category), nil
@@ -146,14 +146,14 @@ func (s *InsightService) UpdateCategory(id uuid.UUID, req *dto.UpdateCategoryReq
 
 // DeleteCategory deletes a category by ID
 func (s *InsightService) DeleteCategory(id uuid.UUID) error {
-	if _, err := s.CategoryRepo.FindByID(s.DB, id); err != nil {
+	if _, err := s.CategoryRepo.FindByID(id); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return apperror.NewNotFound("category not found")
 		}
 		return apperror.NewInternal("failed to find category", err)
 	}
 
-	postCount, err := s.CategoryRepo.CountPostsByCategory(s.DB, id)
+	postCount, err := s.CategoryRepo.CountPostsByCategory(id)
 	if err != nil {
 		return apperror.NewInternal("failed to check category usage", err)
 	}
@@ -161,7 +161,7 @@ func (s *InsightService) DeleteCategory(id uuid.UUID) error {
 		return apperror.NewBadRequest("category is in use by posts")
 	}
 
-	if err := s.CategoryRepo.Delete(s.DB, id); err != nil {
+	if err := s.CategoryRepo.Delete(id); err != nil {
 		return apperror.NewInternal("failed to delete category", err)
 	}
 	return nil
@@ -173,12 +173,12 @@ func (s *InsightService) GetCategoriesWithPostCount(req *dto.PaginationRequest) 
 		req.Limit = 10
 	}
 
-	categories, err := s.CategoryRepo.FindAll(s.DBR2, req.Limit, req.Offset)
+	categories, err := s.CategoryRepo.FindAll(req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to list categories", err)
 	}
 
-	total, err := s.CategoryRepo.Count(s.DBR2)
+	total, err := s.CategoryRepo.Count()
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to count categories", err)
 	}

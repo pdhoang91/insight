@@ -38,7 +38,7 @@ func (s *InsightService) DeleteImageV2(ctx context.Context, imageID string, user
 // ListUserImages returns images uploaded by a user
 func (s *InsightService) ListUserImages(ctx context.Context, userID uuid.UUID, imageType string, page, limit int) ([]entities.Image, int64, error) {
 	offset := (page - 1) * limit
-	images, total, err := s.ImageRepo.FindByUserID(s.DB, userID, imageType, limit, offset)
+	images, total, err := s.ImageRepo.FindByUserID(userID, imageType, limit, offset)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to get images", err)
 	}

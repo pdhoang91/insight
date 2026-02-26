@@ -6,141 +6,132 @@ import (
 	"github.com/pdhoang91/blog/internal/middleware"
 )
 
-// DefineAPIRoutes sets up all API routes using a single controller
-func DefineAPIRoutes(r *gin.Engine, controller *controller.Controller) {
-	// API version 1
-	//v1 := r.Group("/api/v1")
+// DefineAPIRoutes sets up all API routes using domain-specific controllers.
+func DefineAPIRoutes(r *gin.Engine, ctrl *controller.Controller) {
 	v1 := r.Group("")
 
-	// Public routes (no authentication required)
+	// --- Public routes (no authentication required) ---
 	public := v1.Group("")
 	{
-		// Auth routes
-		public.POST("/auth/register", controller.Register)
-		public.POST("/auth/login", controller.Login)
-		public.GET("/auth/google", controller.GoogleLogin)
-		public.GET("/auth/google/callback", controller.GoogleCallback)
-		public.POST("/auth/logout", controller.Logout)
-		public.POST("/auth/refresh", controller.RefreshToken)
+		// Auth
+		public.POST("/auth/register", ctrl.Auth.Register)
+		public.POST("/auth/login", ctrl.Auth.Login)
+		public.GET("/auth/google", ctrl.Auth.GoogleLogin)
+		public.GET("/auth/google/callback", ctrl.Auth.GoogleCallback)
+		public.POST("/auth/logout", ctrl.Auth.Logout)
+		public.POST("/auth/refresh", ctrl.Auth.RefreshToken)
 
-		// Debug route
-		public.GET("/debug-jwt", controller.DebugJWT)
+		// Debug
+		public.GET("/debug-jwt", ctrl.User.DebugJWT)
 
-		// Public post routes
-		public.GET("/posts", controller.ListPosts)
-		public.GET("/posts/latest", controller.GetLatestPosts)
-		public.GET("/posts/recent", controller.GetRecentPosts)
-		public.GET("/posts/popular", controller.GetPopularPosts)
-		public.GET("/posts/top", controller.GetTopPosts)
-		public.GET("/posts/:id", controller.GetPost)
-		public.GET("/posts/:id/comments", controller.GetPostComments) // Public comment reading
-		public.GET("/p/:titleName", controller.GetPostByTitleName)    // Frontend compatibility
+		// Posts
+		public.GET("/posts", ctrl.Post.ListPosts)
+		public.GET("/posts/latest", ctrl.Post.ListPosts)
+		public.GET("/posts/recent", ctrl.Post.GetRecentPosts)
+		public.GET("/posts/popular", ctrl.Post.GetPopularPosts)
+		public.GET("/posts/top", ctrl.Post.GetTopPosts)
+		public.GET("/posts/:id", ctrl.Post.GetPost)
+		public.GET("/posts/:id/comments", ctrl.Comment.GetPostComments)
+		public.GET("/p/:titleName", ctrl.Post.GetPostByTitleName)
 
-		// Archive routes
-		public.GET("/archive/:year/:month", controller.GetPostsByYearMonth) // Get posts by year/month
+		// Archive
+		public.GET("/archive/:year/:month", ctrl.Post.GetPostsByYearMonth)
 
-		// Search routes
-		public.GET("/search/posts", controller.SearchPosts)
+		// Search
+		public.GET("/search/posts", ctrl.Search.SearchPosts)
 
-		// Public category routes
-		public.GET("/categories", controller.ListCategories)
-		public.GET("/categories/top", controller.GetTopCategories)
-		public.GET("/categories_top", controller.GetTopCategories) // Alias for frontend typo
-		public.GET("/categories/popular", controller.GetPopularCategories)
+		// Categories
+		public.GET("/categories", ctrl.Category.ListCategories)
+		public.GET("/categories/top", ctrl.Category.GetTopCategories)
+		public.GET("/categories_top", ctrl.Category.GetTopCategories)
+		public.GET("/categories/popular", ctrl.Category.GetPopularCategories)
+		public.GET("/categories/id/:id", ctrl.Category.GetCategory)
+		public.GET("/categories/:name/posts", ctrl.Post.GetPostsByCategory)
 
-		// Category by ID route (UUID pattern)
-		public.GET("/categories/id/:id", controller.GetCategory) // Category by UUID - moved to /categories/id/:id
+		// Tags
+		public.GET("/tags", ctrl.Tag.ListTags)
+		public.GET("/tags/popular", ctrl.Tag.GetPopularTags)
 
-		// Category posts route - now safe from conflicts
-		public.GET("/categories/:name/posts", controller.GetPostsByCategory) // Posts by category name
+		// Users
+		public.GET("/users/:id", ctrl.User.GetUser)
+		public.GET("/users/:id/posts", ctrl.Post.GetUserPosts)
+		public.GET("/public/:username/posts", ctrl.Post.GetUserPostsByUsername)
+		public.GET("/public/:username/profile", ctrl.User.GetUserProfileByUsername)
 
-		// Public tag routes
-		public.GET("/tags", controller.ListTags)
-		public.GET("/tags/popular", controller.GetPopularTags)
+		// Images (public viewing)
+		public.GET("/images/proxy/:userID/:date/:type/:filename", ctrl.Image.ProxyImage)
+		public.GET("/images/info/:userID/:date/:type/:filename", ctrl.Image.GetImageInfo)
+		public.GET("/images/v2/:id", ctrl.Image.ServeImageV2)
+		public.GET("/images/v2/:id/info", ctrl.Image.GetImageInfoV2)
 
-		// Public user routes
-		public.GET("/users/:id", controller.GetUser)
-		public.GET("/users/:id/posts", controller.GetUserPosts)
-		public.GET("/public/:username/posts", controller.GetUserPostsByUsername)     // Frontend compatibility
-		public.GET("/public/:username/profile", controller.GetUserProfileByUsername) // Frontend compatibility
-
-		// Public image routes (no auth required for viewing)
-		public.GET("/images/proxy/:userID/:date/:type/:filename", controller.ProxyImage)
-		public.GET("/images/info/:userID/:date/:type/:filename", controller.GetImageInfo)
-
-		// New image system routes
-		public.GET("/images/v2/:id", controller.ServeImageV2)        // Serve image by ID
-		public.GET("/images/v2/:id/info", controller.GetImageInfoV2) // Get image metadata
-
-		// Public claps count
-		public.GET("/claps", controller.GetClapsCount)              // Get claps count
-		public.GET("/claps/status", controller.CheckUserClapStatus) // Check user clap status (works with optional auth)
-		public.GET("/claps/info", controller.GetClapInfo)           // Get both clap count and user status in one call
+		// Claps (public read)
+		public.GET("/claps", ctrl.Engagement.GetClapsCount)
+		public.GET("/claps/status", ctrl.Engagement.CheckUserClapStatus)
+		public.GET("/claps/info", ctrl.Engagement.GetClapInfo)
 	}
 
-	// Protected routes (authentication required)
+	// --- Protected routes (authentication required) ---
 	protected := v1.Group("/api")
 	protected.Use(middleware.AuthMiddleware())
 	{
-		// User routes
-		protected.GET("/profile", controller.GetProfile)
-		protected.GET("/me", controller.GetProfile) // Alias for frontend compatibility
-		protected.PUT("/users/:id", controller.UpdateProfile)
-		protected.PUT("/profile", controller.UpdateProfile)
-		protected.DELETE("/profile", controller.DeleteProfile)
-		protected.GET("/users/:id/posts", controller.GetUserPosts) // Frontend compatibility
+		// Users
+		protected.GET("/profile", ctrl.User.GetProfile)
+		protected.GET("/me", ctrl.User.GetProfile)
+		protected.PUT("/users/:id", ctrl.User.UpdateProfile)
+		protected.PUT("/profile", ctrl.User.UpdateProfile)
+		protected.DELETE("/profile", ctrl.User.DeleteProfile)
+		protected.GET("/users/:id/posts", ctrl.Post.GetUserPosts)
 
-		// Post routes
-		protected.POST("/posts", controller.CreatePost)
-		protected.POST("/api/posts", controller.CreatePost) // Frontend compatibility
-		protected.PUT("/posts/:id", controller.UpdatePost)
-		protected.PUT("/api/posts/:id", controller.UpdatePost) // Frontend compatibility
-		protected.DELETE("/posts/:id", controller.DeletePost)
+		// Posts
+		protected.POST("/posts", ctrl.Post.CreatePost)
+		protected.POST("/api/posts", ctrl.Post.CreatePost)
+		protected.PUT("/posts/:id", ctrl.Post.UpdatePost)
+		protected.PUT("/api/posts/:id", ctrl.Post.UpdatePost)
+		protected.DELETE("/posts/:id", ctrl.Post.DeletePost)
+		protected.DELETE("/api/posts/:id", ctrl.Post.DeletePost)
+		protected.POST("/posts/:id/clap", ctrl.Engagement.ClapPost)
 
-		protected.DELETE("/api/posts/:id", controller.DeletePost) // Frontend compatibility
-		protected.POST("/posts/:id/clap", controller.ClapPost)    // Clap/unclap post
+		// Categories
+		protected.POST("/categories", ctrl.Category.CreateCategory)
+		protected.PUT("/categories/id/:id", ctrl.Category.UpdateCategory)
+		protected.DELETE("/categories/id/:id", ctrl.Category.DeleteCategory)
 
-		// Category routes (admin only for create/update/delete)
-		protected.POST("/categories", controller.CreateCategory)
-		protected.PUT("/categories/id/:id", controller.UpdateCategory)
-		protected.DELETE("/categories/id/:id", controller.DeleteCategory)
+		// Comments
+		protected.POST("/comments", ctrl.Comment.CreateComment)
+		protected.POST("/posts/:id/comments", ctrl.Comment.CreateCommentForPost)
+		protected.PUT("/comments/:id", ctrl.Comment.UpdateComment)
+		protected.DELETE("/comments/:id", ctrl.Comment.DeleteComment)
+		protected.GET("/posts/:id/comments", ctrl.Comment.GetPostComments)
+		protected.POST("/comments/:id/clap", ctrl.Engagement.ClapComment)
 
-		// Comment routes
-		protected.POST("/comments", controller.CreateComment)
-		protected.POST("/posts/:id/comments", controller.CreateCommentForPost) // Alternative endpoint for frontend
-		protected.PUT("/comments/:id", controller.UpdateComment)
-		protected.DELETE("/comments/:id", controller.DeleteComment)
-		protected.GET("/posts/:id/comments", controller.GetPostComments)
-		protected.POST("/comments/:id/clap", controller.ClapComment) // Clap comment
+		// Tags
+		protected.POST("/tags", ctrl.Tag.CreateTag)
+		protected.PUT("/tags/:id", ctrl.Tag.UpdateTag)
+		protected.DELETE("/tags/:id", ctrl.Tag.DeleteTag)
 
-		// Tag routes
-		protected.POST("/tags", controller.CreateTag)
-		protected.PUT("/tags/:id", controller.UpdateTag)
-		protected.DELETE("/tags/:id", controller.DeleteTag)
+		// Replies
+		protected.POST("/replies", ctrl.Comment.CreateReply)
+		protected.POST("/comments/:id/replies", ctrl.Engagement.CreateReplyForComment)
+		protected.DELETE("/replies/:id", ctrl.Comment.DeleteReply)
+		protected.GET("/comments/:id/replies", ctrl.Comment.GetCommentReplies)
+		protected.POST("/replies/:id/clap", ctrl.Engagement.ClapReply)
 
-		// Reply routes
-		protected.POST("/replies", controller.CreateReply)
-		protected.POST("/comments/:id/replies", controller.CreateReplyForComment) // Alternative endpoint for frontend
+		// Bookmarks
+		protected.POST("/bookmarks", ctrl.Bookmark.CreateBookmark)
+		protected.POST("/bookmarks/remove", ctrl.Bookmark.Unbookmark)
+		protected.GET("/bookmarks", ctrl.Bookmark.GetUserBookmarks)
+		protected.GET("/bookmarks/status/:post_id", ctrl.Bookmark.CheckBookmarkStatus)
 
-		protected.DELETE("/replies/:id", controller.DeleteReply)
-		protected.GET("/comments/:id/replies", controller.GetCommentReplies)
-		protected.POST("/replies/:id/clap", controller.ClapReply) // Clap reply
-
-		// Bookmark routes
-		protected.POST("/bookmarks", controller.CreateBookmark)
-		protected.POST("/bookmarks/remove", controller.Unbookmark)
-		protected.GET("/bookmarks", controller.GetUserBookmarks)
-		protected.GET("/bookmarks/status/:post_id", controller.CheckBookmarkStatus)
-
-		protected.POST("/images/upload/v2/:type", controller.UploadImageV2) // Updated to use new system
-		protected.DELETE("/images/v2/:id", controller.DeleteImageV2)        // Delete image
-		protected.GET("/images/my", controller.ListUserImages)
+		// Images
+		protected.POST("/images/upload/v2/:type", ctrl.Image.UploadImageV2)
+		protected.DELETE("/images/v2/:id", ctrl.Image.DeleteImageV2)
+		protected.GET("/images/my", ctrl.Image.ListUserImages)
 	}
 
-	// Admin routes (admin role required)
+	// --- Admin routes ---
 	admin := v1.Group("/admin")
 	admin.Use(middleware.AuthMiddleware(), middleware.AdminMiddleware())
 	{
-		admin.DELETE("/posts/:id", controller.DeletePost)
+		admin.DELETE("/posts/:id", ctrl.Post.DeletePost)
 	}
 }

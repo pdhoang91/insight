@@ -10,7 +10,6 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
-	"github.com/pdhoang91/blog/config"
 )
 
 // S3Provider implements StorageProvider for AWS S3
@@ -22,10 +21,10 @@ type S3Provider struct {
 	cdnDomain string // Optional CDN domain
 }
 
-// NewS3Provider creates a new S3 storage provider
-func NewS3Provider(bucket, region, basePath, cdnDomain string) *S3Provider {
+// NewS3Provider creates a new S3 storage provider with an injected S3 client.
+func NewS3Provider(client *s3.Client, bucket, region, basePath, cdnDomain string) *S3Provider {
 	return &S3Provider{
-		client:    config.S3Client,
+		client:    client,
 		bucket:    bucket,
 		region:    region,
 		basePath:  basePath,

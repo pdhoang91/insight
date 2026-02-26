@@ -22,34 +22,34 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
   };
 
   return (
-    <div className="flex gap-2.5 py-2">
-      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-medium-bg-secondary flex items-center justify-center overflow-hidden">
+    <div className="flex gap-2.5 py-3 border-b border-[#f2f2f2] last:border-0">
+      <div className="flex-shrink-0 w-6 h-6 rounded-full bg-[#f2f2f2] flex items-center justify-center overflow-hidden">
         {reply.user?.avatar_url ? (
           <img src={reply.user.avatar_url} alt={reply.user.name} className="w-full h-full object-cover" />
         ) : (
-          <FaUser className="w-2.5 h-2.5 text-medium-text-muted" />
+          <FaUser className="w-2.5 h-2.5 text-[#b3b3b1]" />
         )}
       </div>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-0.5">
-          <span className="text-xs font-medium text-medium-text-primary">
+          <span className="text-[12px] font-medium text-[#292929]">
             {reply.user?.name || 'Anonymous'}
           </span>
-          <span className="text-xs text-medium-text-muted">
+          <span className="text-[11px] text-[#b3b3b1]">
             <TimeAgo timestamp={reply.created_at} />
           </span>
         </div>
 
-        <div className="text-sm text-medium-text-secondary leading-relaxed mb-1">
+        <div className="text-[13px] text-[#292929] leading-relaxed mb-1.5">
           {reply.content}
         </div>
 
         <button
           onClick={handleClap}
           disabled={clapsLoading}
-          className={`flex items-center gap-1 text-xs transition-colors ${
-            hasClapped ? 'text-medium-accent-green' : 'text-[#6b6b6b] hover:text-[#242424]'
+          className={`flex items-center gap-1 text-[12px] transition-colors ${
+            hasClapped ? 'text-[#1a8917]' : 'text-[#6b6b6b] hover:text-[#292929]'
           }`}
         >
           <FaHandsClapping className={`w-3 h-3 ${clapsLoading ? 'animate-pulse' : ''}`} />

@@ -5,10 +5,47 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/pdhoang91/blog/internal/dto"
+	"github.com/pdhoang91/blog/internal/service"
 	uuid "github.com/satori/go.uuid"
 )
 
-func (c *Controller) ClapComment(ctx *gin.Context) {
+type EngagementController struct {
+	svc     service.EngagementService
+	post    service.PostService
+	comment service.CommentService
+}
+
+func (c *EngagementController) ClapPost(ctx *gin.Context) {
+	postID, err := uuid.FromString(ctx.Param("id"))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid post ID"})
+		return
+	}
+
+	userID, ok := requireUserID(ctx)
+	if !ok {
+		return
+	}
+
+	isClapped, err := c.svc.ClapPost(userID, postID)
+	if err != nil {
+		respondError(ctx, err)
+		return
+	}
+
+	postResponse, err := c.post.GetPost(postID)
+	if err != nil {
+		ctx.JSON(http.StatusOK, gin.H{"clapped": isClapped, "message": "Post clapped successfully"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"clapped": isClapped, "clap_count": postResponse.ClapCount,
+		"message": "Post clapped successfully",
+	})
+}
+
+func (c *EngagementController) ClapComment(ctx *gin.Context) {
 	commentID, err := uuid.FromString(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid comment ID"})
@@ -20,13 +57,13 @@ func (c *Controller) ClapComment(ctx *gin.Context) {
 		return
 	}
 
-	isClapped, err := c.service.ClapComment(userID, commentID)
+	isClapped, err := c.svc.ClapComment(userID, commentID)
 	if err != nil {
 		respondError(ctx, err)
 		return
 	}
 
-	clapCount, err := c.service.GetClapsCount("comment", commentID)
+	clapCount, err := c.svc.GetClapsCount("comment", commentID)
 	if err != nil {
 		ctx.JSON(http.StatusOK, gin.H{"clapped": isClapped, "message": "Comment clapped successfully"})
 		return
@@ -34,7 +71,7 @@ func (c *Controller) ClapComment(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"clapped": isClapped, "clap_count": clapCount, "message": "Comment clapped successfully"})
 }
 
-func (c *Controller) ClapReply(ctx *gin.Context) {
+func (c *EngagementController) ClapReply(ctx *gin.Context) {
 	replyID, err := uuid.FromString(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid reply ID"})
@@ -46,13 +83,13 @@ func (c *Controller) ClapReply(ctx *gin.Context) {
 		return
 	}
 
-	isClapped, err := c.service.ClapReply(userID, replyID)
+	isClapped, err := c.svc.ClapReply(userID, replyID)
 	if err != nil {
 		respondError(ctx, err)
 		return
 	}
 
-	clapCount, err := c.service.GetClapsCount("reply", replyID)
+	clapCount, err := c.svc.GetClapsCount("reply", replyID)
 	if err != nil {
 		ctx.JSON(http.StatusOK, gin.H{"clapped": isClapped, "message": "Reply clapped successfully"})
 		return
@@ -60,7 +97,7 @@ func (c *Controller) ClapReply(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"clapped": isClapped, "clap_count": clapCount, "message": "Reply clapped successfully"})
 }
 
-func (c *Controller) GetClapsCount(ctx *gin.Context) {
+func (c *EngagementController) GetClapsCount(ctx *gin.Context) {
 	itemType := ctx.Query("type")
 	itemIDStr := ctx.Query("id")
 	if itemType == "" || itemIDStr == "" {
@@ -74,7 +111,7 @@ func (c *Controller) GetClapsCount(ctx *gin.Context) {
 		return
 	}
 
-	count, err := c.service.GetClapsCount(itemType, itemID)
+	count, err := c.svc.GetClapsCount(itemType, itemID)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -82,7 +119,7 @@ func (c *Controller) GetClapsCount(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"clap_count": count})
 }
 
-func (c *Controller) CreateReplyForComment(ctx *gin.Context) {
+func (c *EngagementController) CreateReplyForComment(ctx *gin.Context) {
 	commentID, err := uuid.FromString(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid comment ID"})
@@ -102,7 +139,7 @@ func (c *Controller) CreateReplyForComment(ctx *gin.Context) {
 		return
 	}
 
-	postID, err := c.service.GetPostIDFromComment(commentID)
+	postID, err := c.comment.GetPostIDFromComment(commentID)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -112,7 +149,7 @@ func (c *Controller) CreateReplyForComment(ctx *gin.Context) {
 		CommentID: commentID.String(), Content: req.Content, PostID: postID.String(),
 	}
 
-	response, err := c.service.CreateReply(userID, replyReq)
+	response, err := c.comment.CreateReply(userID, replyReq)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -120,7 +157,7 @@ func (c *Controller) CreateReplyForComment(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"data": response})
 }
 
-func (c *Controller) CheckUserClapStatus(ctx *gin.Context) {
+func (c *EngagementController) CheckUserClapStatus(ctx *gin.Context) {
 	userID, ok := optionalUserID(ctx)
 	if !ok {
 		ctx.JSON(http.StatusOK, gin.H{"has_clapped": false})
@@ -140,7 +177,7 @@ func (c *Controller) CheckUserClapStatus(ctx *gin.Context) {
 		return
 	}
 
-	hasClapped, err := c.service.HasUserClapped(userID, itemType, itemID)
+	hasClapped, err := c.svc.HasUserClapped(userID, itemType, itemID)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -148,7 +185,7 @@ func (c *Controller) CheckUserClapStatus(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"has_clapped": hasClapped})
 }
 
-func (c *Controller) GetClapInfo(ctx *gin.Context) {
+func (c *EngagementController) GetClapInfo(ctx *gin.Context) {
 	itemType := ctx.Query("type")
 	itemIDStr := ctx.Query("id")
 	if itemType == "" || itemIDStr == "" {
@@ -162,7 +199,7 @@ func (c *Controller) GetClapInfo(ctx *gin.Context) {
 		return
 	}
 
-	count, err := c.service.GetClapsCount(itemType, itemID)
+	count, err := c.svc.GetClapsCount(itemType, itemID)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -170,7 +207,7 @@ func (c *Controller) GetClapInfo(ctx *gin.Context) {
 
 	var hasClapped bool
 	if userID, ok := optionalUserID(ctx); ok {
-		hasClapped, _ = c.service.HasUserClapped(userID, itemType, itemID)
+		hasClapped, _ = c.svc.HasUserClapped(userID, itemType, itemID)
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"clap_count": count, "has_clapped": hasClapped})

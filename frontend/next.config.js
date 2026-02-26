@@ -1,8 +1,8 @@
-/* next.config.js */
-const { i18n } = require('./next-i18next.config');
+const createNextIntlPlugin = require('next-intl/plugin');
+const withNextIntl = createNextIntlPlugin('./i18n.js');
 
-module.exports = {
-  i18n,
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   reactStrictMode: true,
   output: 'standalone',
   eslint: {
@@ -10,140 +10,40 @@ module.exports = {
   },
   images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'localhost',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '3000',
-        pathname: '/**',
-      },
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '81',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'localhost',
-        port: '81',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'www.w3schools.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'via.placeholder.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'picsum.photos',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'avatars.githubusercontent.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'cdn.pixabay.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'www.gravatar.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'insight.storage.s3.amazonaws.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 's3.amazonaws.com',
-        port: '',
-        pathname: '/**',
-      }
+      { protocol: 'https', hostname: 'localhost', pathname: '/**' },
+      { protocol: 'http', hostname: 'localhost', port: '3000', pathname: '/**' },
+      { protocol: 'http', hostname: 'localhost', port: '81', pathname: '/**' },
+      { protocol: 'https', hostname: 'localhost', port: '81', pathname: '/**' },
+      { protocol: 'https', hostname: 'www.w3schools.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'images.unsplash.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'via.placeholder.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'picsum.photos', pathname: '/**' },
+      { protocol: 'https', hostname: 'avatars.githubusercontent.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'cdn.pixabay.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'www.gravatar.com', pathname: '/**' },
+      { protocol: 'https', hostname: 'insight.storage.s3.amazonaws.com', pathname: '/**' },
+      { protocol: 'https', hostname: 's3.amazonaws.com', pathname: '/**' },
     ],
-    // Fallback for older Next.js versions
-    domains: [
-      'localhost',
-      'www.w3schools.com',
-      'images.unsplash.com',
-      'via.placeholder.com',
-      'picsum.photos',
-      'avatars.githubusercontent.com',
-      'lh3.googleusercontent.com',
-      'cdn.pixabay.com',
-      'www.gravatar.com',
-      'insight.storage.s3.amazonaws.com',
-      's3.amazonaws.com'
-    ],
-    // Enable dangerous allow all for development (remove in production)
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    // Enable optimization for better performance (disable only if needed)
     unoptimized: process.env.NODE_ENV === 'development',
-    // Image formats for better compression
     formats: ['image/webp', 'image/avif'],
-    // Device sizes for responsive images
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    // Image sizes for different breakpoints
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
-  // Performance optimizations
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
-  // Add experimental flag to handle SSL issues in development
   experimental: {
-    ...(process.env.NODE_ENV === 'development' && {
-      serverComponentsExternalPackages: [],
-    }),
-    // Enable modern bundling
     esmExternals: true,
-    // Remove optimizeCss as it causes critters module error
   },
-  // Webpack optimizations
   webpack: (config, { isServer }) => {
-    // Optimize bundle size
     if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-      };
+      config.resolve.fallback = { ...config.resolve.fallback, fs: false };
     }
     return config;
   },
 };
-  
+
+module.exports = withNextIntl(nextConfig);

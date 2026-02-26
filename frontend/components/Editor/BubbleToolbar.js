@@ -3,6 +3,7 @@ import { BubbleMenu } from '@tiptap/react'
 import {
   FaBold,
   FaItalic,
+  FaStrikethrough,
   FaLink,
   FaQuoteRight,
   FaCode,
@@ -11,8 +12,8 @@ import {
 const BubbleButton = ({ icon: Icon, label, onClick, isActive, title }) => (
   <button
     onClick={onClick}
-    className={`px-2 py-1.5 text-sm transition-opacity ${
-      isActive ? 'text-white opacity-100' : 'text-white/60 hover:opacity-100'
+    className={`px-2.5 py-2 text-sm transition-colors ${
+      isActive ? 'text-[#1a8917]' : 'text-white/70 hover:text-white'
     }`}
     title={title}
   >
@@ -40,7 +41,7 @@ const BubbleToolbar = ({ editor, onLinkClick }) => {
         return true
       }}
     >
-      <div className="flex items-center px-1.5 py-0.5 rounded bg-[#292929] shadow-lg">
+      <div className="flex items-center px-1 py-0.5 rounded-lg bg-[#292929] shadow-lg">
         <BubbleButton
           icon={FaBold}
           onClick={() => editor.chain().focus().toggleBold().run()}
@@ -52,6 +53,12 @@ const BubbleToolbar = ({ editor, onLinkClick }) => {
           onClick={() => editor.chain().focus().toggleItalic().run()}
           isActive={editor.isActive('italic')}
           title="Italic"
+        />
+        <BubbleButton
+          icon={FaStrikethrough}
+          onClick={() => editor.chain().focus().toggleStrike().run()}
+          isActive={editor.isActive('strike')}
+          title="Strikethrough"
         />
         <BubbleButton
           icon={FaLink}

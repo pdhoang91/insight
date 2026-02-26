@@ -1,13 +1,24 @@
 // components/Shared/LanguageSwitcher.js
+'use client';
+
 import React from 'react';
-import { useRouter } from 'next/router';
+import { useLocale } from 'next-intl';
+import { useRouter, usePathname } from 'next/navigation';
+import { locales } from '../../i18n';
 
 const LanguageSwitcher = () => {
+  const locale = useLocale();
   const router = useRouter();
-  const { locale, locales, asPath } = router;
+  const pathname = usePathname();
 
   const switchLocale = (newLocale) => {
-    router.push(asPath, asPath, { locale: newLocale });
+    const segments = pathname.split('/');
+    if (locales.includes(segments[1])) {
+      segments[1] = newLocale;
+    } else {
+      segments.splice(1, 0, newLocale);
+    }
+    router.push(segments.join('/') || '/');
   };
 
   return (

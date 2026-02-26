@@ -1,7 +1,8 @@
+'use client';
 // components/Post/RecommendedTopicsSection.js
 import React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 
 const RecommendedTopicsSection = () => {
   const router = useRouter();

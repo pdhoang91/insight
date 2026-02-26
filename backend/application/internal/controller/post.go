@@ -6,12 +6,17 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/pdhoang91/blog/internal/dto"
+	"github.com/pdhoang91/blog/internal/service"
 	uuid "github.com/satori/go.uuid"
 )
 
-// ==================== POST ROUTES ====================
+type PostController struct {
+	svc        service.PostService
+	engagement service.EngagementService
+	user       service.UserService
+}
 
-func (c *Controller) CreatePost(ctx *gin.Context) {
+func (c *PostController) CreatePost(ctx *gin.Context) {
 	userID, ok := requireUserID(ctx)
 	if !ok {
 		return
@@ -23,7 +28,7 @@ func (c *Controller) CreatePost(ctx *gin.Context) {
 		return
 	}
 
-	response, err := c.service.CreatePost(userID, &req)
+	response, err := c.svc.CreatePost(userID, &req)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -31,14 +36,14 @@ func (c *Controller) CreatePost(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"data": response})
 }
 
-func (c *Controller) GetPost(ctx *gin.Context) {
+func (c *PostController) GetPost(ctx *gin.Context) {
 	id, err := uuid.FromString(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid post ID"})
 		return
 	}
 
-	response, err := c.service.GetPost(id)
+	response, err := c.svc.GetPost(id)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -46,7 +51,7 @@ func (c *Controller) GetPost(ctx *gin.Context) {
 
 	var hasClapped bool
 	if userID, ok := optionalUserID(ctx); ok {
-		hasClapped, _ = c.service.HasUserClappedPost(userID, id)
+		hasClapped, _ = c.engagement.HasUserClappedPost(userID, id)
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
@@ -54,14 +59,14 @@ func (c *Controller) GetPost(ctx *gin.Context) {
 	})
 }
 
-func (c *Controller) ListPosts(ctx *gin.Context) {
+func (c *PostController) ListPosts(ctx *gin.Context) {
 	req, err := parsePagination(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
 		return
 	}
 
-	responses, total, err := c.service.ListPosts(req)
+	responses, total, err := c.svc.ListPosts(req)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -73,7 +78,7 @@ func (c *Controller) ListPosts(ctx *gin.Context) {
 	})
 }
 
-func (c *Controller) UpdatePost(ctx *gin.Context) {
+func (c *PostController) UpdatePost(ctx *gin.Context) {
 	userID, ok := requireUserID(ctx)
 	if !ok {
 		return
@@ -91,7 +96,7 @@ func (c *Controller) UpdatePost(ctx *gin.Context) {
 		return
 	}
 
-	response, err := c.service.UpdatePost(userID, id, &req)
+	response, err := c.svc.UpdatePost(userID, id, &req)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -99,7 +104,7 @@ func (c *Controller) UpdatePost(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"data": response})
 }
 
-func (c *Controller) DeletePost(ctx *gin.Context) {
+func (c *PostController) DeletePost(ctx *gin.Context) {
 	userID, ok := requireUserID(ctx)
 	if !ok {
 		return
@@ -111,42 +116,41 @@ func (c *Controller) DeletePost(ctx *gin.Context) {
 		return
 	}
 
-	if err := c.service.DeletePost(userID, id); err != nil {
+	if err := c.svc.DeletePost(userID, id); err != nil {
 		respondError(ctx, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"message": "Post deleted successfully"})
 }
 
-// TestDeletePost tests soft delete functionality without auth checks (for development)
-func (c *Controller) TestDeletePost(ctx *gin.Context) {
+func (c *PostController) TestDeletePost(ctx *gin.Context) {
 	id, err := uuid.FromString(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid post ID"})
 		return
 	}
 
-	post, err := c.service.GetPostEntity(id)
+	post, err := c.svc.GetPostEntity(id)
 	if err != nil {
 		respondError(ctx, err)
 		return
 	}
 
-	if err := c.service.DeletePost(post.UserID, id); err != nil {
+	if err := c.svc.DeletePost(post.UserID, id); err != nil {
 		respondError(ctx, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"message": "Post soft deleted successfully (test)"})
 }
 
-func (c *Controller) GetLatestPosts(ctx *gin.Context) {
+func (c *PostController) GetLatestPosts(ctx *gin.Context) {
 	req, err := parsePagination(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
 		return
 	}
 
-	responses, err := c.service.GetLatestPosts(req.Limit)
+	responses, err := c.svc.GetLatestPosts(req.Limit)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -158,14 +162,14 @@ func (c *Controller) GetLatestPosts(ctx *gin.Context) {
 	})
 }
 
-func (c *Controller) GetRecentPosts(ctx *gin.Context) {
+func (c *PostController) GetRecentPosts(ctx *gin.Context) {
 	req, err := parsePagination(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
 		return
 	}
 
-	responses, err := c.service.GetRecentPosts(req.Limit)
+	responses, err := c.svc.GetRecentPosts(req.Limit)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -177,7 +181,7 @@ func (c *Controller) GetRecentPosts(ctx *gin.Context) {
 	})
 }
 
-func (c *Controller) GetUserPosts(ctx *gin.Context) {
+func (c *PostController) GetUserPosts(ctx *gin.Context) {
 	userID, err := uuid.FromString(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
@@ -190,7 +194,7 @@ func (c *Controller) GetUserPosts(ctx *gin.Context) {
 		return
 	}
 
-	responses, total, err := c.service.GetUserPosts(userID, req)
+	responses, total, err := c.svc.GetUserPosts(userID, req)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -202,14 +206,14 @@ func (c *Controller) GetUserPosts(ctx *gin.Context) {
 	})
 }
 
-func (c *Controller) GetUserPostsByUsername(ctx *gin.Context) {
+func (c *PostController) GetUserPostsByUsername(ctx *gin.Context) {
 	username := ctx.Param("username")
 	if username == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Username is required"})
 		return
 	}
 
-	user, err := c.service.GetUserByUsername(username)
+	user, err := c.user.GetUserByUsername(username)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -221,7 +225,7 @@ func (c *Controller) GetUserPostsByUsername(ctx *gin.Context) {
 		return
 	}
 
-	responses, total, err := c.service.GetUserPosts(user.ID, req)
+	responses, total, err := c.svc.GetUserPosts(user.ID, req)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -233,14 +237,14 @@ func (c *Controller) GetUserPostsByUsername(ctx *gin.Context) {
 	})
 }
 
-func (c *Controller) GetPostByTitleName(ctx *gin.Context) {
+func (c *PostController) GetPostByTitleName(ctx *gin.Context) {
 	slug := ctx.Param("titleName")
 	if slug == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Slug is required"})
 		return
 	}
 
-	response, err := c.service.GetPostBySlug(slug)
+	response, err := c.svc.GetPostBySlug(slug)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -249,17 +253,16 @@ func (c *Controller) GetPostByTitleName(ctx *gin.Context) {
 	var hasClapped bool
 	if userID, ok := optionalUserID(ctx); ok {
 		if postID, err := uuid.FromString(response.ID.String()); err == nil {
-			hasClapped, _ = c.service.HasUserClappedPost(userID, postID)
+			hasClapped, _ = c.engagement.HasUserClappedPost(userID, postID)
 		}
 	}
 
-	// Frontend expects { data: { post: ..., has_clapped: ... } }
 	ctx.JSON(http.StatusOK, gin.H{
 		"data": gin.H{"post": response, "has_clapped": hasClapped},
 	})
 }
 
-func (c *Controller) GetPostsByCategory(ctx *gin.Context) {
+func (c *PostController) GetPostsByCategory(ctx *gin.Context) {
 	categoryName := ctx.Param("name")
 	if categoryName == "" {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Category name is required"})
@@ -272,7 +275,7 @@ func (c *Controller) GetPostsByCategory(ctx *gin.Context) {
 		return
 	}
 
-	responses, total, err := c.service.GetPostsByCategory(categoryName, req)
+	responses, total, err := c.svc.GetPostsByCategory(categoryName, req)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -284,14 +287,14 @@ func (c *Controller) GetPostsByCategory(ctx *gin.Context) {
 	})
 }
 
-func (c *Controller) GetPopularPosts(ctx *gin.Context) {
+func (c *PostController) GetPopularPosts(ctx *gin.Context) {
 	req, err := parsePagination(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
 		return
 	}
 
-	responses, err := c.service.GetPopularPosts(req.Limit)
+	responses, err := c.svc.GetPopularPosts(req.Limit)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -303,108 +306,11 @@ func (c *Controller) GetPopularPosts(ctx *gin.Context) {
 	})
 }
 
-func (c *Controller) GetTopPosts(ctx *gin.Context) {
+func (c *PostController) GetTopPosts(ctx *gin.Context) {
 	c.GetPopularPosts(ctx)
 }
 
-func (c *Controller) SearchPosts(ctx *gin.Context) {
-	query := ctx.Query("q")
-	if query == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Query parameter 'q' is required"})
-		return
-	}
-
-	var req dto.PaginationRequest
-	if err := ctx.ShouldBindQuery(&req); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
-		return
-	}
-	if req.Page == 0 {
-		req.Page = 1
-	}
-	if req.Limit == 0 {
-		req.Limit = 10
-	}
-
-	searchClient := c.service.GetSearchClient()
-	searchResp, err := searchClient.SearchPosts(query, req.Page, req.Limit)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Search service unavailable", "details": err.Error()})
-		return
-	}
-
-	var responses []*dto.PostResponse
-	for _, searchPost := range searchResp.Data {
-		postID, err := uuid.FromString(searchPost.ID)
-		if err != nil {
-			continue
-		}
-
-		postResp := &dto.PostResponse{
-			ID: postID, Title: searchPost.Title, Slug: searchPost.Slug,
-			Excerpt: searchPost.Excerpt,
-			CreatedAt: searchPost.CreatedAt, UpdatedAt: searchPost.CreatedAt,
-			Views: searchPost.Views, ClapCount: searchPost.ClapCount,
-			CommentsCount: searchPost.CommentsCount, AverageRating: searchPost.AverageRating,
-		}
-
-		for _, tagName := range searchPost.Tags {
-			postResp.Tags = append(postResp.Tags, &dto.TagResponse{Name: tagName})
-		}
-		for _, categoryName := range searchPost.Categories {
-			postResp.Categories = append(postResp.Categories, &dto.CategoryResponse{Name: categoryName})
-		}
-
-		if searchPost.User.ID != "" {
-			if userID, err := uuid.FromString(searchPost.User.ID); err == nil {
-				postResp.User = &dto.UserResponse{
-					ID: userID, Email: searchPost.User.Email, Name: searchPost.User.Name,
-					Username: searchPost.User.Username, AvatarURL: searchPost.User.AvatarURL,
-					Bio: searchPost.User.Bio, Phone: searchPost.User.Phone,
-					Dob: searchPost.User.Dob, Role: searchPost.User.Role,
-				}
-			}
-		}
-		responses = append(responses, postResp)
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"data": ensureNotNil(responses), "total_count": searchResp.TotalCount,
-		"limit": req.Limit, "offset": (req.Page - 1) * req.Limit,
-	})
-}
-
-func (c *Controller) ClapPost(ctx *gin.Context) {
-	postID, err := uuid.FromString(ctx.Param("id"))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid post ID"})
-		return
-	}
-
-	userID, ok := requireUserID(ctx)
-	if !ok {
-		return
-	}
-
-	isClapped, err := c.service.ClapPost(userID, postID)
-	if err != nil {
-		respondError(ctx, err)
-		return
-	}
-
-	postResponse, err := c.service.GetPost(postID)
-	if err != nil {
-		ctx.JSON(http.StatusOK, gin.H{"clapped": isClapped, "message": "Post clapped successfully"})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"clapped": isClapped, "clap_count": postResponse.ClapCount,
-		"message": "Post clapped successfully",
-	})
-}
-
-func (c *Controller) GetPostsByYearMonth(ctx *gin.Context) {
+func (c *PostController) GetPostsByYearMonth(ctx *gin.Context) {
 	year, err := strconv.Atoi(ctx.Param("year"))
 	if err != nil || year < 1900 || year > 2100 {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid year"})
@@ -426,7 +332,7 @@ func (c *Controller) GetPostsByYearMonth(ctx *gin.Context) {
 		req.Limit = 20
 	}
 
-	responses, total, err := c.service.GetPostsByYearMonth(year, month, req)
+	responses, total, err := c.svc.GetPostsByYearMonth(year, month, req)
 	if err != nil {
 		respondError(ctx, err)
 		return

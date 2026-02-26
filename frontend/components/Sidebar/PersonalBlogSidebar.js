@@ -1,48 +1,50 @@
 // components/Sidebar/PersonalBlogSidebar.js
 import React from 'react';
 import Link from 'next/link';
-import { useTranslation } from 'next-i18next';
+import { useTranslations } from 'next-intl';
 import { useCategories } from '../../hooks/useCategories';
 import { useRecentPosts } from '../../hooks/useRecentPosts';
 import PopularPosts from '../Post/PopularPosts';
 import Archive from '../Archive/Archive';
 
 const SidebarSection = ({ title, children }) => (
-  <div className="bg-white rounded-lg border border-medium-border p-5 mb-4">
-    <h3 className="font-serif font-bold text-base text-medium-text-primary mb-4">{title}</h3>
+  <div className="pb-6 mb-6 border-b border-[#f2f2f2] last:border-0 last:pb-0 last:mb-0">
+    <h3 className="text-[11px] font-semibold uppercase tracking-[0.08em] text-[#757575] mb-4">
+      {title}
+    </h3>
     {children}
   </div>
 );
 
 const PersonalBlogSidebar = () => {
-  const { t } = useTranslation('common');
+  const t = useTranslations();
   const { categories, isLoading: categoriesLoading } = useCategories();
   const { posts: recentPosts, isLoading: postsLoading } = useRecentPosts(5);
 
   return (
     <div>
       <SidebarSection title={t('sidebar.popularPosts')}>
-        <PopularPosts limit={5} showImages={false} className="" />
+        <PopularPosts limit={5} showImages={false} />
       </SidebarSection>
 
       <SidebarSection title={t('sidebar.categories')}>
         {categoriesLoading ? (
-          <div className="flex flex-wrap gap-2">
+          <div className="space-y-2">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-7 w-16 bg-medium-bg-secondary rounded-full animate-pulse" />
+              <div key={i} className="h-4 w-20 bg-[#f2f2f2] rounded animate-pulse" />
             ))}
           </div>
         ) : (
-          <div className="flex flex-wrap gap-2">
+          <div className="space-y-1.5">
             {categories?.slice(0, 8).map((category) => (
               <Link
                 key={category.id}
                 href={`/category/${category.name}`}
-                className="px-3 py-1 bg-medium-bg-secondary text-medium-text-secondary text-sm rounded-full hover:underline transition-colors"
+                className="block text-[13px] text-[#757575] hover:text-[#292929] transition-colors"
               >
                 {category.name}
-                {category.post_count && (
-                  <span className="ml-1 opacity-75">({category.post_count})</span>
+                {category.post_count > 0 && (
+                  <span className="ml-1.5 text-[#b3b3b1]">({category.post_count})</span>
                 )}
               </Link>
             ))}
@@ -51,7 +53,7 @@ const PersonalBlogSidebar = () => {
       </SidebarSection>
 
       <SidebarSection title={t('sidebar.archive')}>
-        <Archive posts={recentPosts} className="" />
+        <Archive posts={recentPosts} />
       </SidebarSection>
     </div>
   );

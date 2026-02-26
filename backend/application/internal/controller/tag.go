@@ -5,19 +5,22 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/pdhoang91/blog/internal/dto"
+	"github.com/pdhoang91/blog/internal/service"
 	uuid "github.com/satori/go.uuid"
 )
 
-// ==================== TAG ROUTES ====================
+type TagController struct {
+	svc service.TagService
+}
 
-func (c *Controller) CreateTag(ctx *gin.Context) {
+func (c *TagController) CreateTag(ctx *gin.Context) {
 	var req dto.CreateTagRequest
 	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
 		return
 	}
 
-	response, err := c.service.CreateTag(&req)
+	response, err := c.svc.CreateTag(&req)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -25,14 +28,14 @@ func (c *Controller) CreateTag(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{"data": response})
 }
 
-func (c *Controller) ListTags(ctx *gin.Context) {
+func (c *TagController) ListTags(ctx *gin.Context) {
 	req, err := parsePagination(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
 		return
 	}
 
-	responses, total, err := c.service.ListTags(req)
+	responses, total, err := c.svc.ListTags(req)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -44,7 +47,7 @@ func (c *Controller) ListTags(ctx *gin.Context) {
 	})
 }
 
-func (c *Controller) UpdateTag(ctx *gin.Context) {
+func (c *TagController) UpdateTag(ctx *gin.Context) {
 	id, err := uuid.FromString(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid tag ID"})
@@ -57,7 +60,7 @@ func (c *Controller) UpdateTag(ctx *gin.Context) {
 		return
 	}
 
-	response, err := c.service.UpdateTag(id, &req)
+	response, err := c.svc.UpdateTag(id, &req)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -65,28 +68,28 @@ func (c *Controller) UpdateTag(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"data": response})
 }
 
-func (c *Controller) DeleteTag(ctx *gin.Context) {
+func (c *TagController) DeleteTag(ctx *gin.Context) {
 	id, err := uuid.FromString(ctx.Param("id"))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid tag ID"})
 		return
 	}
 
-	if err := c.service.DeleteTag(id); err != nil {
+	if err := c.svc.DeleteTag(id); err != nil {
 		respondError(ctx, err)
 		return
 	}
 	ctx.JSON(http.StatusOK, gin.H{"message": "Tag deleted successfully"})
 }
 
-func (c *Controller) GetPopularTags(ctx *gin.Context) {
+func (c *TagController) GetPopularTags(ctx *gin.Context) {
 	req, err := parsePagination(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
 		return
 	}
 
-	responses, err := c.service.GetPopularTags(req.Limit)
+	responses, err := c.svc.GetPopularTags(req.Limit)
 	if err != nil {
 		respondError(ctx, err)
 		return

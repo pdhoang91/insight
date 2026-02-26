@@ -17,10 +17,8 @@ import (
 )
 
 func main() {
-	// Initialize config first
 	cfg := config.NewConfig()
 
-	// Initialize database connection
 	db, err := config.InitDBConnection(cfg)
 	if err != nil {
 		fmt.Println("Failed to connect to the database:", err)
@@ -28,67 +26,43 @@ func main() {
 	}
 	defer config.CloseDBConnection(db)
 
-	// Create a new Gin router
 	r := gin.New()
-
-	// Add middleware
 	r.Use(gin.Logger())
 	r.Use(gin.Recovery())
-
-	// Enable CORS with custom settings
 	ConfigureCORS(r)
 
-	// Initialize storage manager
 	storageManager := storage.NewManager("s3", db)
-
-	// Get S3 configuration from config
 	bucket, region, cdnDomain := config.GetS3Config()
 	basePath := "uploads"
-
-	// Create and register S3 provider using existing S3 client
-	s3Provider := storage.NewS3Provider(bucket, region, basePath, cdnDomain)
+	s3Provider := storage.NewS3Provider(config.S3Client, bucket, region, basePath, cdnDomain)
 	storageManager.RegisterProvider("s3", s3Provider)
 
-	// Initialize repositories
-	userRepo := repository.NewUserRepository()
-	postRepo := repository.NewPostRepository()
-	commentRepo := repository.NewCommentRepository()
-	replyRepo := repository.NewReplyRepository()
-	categoryRepo := repository.NewCategoryRepository()
-	tagRepo := repository.NewTagRepository()
-	bookmarkRepo := repository.NewBookmarkRepository()
-	postContentRepo := repository.NewPostContentRepository()
-	userActivityRepo := repository.NewUserActivityRepository()
-	imageRepo := repository.NewImageRepository()
+	// Repositories — DB injected via constructor
+	userRepo := repository.NewUserRepository(db)
+	postRepo := repository.NewPostRepository(db)
+	commentRepo := repository.NewCommentRepository(db)
+	replyRepo := repository.NewReplyRepository(db)
+	categoryRepo := repository.NewCategoryRepository(db)
+	tagRepo := repository.NewTagRepository(db)
+	bookmarkRepo := repository.NewBookmarkRepository(db)
+	postContentRepo := repository.NewPostContentRepository(db)
+	userActivityRepo := repository.NewUserActivityRepository(db)
+	imageRepo := repository.NewImageRepository(db)
 
-	// Create base service with common dependencies
 	baseService := service.NewBaseService(
 		db,
 		config.GoogleOauthConfig,
 		config.S3Client,
 		storageManager,
-		userRepo,
-		postRepo,
-		commentRepo,
-		replyRepo,
-		categoryRepo,
-		tagRepo,
-		bookmarkRepo,
-		postContentRepo,
-		userActivityRepo,
-		imageRepo,
+		userRepo, postRepo, commentRepo, replyRepo,
+		categoryRepo, tagRepo, bookmarkRepo,
+		postContentRepo, userActivityRepo, imageRepo,
 	)
 
-	// Create insight service with all dependencies
 	insightService := service.NewInsightService(baseService)
-
-	// Create controller (routing layer only)
 	mainController := controller.NewController(insightService)
-
-	// Define API routes
 	internal.DefineAPIRoutes(r, mainController)
 
-	// Get port from environment or use default
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "81"
@@ -100,13 +74,11 @@ func main() {
 	}
 }
 
-// ConfigureCORS sets up CORS middleware for the application
 func ConfigureCORS(r *gin.Engine) {
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = true
 	config.AllowMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"}
 	config.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization", "X-Requested-With"}
 	config.AllowCredentials = true
-
 	r.Use(cors.New(config))
 }

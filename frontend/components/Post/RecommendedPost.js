@@ -1,5 +1,4 @@
 import React from 'react';
-import { useRouter } from 'next/router';
 import useSWR from 'swr';
 import BasePostItem from './BasePostItem';
 import { getPopulerPosts } from '../../services/postService';

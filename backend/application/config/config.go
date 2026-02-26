@@ -37,6 +37,7 @@ type Config struct {
 	AWS_CDN_DOMAIN        string
 }
 
+// Deprecated: kept for backward compatibility. Use Config fields instead.
 var (
 	GoogleOauthConfig *oauth2.Config
 	S3Client          *s3.Client

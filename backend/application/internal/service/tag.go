@@ -17,7 +17,7 @@ func (s *InsightService) ListTags(req *dto.PaginationRequest) ([]*dto.TagRespons
 		req.Limit = 10
 	}
 
-	tags, err := s.TagRepo.List(s.DBR2, req.Limit, req.Offset)
+	tags, err := s.TagRepo.List(req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to list tags", err)
 	}
@@ -35,7 +35,7 @@ func (s *InsightService) GetPopularTags(limit int) ([]*dto.TagResponse, error) {
 		limit = 10
 	}
 
-	tags, err := s.TagRepo.GetPopular(s.DBR2, limit)
+	tags, err := s.TagRepo.GetPopular(limit)
 	if err != nil {
 		return nil, apperror.NewInternal("failed to get popular tags", err)
 	}
@@ -49,7 +49,7 @@ func (s *InsightService) GetPopularTags(limit int) ([]*dto.TagResponse, error) {
 
 // GetTag retrieves a tag by ID
 func (s *InsightService) GetTag(id uuid.UUID) (*dto.TagResponse, error) {
-	tag, err := s.TagRepo.FindByID(s.DBR2, id)
+	tag, err := s.TagRepo.FindByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewNotFound("tag not found")
@@ -61,7 +61,7 @@ func (s *InsightService) GetTag(id uuid.UUID) (*dto.TagResponse, error) {
 
 // CreateTag creates a new tag
 func (s *InsightService) CreateTag(req *dto.CreateTagRequest) (*dto.TagResponse, error) {
-	existing, err := s.TagRepo.FindByName(s.DB, req.Name)
+	existing, err := s.TagRepo.FindByName(req.Name)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, apperror.NewInternal("failed to check tag existence", err)
 	}
@@ -73,7 +73,7 @@ func (s *InsightService) CreateTag(req *dto.CreateTagRequest) (*dto.TagResponse,
 		ID: uuid.NewV4(), Name: req.Name,
 		CreatedAt: time.Now(), UpdatedAt: time.Now(),
 	}
-	if err := s.TagRepo.Create(s.DB, tag); err != nil {
+	if err := s.TagRepo.Create(tag); err != nil {
 		return nil, apperror.NewInternal("failed to create tag", err)
 	}
 	return dto.NewTagResponse(tag), nil
@@ -81,7 +81,7 @@ func (s *InsightService) CreateTag(req *dto.CreateTagRequest) (*dto.TagResponse,
 
 // UpdateTag updates a tag
 func (s *InsightService) UpdateTag(id uuid.UUID, req *dto.UpdateTagRequest) (*dto.TagResponse, error) {
-	tag, err := s.TagRepo.FindByID(s.DB, id)
+	tag, err := s.TagRepo.FindByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewNotFound("tag not found")
@@ -92,7 +92,7 @@ func (s *InsightService) UpdateTag(id uuid.UUID, req *dto.UpdateTagRequest) (*dt
 	if req.Name != "" {
 		tag.Name = req.Name
 	}
-	if err := s.TagRepo.Update(s.DB, tag); err != nil {
+	if err := s.TagRepo.Update(tag); err != nil {
 		return nil, apperror.NewInternal("failed to update tag", err)
 	}
 	return dto.NewTagResponse(tag), nil
@@ -100,14 +100,14 @@ func (s *InsightService) UpdateTag(id uuid.UUID, req *dto.UpdateTagRequest) (*dt
 
 // DeleteTag deletes a tag
 func (s *InsightService) DeleteTag(id uuid.UUID) error {
-	if _, err := s.TagRepo.FindByID(s.DB, id); err != nil {
+	if _, err := s.TagRepo.FindByID(id); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return apperror.NewNotFound("tag not found")
 		}
 		return apperror.NewInternal("failed to find tag", err)
 	}
 
-	if err := s.TagRepo.Delete(s.DB, id); err != nil {
+	if err := s.TagRepo.Delete(id); err != nil {
 		return apperror.NewInternal("failed to delete tag", err)
 	}
 	return nil
@@ -119,7 +119,7 @@ func (s *InsightService) SearchTags(query string, limit int) ([]*dto.TagResponse
 		limit = 10
 	}
 
-	tags, err := s.TagRepo.Search(s.DBR2, query, limit)
+	tags, err := s.TagRepo.Search(query, limit)
 	if err != nil {
 		return nil, apperror.NewInternal("failed to search tags", err)
 	}

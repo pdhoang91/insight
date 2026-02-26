@@ -270,15 +270,3 @@ func TrackSearch(query, userID string, resultsCount int) error {
 
 	return database.DB.Create(&analytics).Error
 }
-
-// IndexPost - No longer needed with PostgreSQL, but keeping for compatibility
-func IndexPost(post models.SearchPost) error {
-	log.Printf("IndexPost called for post %s - using PostgreSQL, no action needed", post.ID)
-	return nil
-}
-
-// DeletePostFromIndex - No longer needed with PostgreSQL, but keeping for compatibility
-func DeletePostFromIndex(postID uuid.UUID) error {
-	log.Printf("DeletePostFromIndex called for post %s - using PostgreSQL, no action needed", postID)
-	return nil
-}

@@ -1,10 +1,10 @@
-// components/Shared/SimpleSearchBar.js - Fully theme-based design
+'use client';
+// components/Shared/SimpleSearchBar.js
 import React, { useState } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { FaSearch, FaTimes } from 'react-icons/fa';
-import { themeClasses, combineClasses } from '../../utils/themeClasses';
 
-const SimpleSearchBar = ({ onClose, autoFocus = false, className = '', placeholder = 'Tìm kiếm bài viết...' }) => {
+const SimpleSearchBar = ({ onClose, autoFocus = false, className = '', placeholder = 'Search...' }) => {
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -24,70 +24,35 @@ const SimpleSearchBar = ({ onClose, autoFocus = false, className = '', placehold
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Escape' && onClose) {
-      onClose();
-    }
-  };
-
   return (
-    <form onSubmit={handleSearch} className={combineClasses(themeClasses.utils.relative, className)}>
-      <div className={themeClasses.utils.relative}>
+    <form onSubmit={handleSearch} className={`relative ${className}`}>
+      <div className="relative">
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={handleKeyDown}
+          onKeyDown={(e) => e.key === 'Escape' && onClose?.()}
           placeholder={placeholder}
           autoFocus={autoFocus}
-          className={combineClasses(
-            themeClasses.utils.fullWidth,
-            'pl-10 pr-10 py-2 rounded-full border',
-            themeClasses.animations.smooth,
-            themeClasses.focus.ring,
-            themeClasses.bg.card,
-            themeClasses.border.primary,
-            themeClasses.text.primary,
-            'placeholder-medium-text-muted',
-            'backdrop-blur-sm'
-          )}
           disabled={isLoading}
+          className="w-full pl-10 pr-10 py-2 rounded-full border border-[#e6e6e6] bg-white text-[#292929] placeholder:text-[#b3b3b1] focus:outline-none focus:border-[#292929] transition-colors text-sm"
         />
-        
-        {/* Search Icon */}
-        <div className={combineClasses(
-          themeClasses.utils.absolute,
-          'left-3 top-1/2 transform -translate-y-1/2'
-        )}>
+
+        <div className="absolute left-3 top-1/2 -translate-y-1/2">
           {isLoading ? (
-            <div className={combineClasses(
-              themeClasses.loading.spinner,
-              themeClasses.icons.sm
-            )} />
+            <div className="w-4 h-4 animate-spin rounded-full border-2 border-[#e6e6e6] border-t-[#1a8917]" />
           ) : (
-            <FaSearch className={combineClasses(
-              themeClasses.icons.sm, 
-              themeClasses.text.muted
-            )} />
+            <FaSearch className="w-4 h-4 text-[#b3b3b1]" />
           )}
         </div>
 
-        {/* Close Button */}
         {onClose && (
           <button
             type="button"
             onClick={onClose}
-            className={combineClasses(
-              themeClasses.utils.absolute,
-              'right-3 top-1/2 transform -translate-y-1/2',
-              themeClasses.text.muted,
-              themeClasses.text.accentHover,
-              themeClasses.animations.smooth,
-              themeClasses.focus.visible
-            )}
-            aria-label="Đóng tìm kiếm"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#b3b3b1] hover:text-[#292929] transition-colors"
           >
-            <FaTimes className={themeClasses.icons.sm} />
+            <FaTimes className="w-4 h-4" />
           </button>
         )}
       </div>

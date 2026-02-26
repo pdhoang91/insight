@@ -12,8 +12,7 @@ const TitleInput = ({
   isUploadingTitle,
 }) => {
   return (
-    <div className="mb-8">
-      {/* Title */}
+    <div className="mb-6">
       <textarea
         value={title}
         onChange={(e) => {
@@ -22,22 +21,20 @@ const TitleInput = ({
           e.target.style.height = e.target.scrollHeight + 'px';
         }}
         placeholder="Title"
-        className="w-full bg-transparent border-0 outline-none resize-none font-serif text-4xl font-bold text-medium-text-primary placeholder:text-medium-text-muted/50 leading-tight"
+        className="w-full bg-transparent border-0 border-b border-transparent focus:border-[#e6e6e6] outline-none resize-none font-serif text-[42px] font-bold text-[#292929] placeholder:text-[#9a9a9a] leading-[1.15] tracking-tight transition-colors pb-2"
         rows={1}
       />
 
-      {/* Cover image */}
       {imageTitle ? (
         <div className="relative mt-6">
           <img
             src={imageTitle}
             alt="Cover"
-            className="w-full max-h-[400px] object-cover rounded-lg"
+            className="w-full max-h-[400px] object-cover"
           />
           <button
             onClick={() => setImageTitle(null)}
             className="absolute top-3 right-3 p-1.5 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
-            title="Xóa ảnh bìa"
           >
             <FaTimes className="w-3.5 h-3.5" />
           </button>
@@ -46,14 +43,14 @@ const TitleInput = ({
         <button
           onClick={handleImageTitleUpload}
           disabled={isUploadingTitle}
-          className="mt-4 flex items-center gap-2 text-sm text-medium-text-muted hover:text-medium-accent-green transition-colors"
+          className="mt-3 flex items-center gap-2 text-sm text-[#b3b3b1] hover:text-[#757575] transition-colors"
         >
           {isUploadingTitle ? (
             <LoadingSpinner size="sm" />
           ) : (
             <>
               <FaImage className="w-4 h-4" />
-              <span>Add cover image</span>
+              <span>Add a cover image</span>
             </>
           )}
         </button>

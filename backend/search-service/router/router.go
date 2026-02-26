@@ -36,9 +36,5 @@ func SetupRouter() *gin.Engine {
 	r.GET("/search/popular", controller.PopularSearchesHandler)
 	r.POST("/search/track", controller.TrackSearchHandler)
 
-	// Thêm các route mới cho IndexPost và DeletePostFromIndex
-	r.POST("/search/posts/index", controller.IndexPostHandler)
-	r.DELETE("/search/posts/:id", controller.DeletePostHandler)
-
 	return r
 }
