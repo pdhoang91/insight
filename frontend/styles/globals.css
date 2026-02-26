@@ -1580,3 +1580,19 @@ button, a, [role="button"] {
   }
 }
 
+/* Override tippy.js default dark theme for editor toolbars */
+.tippy-box {
+  background-color: transparent !important;
+  color: inherit !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.tippy-arrow {
+  display: none !important;
+}
+
+.tippy-content {
+  padding: 0 !important;
+}
+

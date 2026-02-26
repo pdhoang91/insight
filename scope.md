@@ -37,3 +37,12 @@
 - H5: `usePostName` hook keeps `isLoading=true` indefinitely (SWR key/fetcher issue)
 
 **Status**: Instrumentation added, awaiting runtime evidence.
+
+## Fix: Editor Toolbar Background (#333 from tippy.js) — DONE
+- **Problem**: Default `tippy.js/dist/tippy.css` applied `background-color: #333` to all `.tippy-box` elements, causing dark backgrounds on BubbleToolbar, FloatingToolbar, SlashCommands dropdown, and ToolbarButton tooltips
+- **Root cause**: `tippy.css` was imported in `ToolbarButton.js` and `PostForm.js`
+- **Fix**:
+  - Added CSS overrides in `globals.css`: `.tippy-box { background-color: transparent; }`, hidden arrow, reset padding
+  - Removed `tippy.css` import from `ToolbarButton.js` and `PostForm.js`
+  - Removed `@tippyjs/react` Tippy component from `ToolbarButton.js`, relying on native `title` attr instead (matching Medium.com's minimal tooltip approach)
+  - All toolbar components (BubbleToolbar, FloatingToolbar, SlashCommandsList) already had their own white bg + border styling via Tailwind — tippy wrapper is now transparent

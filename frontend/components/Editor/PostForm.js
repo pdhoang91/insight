@@ -12,7 +12,6 @@ import LinkDialog from './LinkDialog'
 import YouTubeDialog from './YouTubeDialog'
 import BubbleToolbar from './BubbleToolbar'
 import FloatingToolbar from './FloatingToolbar'
-import 'tippy.js/dist/tippy.css'
 
 const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTitle, isFullscreen = false }) => {
   const [isUploading, setIsUploading] = useState(false)

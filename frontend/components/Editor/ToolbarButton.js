@@ -1,7 +1,5 @@
 // components/Editor/ToolbarButton.js
 import React, { useState, useRef, useEffect } from 'react';
-import Tippy from '@tippyjs/react';
-import 'tippy.js/dist/tippy.css';
 
 const ToolbarButton = ({ icon: Icon, onClick, isActive, tooltip, disabled, children, compact = false }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,17 +29,15 @@ const ToolbarButton = ({ icon: Icon, onClick, isActive, tooltip, disabled, child
   if (children) {
     return (
       <div className="relative" ref={ref}>
-        <Tippy content={tooltip} placement="top" disabled={compact}>
-          <button
-            onClick={() => setIsOpen(!isOpen)}
-            disabled={disabled}
-            className={buttonClasses}
-            aria-label={tooltip}
-            title={tooltip}
-          >
-            <Icon className={iconClass} />
-          </button>
-        </Tippy>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          disabled={disabled}
+          className={buttonClasses}
+          aria-label={tooltip}
+          title={tooltip}
+        >
+          <Icon className={iconClass} />
+        </button>
         {isOpen && (
           <div className="absolute left-0 mt-2 w-48 z-20 overflow-hidden bg-white border border-gray-200 rounded-lg shadow-lg">
             <div className="py-1">
@@ -54,17 +50,15 @@ const ToolbarButton = ({ icon: Icon, onClick, isActive, tooltip, disabled, child
   }
 
   return (
-    <Tippy content={tooltip} placement="top" disabled={compact}>
-      <button
-        onClick={onClick}
-        disabled={disabled}
-        className={buttonClasses}
-        aria-label={tooltip}
-        title={tooltip}
-      >
-        <Icon className={iconClass} />
-      </button>
-    </Tippy>
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={buttonClasses}
+      aria-label={tooltip}
+      title={tooltip}
+    >
+      <Icon className={iconClass} />
+    </button>
   );
 };
 
