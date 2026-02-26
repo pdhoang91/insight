@@ -1,5 +1,5 @@
 // components/Editor/TitleInput.js
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { FaImage, FaTimes } from 'react-icons/fa';
 import LoadingSpinner from '../Shared/LoadingSpinner';
 
@@ -11,9 +11,26 @@ const TitleInput = ({
   handleImageTitleUpload,
   isUploadingTitle,
 }) => {
+  const textareaRef = useRef(null);
+
+  // #region agent log
+  fetch('http://127.0.0.1:7476/ingest/15469c75-35dc-48d4-bf40-8d2565f7ce6f',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6f33ee'},body:JSON.stringify({sessionId:'6f33ee',location:'TitleInput.js:render',message:'TitleInput rendered',data:{title,hasImageTitle:!!imageTitle},timestamp:Date.now(),runId:'run1',hypothesisId:'H3'})}).catch(()=>{});
+  // #endregion
+
+  // #region agent log
+  useEffect(() => {
+    if (textareaRef.current) {
+      const el = textareaRef.current;
+      const styles = window.getComputedStyle(el);
+      fetch('http://127.0.0.1:7476/ingest/15469c75-35dc-48d4-bf40-8d2565f7ce6f',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6f33ee'},body:JSON.stringify({sessionId:'6f33ee',location:'TitleInput.js:dom-measure',message:'Textarea DOM measurements',data:{offsetHeight:el.offsetHeight,scrollHeight:el.scrollHeight,clientHeight:el.clientHeight,computedHeight:styles.height,computedMinHeight:styles.minHeight,computedFontSize:styles.fontSize,computedLineHeight:styles.lineHeight,computedPadding:styles.padding,computedOverflow:styles.overflow,rows:el.rows,value:el.value,placeholder:el.placeholder,parentOffsetTop:el.parentElement?.offsetTop,parentOffsetHeight:el.parentElement?.offsetHeight},timestamp:Date.now(),runId:'run2',hypothesisId:'H6'})}).catch(()=>{});
+    }
+  }, [title]);
+  // #endregion
+
   return (
-    <div className="mb-6">
+    <div className="group/title mb-8">
       <textarea
+        ref={textareaRef}
         value={title}
         onChange={(e) => {
           setTitle(e.target.value);
@@ -21,8 +38,9 @@ const TitleInput = ({
           e.target.style.height = e.target.scrollHeight + 'px';
         }}
         placeholder="Title"
-        className="w-full bg-transparent border-0 border-b border-transparent focus:border-[#e6e6e6] outline-none resize-none font-serif text-[42px] font-bold text-[#292929] placeholder:text-[#9a9a9a] leading-[1.15] tracking-tight transition-colors pb-2"
+        className="w-full bg-transparent border-none outline-none resize-none font-serif text-[42px] font-bold text-[#292929] placeholder:text-[#9b9b9b] leading-[1.25] tracking-[-0.011em] py-0 min-h-[52px]"
         rows={1}
+        autoFocus
       />
 
       {imageTitle ? (
@@ -30,7 +48,7 @@ const TitleInput = ({
           <img
             src={imageTitle}
             alt="Cover"
-            className="w-full max-h-[400px] object-cover"
+            className="w-full max-h-[400px] object-cover rounded"
           />
           <button
             onClick={() => setImageTitle(null)}
@@ -43,13 +61,13 @@ const TitleInput = ({
         <button
           onClick={handleImageTitleUpload}
           disabled={isUploadingTitle}
-          className="mt-3 flex items-center gap-2 text-sm text-[#b3b3b1] hover:text-[#757575] transition-colors"
+          className="mt-2 flex items-center gap-2 text-sm text-[#b3b3b1] hover:text-[#757575] opacity-0 group-hover/title:opacity-100 focus:opacity-100 transition-all duration-200"
         >
           {isUploadingTitle ? (
             <LoadingSpinner size="sm" />
           ) : (
             <>
-              <FaImage className="w-4 h-4" />
+              <FaImage className="w-3.5 h-3.5" />
               <span>Add a cover image</span>
             </>
           )}

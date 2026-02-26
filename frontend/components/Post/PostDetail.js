@@ -1,13 +1,14 @@
 // components/Post/PostDetail.js — Medium-style post detail
 import React, { useMemo } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useUser } from '../../context/UserContext';
 import { FaHandsClapping, FaShare } from 'react-icons/fa6';
-import { FaComment, FaUser, FaBookmark } from 'react-icons/fa';
+import { FaComment, FaUser, FaBookmark, FaEdit, FaTrash } from 'react-icons/fa';
 import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapPost } from '../../services/activityService';
+import { deletePost } from '../../services/postService';
 import { useComments } from '../../hooks/useComments';
-import ReadingProgressBar from '../Shared/ReadingProgressBar';
 import SEOHead from '../SEO/SEOHead';
 import RelatedPosts from './RelatedPosts';
 import { renderPostContent, getContentPlainText } from '../../utils/renderContent';
@@ -21,9 +22,12 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
     );
   }
 
+  const router = useRouter();
   const { clapsCount: postClapsCount, hasClapped, mutate: mutateClaps } = useClapsCount('post', post.id);
   const { user } = useUser();
   const { totalCommentReply } = useComments(post.id, true, 1, 10);
+
+  const isOwner = user && post.user && user.id === post.user.id;
 
   const renderedHTML = useMemo(() => renderPostContent(post.content), [post.content]);
   const plainText = useMemo(() => getContentPlainText(post.content), [post.content]);
@@ -44,6 +48,16 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
     navigator.clipboard.writeText(url);
   };
 
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this post?')) return;
+    try {
+      await deletePost(post.id);
+      router.push('/');
+    } catch (e) {
+      console.error('Delete failed:', e);
+    }
+  };
+
   return (
     <>
       <SEOHead
@@ -53,12 +67,10 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
         type="article"
         publishedTime={post.created_at}
         modifiedTime={post.updated_at}
-        author={post.author?.name}
+        author={post.user?.name}
         category={post.category}
         url={`${process.env.NEXT_PUBLIC_SITE_URL || ''}/p/${post.slug}`}
       />
-
-      <ReadingProgressBar />
 
       <article className="max-w-[680px] mx-auto">
         {/* Title */}
@@ -69,15 +81,15 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
         {/* Author info */}
         <div className="flex items-center gap-3 mb-8">
           <div className="w-11 h-11 rounded-full bg-medium-bg-secondary flex items-center justify-center overflow-hidden flex-shrink-0">
-            {post.author?.avatar_url ? (
-              <img src={post.author.avatar_url} alt={post.author.name} className="w-full h-full object-cover" />
+            {post.user?.avatar_url ? (
+              <img src={post.user.avatar_url} alt={post.user.name} className="w-full h-full object-cover" />
             ) : (
               <FaUser className="w-4 h-4 text-[#6b6b6b]" />
             )}
           </div>
           <div>
             <div className="text-sm font-medium text-[#242424] hover:underline cursor-pointer">
-              {post.author?.name || 'Anonymous'}
+              {post.user?.name || 'Anonymous'}
             </div>
             <div className="flex items-center gap-1 text-sm text-[#6b6b6b]">
               <span>{readTime} min read</span>
@@ -114,6 +126,24 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
           </div>
 
           <div className="flex items-center gap-4">
+            {isOwner && (
+              <>
+                <Link
+                  href={`/edit/${post.slug}`}
+                  className="text-[#6b6b6b] hover:text-[#242424] transition-colors"
+                  title="Edit"
+                >
+                  <FaEdit className="w-4 h-4" />
+                </Link>
+                <button
+                  onClick={handleDelete}
+                  className="text-[#6b6b6b] hover:text-red-500 transition-colors"
+                  title="Delete"
+                >
+                  <FaTrash className="w-4 h-4" />
+                </button>
+              </>
+            )}
             <button
               className="text-[#6b6b6b] hover:text-[#242424] transition-colors"
               title="Bookmark"
@@ -208,8 +238,8 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
         {/* Author bio card */}
         <div className="flex items-start gap-4 mt-10 py-6">
           <div className="w-[72px] h-[72px] rounded-full bg-medium-bg-secondary flex items-center justify-center overflow-hidden flex-shrink-0">
-            {post.author?.avatar_url ? (
-              <img src={post.author.avatar_url} alt={post.author.name} className="w-full h-full object-cover" />
+            {post.user?.avatar_url ? (
+              <img src={post.user.avatar_url} alt={post.user.name} className="w-full h-full object-cover" />
             ) : (
               <FaUser className="w-6 h-6 text-[#6b6b6b]" />
             )}
@@ -217,11 +247,11 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
           <div className="flex-1 min-w-0">
             <p className="text-xs text-[#6b6b6b] uppercase tracking-wider mb-1">Written by</p>
             <h3 className="text-lg font-bold text-[#242424] hover:underline cursor-pointer">
-              {post.author?.name || 'Anonymous'}
+              {post.user?.name || 'Anonymous'}
             </h3>
-            {post.author?.bio && (
+            {post.user?.bio && (
               <p className="text-sm text-[#6b6b6b] mt-1 leading-relaxed">
-                {post.author.bio}
+                {post.user.bio}
               </p>
             )}
           </div>

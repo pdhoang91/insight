@@ -7,16 +7,15 @@ import {
   FaCode,
   FaYoutube,
   FaMinus,
-  FaQuoteRight,
 } from 'react-icons/fa'
 
 const FloatingIcon = ({ icon: Icon, onClick, title }) => (
   <button
     onClick={onClick}
-    className="w-8 h-8 flex items-center justify-center rounded-full text-[#6b6b6b] hover:text-[#292929] transition-colors"
+    className="w-9 h-9 flex items-center justify-center rounded-full border border-[#e0e0e0] text-[#757575] hover:text-[#292929] hover:border-[#292929] transition-colors bg-white"
     title={title}
   >
-    <Icon className="w-4 h-4" />
+    <Icon className="w-[14px] h-[14px]" />
   </button>
 )
 
@@ -58,16 +57,16 @@ const FloatingToolbar = ({ editor, onImageUpload, onYoutubeClick }) => {
         return isEmptyLine && !currentLineText
       }}
     >
-      <div ref={containerRef} className="flex items-center gap-1">
+      <div ref={containerRef} className="flex items-center gap-2">
         <button
           onClick={() => setIsOpen(prev => !prev)}
-          className={`w-8 h-8 flex items-center justify-center rounded-full border transition-all duration-150 ${
+          className={`w-9 h-9 flex items-center justify-center rounded-full border transition-all duration-200 ${
             isOpen
               ? 'border-[#292929] text-[#292929] rotate-45'
-              : 'border-[#c2c2c2] text-[#c2c2c2] hover:border-[#757575] hover:text-[#757575]'
+              : 'border-[#e0e0e0] text-[#c2c2c2] hover:border-[#292929] hover:text-[#292929]'
           }`}
         >
-          <FaPlus className="w-3.5 h-3.5" />
+          <FaPlus className="w-[14px] h-[14px]" />
         </button>
 
         <AnimatePresence>
@@ -77,7 +76,7 @@ const FloatingToolbar = ({ editor, onImageUpload, onYoutubeClick }) => {
               animate={{ width: 'auto', opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
               transition={{ duration: 0.15, ease: 'easeOut' }}
-              className="flex items-center gap-0.5 overflow-hidden ml-0.5"
+              className="flex items-center gap-2 overflow-hidden"
             >
               <FloatingIcon
                 icon={FaImage}
@@ -98,11 +97,6 @@ const FloatingToolbar = ({ editor, onImageUpload, onYoutubeClick }) => {
                 icon={FaMinus}
                 onClick={() => { editor.chain().focus().setHorizontalRule().run(); setIsOpen(false) }}
                 title="Divider"
-              />
-              <FloatingIcon
-                icon={FaQuoteRight}
-                onClick={() => { editor.chain().focus().toggleBlockquote().run(); setIsOpen(false) }}
-                title="Quote"
               />
             </motion.div>
           )}

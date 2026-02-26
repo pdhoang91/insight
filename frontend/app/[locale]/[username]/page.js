@@ -36,7 +36,7 @@ const ProfilePostsHeader = ({ isOwner, profile, username, isAdmin }) => (
 export default function UserProfilePage() {
   const router = useRouter();
   const params = useParams();
-  const username = params?.username;
+  const username = params?.username?.replace(/^@/, '');
   const { user: loggedUser, loading: loadingUser, mutate } = useUser();
   const [showPopup, setShowPopup] = useState(false);
 

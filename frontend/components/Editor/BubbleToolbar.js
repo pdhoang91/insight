@@ -3,25 +3,23 @@ import { BubbleMenu } from '@tiptap/react'
 import {
   FaBold,
   FaItalic,
-  FaStrikethrough,
   FaLink,
   FaQuoteRight,
-  FaCode,
 } from 'react-icons/fa'
 
-const BubbleButton = ({ icon: Icon, label, onClick, isActive, title }) => (
+const BubbleButton = ({ children, onClick, isActive, title }) => (
   <button
     onClick={onClick}
-    className={`px-2.5 py-2 text-sm transition-colors ${
-      isActive ? 'text-[#1a8917]' : 'text-white/70 hover:text-white'
+    className={`px-2 py-1.5 transition-colors ${
+      isActive ? 'text-[#1a8917]' : 'text-[#757575] hover:text-[#292929]'
     }`}
     title={title}
   >
-    {Icon ? <Icon className="w-[15px] h-[15px]" /> : <span className="text-xs font-bold">{label}</span>}
+    {children}
   </button>
 )
 
-const Separator = () => <div className="w-px h-4 bg-white/20 mx-0.5" />
+const Separator = () => <div className="w-px h-5 bg-[#e0e0e0] mx-1" />
 
 const BubbleToolbar = ({ editor, onLinkClick }) => {
   if (!editor) return null
@@ -32,6 +30,7 @@ const BubbleToolbar = ({ editor, onLinkClick }) => {
       tippyOptions={{
         duration: 150,
         placement: 'top',
+        offset: [0, 8],
       }}
       shouldShow={({ editor, state }) => {
         const { from, to } = state.selection
@@ -41,61 +40,55 @@ const BubbleToolbar = ({ editor, onLinkClick }) => {
         return true
       }}
     >
-      <div className="flex items-center px-1 py-0.5 rounded-lg bg-[#292929] shadow-lg">
+      <div className="flex items-center px-1.5 py-0.5 rounded-full bg-white border border-[#e0e0e0] shadow-lg">
         <BubbleButton
-          icon={FaBold}
           onClick={() => editor.chain().focus().toggleBold().run()}
           isActive={editor.isActive('bold')}
           title="Bold"
-        />
+        >
+          <FaBold className="w-3.5 h-3.5" />
+        </BubbleButton>
         <BubbleButton
-          icon={FaItalic}
           onClick={() => editor.chain().focus().toggleItalic().run()}
           isActive={editor.isActive('italic')}
           title="Italic"
-        />
+        >
+          <FaItalic className="w-3.5 h-3.5" />
+        </BubbleButton>
         <BubbleButton
-          icon={FaStrikethrough}
-          onClick={() => editor.chain().focus().toggleStrike().run()}
-          isActive={editor.isActive('strike')}
-          title="Strikethrough"
-        />
-        <BubbleButton
-          icon={FaLink}
           onClick={onLinkClick}
           isActive={editor.isActive('link')}
           title="Link"
-        />
+        >
+          <FaLink className="w-3.5 h-3.5" />
+        </BubbleButton>
 
         <Separator />
 
         <BubbleButton
-          label="H1"
           onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
           isActive={editor.isActive('heading', { level: 1 })}
           title="Heading 1"
-        />
+        >
+          <span className="text-[15px] font-bold leading-none">T</span>
+        </BubbleButton>
         <BubbleButton
-          label="H2"
           onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
           isActive={editor.isActive('heading', { level: 2 })}
           title="Heading 2"
-        />
+        >
+          <span className="text-[11px] font-bold leading-none">T</span>
+        </BubbleButton>
 
         <Separator />
 
         <BubbleButton
-          icon={FaQuoteRight}
           onClick={() => editor.chain().focus().toggleBlockquote().run()}
           isActive={editor.isActive('blockquote')}
           title="Quote"
-        />
-        <BubbleButton
-          icon={FaCode}
-          onClick={() => editor.chain().focus().toggleCode().run()}
-          isActive={editor.isActive('code')}
-          title="Inline code"
-        />
+        >
+          <FaQuoteRight className="w-3.5 h-3.5" />
+        </BubbleButton>
       </div>
     </BubbleMenu>
   )

@@ -19,6 +19,9 @@ const Navbar = () => {
   const router = useRouter();
   const pathname = usePathname();
   const isWritePage = pathname === '/write' || pathname.startsWith('/edit/');
+  // #region agent log
+  if(typeof window!=='undefined')fetch('http://127.0.0.1:7476/ingest/15469c75-35dc-48d4-bf40-8d2565f7ce6f',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6f33ee'},body:JSON.stringify({sessionId:'6f33ee',location:'Navbar.js:isWritePage',message:'Navbar isWritePage check',data:{pathname,isWritePage},timestamp:Date.now(),runId:'run1',hypothesisId:'H4'})}).catch(()=>{});
+  // #endregion
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);

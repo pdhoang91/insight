@@ -123,7 +123,7 @@ const BasePostItem = ({
         )}
       </div>
 
-      {isOwner && <OwnerMenu postSlug={post.slug} onDelete={handleDelete} />}
+      {(isOwner || (user && post.user?.id === user.id)) && <OwnerMenu postSlug={post.slug} onDelete={handleDelete} />}
     </div>
   );
 

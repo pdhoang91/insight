@@ -124,7 +124,7 @@ export default function WritePage() {
         </button>
       )}
 
-      <main className="max-w-[720px] mx-auto px-4 md:px-6 pt-20 pb-16">
+      <main className="max-w-[720px] mx-auto px-4 md:px-6 pt-28 pb-16">
         <PostForm
           title={title}
           setTitle={setTitle}
