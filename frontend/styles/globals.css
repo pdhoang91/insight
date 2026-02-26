@@ -943,6 +943,21 @@ button:focus {
   box-shadow: none !important;
 }
 
+/* Title Input Placeholder */
+.title-textarea::placeholder {
+  color: #9b9b9b !important;
+  opacity: 1 !important;
+}
+
+/* Cover image button - hidden by default, visible on hover */
+.title-cover-btn {
+  opacity: 0;
+}
+.group\/title:hover .title-cover-btn,
+.title-cover-btn:focus {
+  opacity: 1;
+}
+
 /* TipTap Placeholder Styles - Clean Theme */
 .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);

@@ -38,7 +38,7 @@ const TitleInput = ({
           e.target.style.height = e.target.scrollHeight + 'px';
         }}
         placeholder="Title"
-        className="w-full bg-transparent border-none outline-none resize-none font-serif text-[42px] font-bold text-[#292929] placeholder:text-[#9b9b9b] leading-[1.25] tracking-[-0.011em] py-0 min-h-[52px]"
+        className="title-textarea w-full bg-transparent border-none outline-none resize-none font-serif text-[42px] font-bold text-[#292929] leading-[1.25] tracking-[-0.011em] py-0 min-h-[52px]"
         rows={1}
         autoFocus
       />
@@ -61,7 +61,7 @@ const TitleInput = ({
         <button
           onClick={handleImageTitleUpload}
           disabled={isUploadingTitle}
-          className="mt-2 flex items-center gap-2 text-sm text-[#b3b3b1] hover:text-[#757575] opacity-0 group-hover/title:opacity-100 focus:opacity-100 transition-all duration-200"
+          className="title-cover-btn mt-2 flex items-center gap-2 text-sm text-[#b3b3b1] hover:text-[#757575] transition-all duration-200"
         >
           {isUploadingTitle ? (
             <LoadingSpinner size="sm" />
