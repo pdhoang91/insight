@@ -1,5 +1,6 @@
-// components/Post/PostDetail.js — Medium-style post detail
-import React, { useMemo } from 'react';
+// components/Post/PostDetail.js — Warm Dispatch reading experience
+'use client';
+import React, { useMemo, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useUser } from '../../context/UserContext';
@@ -13,10 +14,170 @@ import SEOHead from '../SEO/SEOHead';
 import RelatedPosts from './RelatedPosts';
 import { renderPostContent, getContentPlainText } from '../../utils/renderContent';
 
+/* ─── Reading progress bar ─── */
+const ReadingProgressBar = () => {
+  const [width, setWidth] = useState(0);
+
+  useEffect(() => {
+    const update = () => {
+      const el = document.documentElement;
+      const scrolled = el.scrollTop || document.body.scrollTop;
+      const total = el.scrollHeight - el.clientHeight;
+      setWidth(total > 0 ? (scrolled / total) * 100 : 0);
+    };
+    window.addEventListener('scroll', update, { passive: true });
+    return () => window.removeEventListener('scroll', update);
+  }, []);
+
+  return (
+    <div
+      className="reading-progress-bar"
+      style={{ width: `${width}%` }}
+      role="progressbar"
+      aria-valuenow={Math.round(width)}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label="Reading progress"
+    />
+  );
+};
+
+/* ─── Author byline ─── */
+const AuthorByline = ({ user: postUser, readTime, date }) => (
+  <div
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.875rem',
+      marginBottom: '2rem',
+    }}
+  >
+    <div
+      style={{
+        width: 40, height: 40, borderRadius: '50%',
+        background: 'var(--bg-surface)',
+        overflow: 'hidden', flexShrink: 0,
+        border: '1.5px solid var(--border)',
+      }}
+    >
+      {postUser?.avatar_url ? (
+        <img src={postUser.avatar_url} alt={postUser.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      ) : (
+        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <FaUser style={{ width: 14, height: 14, color: 'var(--text-faint)' }} />
+        </div>
+      )}
+    </div>
+    <div>
+      <div style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '0.9rem', letterSpacing: '-0.01em', color: 'var(--text)' }}>
+        {postUser?.name || 'Anonymous'}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
+        <span style={{ fontFamily: 'var(--font-display)', fontSize: '0.775rem', color: 'var(--text-faint)', letterSpacing: '0.01em' }}>
+          {readTime} min read
+        </span>
+        <span style={{ color: 'var(--border-mid)', fontSize: '0.6rem' }}>◆</span>
+        <time
+          dateTime={date}
+          style={{ fontFamily: 'var(--font-display)', fontSize: '0.775rem', color: 'var(--text-faint)', letterSpacing: '0.01em' }}
+        >
+          {new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+        </time>
+      </div>
+    </div>
+  </div>
+);
+
+/* ─── Engagement actions row ─── */
+const EngagementRow = ({ onClap, hasClapped, clapsCount, onCommentClick, commentCount, isOwner, postSlug, onDelete, onShare }) => (
+  <div
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: '0.875rem 0',
+      borderTop: '1px solid var(--border)',
+      borderBottom: '1px solid var(--border)',
+    }}
+  >
+    <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+      <button
+        onClick={onClap}
+        style={{
+          display: 'flex', alignItems: 'center', gap: '0.4rem',
+          fontFamily: 'var(--font-display)', fontSize: '0.85rem', letterSpacing: '-0.01em',
+          background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+          color: hasClapped ? 'var(--accent)' : 'var(--text-muted)',
+          transition: 'color 0.2s',
+        }}
+        className="hover:text-[var(--accent)]"
+        title="Appreciate"
+      >
+        <FaHandsClapping style={{ width: 17, height: 17 }} />
+        {clapsCount > 0 && <span>{clapsCount}</span>}
+      </button>
+
+      <button
+        onClick={onCommentClick}
+        style={{
+          display: 'flex', alignItems: 'center', gap: '0.4rem',
+          fontFamily: 'var(--font-display)', fontSize: '0.85rem', letterSpacing: '-0.01em',
+          background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+          color: 'var(--text-muted)', transition: 'color 0.2s',
+        }}
+        className="hover:text-[var(--text)]"
+        title="Comments"
+      >
+        <FaComment style={{ width: 15, height: 15 }} />
+        {commentCount > 0 && <span>{commentCount}</span>}
+      </button>
+    </div>
+
+    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      {isOwner && (
+        <>
+          <Link
+            href={`/edit/${postSlug}`}
+            style={{ color: 'var(--text-muted)', transition: 'color 0.2s' }}
+            className="hover:text-[var(--text)]"
+            title="Edit"
+          >
+            <FaEdit style={{ width: 14, height: 14 }} />
+          </Link>
+          <button
+            onClick={onDelete}
+            style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s', padding: 0 }}
+            className="hover:text-[#DC2626]"
+            title="Delete"
+          >
+            <FaTrash style={{ width: 14, height: 14 }} />
+          </button>
+        </>
+      )}
+      <button
+        style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s', padding: 0 }}
+        className="hover:text-[var(--text)]"
+        title="Bookmark"
+      >
+        <FaBookmark style={{ width: 14, height: 14 }} />
+      </button>
+      <button
+        onClick={onShare}
+        style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s', padding: 0 }}
+        className="hover:text-[var(--text)]"
+        title="Copy link"
+      >
+        <FaShare style={{ width: 14, height: 14 }} />
+      </button>
+    </div>
+  </div>
+);
+
+/* ─── Main export ─── */
 export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
   if (!post) {
     return (
-      <div className="flex justify-center items-center h-64 text-[#6b6b6b]">
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 240, color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
         Loading...
       </div>
     );
@@ -49,7 +210,7 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this post?')) return;
+    if (!window.confirm('Delete this post?')) return;
     try {
       await deletePost(post.id);
       router.push('/');
@@ -60,6 +221,7 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
 
   return (
     <>
+      <ReadingProgressBar />
       <SEOHead
         title={post.title}
         description={post.excerpt || plainText?.substring(0, 160)}
@@ -72,194 +234,182 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
         url={`${process.env.NEXT_PUBLIC_SITE_URL || ''}/p/${post.slug}`}
       />
 
-      <article className="max-w-[680px] mx-auto">
-        {/* Title */}
-        <h1 className="font-serif text-[32px] lg:text-[42px] font-bold text-[#242424] leading-[1.2] mb-8">
+      <article
+        className="animate-fade-up"
+        style={{ maxWidth: 'var(--reading-width)', margin: '0 auto' }}
+      >
+        {/* ── Title ── */}
+        <h1
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontWeight: 800,
+            fontSize: 'clamp(1.875rem, 4vw, 2.75rem)',
+            lineHeight: 1.12,
+            letterSpacing: '-0.028em',
+            color: 'var(--text)',
+            marginBottom: '1.5rem',
+            marginTop: 0,
+          }}
+        >
           {post.title}
         </h1>
 
-        {/* Author info */}
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-11 h-11 rounded-full bg-medium-bg-secondary flex items-center justify-center overflow-hidden flex-shrink-0">
-            {post.user?.avatar_url ? (
-              <img src={post.user.avatar_url} alt={post.user.name} className="w-full h-full object-cover" />
-            ) : (
-              <FaUser className="w-4 h-4 text-[#6b6b6b]" />
-            )}
-          </div>
-          <div>
-            <div className="text-sm font-medium text-[#242424] hover:underline cursor-pointer">
-              {post.user?.name || 'Anonymous'}
-            </div>
-            <div className="flex items-center gap-1 text-sm text-[#6b6b6b]">
-              <span>{readTime} min read</span>
-              <span>·</span>
-              <time dateTime={post.created_at}>
-                {new Date(post.created_at).toLocaleDateString('en-US', {
-                  month: 'short', day: 'numeric', year: 'numeric',
-                })}
-              </time>
-            </div>
-          </div>
-        </div>
+        {/* ── Author byline ── */}
+        <AuthorByline user={post.user} readTime={readTime} date={post.created_at} />
 
-        {/* Stats bar */}
-        <div className="flex items-center justify-between py-3 border-y border-medium-border mb-8">
-          <div className="flex items-center gap-5">
-            <button
-              onClick={handleClap}
-              className={`flex items-center gap-1.5 text-sm transition-colors ${
-                hasClapped ? 'text-medium-accent-green' : 'text-[#6b6b6b] hover:text-[#242424]'
-              }`}
-            >
-              <FaHandsClapping className="w-5 h-5" />
-              {postClapsCount > 0 && <span>{postClapsCount}</span>}
-            </button>
+        {/* ── Top engagement row ── */}
+        <EngagementRow
+          onClap={handleClap}
+          hasClapped={hasClapped}
+          clapsCount={postClapsCount}
+          onCommentClick={onScrollToComments}
+          commentCount={totalCommentReply}
+          isOwner={isOwner}
+          postSlug={post.slug}
+          onDelete={handleDelete}
+          onShare={handleShare}
+        />
 
-            <button
-              onClick={onScrollToComments}
-              className="flex items-center gap-1.5 text-sm text-[#6b6b6b] hover:text-[#242424] transition-colors"
-            >
-              <FaComment className="w-5 h-5" />
-              {totalCommentReply > 0 && <span>{totalCommentReply}</span>}
-            </button>
-          </div>
-
-          <div className="flex items-center gap-4">
-            {isOwner && (
-              <>
-                <Link
-                  href={`/edit/${post.slug}`}
-                  className="text-[#6b6b6b] hover:text-[#242424] transition-colors"
-                  title="Edit"
-                >
-                  <FaEdit className="w-4 h-4" />
-                </Link>
-                <button
-                  onClick={handleDelete}
-                  className="text-[#6b6b6b] hover:text-red-500 transition-colors"
-                  title="Delete"
-                >
-                  <FaTrash className="w-4 h-4" />
-                </button>
-              </>
-            )}
-            <button
-              className="text-[#6b6b6b] hover:text-[#242424] transition-colors"
-              title="Bookmark"
-            >
-              <FaBookmark className="w-4 h-4" />
-            </button>
-            <button
-              onClick={handleShare}
-              className="text-[#6b6b6b] hover:text-[#242424] transition-colors"
-              title="Share"
-            >
-              <FaShare className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
-        {/* Cover Image */}
+        {/* ── Cover image ── */}
         {post.cover_image && (
-          <div className="mb-10">
+          <div style={{ margin: '2.5rem 0' }}>
             <img
               src={post.cover_image}
               alt={post.title}
-              className="w-full h-auto"
+              style={{ width: '100%', height: 'auto', display: 'block' }}
               loading="eager"
             />
           </div>
         )}
 
-        {/* Content */}
+        {/* ── Article body ── */}
         <div
-          className="post-content reading-content text-[#242424]"
-          style={{ fontSize: '21px', lineHeight: '1.58' }}
+          className="post-content reading-content"
           dangerouslySetInnerHTML={{ __html: renderedHTML }}
+          style={{ marginTop: post.cover_image ? 0 : '2rem' }}
         />
 
-        {/* Tags — plain text with · separators */}
+        {/* ── Category tags ── */}
         {post.categories?.length > 0 && (
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-12 pt-8 border-t border-medium-border">
-            {post.categories.map((cat, i) => (
-              <React.Fragment key={cat.id || cat.name}>
-                {i > 0 && <span className="text-[#6b6b6b]">·</span>}
-                <Link
-                  href={`/category/${cat.name}`}
-                  className="text-sm text-[#6b6b6b] hover:text-[#242424] hover:underline transition-colors"
-                >
-                  {cat.name}
-                </Link>
-              </React.Fragment>
+          <div
+            style={{
+              display: 'flex', flexWrap: 'wrap', gap: '0.5rem',
+              marginTop: '3rem', paddingTop: '2rem',
+              borderTop: '1px solid var(--border)',
+            }}
+          >
+            {post.categories.map((cat) => (
+              <Link
+                key={cat.id || cat.name}
+                href={`/category/${cat.name}`}
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  letterSpacing: '0.08em',
+                  textTransform: 'uppercase',
+                  color: 'var(--text-muted)',
+                  padding: '0.3rem 0.7rem',
+                  background: 'var(--bg-surface)',
+                  borderRadius: '2px',
+                  transition: 'color 0.2s, background 0.2s',
+                }}
+                className="hover:text-[var(--accent)] hover:bg-[var(--accent-light)]"
+              >
+                {cat.name}
+              </Link>
             ))}
           </div>
         )}
 
-        {/* Bottom stats bar */}
-        <div className="flex items-center justify-between py-3 border-y border-medium-border mt-8">
-          <div className="flex items-center gap-5">
-            <button
-              onClick={handleClap}
-              className={`flex items-center gap-1.5 text-sm transition-colors ${
-                hasClapped ? 'text-medium-accent-green' : 'text-[#6b6b6b] hover:text-[#242424]'
-              }`}
-            >
-              <FaHandsClapping className="w-5 h-5" />
-              {postClapsCount > 0 && <span>{postClapsCount}</span>}
-            </button>
-
-            <button
-              onClick={onScrollToComments}
-              className="flex items-center gap-1.5 text-sm text-[#6b6b6b] hover:text-[#242424] transition-colors"
-            >
-              <FaComment className="w-5 h-5" />
-              {totalCommentReply > 0 && <span>{totalCommentReply}</span>}
-            </button>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <button
-              className="text-[#6b6b6b] hover:text-[#242424] transition-colors"
-              title="Bookmark"
-            >
-              <FaBookmark className="w-4 h-4" />
-            </button>
-            <button
-              onClick={handleShare}
-              className="text-[#6b6b6b] hover:text-[#242424] transition-colors"
-              title="Share"
-            >
-              <FaShare className="w-4 h-4" />
-            </button>
-          </div>
+        {/* ── Bottom engagement row ── */}
+        <div style={{ marginTop: '2.5rem' }}>
+          <EngagementRow
+            onClap={handleClap}
+            hasClapped={hasClapped}
+            clapsCount={postClapsCount}
+            onCommentClick={onScrollToComments}
+            commentCount={totalCommentReply}
+            isOwner={isOwner}
+            postSlug={post.slug}
+            onDelete={handleDelete}
+            onShare={handleShare}
+          />
         </div>
 
-        {/* Author bio card */}
-        <div className="flex items-start gap-4 mt-10 py-6">
-          <div className="w-[72px] h-[72px] rounded-full bg-medium-bg-secondary flex items-center justify-center overflow-hidden flex-shrink-0">
+        {/* ── Author bio ── */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '1.25rem',
+            marginTop: '3rem',
+            paddingTop: '2rem',
+            borderTop: '1px solid var(--border)',
+          }}
+        >
+          <div
+            style={{
+              width: 56, height: 56, borderRadius: '50%',
+              background: 'var(--bg-surface)',
+              overflow: 'hidden', flexShrink: 0,
+              border: '1.5px solid var(--border)',
+            }}
+          >
             {post.user?.avatar_url ? (
-              <img src={post.user.avatar_url} alt={post.user.name} className="w-full h-full object-cover" />
+              <img src={post.user.avatar_url} alt={post.user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             ) : (
-              <FaUser className="w-6 h-6 text-[#6b6b6b]" />
+              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <FaUser style={{ width: 18, height: 18, color: 'var(--text-faint)' }} />
+              </div>
             )}
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-[#6b6b6b] uppercase tracking-wider mb-1">Written by</p>
-            <h3 className="text-lg font-bold text-[#242424] hover:underline cursor-pointer">
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '0.68rem',
+                fontWeight: 600,
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                color: 'var(--text-faint)',
+                marginBottom: '0.3rem',
+                margin: '0 0 0.3rem 0',
+              }}
+            >
+              Written by
+            </p>
+            <h3
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontWeight: 800,
+                fontSize: '1rem',
+                letterSpacing: '-0.015em',
+                color: 'var(--text)',
+                margin: '0 0 0.4rem 0',
+              }}
+            >
               {post.user?.name || 'Anonymous'}
             </h3>
             {post.user?.bio && (
-              <p className="text-sm text-[#6b6b6b] mt-1 leading-relaxed">
+              <p
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '0.9rem',
+                  lineHeight: 1.6,
+                  color: 'var(--text-muted)',
+                  margin: 0,
+                }}
+              >
                 {post.user.bio}
               </p>
             )}
           </div>
         </div>
 
-        {/* Related Posts */}
+        {/* ── Related posts ── */}
         {relatedPosts.length > 0 && (
-          <div className="mt-12 pt-8 border-t border-medium-border">
+          <div style={{ marginTop: '3.5rem', paddingTop: '2.5rem', borderTop: '1px solid var(--border)' }}>
             <RelatedPosts posts={relatedPosts} currentPostId={post.id} />
           </div>
         )}

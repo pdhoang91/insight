@@ -1,67 +1,128 @@
 'use client';
 
 import React from 'react';
-import Link from 'next/link';
 import { useInfinitePosts } from '../../hooks/useInfinitePosts';
 import { HomeLayout } from '../../components/Layout/Layout';
 import PostList from '../../components/Post/PostList';
 import PersonalBlogSidebar from '../../components/Sidebar/PersonalBlogSidebar';
-import TimeAgo from '../../components/Utils/TimeAgo';
-import TextUtils from '../../components/Utils/TextUtils';
 
-const FeaturedPost = ({ post }) => {
-  if (!post) return null;
+/* ─── Asymmetric hero header ─────────────────────────────────────
+   Left: blog identity (name + tagline)
+   Right: a single decorative large label (muted, offset)
+   No cards. Just confident white space.
+   ────────────────────────────────────────────────────────────── */
+const HomeHero = () => (
+  <div
+    className="animate-fade-up delay-0"
+    style={{
+      display: 'grid',
+      gridTemplateColumns: '1fr auto',
+      alignItems: 'end',
+      gap: '2rem',
+      paddingBottom: '3rem',
+      marginBottom: '3rem',
+      borderBottom: '1px solid var(--border)',
+    }}
+  >
+    {/* Left: identity */}
+    <div>
+      <p
+        style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: '0.7rem',
+          fontWeight: 600,
+          letterSpacing: '0.12em',
+          textTransform: 'uppercase',
+          color: 'var(--accent)',
+          marginBottom: '0.75rem',
+          margin: '0 0 0.75rem 0',
+        }}
+      >
+        Personal writing
+      </p>
+      <h1
+        style={{
+          fontFamily: 'var(--font-display)',
+          fontWeight: 800,
+          fontSize: 'clamp(2.25rem, 5vw, 3.5rem)',
+          lineHeight: 1.08,
+          letterSpacing: '-0.035em',
+          color: 'var(--text)',
+          margin: '0 0 1rem 0',
+        }}
+      >
+        Insight
+      </h1>
+      <p
+        style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: '1.05rem',
+          lineHeight: 1.65,
+          color: 'var(--text-muted)',
+          maxWidth: '42ch',
+          margin: 0,
+        }}
+      >
+        Notes on software, craft, and the thinking behind what gets built.
+      </p>
+    </div>
 
-  return (
-    <Link href={`/p/${post.slug}`} className="block group mb-8">
-      <article className="bg-white rounded-lg border border-medium-border overflow-hidden">
-        {post.cover_image && (
-          <div className="aspect-[21/9] overflow-hidden">
-            <img
-              src={post.cover_image}
-              alt={post.title}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
-        <div className="p-6">
-          <div className="flex items-center gap-2 mb-3">
-            <span className="px-2.5 py-0.5 bg-medium-accent-green/10 text-medium-accent-green text-xs font-medium rounded-full">
-              Featured
-            </span>
-            <TimeAgo timestamp={post.created_at} className="text-xs text-medium-text-muted" />
-          </div>
-          <h2 className="font-serif text-2xl lg:text-3xl font-bold text-medium-text-primary group-hover:text-medium-accent-green transition-colors line-clamp-2 mb-2">
-            {post.title}
-          </h2>
-          <p className="text-medium-text-secondary text-base line-clamp-2 leading-relaxed">
-            <TextUtils html={post.excerpt} maxLength={250} />
-          </p>
-        </div>
-      </article>
-    </Link>
-  );
-};
+    {/* Right: large decorative year — grid-breaking offset element */}
+    <div
+      aria-hidden="true"
+      style={{
+        fontFamily: 'var(--font-display)',
+        fontWeight: 800,
+        fontSize: 'clamp(3rem, 6vw, 5rem)',
+        lineHeight: 1,
+        letterSpacing: '-0.04em',
+        color: 'var(--accent)',
+        opacity: 0.15,
+        userSelect: 'none',
+        paddingBottom: '0.1em',
+      }}
+    >
+      {new Date().getFullYear()}
+    </div>
+  </div>
+);
+
+/* ─── Section label ─── */
+const SectionLabel = ({ children }) => (
+  <p
+    style={{
+      fontFamily: 'var(--font-display)',
+      fontSize: '0.68rem',
+      fontWeight: 600,
+      letterSpacing: '0.1em',
+      textTransform: 'uppercase',
+      color: 'var(--text-faint)',
+      marginBottom: '1.75rem',
+      margin: '0 0 1.75rem 0',
+    }}
+  >
+    {children}
+  </p>
+);
 
 export default function HomeClient({ initialPosts, totalCount }) {
-  const { posts, isLoading, isError, setSize, isReachingEnd } =
-    useInfinitePosts();
+  const { posts, isLoading, isError, setSize, isReachingEnd } = useInfinitePosts();
 
   const flatPosts = posts?.flat().filter(Boolean) || [];
-  const featuredPost = flatPosts[0];
-  const remainingPosts = flatPosts.slice(1);
 
   return (
     <HomeLayout sidebar={<PersonalBlogSidebar />}>
-      {!isLoading && featuredPost && <FeaturedPost post={featuredPost} />}
-      <PostList
-        posts={remainingPosts.length > 0 ? [remainingPosts] : posts}
-        isLoading={isLoading}
-        isError={isError}
-        setSize={setSize}
-        isReachingEnd={isReachingEnd}
-        skipFirst={!!featuredPost && !isLoading}
-      />
+      <HomeHero />
+      <div className="animate-fade-up delay-200">
+        <SectionLabel>Latest writing</SectionLabel>
+        <PostList
+          posts={posts}
+          isLoading={isLoading}
+          isError={isError}
+          setSize={setSize}
+          isReachingEnd={isReachingEnd}
+        />
+      </div>
     </HomeLayout>
   );
 }

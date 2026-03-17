@@ -2,6 +2,7 @@
 // components/Layout/Layout.js
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
+import Footer from './Footer';
 
 /**
  * Medium-style sticky sidebar: sticks at top when short,
@@ -86,8 +87,8 @@ const Layout = ({
   const containerClass = containerVariants[variant] || containerVariants.container;
 
   return (
-    <div className="min-h-screen bg-white">
-      <main className="pt-16 relative" role="main" {...props}>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
+      <main className="pt-16 relative flex-1" role="main" {...props}>
         <div className={containerClass}>
           {showSidebar && sidebar ? (
             <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 py-8">
@@ -95,7 +96,7 @@ const Layout = ({
                 {children}
               </div>
 
-              <aside className={`w-full lg:w-[300px] lg:flex-shrink-0 ${
+              <aside className={`w-full lg:w-[280px] lg:flex-shrink-0 ${
                 sidebarPosition === 'left' ? 'lg:order-first' : ''
               }`}>
                 {/* Desktop: sticky scroll */}
@@ -115,6 +116,7 @@ const Layout = ({
           )}
         </div>
       </main>
+      <Footer />
     </div>
   );
 };
@@ -128,15 +130,23 @@ const MobileSidebarContent = ({ sidebar }) => {
     <div className="mt-8 mb-4">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between py-3 border-t border-[#f2f2f2] text-[#292929] transition-colors"
+        style={{
+          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0.75rem 0',
+          borderTop: '1px solid var(--border)', borderBottom: 'none', borderLeft: 'none', borderRight: 'none',
+          background: 'none',
+          cursor: 'pointer', transition: 'color 0.2s',
+        }}
         aria-expanded={isExpanded}
         aria-controls="mobile-sidebar-content"
       >
-        <span className="font-serif font-bold text-sm">More from this blog</span>
+        <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '0.8rem', letterSpacing: '-0.01em', color: 'var(--text)' }}>
+          More from this blog
+        </span>
         {isExpanded ? (
-          <FaChevronUp className="w-3.5 h-3.5 text-[#757575]" />
+          <FaChevronUp style={{ width: 12, height: 12, color: 'var(--text-muted)' }} />
         ) : (
-          <FaChevronDown className="w-3.5 h-3.5 text-[#757575]" />
+          <FaChevronDown style={{ width: 12, height: 12, color: 'var(--text-muted)' }} />
         )}
       </button>
 

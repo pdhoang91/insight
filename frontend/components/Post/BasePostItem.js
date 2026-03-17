@@ -1,8 +1,8 @@
 'use client';
-// components/Post/BasePostItem.js — Single source of truth for post cards
+// components/Post/BasePostItem.js — Warm Dispatch edition
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { FaEdit, FaTrash, FaComment, FaEllipsisH } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaEllipsisH, FaComment } from 'react-icons/fa';
 import { FaHandsClapping } from 'react-icons/fa6';
 import { useRouter } from 'next/navigation';
 import TextUtils from '../Utils/TextUtils';
@@ -13,6 +13,18 @@ import { useInfiniteComments } from '../../hooks/useInfiniteComments';
 import { useUser } from '../../context/UserContext';
 import { clapPost } from '../../services/activityService';
 import { deletePost } from '../../services/postService';
+
+/* Format date as "Jan 15" — used in the left date column */
+const formatDateShort = (timestamp) => {
+  if (!timestamp) return '';
+  const d = new Date(timestamp);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
+
+const formatYear = (timestamp) => {
+  if (!timestamp) return '';
+  return new Date(timestamp).getFullYear();
+};
 
 // variant: 'default' | 'compact' | 'horizontal' | 'profile'
 const BasePostItem = ({
@@ -41,7 +53,7 @@ const BasePostItem = ({
   };
 
   const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this post?')) return;
+    if (!window.confirm('Delete this post?')) return;
     try {
       await deletePost(post.id);
       router.refresh();
@@ -50,87 +62,116 @@ const BasePostItem = ({
     }
   };
 
-  // --- Compact variant (sidebar / popular posts) ---
+  /* ─── Compact: sidebar popular posts ─── */
   if (variant === 'compact') {
     return (
-      <article className="py-3 border-b border-[#f2f2f2] last:border-0">
+      <article style={{ paddingBottom: '0.875rem', marginBottom: '0.875rem', borderBottom: '1px solid var(--border)' }} className="last:border-0 last:pb-0 last:mb-0">
         <Link href={`/p/${post.slug}`} className="block group">
-          <h4 className="font-serif font-semibold text-sm text-[#292929] group-hover:underline line-clamp-2">
+          <h4
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 600,
+              fontSize: '0.875rem',
+              letterSpacing: '-0.012em',
+              color: 'var(--text)',
+              lineHeight: 1.4,
+              marginBottom: '0.3rem',
+              position: 'relative',
+              display: 'inline',
+            }}
+            className="post-title-hover"
+          >
             {post.title}
           </h4>
-          <div className="flex items-center gap-2 mt-1 text-[12px] text-[#b3b3b1]">
-            <TimeAgo timestamp={post.created_at} />
+          <div style={{ marginTop: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ fontFamily: 'var(--font-display)', fontSize: '0.72rem', color: 'var(--text-faint)', letterSpacing: '0.01em' }}>
+              <TimeAgo timestamp={post.created_at} />
+            </span>
           </div>
         </Link>
       </article>
     );
   }
 
-  // --- Horizontal variant (related posts, search results) ---
+  /* ─── Horizontal: related posts / search ─── */
   if (variant === 'horizontal') {
     return (
-      <article className="group">
-        <Link href={`/p/${post.slug}`} className="flex gap-4 py-3">
+      <article className="group" style={{ borderBottom: '1px solid var(--border)', paddingBottom: '1rem', marginBottom: '1rem' }} >
+        <Link href={`/p/${post.slug}`} style={{ display: 'flex', gap: '1rem', paddingTop: '0.5rem' }}>
           {post.cover_image && (
-            <div className="flex-shrink-0 w-20 h-20 overflow-hidden bg-[#f2f2f2]">
-              <img src={post.cover_image} alt={post.title} className="w-full h-full object-cover" loading="lazy" />
+            <div style={{ flexShrink: 0, width: 72, height: 72, overflow: 'hidden', background: 'var(--bg-surface)' }}>
+              <img src={post.cover_image} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
             </div>
           )}
-          <div className="flex-1 min-w-0">
-            <h4 className="font-serif font-semibold text-sm text-[#292929] group-hover:underline line-clamp-2 mb-1">
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h4
+              style={{
+                fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '0.9rem',
+                letterSpacing: '-0.015em', color: 'var(--text)', lineHeight: 1.35,
+                marginBottom: '0.3rem', display: 'inline', position: 'relative',
+              }}
+              className="post-title-hover"
+            >
               {post.title}
             </h4>
-            <p className="text-[12px] text-[#757575] line-clamp-1">
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.4, marginTop: '0.3rem', fontFamily: 'var(--font-body)' }} className="line-clamp-2">
               <TextUtils html={post.excerpt} maxLength={80} />
             </p>
-            <div className="flex items-center gap-2 mt-1 text-[12px] text-[#b3b3b1]">
+            <span style={{ fontFamily: 'var(--font-display)', fontSize: '0.72rem', color: 'var(--text-faint)', display: 'block', marginTop: '0.35rem' }}>
               <TimeAgo timestamp={post.created_at} />
-            </div>
+            </span>
           </div>
         </Link>
       </article>
     );
   }
 
-  // --- Shared elements for default & profile ---
-  const metaRow = (
-    <div className="flex items-center gap-2 text-[13px] text-[#757575] mt-2">
-      <TimeAgo timestamp={post.created_at} />
-      <span className="text-[#c2c2c2]">·</span>
-      <span>{Math.ceil((post.excerpt?.length || 0) / 200)} min read</span>
-    </div>
-  );
-
+  /* ─── Shared engagement row ─── */
   const actionsRow = (
-    <div className="flex items-center justify-between mt-4">
-      <div className="flex items-center gap-4">
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.875rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
         <button
           onClick={handleClap}
           disabled={clapsLoading}
-          className="flex items-center gap-1.5 text-[13px] text-[#6b6b6b] hover:text-[#292929] transition-colors"
+          style={{
+            display: 'flex', alignItems: 'center', gap: '0.375rem',
+            fontFamily: 'var(--font-display)', fontSize: '0.8rem', letterSpacing: '-0.01em',
+            color: 'var(--text-faint)', background: 'none', border: 'none', cursor: 'pointer',
+            transition: 'color 0.2s', padding: 0,
+          }}
+          className="hover:text-[var(--accent)]"
         >
-          <FaHandsClapping className="w-4 h-4" />
+          <FaHandsClapping style={{ width: 13, height: 13 }} />
           {clapsCount > 0 && <span>{clapsCount}</span>}
         </button>
+
         {showComments && (
           <button
             onClick={() => setCommentsOpen(prev => !prev)}
-            className="flex items-center gap-1.5 text-[13px] text-[#6b6b6b] hover:text-[#292929] transition-colors"
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.375rem',
+              fontFamily: 'var(--font-display)', fontSize: '0.8rem', letterSpacing: '-0.01em',
+              color: 'var(--text-faint)', background: 'none', border: 'none', cursor: 'pointer',
+              transition: 'color 0.2s', padding: 0,
+            }}
+            className="hover:text-[var(--text-muted)]"
           >
-            <FaComment className="w-3.5 h-3.5" />
+            <FaComment style={{ width: 12, height: 12 }} />
             {totalCount > 0 && <span>{totalCount}</span>}
           </button>
         )}
       </div>
 
-      {(isOwner || (user && post.user?.id === user.id)) && <OwnerMenu postSlug={post.slug} onDelete={handleDelete} />}
+      {(isOwner || (user && post.user?.id === user.id)) && (
+        <OwnerMenu postSlug={post.slug} onDelete={handleDelete} />
+      )}
     </div>
   );
 
   const commentsSection = showComments && isCommentsOpen && (
-    <div className="mt-6 pt-6 border-t border-[#f2f2f2]">
+    <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
       <AddCommentForm postId={post.id} user={user} onCommentAdded={mutate} />
-      <div className="mt-4">
+      <div style={{ marginTop: '1rem' }}>
         <LimitedCommentList
           comments={comments ? comments.flat() : []}
           postId={post.id}
@@ -144,79 +185,143 @@ const BasePostItem = ({
     </div>
   );
 
-  const categoriesRow = post.categories?.length > 0 && (
-    <div className="flex flex-wrap items-center gap-1 mt-2 text-[13px] text-[#757575]">
-      {post.categories.slice(0, 3).map((cat, i) => (
-        <span key={cat.id}>
-          {i > 0 && <span className="text-[#c2c2c2] mx-1">·</span>}
-          <Link href={`/category/${cat.name}`} className="hover:text-[#292929] transition-colors">
-            {cat.name}
-          </Link>
-        </span>
-      ))}
-    </div>
+  /* ─── Default + Profile variant: date-column grid ─── */
+  const thumbnailEl = post.cover_image && (
+    <Link href={`/p/${post.slug}`} style={{ flexShrink: 0, display: 'block' }}>
+      <div style={{ width: 100, aspectRatio: '1', overflow: 'hidden', background: 'var(--bg-surface)' }} className="hidden lg:block">
+        <img src={post.cover_image} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
+      </div>
+    </Link>
   );
 
-  // --- Profile variant ---
-  if (variant === 'profile') {
-    return (
-      <article className="border-b border-[#f2f2f2] pb-6 mb-6 last:border-0 last:pb-0 last:mb-0">
-        <div className="flex flex-col lg:flex-row gap-5">
-          <div className="flex-1 min-w-0">
-            <Link href={`/p/${post.slug}`}>
-              <h2 className="font-serif text-lg font-bold text-[#292929] hover:underline line-clamp-2">
+  return (
+    <article
+      style={{
+        borderBottom: '1px solid var(--border)',
+        paddingBottom: '2rem',
+        marginBottom: '2rem',
+      }}
+      className="last:border-0 last:pb-0 last:mb-0"
+    >
+      {/* Date-column grid: [date col] [content] [optional thumb] */}
+      <div style={{ display: 'grid', gridTemplateColumns: '72px 1fr', gap: '0 1.5rem', alignItems: 'start' }}>
+
+        {/* Left date column */}
+        <div
+          aria-label={`Published ${formatDateShort(post.created_at)} ${formatYear(post.created_at)}`}
+          style={{ paddingTop: '0.2rem', userSelect: 'none' }}
+        >
+          <div
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 800,
+              fontSize: '1.1rem',
+              letterSpacing: '-0.02em',
+              lineHeight: 1.1,
+              color: 'var(--text)',
+            }}
+          >
+            {formatDateShort(post.created_at)}
+          </div>
+          <div
+            style={{
+              fontFamily: 'var(--font-display)',
+              fontWeight: 400,
+              fontSize: '0.72rem',
+              color: 'var(--text-faint)',
+              letterSpacing: '0.01em',
+              marginTop: '0.1rem',
+            }}
+          >
+            {formatYear(post.created_at)}
+          </div>
+        </div>
+
+        {/* Right content column */}
+        <div style={{ minWidth: 0, display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <Link href={`/p/${post.slug}`} style={{ display: 'block' }}>
+              <h2
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontWeight: 800,
+                  fontSize: '1.1rem',
+                  letterSpacing: '-0.022em',
+                  lineHeight: 1.3,
+                  color: 'var(--text)',
+                  marginBottom: '0.5rem',
+                  display: 'inline',
+                  position: 'relative',
+                }}
+                className="post-title-hover"
+              >
                 {post.title}
               </h2>
             </Link>
-            <p className="text-[14px] text-[#757575] line-clamp-2 mt-1.5 leading-relaxed">
-              <TextUtils html={post.excerpt} maxLength={200} />
-            </p>
-            {categoriesRow}
-            {metaRow}
+
+            {post.excerpt && (
+              <p
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '0.92rem',
+                  lineHeight: 1.6,
+                  color: 'var(--text-muted)',
+                  marginTop: '0.4rem',
+                  marginBottom: 0,
+                }}
+                className="line-clamp-2"
+              >
+                <TextUtils html={post.excerpt} maxLength={180} />
+              </p>
+            )}
+
+            {/* Categories */}
+            {post.categories?.length > 0 && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.6rem' }}>
+                {post.categories.slice(0, 3).map((cat) => (
+                  <Link
+                    key={cat.id}
+                    href={`/category/${cat.name}`}
+                    style={{
+                      fontFamily: 'var(--font-display)',
+                      fontSize: '0.7rem',
+                      fontWeight: 600,
+                      letterSpacing: '0.07em',
+                      textTransform: 'uppercase',
+                      color: 'var(--text-faint)',
+                      padding: '0.2rem 0.5rem',
+                      background: 'var(--bg-surface)',
+                      borderRadius: '2px',
+                      transition: 'color 0.2s, background 0.2s',
+                    }}
+                    className="hover:text-[var(--accent)] hover:bg-[var(--accent-light)]"
+                  >
+                    {cat.name}
+                  </Link>
+                ))}
+              </div>
+            )}
+
             {actionsRow}
           </div>
-          {post.cover_image && (
-            <div className="w-full lg:w-48 flex-shrink-0">
-              <Link href={`/p/${post.slug}`}>
-                <div className="aspect-[16/10] overflow-hidden bg-[#f2f2f2]">
-                  <img src={post.cover_image} alt={post.title} className="w-full h-full object-cover" loading="lazy" />
-                </div>
-              </Link>
-            </div>
-          )}
-        </div>
-        {commentsSection}
-      </article>
-    );
-  }
 
-  // --- Default variant (homepage) ---
-  return (
-    <article className="border-b border-[#f2f2f2] pb-6 mb-6 last:border-0 last:pb-0 last:mb-0">
-      <div className="flex flex-col lg:flex-row gap-5">
-        <div className="flex-1 min-w-0">
-          <Link href={`/p/${post.slug}`}>
-            <h2 className="font-serif text-xl font-bold text-[#292929] hover:underline line-clamp-2">
-              {post.title}
-            </h2>
-          </Link>
-          <p className="text-[14px] text-[#757575] line-clamp-2 mt-1.5 leading-relaxed">
-            <TextUtils html={post.excerpt} maxLength={200} />
-          </p>
-          {categoriesRow}
-          {metaRow}
-          {actionsRow}
-        </div>
-        {post.cover_image && (
-          <div className="w-full lg:w-56 flex-shrink-0 order-first lg:order-last">
-            <Link href={`/p/${post.slug}`}>
-              <div className="aspect-[16/10] overflow-hidden bg-[#f2f2f2]">
-                <img src={post.cover_image} alt={post.title} className="w-full h-full object-cover" loading="lazy" />
+          {/* Thumbnail (desktop only) */}
+          {post.cover_image && (
+            <Link href={`/p/${post.slug}`} style={{ flexShrink: 0 }} className="hidden lg:block">
+              <div style={{ width: 88, height: 88, overflow: 'hidden', background: 'var(--bg-surface)' }}>
+                <img
+                  src={post.cover_image}
+                  alt=""
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)' }}
+                  loading="lazy"
+                  className="group-hover:scale-105"
+                />
               </div>
             </Link>
-          </div>
-        )}
+          )}
+        </div>
       </div>
+
       {commentsSection}
     </article>
   );
@@ -235,27 +340,50 @@ const OwnerMenu = ({ postSlug, onDelete }) => {
   }, []);
 
   return (
-    <div className="relative" ref={ref}>
+    <div style={{ position: 'relative' }} ref={ref}>
       <button
         onClick={() => setOpen(prev => !prev)}
-        className="p-1.5 text-[#6b6b6b] hover:text-[#292929] transition-colors"
+        style={{
+          padding: '4px', color: 'var(--text-faint)', background: 'none', border: 'none',
+          cursor: 'pointer', transition: 'color 0.2s',
+        }}
+        className="hover:text-[var(--text-muted)]"
       >
-        <FaEllipsisH className="w-4 h-4" />
+        <FaEllipsisH style={{ width: 14, height: 14 }} />
       </button>
+
       {open && (
-        <div className="absolute right-0 top-full mt-1 bg-white border border-[#e6e6e6] rounded-lg shadow-lg py-1 z-20 min-w-[140px]">
+        <div style={{
+          position: 'absolute', right: 0, top: '100%', marginTop: '4px',
+          background: 'var(--bg)', border: '1px solid var(--border-mid)',
+          borderRadius: '3px', boxShadow: 'var(--shadow-md)',
+          padding: '4px 0', zIndex: 20, minWidth: 130,
+        }}>
           <Link
             href={`/edit/${postSlug}`}
-            className="flex items-center gap-2 px-4 py-2 text-[13px] text-[#292929] hover:bg-[#fafafa] transition-colors w-full"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              padding: '8px 14px',
+              fontFamily: 'var(--font-display)', fontSize: '0.8rem', letterSpacing: '-0.01em',
+              color: 'var(--text)', transition: 'background 0.15s',
+            }}
+            className="hover:bg-[var(--bg-surface)]"
           >
-            <FaEdit className="w-3.5 h-3.5 text-[#757575]" />
+            <FaEdit style={{ width: 11, height: 11, color: 'var(--text-muted)' }} />
             Edit
           </Link>
           <button
             onClick={() => { setOpen(false); onDelete(); }}
-            className="flex items-center gap-2 px-4 py-2 text-[13px] text-red-500 hover:bg-[#fafafa] transition-colors w-full text-left"
+            style={{
+              display: 'flex', alignItems: 'center', gap: 8, width: '100%',
+              padding: '8px 14px', textAlign: 'left',
+              fontFamily: 'var(--font-display)', fontSize: '0.8rem', letterSpacing: '-0.01em',
+              color: '#DC2626', background: 'none', border: 'none', cursor: 'pointer',
+              transition: 'background 0.15s',
+            }}
+            className="hover:bg-[var(--bg-surface)]"
           >
-            <FaTrash className="w-3.5 h-3.5" />
+            <FaTrash style={{ width: 11, height: 11 }} />
             Delete
           </button>
         </div>

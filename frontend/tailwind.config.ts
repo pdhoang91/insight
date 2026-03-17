@@ -1,4 +1,4 @@
-// tailwind.config.ts - Medium 2024 Design System
+// tailwind.config.ts - Warm Dispatch Design System
 module.exports = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx}",
@@ -38,6 +38,17 @@ module.exports = {
           'focus': 'var(--medium-focus)',
         },
         
+        // Warm Dispatch tokens
+        'bg':        'var(--bg)',
+        'surface':   'var(--bg-surface)',
+        'bg-dark':   'var(--bg-dark)',
+        'accent':    'var(--accent)',
+        'accent-dark': 'var(--accent-dark)',
+        'ink':       'var(--text)',
+        'muted':     'var(--text-muted)',
+        'faint':     'var(--text-faint)',
+        'inverse':   'var(--text-inverse)',
+
         // Semantic Colors (Medium-inspired)
         'success': {
           DEFAULT: '#1A8917',
@@ -61,14 +72,16 @@ module.exports = {
         },
       },
       fontFamily: {
-        // Medium 2024 Typography Stack
-        'serif': ['Charter', 'Georgia', 'Cambria', 'Times New Roman', 'serif'],
-        'sans': ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
-        'mono': ['SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Courier New', 'monospace'],
-        
-        // Reading-optimized fonts
-        'reading': ['Charter', 'Georgia', 'serif'],
-        'ui': ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        // Warm Dispatch Typography Stack
+        'display': ['Cabinet Grotesk', 'system-ui', 'sans-serif'],
+        'body':    ['Source Serif 4', 'Georgia', 'serif'],
+        'serif':   ['Source Serif 4', 'Georgia', 'serif'],
+        'sans':    ['Cabinet Grotesk', 'system-ui', 'sans-serif'],
+        'mono':    ['JetBrains Mono', 'Consolas', 'monospace'],
+
+        // Aliases for compat
+        'reading': ['Source Serif 4', 'Georgia', 'serif'],
+        'ui':      ['Cabinet Grotesk', 'system-ui', 'sans-serif'],
       },
       fontSize: {
         // Medium 2024 Typography Scale

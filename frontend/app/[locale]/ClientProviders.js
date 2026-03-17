@@ -5,6 +5,7 @@ import { PostProvider } from '../../context/PostContext';
 import UserContext from '../../context/UserContext';
 import Navbar from '../../components/Navbar/Navbar';
 import LoginModal from '../../components/Auth/LoginModal';
+import GrainOverlay from '../../components/UI/GrainOverlay';
 import useAuth from '../../hooks/useAuth';
 
 export default function ClientProviders({ children }) {
@@ -14,6 +15,8 @@ export default function ClientProviders({ children }) {
   return (
     <PostProvider>
       <UserContext.Provider value={{ user, setUser, setModalOpen, loading, mutate }}>
+        {/* Grain texture overlay — fixed, pointer-events-none, GPU-safe */}
+        <GrainOverlay />
         <header className="fixed top-0 left-0 right-0 z-50">
           <Navbar />
         </header>

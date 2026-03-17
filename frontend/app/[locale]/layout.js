@@ -26,7 +26,7 @@ export default async function LocaleLayout({ children, params }) {
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
-      <body className="min-h-screen bg-medium-bg-primary text-medium-text-primary">
+      <body className="min-h-screen" style={{ background: 'var(--bg)', color: 'var(--text)', fontFamily: 'var(--font-body)' }}>
         <NextIntlClientProvider messages={messages}>
           <ClientProviders>{children}</ClientProviders>
         </NextIntlClientProvider>

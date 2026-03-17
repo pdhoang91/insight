@@ -1,8 +1,55 @@
-// components/Post/PostList.js
+'use client';
+// components/Post/PostList.js — Warm Dispatch with staggered entry
 import React from 'react';
 import { useTranslations } from 'next-intl';
+import { motion } from 'framer-motion';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import BasePostItem from './BasePostItem';
+
+/* ─── Skeleton that matches the date-column grid layout ─── */
+const PostSkeleton = () => (
+  <div
+    style={{
+      display: 'grid',
+      gridTemplateColumns: '72px 1fr',
+      gap: '0 1.5rem',
+      paddingBottom: '2rem',
+      marginBottom: '2rem',
+      borderBottom: '1px solid var(--border)',
+    }}
+  >
+    {/* Date col */}
+    <div style={{ paddingTop: '0.2rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+      <div className="skeleton-warm" style={{ height: '1.1rem', width: '2.5rem', borderRadius: '2px' }} />
+      <div className="skeleton-warm" style={{ height: '0.75rem', width: '1.75rem', borderRadius: '2px' }} />
+    </div>
+    {/* Content col */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+      <div className="skeleton-warm" style={{ height: '1.1rem', width: '75%', borderRadius: '2px' }} />
+      <div className="skeleton-warm" style={{ height: '0.85rem', width: '90%', borderRadius: '2px' }} />
+      <div className="skeleton-warm" style={{ height: '0.85rem', width: '65%', borderRadius: '2px' }} />
+    </div>
+  </div>
+);
+
+/* ─── Staggered animation variants ─── */
+const listVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.07,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden:  { opacity: 0, y: 14 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] },
+  },
+};
 
 const PostList = ({
   posts,
@@ -22,14 +69,25 @@ const PostList = ({
     }
   };
 
+  /* ─── Error ─── */
   if (isError) {
     return (
-      <div className="text-center py-12">
-        <h3 className="font-serif text-xl font-bold text-medium-text-primary mb-2">{t('post.errorOccurred')}</h3>
-        <p className="text-medium-text-secondary mb-4">{t('post.loadFailed')}</p>
+      <div style={{ textAlign: 'center', padding: '3rem 0' }}>
+        <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.1rem', letterSpacing: '-0.02em', color: 'var(--text)', marginBottom: '0.5rem' }}>
+          {t('post.errorOccurred')}
+        </h3>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
+          {t('post.loadFailed')}
+        </p>
         <button
           onClick={() => window.location.reload()}
-          className="px-4 py-2 bg-medium-accent-green text-white rounded-full text-sm hover:opacity-90 transition-opacity"
+          style={{
+            fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '0.8rem',
+            letterSpacing: '-0.01em', color: 'var(--text-inverse)',
+            background: 'var(--accent)', border: 'none', borderRadius: '2px',
+            padding: '0.5rem 1.2rem', cursor: 'pointer', transition: 'opacity 0.2s',
+          }}
+          className="hover:opacity-85"
         >
           {t('common.retry')}
         </button>
@@ -37,42 +95,31 @@ const PostList = ({
     );
   }
 
+  /* ─── Initial loading skeletons ─── */
   if (isLoading && (!posts || posts.length === 0)) {
     return (
-      <div className={`space-y-6 ${className}`}>
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="animate-pulse">
-            <div className="flex flex-col lg:flex-row gap-5">
-              <div className="flex-1 space-y-3">
-                <div className="h-6 bg-medium-bg-secondary rounded w-3/4" />
-                <div className="h-4 bg-medium-bg-secondary rounded w-full" />
-                <div className="h-4 bg-medium-bg-secondary rounded w-5/6" />
-                <div className="flex gap-4 mt-4">
-                  <div className="h-3 bg-medium-bg-secondary rounded w-16" />
-                  <div className="h-3 bg-medium-bg-secondary rounded w-16" />
-                </div>
-              </div>
-              <div className="w-full lg:w-64 aspect-[16/10] bg-medium-bg-secondary rounded-md" />
-            </div>
-          </div>
-        ))}
+      <div className={className}>
+        {[...Array(4)].map((_, i) => <PostSkeleton key={i} />)}
       </div>
     );
   }
 
+  /* ─── Empty ─── */
   if (!posts || posts.length === 0) {
     return (
-      <div className="text-center py-16">
-        <h3 className="font-serif text-2xl font-bold text-medium-text-primary mb-2">{t('post.noStories')}</h3>
-        <p className="text-medium-text-secondary">{t('post.beFirst')}</p>
+      <div style={{ textAlign: 'center', padding: '4rem 0' }}>
+        <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.25rem', letterSpacing: '-0.022em', color: 'var(--text)', marginBottom: '0.5rem' }}>
+          {t('post.noStories')}
+        </h3>
+        <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+          {t('post.beFirst')}
+        </p>
       </div>
     );
   }
 
   let flatPosts = posts.flat().filter(Boolean);
-  if (skipFirst && flatPosts.length > 0) {
-    flatPosts = flatPosts.slice(1);
-  }
+  if (skipFirst && flatPosts.length > 0) flatPosts = flatPosts.slice(1);
 
   return (
     <div className={className}>
@@ -81,30 +128,42 @@ const PostList = ({
         next={fetchMore}
         hasMore={!isReachingEnd}
         loader={
-          <div className="space-y-6 mt-6">
-            {[...Array(2)].map((_, i) => (
-              <div key={`l-${i}`} className="animate-pulse">
-                <div className="flex flex-col lg:flex-row gap-5">
-                  <div className="flex-1 space-y-3">
-                    <div className="h-6 bg-medium-bg-secondary rounded w-3/4" />
-                    <div className="h-4 bg-medium-bg-secondary rounded w-full" />
-                    <div className="h-4 bg-medium-bg-secondary rounded w-5/6" />
-                  </div>
-                  <div className="w-full lg:w-64 aspect-[16/10] bg-medium-bg-secondary rounded-md" />
-                </div>
-              </div>
-            ))}
+          <div style={{ marginTop: '2rem' }}>
+            {[...Array(2)].map((_, i) => <PostSkeleton key={`l-${i}`} />)}
           </div>
         }
         endMessage={
           flatPosts.length > 0 && (
-            <p className="text-center text-medium-text-muted py-8 mt-6">{t('post.reachedEnd')}</p>
+            <p
+              style={{
+                textAlign: 'center',
+                fontFamily: 'var(--font-display)',
+                fontSize: '0.72rem',
+                fontWeight: 500,
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                color: 'var(--text-faint)',
+                padding: '2.5rem 0',
+                marginTop: '1rem',
+              }}
+            >
+              {t('post.reachedEnd')}
+            </p>
           )
         }
       >
-        {flatPosts.map((post, index) => (
-          <BasePostItem key={`${post.id}-${index}`} post={post} variant={variant} />
-        ))}
+        {/* Staggered reveal on first render */}
+        <motion.div
+          variants={listVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {flatPosts.map((post, index) => (
+            <motion.div key={`${post.id}-${index}`} variants={itemVariants}>
+              <BasePostItem post={post} variant={variant} />
+            </motion.div>
+          ))}
+        </motion.div>
       </InfiniteScroll>
     </div>
   );
