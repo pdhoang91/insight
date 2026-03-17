@@ -19,13 +19,18 @@ import (
 type ImageProcessor struct {
 	s3Client   *s3.Client
 	bucketName string
+	region     string
 }
 
 // NewImageProcessor creates a new image processor with an injected S3 client.
-func NewImageProcessor(client *s3.Client, bucketName string) *ImageProcessor {
+func NewImageProcessor(client *s3.Client, bucketName, region string) *ImageProcessor {
+	if region == "" {
+		region = "us-east-1"
+	}
 	return &ImageProcessor{
 		s3Client:   client,
 		bucketName: bucketName,
+		region:     region,
 	}
 }
 
@@ -69,8 +74,8 @@ func (p *ImageProcessor) ProcessAndUploadImage(file multipart.File, header *mult
 		return "", fmt.Errorf("failed to upload image to S3: %w", err)
 	}
 
-	// Return the public URL
-	imageURL := fmt.Sprintf("https://%s.s3.amazonaws.com/%s", p.bucketName, key)
+	// Return path-style public URL (required for bucket names containing dots)
+	imageURL := fmt.Sprintf("https://s3.%s.amazonaws.com/%s/%s", p.region, p.bucketName, key)
 	return imageURL, nil
 }
 
@@ -141,11 +146,13 @@ func (p *ImageProcessor) getContentType(ext string) string {
 	}
 }
 
-// extractKeyFromURL extracts the S3 key from a full S3 URL
+// extractKeyFromURL extracts the S3 key from a full S3 URL.
+// Handles three formats:
+//   - Virtual-hosted (legacy, broken for dot-buckets): https://bucket.s3.amazonaws.com/key
+//   - Path-style with region (current): https://s3.region.amazonaws.com/bucket/key
+//   - Path-style without region (legacy): https://s3.amazonaws.com/bucket/key
 func (p *ImageProcessor) extractKeyFromURL(imageURL string) (string, error) {
-	// Expected format: https://bucket-name.s3.amazonaws.com/folder/filename.ext
-	// or https://s3.amazonaws.com/bucket-name/folder/filename.ext
-
+	// Virtual-hosted style: https://bucket-name.s3.amazonaws.com/key
 	if strings.Contains(imageURL, ".s3.amazonaws.com/") {
 		parts := strings.Split(imageURL, ".s3.amazonaws.com/")
 		if len(parts) == 2 {
@@ -153,11 +160,14 @@ func (p *ImageProcessor) extractKeyFromURL(imageURL string) (string, error) {
 		}
 	}
 
-	if strings.Contains(imageURL, "s3.amazonaws.com/") {
-		parts := strings.Split(imageURL, "s3.amazonaws.com/")
-		if len(parts) == 2 {
-			// Remove bucket name from the beginning
-			pathParts := strings.SplitN(parts[1], "/", 2)
+	// Path-style (with or without region): https://s3[.region].amazonaws.com/bucket/key
+	if strings.Contains(imageURL, "s3.amazonaws.com/") || strings.Contains(imageURL, "s3."+p.region+".amazonaws.com/") {
+		// Split on amazonaws.com/ to get everything after the host
+		idx := strings.Index(imageURL, "amazonaws.com/")
+		if idx != -1 {
+			rest := imageURL[idx+len("amazonaws.com/"):]
+			// Remove bucket name prefix
+			pathParts := strings.SplitN(rest, "/", 2)
 			if len(pathParts) == 2 {
 				return pathParts[1], nil
 			}

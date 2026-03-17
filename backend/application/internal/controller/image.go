@@ -3,6 +3,7 @@ package controller
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -179,7 +180,15 @@ func (c *ImageController) ProxyImage(ctx *gin.Context) {
 	}
 
 	s3Key := fmt.Sprintf("uploads/%s/%s/%s/%s", userID, date, imageType, filename)
-	s3URL := fmt.Sprintf("https://insight.storage.s3.amazonaws.com/%s", s3Key)
+	bucket := os.Getenv("AWS_S3_BUCKET")
+	if bucket == "" {
+		bucket = "insight.storage"
+	}
+	region := os.Getenv("AWS_REGION")
+	if region == "" {
+		region = "us-east-1"
+	}
+	s3URL := fmt.Sprintf("https://s3.%s.amazonaws.com/%s/%s", region, bucket, s3Key)
 	ctx.Redirect(http.StatusFound, s3URL)
 }
 
@@ -191,10 +200,18 @@ func (c *ImageController) GetImageInfo(ctx *gin.Context) {
 
 	s3Key := fmt.Sprintf("uploads/%s/%s/%s/%s", userID, date, imageType, filename)
 
+	bucket := os.Getenv("AWS_S3_BUCKET")
+	if bucket == "" {
+		bucket = "insight.storage"
+	}
+	region := os.Getenv("AWS_REGION")
+	if region == "" {
+		region = "us-east-1"
+	}
 	ctx.JSON(http.StatusOK, gin.H{
 		"key":           s3Key,
 		"legacy":        true,
 		"proxy_url":     fmt.Sprintf("/images/proxy/%s/%s/%s/%s", userID, date, imageType, filename),
-		"direct_s3_url": fmt.Sprintf("https://insight.storage.s3.amazonaws.com/%s", s3Key),
+		"direct_s3_url": fmt.Sprintf("https://s3.%s.amazonaws.com/%s/%s", region, bucket, s3Key),
 	})
 }

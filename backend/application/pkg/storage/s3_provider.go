@@ -127,10 +127,16 @@ func (s *S3Provider) GetProviderName() string {
 	return "s3"
 }
 
-// generatePublicURL creates the public URL for the file
+// generatePublicURL creates the public URL for the file.
+// Path-style URL is required when the bucket name contains dots (e.g. "insight.storage")
+// because AWS's wildcard cert *.s3.amazonaws.com does not cover dot-in-name subdomains.
 func (s *S3Provider) generatePublicURL(key string) string {
 	if s.cdnDomain != "" {
 		return fmt.Sprintf("https://%s/%s", s.cdnDomain, key)
 	}
-	return fmt.Sprintf("https://%s.s3.amazonaws.com/%s", s.bucket, key)
+	region := s.region
+	if region == "" {
+		region = "us-east-1"
+	}
+	return fmt.Sprintf("https://s3.%s.amazonaws.com/%s/%s", region, s.bucket, key)
 }

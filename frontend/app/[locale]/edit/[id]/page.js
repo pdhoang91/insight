@@ -115,14 +115,7 @@ export default function EditPage() {
     }
   }, [pathname, router]);
 
-  // #region agent log
-  fetch('http://127.0.0.1:7476/ingest/15469c75-35dc-48d4-bf40-8d2565f7ce6f',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6f33ee'},body:JSON.stringify({sessionId:'6f33ee',location:'edit/[id]/page.js:guards',message:'EditPage render state',data:{id,isLoading,loading,isError,hasPost:!!post,postUserId:post?.user?.id,userId:user?.id,isInitialized,hasUser:!!user},timestamp:Date.now(),runId:'run1',hypothesisId:'H1-H2-H5'})}).catch(()=>{});
-  // #endregion
-
   if (isLoading || loading) {
-    // #region agent log
-    fetch('http://127.0.0.1:7476/ingest/15469c75-35dc-48d4-bf40-8d2565f7ce6f',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6f33ee'},body:JSON.stringify({sessionId:'6f33ee',location:'edit/[id]/page.js:loading-guard',message:'Blocked by loading guard',data:{isLoading,loading},timestamp:Date.now(),runId:'run1',hypothesisId:'H1'})}).catch(()=>{});
-    // #endregion
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
@@ -146,9 +139,6 @@ export default function EditPage() {
 
   if (!user) return null;
 
-  // #region agent log
-  if (post && user && post.user?.id !== user.id && !isSuperAdmin()) { fetch('http://127.0.0.1:7476/ingest/15469c75-35dc-48d4-bf40-8d2565f7ce6f',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6f33ee'},body:JSON.stringify({sessionId:'6f33ee',location:'edit/[id]/page.js:ownership-guard',message:'Blocked by ownership guard',data:{postUserId:post?.user?.id,userId:user?.id,isSuperAdmin:isSuperAdmin()},timestamp:Date.now(),runId:'run1',hypothesisId:'H2'})}).catch(()=>{}); }
-  // #endregion
   if (post && user && post.user?.id !== user.id && !isSuperAdmin()) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -160,9 +150,6 @@ export default function EditPage() {
     );
   }
 
-  // #region agent log
-  fetch('http://127.0.0.1:7476/ingest/15469c75-35dc-48d4-bf40-8d2565f7ce6f',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6f33ee'},body:JSON.stringify({sessionId:'6f33ee',location:'edit/[id]/page.js:init-guard',message:'Checking isInitialized',data:{isInitialized,title,hasContent:!!content},timestamp:Date.now(),runId:'run1',hypothesisId:'H1'})}).catch(()=>{});
-  // #endregion
   if (!isInitialized) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">

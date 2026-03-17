@@ -13,20 +13,6 @@ const TitleInput = ({
 }) => {
   const textareaRef = useRef(null);
 
-  // #region agent log
-  fetch('http://127.0.0.1:7476/ingest/15469c75-35dc-48d4-bf40-8d2565f7ce6f',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6f33ee'},body:JSON.stringify({sessionId:'6f33ee',location:'TitleInput.js:render',message:'TitleInput rendered',data:{title,hasImageTitle:!!imageTitle},timestamp:Date.now(),runId:'run1',hypothesisId:'H3'})}).catch(()=>{});
-  // #endregion
-
-  // #region agent log
-  useEffect(() => {
-    if (textareaRef.current) {
-      const el = textareaRef.current;
-      const styles = window.getComputedStyle(el);
-      fetch('http://127.0.0.1:7476/ingest/15469c75-35dc-48d4-bf40-8d2565f7ce6f',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'6f33ee'},body:JSON.stringify({sessionId:'6f33ee',location:'TitleInput.js:dom-measure',message:'Textarea DOM measurements',data:{offsetHeight:el.offsetHeight,scrollHeight:el.scrollHeight,clientHeight:el.clientHeight,computedHeight:styles.height,computedMinHeight:styles.minHeight,computedFontSize:styles.fontSize,computedLineHeight:styles.lineHeight,computedPadding:styles.padding,computedOverflow:styles.overflow,rows:el.rows,value:el.value,placeholder:el.placeholder,parentOffsetTop:el.parentElement?.offsetTop,parentOffsetHeight:el.parentElement?.offsetHeight},timestamp:Date.now(),runId:'run2',hypothesisId:'H6'})}).catch(()=>{});
-    }
-  }, [title]);
-  // #endregion
-
   return (
     <div className="group/title mb-8">
       <textarea

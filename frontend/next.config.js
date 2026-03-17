@@ -24,6 +24,8 @@ const nextConfig = {
       { protocol: 'https', hostname: 'www.gravatar.com', pathname: '/**' },
       { protocol: 'https', hostname: 'insight.storage.s3.amazonaws.com', pathname: '/**' },
       { protocol: 'https', hostname: 's3.amazonaws.com', pathname: '/**' },
+      // Path-style S3 URLs with region: https://s3.{region}.amazonaws.com/{bucket}/...
+      { protocol: 'https', hostname: '**.amazonaws.com', pathname: '/**' },
     ],
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
