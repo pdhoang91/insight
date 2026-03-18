@@ -8,7 +8,6 @@ import { useUser } from '../../context/UserContext';
 import { usePostContext } from '../../context/PostContext';
 import SimpleSearchBar from '../Shared/SimpleSearchBar';
 import { canWritePosts } from '../../services/authService';
-import LanguageSwitcher from '../Shared/LanguageSwitcher';
 import { useTranslations } from 'next-intl';
 
 const Navbar = () => {
@@ -199,10 +198,6 @@ const Navbar = () => {
                         </div>
                       </Link>
 
-                      <div style={{ padding: '8px 16px', borderBottom: '1px solid var(--border)' }}>
-                        <LanguageSwitcher />
-                      </div>
-
                       <button
                         onClick={handleLogout}
                         style={{
@@ -224,7 +219,6 @@ const Navbar = () => {
               </div>
             ) : (
               <div className="flex items-center gap-4">
-                <LanguageSwitcher />
                 <button
                   onClick={() => setModalOpen(true)}
                   style={{
@@ -298,10 +292,6 @@ const Navbar = () => {
                   {t('nav.write')}
                 </button>
               )}
-
-              <div style={{ paddingLeft: 0 }}>
-                <LanguageSwitcher />
-              </div>
 
               {user ? (
                 <>

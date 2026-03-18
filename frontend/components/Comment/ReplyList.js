@@ -1,19 +1,12 @@
-// src/components/Comment/ReplyList.js
+'use client';
 import React from 'react';
 import ReplyItem from './ReplyItem';
 
 const ReplyList = ({ replies, commentId, mutate }) => {
-  if (!Array.isArray(replies)) {
-
-    return (
-      <div className="text-error text-body-small font-ui">
-        <span className="text-error">ERROR:</span> Invalid replies data format
-      </div>
-    );
-  }
+  if (!Array.isArray(replies) || replies.length === 0) return null;
 
   return (
-    <div className="space-y-3">
+    <div>
       {[...replies].reverse().map((reply) => (
         <ReplyItem key={reply.id} reply={reply} commentId={commentId} mutate={mutate} />
       ))}

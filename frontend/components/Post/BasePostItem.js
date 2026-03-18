@@ -1,17 +1,12 @@
 'use client';
 // components/Post/BasePostItem.js — Warm Dispatch edition
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { FaEdit, FaTrash, FaEllipsisH, FaComment } from 'react-icons/fa';
-import { FaHandsClapping } from 'react-icons/fa6';
+import { FaEdit, FaTrash } from 'react-icons/fa';
 import { useRouter } from 'next/navigation';
 import TextUtils from '../Utils/TextUtils';
 import TimeAgo from '../Utils/TimeAgo';
-import { AddCommentForm, LimitedCommentList } from '../Comment';
-import { useClapsCount } from '../../hooks/useClapsCount';
-import { useInfiniteComments } from '../../hooks/useInfiniteComments';
 import { useUser } from '../../context/UserContext';
-import { clapPost } from '../../services/activityService';
 import { deletePost } from '../../services/postService';
 
 /* Format date as "Jan 15" — used in the left date column */
@@ -30,27 +25,16 @@ const formatYear = (timestamp) => {
 const BasePostItem = ({
   post,
   variant = 'default',
-  isOwner = false,
-  showComments = true,
+  showOwnerActions = false,
 }) => {
   if (!post) return null;
 
   const router = useRouter();
   const { user } = useUser();
-  const { clapsCount, loading: clapsLoading, mutate: mutateClaps } = useClapsCount('post', post.id);
-  const [isCommentsOpen, setCommentsOpen] = useState(false);
-  const { comments, totalCount, isLoading, mutate, canLoadMore, loadMore } =
-    useInfiniteComments(post.id, isCommentsOpen, 3);
 
-  const handleClap = async () => {
-    if (!user) return;
-    try {
-      await clapPost(post.id);
-      mutateClaps();
-    } catch (e) {
-      console.error('Clap failed:', e);
-    }
-  };
+  const isPostOwner =
+    showOwnerActions ||
+    (variant === 'profile' && user?.id != null && user.id === post.user?.id);
 
   const handleDelete = async () => {
     if (!window.confirm('Delete this post?')) return;
@@ -126,74 +110,7 @@ const BasePostItem = ({
     );
   }
 
-  /* ─── Shared engagement row ─── */
-  const actionsRow = (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.875rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-        <button
-          onClick={handleClap}
-          disabled={clapsLoading}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '0.375rem',
-            fontFamily: 'var(--font-display)', fontSize: '0.8rem', letterSpacing: '-0.01em',
-            color: 'var(--text-faint)', background: 'none', border: 'none', cursor: 'pointer',
-            transition: 'color 0.2s', padding: 0,
-          }}
-          className="hover:text-[var(--accent)]"
-        >
-          <FaHandsClapping style={{ width: 13, height: 13 }} />
-          {clapsCount > 0 && <span>{clapsCount}</span>}
-        </button>
-
-        {showComments && (
-          <button
-            onClick={() => setCommentsOpen(prev => !prev)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '0.375rem',
-              fontFamily: 'var(--font-display)', fontSize: '0.8rem', letterSpacing: '-0.01em',
-              color: 'var(--text-faint)', background: 'none', border: 'none', cursor: 'pointer',
-              transition: 'color 0.2s', padding: 0,
-            }}
-            className="hover:text-[var(--text-muted)]"
-          >
-            <FaComment style={{ width: 12, height: 12 }} />
-            {totalCount > 0 && <span>{totalCount}</span>}
-          </button>
-        )}
-      </div>
-
-      {(isOwner || (user && post.user?.id === user.id)) && (
-        <OwnerMenu postSlug={post.slug} onDelete={handleDelete} />
-      )}
-    </div>
-  );
-
-  const commentsSection = showComments && isCommentsOpen && (
-    <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)' }}>
-      <AddCommentForm postId={post.id} user={user} onCommentAdded={mutate} />
-      <div style={{ marginTop: '1rem' }}>
-        <LimitedCommentList
-          comments={comments ? comments.flat() : []}
-          postId={post.id}
-          mutate={mutate}
-          canLoadMore={canLoadMore}
-          loadMore={loadMore}
-          isLoadingMore={isLoading}
-          totalCount={totalCount || 0}
-        />
-      </div>
-    </div>
-  );
-
   /* ─── Default + Profile variant: date-column grid ─── */
-  const thumbnailEl = post.cover_image && (
-    <Link href={`/p/${post.slug}`} style={{ flexShrink: 0, display: 'block' }}>
-      <div style={{ width: 100, aspectRatio: '1', overflow: 'hidden', background: 'var(--bg-surface)' }} className="hidden lg:block">
-        <img src={post.cover_image} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
-      </div>
-    </Link>
-  );
-
   return (
     <article
       style={{
@@ -302,13 +219,61 @@ const BasePostItem = ({
               </div>
             )}
 
-            {actionsRow}
+            {isPostOwner && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.875rem' }}>
+                <Link
+                  href={`/edit/${post.slug}`}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.3rem',
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '0.72rem',
+                    fontWeight: 600,
+                    letterSpacing: '0.04em',
+                    textTransform: 'uppercase',
+                    color: 'var(--text-faint)',
+                    padding: '0.25rem 0.6rem',
+                    border: '1px solid var(--border)',
+                    borderRadius: '2px',
+                    transition: 'color 0.2s, border-color 0.2s',
+                  }}
+                  className="hover:text-[var(--text)] hover:border-[var(--border-mid)]"
+                >
+                  <FaEdit style={{ width: 10, height: 10 }} />
+                  Edit
+                </Link>
+                <button
+                  onClick={handleDelete}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.3rem',
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '0.72rem',
+                    fontWeight: 600,
+                    letterSpacing: '0.04em',
+                    textTransform: 'uppercase',
+                    color: 'var(--text-faint)',
+                    padding: '0.25rem 0.6rem',
+                    border: '1px solid var(--border)',
+                    borderRadius: '2px',
+                    background: 'none',
+                    cursor: 'pointer',
+                    transition: 'color 0.2s, border-color 0.2s',
+                  }}
+                  className="hover:text-[#DC2626] hover:border-[#DC2626]/30"
+                >
+                  <FaTrash style={{ width: 10, height: 10 }} />
+                  Delete
+                </button>
+              </div>
+            )}
           </div>
 
-          {/* Thumbnail (desktop only) */}
           {post.cover_image && (
-            <Link href={`/p/${post.slug}`} style={{ flexShrink: 0 }} className="hidden lg:block">
-              <div style={{ width: 88, height: 88, overflow: 'hidden', background: 'var(--bg-surface)' }}>
+            <Link href={`/p/${post.slug}`} style={{ flexShrink: 0 }} className="hidden md:block">
+              <div style={{ width: 112, height: 112, overflow: 'hidden', background: 'var(--bg-surface)' }}>
                 <img
                   src={post.cover_image}
                   alt=""
@@ -321,74 +286,7 @@ const BasePostItem = ({
           )}
         </div>
       </div>
-
-      {commentsSection}
     </article>
-  );
-};
-
-const OwnerMenu = ({ postSlug, onDelete }) => {
-  const [open, setOpen] = useState(false);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const handler = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
-  return (
-    <div style={{ position: 'relative' }} ref={ref}>
-      <button
-        onClick={() => setOpen(prev => !prev)}
-        style={{
-          padding: '4px', color: 'var(--text-faint)', background: 'none', border: 'none',
-          cursor: 'pointer', transition: 'color 0.2s',
-        }}
-        className="hover:text-[var(--text-muted)]"
-      >
-        <FaEllipsisH style={{ width: 14, height: 14 }} />
-      </button>
-
-      {open && (
-        <div style={{
-          position: 'absolute', right: 0, top: '100%', marginTop: '4px',
-          background: 'var(--bg)', border: '1px solid var(--border-mid)',
-          borderRadius: '3px', boxShadow: 'var(--shadow-md)',
-          padding: '4px 0', zIndex: 20, minWidth: 130,
-        }}>
-          <Link
-            href={`/edit/${postSlug}`}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 8,
-              padding: '8px 14px',
-              fontFamily: 'var(--font-display)', fontSize: '0.8rem', letterSpacing: '-0.01em',
-              color: 'var(--text)', transition: 'background 0.15s',
-            }}
-            className="hover:bg-[var(--bg-surface)]"
-          >
-            <FaEdit style={{ width: 11, height: 11, color: 'var(--text-muted)' }} />
-            Edit
-          </Link>
-          <button
-            onClick={() => { setOpen(false); onDelete(); }}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 8, width: '100%',
-              padding: '8px 14px', textAlign: 'left',
-              fontFamily: 'var(--font-display)', fontSize: '0.8rem', letterSpacing: '-0.01em',
-              color: '#DC2626', background: 'none', border: 'none', cursor: 'pointer',
-              transition: 'background 0.15s',
-            }}
-            className="hover:bg-[var(--bg-surface)]"
-          >
-            <FaTrash style={{ width: 11, height: 11 }} />
-            Delete
-          </button>
-        </div>
-      )}
-    </div>
   );
 };
 

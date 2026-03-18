@@ -1,6 +1,8 @@
-// components/Comment/AddCommentForm.js
+'use client';
 import React, { useState, useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaUser } from 'react-icons/fa';
 import { addComment } from '../../services/commentService';
 
 const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId = null }) => {
@@ -10,17 +12,13 @@ const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId =
   const [isFocused, setIsFocused] = useState(false);
   const textareaRef = useRef(null);
 
-  const placeholder = parentId ? t('comment.replyPlaceholder') : t('comment.placeholder');
+  const isReply = !!parentId;
+  const placeholder = isReply ? t('comment.replyPlaceholder') : t('comment.placeholder');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (content.trim() === '') return;
-
-    if (!user) {
-      alert(t('comment.loginToComment'));
-      return;
-    }
-
+    if (!content.trim()) return;
+    if (!user) { alert(t('comment.loginToComment')); return; }
     setIsSubmitting(true);
     try {
       if (onAddComment) {
@@ -31,6 +29,7 @@ const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId =
       }
       setContent('');
       setIsFocused(false);
+      if (textareaRef.current) textareaRef.current.style.height = 'auto';
     } catch (error) {
       console.error('Failed to add comment:', error);
       alert(t('comment.addError'));
@@ -39,46 +38,132 @@ const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId =
     }
   };
 
+  const handleCancel = () => {
+    setContent('');
+    setIsFocused(false);
+    if (textareaRef.current) textareaRef.current.style.height = 'auto';
+  };
+
+  if (!user) {
+    return (
+      <div style={{
+        padding: '0.875rem 1rem',
+        background: 'var(--bg-surface)',
+        borderRadius: '2px',
+        border: '1px solid var(--border)',
+      }}>
+        <p style={{
+          fontFamily: 'var(--font-display)',
+          fontSize: '0.82rem',
+          color: 'var(--text-faint)',
+          margin: 0,
+          letterSpacing: '-0.01em',
+        }}>
+          {t('comment.loginToComment')}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <form onSubmit={handleSubmit}>
-      <textarea
-        ref={textareaRef}
-        className={`w-full resize-none bg-transparent text-[14px] text-[#292929] placeholder:text-[#b3b3b1] focus:outline-none transition-colors pb-2 ${
-          isFocused ? 'border-b border-[#292929]' : 'border-b border-[#e6e6e6]'
-        }`}
-        placeholder={placeholder}
-        value={content}
-        onChange={(e) => {
-          setContent(e.target.value);
-          e.target.style.height = 'auto';
-          e.target.style.height = e.target.scrollHeight + 'px';
-        }}
-        onFocus={() => setIsFocused(true)}
-        rows={1}
-      />
-
-      {isFocused && (
-        <div className="flex items-center justify-end gap-3 mt-2">
-          <button
-            type="button"
-            onClick={() => { setContent(''); setIsFocused(false); }}
-            className="text-[13px] text-[#6b6b6b] hover:text-[#292929] transition-colors"
-          >
-            {t('editor.cancel')}
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting || !content.trim()}
-            className={`px-4 py-1.5 text-[13px] rounded-full transition-all ${
-              content.trim()
-                ? 'bg-[#1a8917] text-white hover:bg-[#156d12]'
-                : 'bg-[#e6e6e6] text-[#b3b3b1] cursor-not-allowed'
-            }`}
-          >
-            {isSubmitting ? '...' : t('comment.respond')}
-          </button>
+      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+        <div style={{
+          width: 30, height: 30, borderRadius: '50%',
+          background: 'var(--bg-surface)',
+          overflow: 'hidden', flexShrink: 0,
+          border: '1.5px solid var(--border)',
+          marginTop: '0.1rem',
+        }}>
+          {user.avatar_url ? (
+            <img src={user.avatar_url} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <FaUser style={{ width: 11, height: 11, color: 'var(--text-faint)' }} />
+            </div>
+          )}
         </div>
-      )}
+
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <textarea
+            ref={textareaRef}
+            placeholder={placeholder}
+            value={content}
+            onChange={(e) => {
+              setContent(e.target.value);
+              e.target.style.height = 'auto';
+              e.target.style.height = e.target.scrollHeight + 'px';
+            }}
+            onFocus={() => setIsFocused(true)}
+            rows={1}
+            style={{
+              width: '100%',
+              resize: 'none',
+              background: 'transparent',
+              fontFamily: 'var(--font-body)',
+              fontSize: '0.9rem',
+              lineHeight: 1.65,
+              color: 'var(--text)',
+              outline: 'none',
+              border: 'none',
+              borderBottom: `1px solid ${isFocused ? 'var(--border-mid)' : 'var(--border)'}`,
+              paddingBottom: '0.5rem',
+              transition: 'border-color 0.2s',
+            }}
+          />
+
+          <AnimatePresence>
+            {isFocused && (
+              <motion.div
+                initial={{ opacity: 0, y: -4 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -4 }}
+                transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.625rem' }}
+              >
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '0.78rem',
+                    fontWeight: 500,
+                    letterSpacing: '-0.01em',
+                    color: 'var(--text-faint)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'color 0.2s',
+                  }}
+                  className="hover:text-[var(--text-muted)]"
+                >
+                  {t('editor.cancel')}
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting || !content.trim()}
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '0.78rem',
+                    fontWeight: 600,
+                    letterSpacing: '0.01em',
+                    color: content.trim() ? 'var(--text-inverse)' : 'var(--text-faint)',
+                    background: content.trim() ? 'var(--accent)' : 'var(--bg-elevated)',
+                    border: 'none',
+                    borderRadius: '2px',
+                    padding: '0.35rem 0.9rem',
+                    cursor: content.trim() ? 'pointer' : 'not-allowed',
+                    transition: 'background 0.2s, color 0.2s, opacity 0.2s',
+                  }}
+                  className="hover:opacity-85"
+                >
+                  {isSubmitting ? '...' : t('comment.respond')}
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
     </form>
   );
 };

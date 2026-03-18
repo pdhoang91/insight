@@ -1,6 +1,9 @@
-// components/Layout/Footer.js — Warm Dispatch dark footer
+'use client';
 import React from 'react';
 import Link from 'next/link';
+import { useLocale } from 'next-intl';
+import { useRouter, usePathname } from 'next/navigation';
+import { locales } from '../../i18n';
 
 const FooterLink = ({ href, children }) => (
   <Link
@@ -18,6 +21,49 @@ const FooterLink = ({ href, children }) => (
     {children}
   </Link>
 );
+
+const FooterLangSwitcher = () => {
+  const locale = useLocale();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const switchLocale = (newLocale) => {
+    const segments = pathname.split('/');
+    if (locales.includes(segments[1])) {
+      segments[1] = newLocale;
+    } else {
+      segments.splice(1, 0, newLocale);
+    }
+    router.push(segments.join('/') || '/');
+  };
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+      {locales.map((loc) => (
+        <button
+          key={loc}
+          onClick={() => switchLocale(loc)}
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '0.7rem',
+            fontWeight: locale === loc ? 700 : 400,
+            letterSpacing: '0.06em',
+            textTransform: 'uppercase',
+            padding: '0.2rem 0.5rem',
+            background: 'none',
+            border: locale === loc ? '1px solid rgba(242, 237, 228, 0.2)' : '1px solid transparent',
+            borderRadius: '2px',
+            cursor: 'pointer',
+            color: locale === loc ? 'rgba(242, 237, 228, 0.7)' : 'rgba(242, 237, 228, 0.3)',
+            transition: 'color 0.2s, border-color 0.2s',
+          }}
+        >
+          {loc === 'vi' ? 'VN' : 'EN'}
+        </button>
+      ))}
+    </div>
+  );
+};
 
 const Footer = () => {
   const year = new Date().getFullYear();
@@ -162,6 +208,7 @@ const Footer = () => {
           </p>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+            <FooterLangSwitcher />
             <span
               style={{
                 fontFamily: 'var(--font-display)',

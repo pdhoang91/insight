@@ -8,29 +8,114 @@ import { useInfiniteUserPosts } from '../../../hooks/useInfiniteUserPosts';
 import AvatarUpdateModal from '../../../components/Profile/AvatarUpdateModal';
 import ProfileHeader from '../../../components/Profile/ProfileHeader';
 import UserPostsSection from '../../../components/Profile/UserPostsSection';
-import LoadingSpinner from '../../../components/Shared/LoadingSpinner';
 import { ProfileLayout } from '../../../components/Layout/Layout';
 import { isSuperAdmin } from '../../../services/authService';
 import { USER_ROLES } from '../../../constants/roles';
-import { FaShieldAlt } from 'react-icons/fa';
 
-const ProfilePostsHeader = ({ isOwner, profile, username, isAdmin }) => (
-  <section className="mt-10 mb-6">
-    <header className="text-center lg:text-left">
-      <h2 className="font-serif text-2xl font-bold text-[#292929] mb-2">
-        {isOwner ? 'My posts' : `Posts by ${profile?.name || username}`}
-      </h2>
-      <p className="text-[14px] text-[#757575] max-w-2xl mx-auto lg:mx-0">
-        {isOwner ? 'Manage and view all your published posts' : `View all posts by ${profile?.name || username}`}
-      </p>
-      {isAdmin && !isOwner && (
-        <div className="mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 bg-[#1a8917]/10 text-[#1a8917] text-xs rounded-full">
-          <FaShieldAlt className="w-3 h-3" />
-          <span className="font-medium">Admin access</span>
+const ProfilePostsHeader = ({ isOwner, profile, username }) => (
+  <div style={{ marginBottom: '2rem' }}>
+    <p
+      style={{
+        fontFamily: 'var(--font-display)',
+        fontSize: '0.66rem',
+        fontWeight: 600,
+        letterSpacing: '0.12em',
+        textTransform: 'uppercase',
+        color: 'var(--text-faint)',
+        margin: '0 0 0.5rem 0',
+      }}
+    >
+      {isOwner ? 'Your writing' : `Writing by ${profile?.name || username}`}
+    </p>
+    <h2
+      style={{
+        fontFamily: 'var(--font-display)',
+        fontWeight: 800,
+        fontSize: '1.35rem',
+        letterSpacing: '-0.022em',
+        lineHeight: 1.2,
+        color: 'var(--text)',
+        margin: 0,
+      }}
+    >
+      {isOwner ? 'All posts' : `Posts by ${profile?.name || username}`}
+    </h2>
+  </div>
+);
+
+const WarmPageLoader = () => (
+  <div
+    style={{
+      minHeight: '100dvh',
+      background: 'var(--bg)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}
+  >
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.25rem' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          gap: '1.25rem',
+          maxWidth: 480,
+          width: '100%',
+          padding: '0 1.5rem',
+        }}
+      >
+        <div
+          className="skeleton-warm"
+          style={{ width: 72, height: 72, borderRadius: '50%', flexShrink: 0 }}
+        />
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.6rem', paddingTop: '0.5rem' }}>
+          <div className="skeleton-warm" style={{ height: '1.4rem', width: '55%', borderRadius: '2px' }} />
+          <div className="skeleton-warm" style={{ height: '0.9rem', width: '80%', borderRadius: '2px' }} />
+          <div className="skeleton-warm" style={{ height: '0.9rem', width: '65%', borderRadius: '2px' }} />
         </div>
+      </div>
+    </div>
+  </div>
+);
+
+const WarmErrorState = ({ message }) => (
+  <div
+    style={{
+      minHeight: '100dvh',
+      background: 'var(--bg)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}
+  >
+    <div style={{ textAlign: 'center', padding: '0 1.5rem' }}>
+      <p
+        style={{
+          fontFamily: 'var(--font-display)',
+          fontWeight: 700,
+          fontSize: '1rem',
+          letterSpacing: '-0.015em',
+          color: 'var(--text)',
+          marginBottom: '0.5rem',
+          margin: '0 0 0.5rem 0',
+        }}
+      >
+        Unable to load profile
+      </p>
+      {message && (
+        <p
+          style={{
+            fontFamily: 'var(--font-body)',
+            fontSize: '0.875rem',
+            color: 'var(--text-muted)',
+            margin: 0,
+          }}
+        >
+          {message}
+        </p>
       )}
-    </header>
-  </section>
+    </div>
+  </div>
 );
 
 export default function UserProfilePage() {
@@ -51,7 +136,13 @@ export default function UserProfilePage() {
   }, [loggedUser, username, loadingUser, router]);
 
   const { profile, loading: loadingOwner, error: ownerError, updateProfile } = useProfile(username);
-  const { posts: infinitePosts, isLoading: isLoadingPosts, isError: isErrorPosts, setSize: setSizePosts, isReachingEnd: isReachingEndPosts } = useInfiniteUserPosts(username);
+  const {
+    posts: infinitePosts,
+    isLoading: isLoadingPosts,
+    isError: isErrorPosts,
+    setSize: setSizePosts,
+    isReachingEnd: isReachingEndPosts,
+  } = useInfiniteUserPosts(username);
 
   const handleUpdateProfile = async (profileData) => {
     try {
@@ -64,38 +155,13 @@ export default function UserProfilePage() {
     }
   };
 
-  if (loadingUser || loadingOwner) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <LoadingSpinner size="lg" />
-          <p className="mt-4 text-[#757575] text-sm">Loading profile...</p>
-        </div>
-      </div>
-    );
-  }
+  if (loadingUser || loadingOwner) return <WarmPageLoader />;
 
   const isOwner = loggedUser?.username === username;
   const isAdmin = isSuperAdmin();
 
-  if (!loggedUser || (!isOwner && !isAdmin)) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <LoadingSpinner size="lg" />
-      </div>
-    );
-  }
-
-  if (ownerError) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-500 font-serif text-lg mb-2">Error loading profile</div>
-          <p className="text-[#b3b3b1]">{ownerError}</p>
-        </div>
-      </div>
-    );
-  }
+  if (!loggedUser || (!isOwner && !isAdmin)) return <WarmPageLoader />;
+  if (ownerError) return <WarmErrorState message={ownerError} />;
 
   return (
     <ProfileLayout>
@@ -111,7 +177,7 @@ export default function UserProfilePage() {
         userRole={profile?.role || USER_ROLES.USER}
       />
 
-      <ProfilePostsHeader isOwner={isOwner} profile={profile} username={username} isAdmin={isAdmin} />
+      <ProfilePostsHeader isOwner={isOwner} profile={profile} username={username} />
 
       <UserPostsSection
         posts={infinitePosts}

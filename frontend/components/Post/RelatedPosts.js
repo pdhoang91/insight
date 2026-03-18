@@ -11,20 +11,40 @@ const RelatedPosts = ({ posts = [], currentPostId, className = '' }) => {
   if (relatedPosts.length === 0) return null;
 
   return (
-    <div className={`bg-white rounded-lg border border-medium-border p-5 ${className}`}>
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-serif font-bold text-medium-text-primary">Related Articles</h3>
+    <div className={className}>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+        <p
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '0.66rem',
+            fontWeight: 600,
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: 'var(--text-faint)',
+            margin: 0,
+          }}
+        >
+          Related reading
+        </p>
         <Link
           href="/search"
-          className="text-sm text-medium-accent-green hover:text-medium-accent-green/80 transition-colors"
+          style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '0.75rem',
+            fontWeight: 500,
+            color: 'var(--text-faint)',
+            letterSpacing: '-0.01em',
+            transition: 'color 0.2s',
+          }}
+          className="hover:text-[var(--accent)]"
         >
-          View all
+          Browse all
         </Link>
       </div>
 
-      <div className="divide-y divide-medium-border">
+      <div>
         {relatedPosts.map(post => (
-          <BasePostItem key={post.id} post={post} variant="horizontal" showComments={false} />
+          <BasePostItem key={post.id} post={post} variant="horizontal" />
         ))}
       </div>
     </div>

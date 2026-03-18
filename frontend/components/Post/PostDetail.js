@@ -1,11 +1,10 @@
-// components/Post/PostDetail.js — Warm Dispatch reading experience
 'use client';
 import React, { useMemo, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useUser } from '../../context/UserContext';
 import { FaHandsClapping, FaShare } from 'react-icons/fa6';
-import { FaComment, FaUser, FaBookmark, FaEdit, FaTrash } from 'react-icons/fa';
+import { FaComment, FaUser, FaEdit, FaTrash } from 'react-icons/fa';
 import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapPost } from '../../services/activityService';
 import { deletePost } from '../../services/postService';
@@ -14,10 +13,8 @@ import SEOHead from '../SEO/SEOHead';
 import RelatedPosts from './RelatedPosts';
 import { renderPostContent, getContentPlainText } from '../../utils/renderContent';
 
-/* ─── Reading progress bar ─── */
 const ReadingProgressBar = () => {
   const [width, setWidth] = useState(0);
-
   useEffect(() => {
     const update = () => {
       const el = document.documentElement;
@@ -28,7 +25,6 @@ const ReadingProgressBar = () => {
     window.addEventListener('scroll', update, { passive: true });
     return () => window.removeEventListener('scroll', update);
   }, []);
-
   return (
     <div
       className="reading-progress-bar"
@@ -42,24 +38,13 @@ const ReadingProgressBar = () => {
   );
 };
 
-/* ─── Author byline ─── */
 const AuthorByline = ({ user: postUser, readTime, date }) => (
-  <div
-    style={{
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.875rem',
-      marginBottom: '2rem',
-    }}
-  >
-    <div
-      style={{
-        width: 40, height: 40, borderRadius: '50%',
-        background: 'var(--bg-surface)',
-        overflow: 'hidden', flexShrink: 0,
-        border: '1.5px solid var(--border)',
-      }}
-    >
+  <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '2rem' }}>
+    <div style={{
+      width: 40, height: 40, borderRadius: '50%',
+      background: 'var(--bg-surface)', overflow: 'hidden', flexShrink: 0,
+      border: '1.5px solid var(--border)',
+    }}>
       {postUser?.avatar_url ? (
         <img src={postUser.avatar_url} alt={postUser.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
       ) : (
@@ -77,10 +62,7 @@ const AuthorByline = ({ user: postUser, readTime, date }) => (
           {readTime} min read
         </span>
         <span style={{ color: 'var(--border-mid)', fontSize: '0.6rem' }}>◆</span>
-        <time
-          dateTime={date}
-          style={{ fontFamily: 'var(--font-display)', fontSize: '0.775rem', color: 'var(--text-faint)', letterSpacing: '0.01em' }}
-        >
+        <time dateTime={date} style={{ fontFamily: 'var(--font-display)', fontSize: '0.775rem', color: 'var(--text-faint)', letterSpacing: '0.01em' }}>
           {new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
         </time>
       </div>
@@ -88,32 +70,29 @@ const AuthorByline = ({ user: postUser, readTime, date }) => (
   </div>
 );
 
-/* ─── Engagement actions row ─── */
 const EngagementRow = ({ onClap, hasClapped, clapsCount, onCommentClick, commentCount, isOwner, postSlug, onDelete, onShare }) => (
-  <div
-    style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      padding: '0.875rem 0',
-      borderTop: '1px solid var(--border)',
-      borderBottom: '1px solid var(--border)',
-    }}
-  >
-    <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+  <div style={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: '1.25rem',
+    marginTop: '2rem',
+    borderTop: '1px solid var(--border)',
+  }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
       <button
         onClick={onClap}
         style={{
           display: 'flex', alignItems: 'center', gap: '0.4rem',
-          fontFamily: 'var(--font-display)', fontSize: '0.85rem', letterSpacing: '-0.01em',
+          fontFamily: 'var(--font-display)', fontSize: '0.82rem', letterSpacing: '-0.01em',
           background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-          color: hasClapped ? 'var(--accent)' : 'var(--text-muted)',
+          color: hasClapped ? 'var(--accent)' : 'var(--text-faint)',
           transition: 'color 0.2s',
         }}
         className="hover:text-[var(--accent)]"
         title="Appreciate"
       >
-        <FaHandsClapping style={{ width: 17, height: 17 }} />
+        <FaHandsClapping style={{ width: 16, height: 16 }} />
         {clapsCount > 0 && <span>{clapsCount}</span>}
       </button>
 
@@ -121,59 +100,51 @@ const EngagementRow = ({ onClap, hasClapped, clapsCount, onCommentClick, comment
         onClick={onCommentClick}
         style={{
           display: 'flex', alignItems: 'center', gap: '0.4rem',
-          fontFamily: 'var(--font-display)', fontSize: '0.85rem', letterSpacing: '-0.01em',
+          fontFamily: 'var(--font-display)', fontSize: '0.82rem', letterSpacing: '-0.01em',
           background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-          color: 'var(--text-muted)', transition: 'color 0.2s',
+          color: 'var(--text-faint)', transition: 'color 0.2s',
         }}
-        className="hover:text-[var(--text)]"
+        className="hover:text-[var(--text-muted)]"
         title="Comments"
       >
-        <FaComment style={{ width: 15, height: 15 }} />
+        <FaComment style={{ width: 14, height: 14 }} />
         {commentCount > 0 && <span>{commentCount}</span>}
       </button>
     </div>
 
-    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
       {isOwner && (
         <>
           <Link
             href={`/edit/${postSlug}`}
-            style={{ color: 'var(--text-muted)', transition: 'color 0.2s' }}
-            className="hover:text-[var(--text)]"
+            style={{ color: 'var(--text-faint)', transition: 'color 0.2s' }}
+            className="hover:text-[var(--text-muted)]"
             title="Edit"
           >
-            <FaEdit style={{ width: 14, height: 14 }} />
+            <FaEdit style={{ width: 13, height: 13 }} />
           </Link>
           <button
             onClick={onDelete}
-            style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s', padding: 0 }}
+            style={{ color: 'var(--text-faint)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s', padding: 0 }}
             className="hover:text-[#DC2626]"
             title="Delete"
           >
-            <FaTrash style={{ width: 14, height: 14 }} />
+            <FaTrash style={{ width: 13, height: 13 }} />
           </button>
         </>
       )}
       <button
-        style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s', padding: 0 }}
-        className="hover:text-[var(--text)]"
-        title="Bookmark"
-      >
-        <FaBookmark style={{ width: 14, height: 14 }} />
-      </button>
-      <button
         onClick={onShare}
-        style={{ color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s', padding: 0 }}
-        className="hover:text-[var(--text)]"
+        style={{ color: 'var(--text-faint)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s', padding: 0 }}
+        className="hover:text-[var(--text-muted)]"
         title="Copy link"
       >
-        <FaShare style={{ width: 14, height: 14 }} />
+        <FaShare style={{ width: 13, height: 13 }} />
       </button>
     </div>
   </div>
 );
 
-/* ─── Main export ─── */
 export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
   if (!post) {
     return (
@@ -187,7 +158,6 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
   const { clapsCount: postClapsCount, hasClapped, mutate: mutateClaps } = useClapsCount('post', post.id);
   const { user } = useUser();
   const { totalCommentReply } = useComments(post.id, true, 1, 10);
-
   const isOwner = user && post.user && user.id === post.user.id;
 
   const renderedHTML = useMemo(() => renderPostContent(post.content), [post.content]);
@@ -196,12 +166,7 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
 
   const handleClap = async () => {
     if (!user) return;
-    try {
-      await clapPost(post.id);
-      mutateClaps();
-    } catch (e) {
-      console.error('Clap failed:', e);
-    }
+    try { await clapPost(post.id); mutateClaps(); } catch (e) { console.error(e); }
   };
 
   const handleShare = () => {
@@ -211,12 +176,7 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
 
   const handleDelete = async () => {
     if (!window.confirm('Delete this post?')) return;
-    try {
-      await deletePost(post.id);
-      router.push('/');
-    } catch (e) {
-      console.error('Delete failed:', e);
-    }
+    try { await deletePost(post.id); router.push('/'); } catch (e) { console.error(e); }
   };
 
   return (
@@ -234,82 +194,48 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
         url={`${process.env.NEXT_PUBLIC_SITE_URL || ''}/p/${post.slug}`}
       />
 
-      <article
-        className="animate-fade-up"
-        style={{ maxWidth: 'var(--reading-width)', margin: '0 auto' }}
-      >
-        {/* ── Title ── */}
-        <h1
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontWeight: 800,
-            fontSize: 'clamp(1.875rem, 4vw, 2.75rem)',
-            lineHeight: 1.12,
-            letterSpacing: '-0.028em',
-            color: 'var(--text)',
-            marginBottom: '1.5rem',
-            marginTop: 0,
-          }}
-        >
+      <article className="animate-fade-up" style={{ maxWidth: 'var(--reading-width)', margin: '0 auto' }}>
+        <h1 style={{
+          fontFamily: 'var(--font-display)',
+          fontWeight: 800,
+          fontSize: 'clamp(1.875rem, 4vw, 2.75rem)',
+          lineHeight: 1.12,
+          letterSpacing: '-0.028em',
+          color: 'var(--text)',
+          marginBottom: '1.5rem',
+          marginTop: 0,
+        }}>
           {post.title}
         </h1>
 
-        {/* ── Author byline ── */}
         <AuthorByline user={post.user} readTime={readTime} date={post.created_at} />
 
-        {/* ── Top engagement row ── */}
-        <EngagementRow
-          onClap={handleClap}
-          hasClapped={hasClapped}
-          clapsCount={postClapsCount}
-          onCommentClick={onScrollToComments}
-          commentCount={totalCommentReply}
-          isOwner={isOwner}
-          postSlug={post.slug}
-          onDelete={handleDelete}
-          onShare={handleShare}
-        />
-
-        {/* ── Cover image ── */}
         {post.cover_image && (
           <div style={{ margin: '2.5rem 0' }}>
-            <img
-              src={post.cover_image}
-              alt={post.title}
-              style={{ width: '100%', height: 'auto', display: 'block' }}
-              loading="eager"
-            />
+            <img src={post.cover_image} alt={post.title} style={{ width: '100%', height: 'auto', display: 'block' }} loading="eager" />
           </div>
         )}
 
-        {/* ── Article body ── */}
         <div
           className="post-content reading-content"
           dangerouslySetInnerHTML={{ __html: renderedHTML }}
           style={{ marginTop: post.cover_image ? 0 : '2rem' }}
         />
 
-        {/* ── Category tags ── */}
         {post.categories?.length > 0 && (
-          <div
-            style={{
-              display: 'flex', flexWrap: 'wrap', gap: '0.5rem',
-              marginTop: '3rem', paddingTop: '2rem',
-              borderTop: '1px solid var(--border)',
-            }}
-          >
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '2.5rem' }}>
             {post.categories.map((cat) => (
               <Link
                 key={cat.id || cat.name}
                 href={`/category/${cat.name}`}
                 style={{
                   fontFamily: 'var(--font-display)',
-                  fontSize: '0.72rem',
+                  fontSize: '0.7rem',
                   fontWeight: 600,
                   letterSpacing: '0.08em',
                   textTransform: 'uppercase',
-                  color: 'var(--text-muted)',
-                  padding: '0.3rem 0.7rem',
+                  color: 'var(--text-faint)',
+                  padding: '0.25rem 0.65rem',
                   background: 'var(--bg-surface)',
                   borderRadius: '2px',
                   transition: 'color 0.2s, background 0.2s',
@@ -322,94 +248,20 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
           </div>
         )}
 
-        {/* ── Bottom engagement row ── */}
-        <div style={{ marginTop: '2.5rem' }}>
-          <EngagementRow
-            onClap={handleClap}
-            hasClapped={hasClapped}
-            clapsCount={postClapsCount}
-            onCommentClick={onScrollToComments}
-            commentCount={totalCommentReply}
-            isOwner={isOwner}
-            postSlug={post.slug}
-            onDelete={handleDelete}
-            onShare={handleShare}
-          />
-        </div>
+        <EngagementRow
+          onClap={handleClap}
+          hasClapped={hasClapped}
+          clapsCount={postClapsCount}
+          onCommentClick={onScrollToComments}
+          commentCount={totalCommentReply}
+          isOwner={isOwner}
+          postSlug={post.slug}
+          onDelete={handleDelete}
+          onShare={handleShare}
+        />
 
-        {/* ── Author bio ── */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: '1.25rem',
-            marginTop: '3rem',
-            paddingTop: '2rem',
-            borderTop: '1px solid var(--border)',
-          }}
-        >
-          <div
-            style={{
-              width: 56, height: 56, borderRadius: '50%',
-              background: 'var(--bg-surface)',
-              overflow: 'hidden', flexShrink: 0,
-              border: '1.5px solid var(--border)',
-            }}
-          >
-            {post.user?.avatar_url ? (
-              <img src={post.user.avatar_url} alt={post.user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            ) : (
-              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <FaUser style={{ width: 18, height: 18, color: 'var(--text-faint)' }} />
-              </div>
-            )}
-          </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: '0.68rem',
-                fontWeight: 600,
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                color: 'var(--text-faint)',
-                marginBottom: '0.3rem',
-                margin: '0 0 0.3rem 0',
-              }}
-            >
-              Written by
-            </p>
-            <h3
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontWeight: 800,
-                fontSize: '1rem',
-                letterSpacing: '-0.015em',
-                color: 'var(--text)',
-                margin: '0 0 0.4rem 0',
-              }}
-            >
-              {post.user?.name || 'Anonymous'}
-            </h3>
-            {post.user?.bio && (
-              <p
-                style={{
-                  fontFamily: 'var(--font-body)',
-                  fontSize: '0.9rem',
-                  lineHeight: 1.6,
-                  color: 'var(--text-muted)',
-                  margin: 0,
-                }}
-              >
-                {post.user.bio}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* ── Related posts ── */}
         {relatedPosts.length > 0 && (
-          <div style={{ marginTop: '3.5rem', paddingTop: '2.5rem', borderTop: '1px solid var(--border)' }}>
+          <div style={{ marginTop: '3rem' }}>
             <RelatedPosts posts={relatedPosts} currentPostId={post.id} />
           </div>
         )}
