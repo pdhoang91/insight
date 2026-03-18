@@ -10,16 +10,19 @@ import {
 const BubbleButton = ({ children, onClick, isActive, title }) => (
   <button
     onClick={onClick}
-    className={`px-2 py-1.5 transition-colors ${
-      isActive ? 'text-[#1a8917]' : 'text-[#757575] hover:text-[#292929]'
-    }`}
+    style={{
+      padding: '0.375rem 0.5rem',
+      color: isActive ? 'var(--accent)' : 'var(--text-muted)',
+      transition: 'color 0.2s',
+    }}
+    className={!isActive ? 'hover:text-[var(--text)]' : ''}
     title={title}
   >
     {children}
   </button>
 )
 
-const Separator = () => <div className="w-px h-5 bg-[#e0e0e0] mx-1" />
+const Separator = () => <div style={{ width: '1px', height: '1.25rem', background: 'var(--border)', margin: '0 0.25rem' }} />
 
 const BubbleToolbar = ({ editor, onLinkClick }) => {
   if (!editor) return null
@@ -40,7 +43,17 @@ const BubbleToolbar = ({ editor, onLinkClick }) => {
         return true
       }}
     >
-      <div className="flex items-center px-1.5 py-0.5 rounded-full bg-white border border-[#e0e0e0] shadow-lg">
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          padding: '0.375rem 0.5rem',
+          borderRadius: '4px',
+          background: 'var(--bg)',
+          border: '1px solid var(--border-mid)',
+          boxShadow: 'var(--shadow-lg)',
+        }}
+      >
         <BubbleButton
           onClick={() => editor.chain().focus().toggleBold().run()}
           isActive={editor.isActive('bold')}

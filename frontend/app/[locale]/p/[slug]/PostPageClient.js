@@ -57,7 +57,8 @@ export default function PostPageClient({ slug, initialPost }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
-      style={{ paddingTop: 'var(--nav-height)', paddingLeft: '1rem', paddingRight: '1rem' }}
+      style={{ paddingTop: 'var(--nav-height)' }}
+      className="px-5 md:px-8"
     >
       <div style={{ paddingTop: '3rem', paddingBottom: '3rem' }}>
         <PostDetail post={displayPost} onScrollToComments={scrollToComments} />

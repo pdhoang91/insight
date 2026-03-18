@@ -1,5 +1,5 @@
 'use client';
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useUser } from '../../context/UserContext';
@@ -13,32 +13,7 @@ import SEOHead from '../SEO/SEOHead';
 import RelatedPosts from './RelatedPosts';
 import { renderPostContent, getContentPlainText } from '../../utils/renderContent';
 
-const ReadingProgressBar = () => {
-  const [width, setWidth] = useState(0);
-  useEffect(() => {
-    const update = () => {
-      const el = document.documentElement;
-      const scrolled = el.scrollTop || document.body.scrollTop;
-      const total = el.scrollHeight - el.clientHeight;
-      setWidth(total > 0 ? (scrolled / total) * 100 : 0);
-    };
-    window.addEventListener('scroll', update, { passive: true });
-    return () => window.removeEventListener('scroll', update);
-  }, []);
-  return (
-    <div
-      className="reading-progress-bar"
-      style={{ width: `${width}%` }}
-      role="progressbar"
-      aria-valuenow={Math.round(width)}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      aria-label="Reading progress"
-    />
-  );
-};
-
-const AuthorByline = ({ user: postUser, readTime, date }) => (
+const AuthorByline = ({ user: postUser, date }) => (
   <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '2rem' }}>
     <div style={{
       width: 40, height: 40, borderRadius: '50%',
@@ -58,10 +33,6 @@ const AuthorByline = ({ user: postUser, readTime, date }) => (
         {postUser?.name || 'Anonymous'}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
-        <span style={{ fontFamily: 'var(--font-display)', fontSize: '0.775rem', color: 'var(--text-faint)', letterSpacing: '0.01em' }}>
-          {readTime} min read
-        </span>
-        <span style={{ color: 'var(--border-mid)', fontSize: '0.6rem' }}>◆</span>
         <time dateTime={date} style={{ fontFamily: 'var(--font-display)', fontSize: '0.775rem', color: 'var(--text-faint)', letterSpacing: '0.01em' }}>
           {new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
         </time>
@@ -162,7 +133,6 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
 
   const renderedHTML = useMemo(() => renderPostContent(post.content), [post.content]);
   const plainText = useMemo(() => getContentPlainText(post.content), [post.content]);
-  const readTime = Math.max(1, Math.ceil((plainText?.length || 0) / 1000));
 
   const handleClap = async () => {
     if (!user) return;
@@ -181,7 +151,6 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
 
   return (
     <>
-      <ReadingProgressBar />
       <SEOHead
         title={post.title}
         description={post.excerpt || plainText?.substring(0, 160)}
@@ -208,7 +177,7 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
           {post.title}
         </h1>
 
-        <AuthorByline user={post.user} readTime={readTime} date={post.created_at} />
+        <AuthorByline user={post.user} date={post.created_at} />
 
         {post.cover_image && (
           <div style={{ margin: '2.5rem 0' }}>

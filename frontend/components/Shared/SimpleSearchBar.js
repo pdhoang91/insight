@@ -35,14 +35,45 @@ const SimpleSearchBar = ({ onClose, autoFocus = false, className = '', placehold
           placeholder={placeholder}
           autoFocus={autoFocus}
           disabled={isLoading}
-          className="w-full pl-10 pr-10 py-2 rounded-full border border-[#e6e6e6] bg-white text-[#292929] placeholder:text-[#b3b3b1] focus:outline-none focus:border-[#292929] transition-colors text-sm"
+          style={{
+            width: '100%',
+            paddingLeft: '2.5rem',
+            paddingRight: '2.5rem',
+            paddingTop: '0.5rem',
+            paddingBottom: '0.5rem',
+            borderRadius: '3px',
+            border: '1px solid var(--border)',
+            background: 'var(--bg)',
+            color: 'var(--text)',
+            fontFamily: 'var(--font-body)',
+            fontSize: '0.875rem',
+            outline: 'none',
+            transition: 'border-color 0.2s',
+          }}
+          className="placeholder:text-[var(--text-faint)] focus:border-[var(--border-mid)]"
         />
 
-        <div className="absolute left-3 top-1/2 -translate-y-1/2">
+        <div
+          style={{
+            position: 'absolute',
+            left: '0.75rem',
+            top: '50%',
+            transform: 'translateY(-50%)',
+          }}
+        >
           {isLoading ? (
-            <div className="w-4 h-4 animate-spin rounded-full border-2 border-[#e6e6e6] border-t-[#1a8917]" />
+            <div
+              style={{
+                width: '1rem',
+                height: '1rem',
+                borderRadius: '50%',
+                border: '2px solid var(--border)',
+                borderTopColor: 'var(--accent)',
+                animation: 'spin 1s linear infinite',
+              }}
+            />
           ) : (
-            <FaSearch className="w-4 h-4 text-[#b3b3b1]" />
+            <FaSearch style={{ width: '1rem', height: '1rem', color: 'var(--text-faint)' }} />
           )}
         </div>
 
@@ -50,7 +81,19 @@ const SimpleSearchBar = ({ onClose, autoFocus = false, className = '', placehold
           <button
             type="button"
             onClick={onClose}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#b3b3b1] hover:text-[#292929] transition-colors"
+            style={{
+              position: 'absolute',
+              right: '0.75rem',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              color: 'var(--text-faint)',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              padding: 0,
+              transition: 'color 0.2s',
+            }}
+            className="hover:text-[var(--text-muted)]"
           >
             <FaTimes className="w-4 h-4" />
           </button>

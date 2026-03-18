@@ -14,7 +14,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }) {
-  const { locale, slug } = params;
+  const { locale, slug } = await params;
   setRequestLocale(locale);
   try {
     const post = await fetchPostBySlug(slug);
@@ -34,7 +34,7 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function PostPage({ params }) {
-  const { locale, slug } = params;
+  const { locale, slug } = await params;
   setRequestLocale(locale);
   let post = null;
 

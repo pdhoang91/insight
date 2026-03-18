@@ -4,7 +4,7 @@ import { setRequestLocale } from 'next-intl/server';
 export const revalidate = 3600; // ISR: revalidate every hour
 
 export async function generateMetadata({ params }) {
-  const { locale, year, month } = params;
+  const { locale, year, month } = await params;
   setRequestLocale(locale);
   const monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -19,7 +19,7 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function ArchivePage({ params }) {
-  const { locale, year, month } = params;
+  const { locale, year, month } = await params;
   setRequestLocale(locale);
   return <ArchivePageClient year={year} month={month} />;
 }

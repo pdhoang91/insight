@@ -178,9 +178,9 @@ services:
         - NEXT_PUBLIC_BASE_API_URL=${NEXT_PUBLIC_BASE_API_URL}
         - NEXT_PUBLIC_BASE_FE_URL=${NEXT_PUBLIC_BASE_FE_URL}
     expose:                           # Internal port only, accessed via nginx
-      - "3000:3000"
+      - "3456:3456"
     ports:
-       - "3000:3000"                     # Disabled - access via nginx only
+       - "3456:3456"                     # Disabled - access via nginx only
     environment:
       - NEXT_PUBLIC_BASE_API_URL=${NEXT_PUBLIC_BASE_API_URL}
       - NEXT_PUBLIC_BASE_FE_URL=${NEXT_PUBLIC_BASE_FE_URL}

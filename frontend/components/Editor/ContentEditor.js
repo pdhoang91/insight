@@ -5,12 +5,25 @@ import LoadingSpinner from '../Shared/LoadingSpinner';
 
 const ContentEditor = ({ editor, isUploading }) => {
   return (
-    <div className="relative min-h-[500px]">
+    <div style={{ position: 'relative', minHeight: '500px' }}>
       {isUploading && (
-        <div className="absolute inset-0 flex items-center justify-center z-10 bg-white/60 backdrop-blur-sm rounded-lg">
-          <div className="text-center">
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 10,
+            background: 'rgba(242, 237, 228, 0.7)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            borderRadius: '4px',
+          }}
+        >
+          <div style={{ textAlign: 'center' }}>
             <LoadingSpinner size="lg" />
-            <p className="mt-2 text-sm text-medium-text-secondary">
+            <p style={{ marginTop: '0.5rem', fontFamily: 'var(--font-display)', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
               Uploading image...
             </p>
           </div>
@@ -20,7 +33,8 @@ const ContentEditor = ({ editor, isUploading }) => {
       {editor && (
         <EditorContent
           editor={editor}
-          className="prose-editor editor-scroll min-h-[400px] outline-none focus:outline-none"
+          className="prose-editor editor-scroll"
+          style={{ minHeight: '400px', outline: 'none' }}
         />
       )}
     </div>

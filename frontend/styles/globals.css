@@ -211,20 +211,6 @@ a {
 }
 
 /* ─────────────────────────────────────────
-   READING PROGRESS BAR
-   ───────────────────────────────────────── */
-.reading-progress-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 2px;
-  background-color: var(--accent);
-  z-index: 200;
-  transition: width 0.12s linear;
-  transform-origin: left;
-}
-
-/* ─────────────────────────────────────────
    PAGE LOAD ANIMATIONS
    ───────────────────────────────────────── */
 @keyframes fadeUp {
@@ -282,6 +268,11 @@ a {
 @keyframes pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: .5; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* ─────────────────────────────────────────

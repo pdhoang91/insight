@@ -12,7 +12,19 @@ import {
 const FloatingIcon = ({ icon: Icon, onClick, title }) => (
   <button
     onClick={onClick}
-    className="w-9 h-9 flex items-center justify-center rounded-full border border-[#e0e0e0] text-[#757575] hover:text-[#292929] hover:border-[#292929] transition-colors bg-white"
+    style={{
+      width: '2.25rem',
+      height: '2.25rem',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: '50%',
+      border: '1px solid var(--border)',
+      color: 'var(--text-muted)',
+      background: 'var(--bg)',
+      transition: 'color 0.2s, border-color 0.2s',
+    }}
+    className="hover:text-[var(--text)] hover:border-[var(--border-mid)]"
     title={title}
   >
     <Icon className="w-[14px] h-[14px]" />
@@ -60,11 +72,20 @@ const FloatingToolbar = ({ editor, onImageUpload, onYoutubeClick }) => {
       <div ref={containerRef} className="flex items-center gap-2">
         <button
           onClick={() => setIsOpen(prev => !prev)}
-          className={`w-9 h-9 flex items-center justify-center rounded-full border transition-all duration-200 ${
-            isOpen
-              ? 'border-[#292929] text-[#292929] rotate-45'
-              : 'border-[#e0e0e0] text-[#c2c2c2] hover:border-[#292929] hover:text-[#292929]'
-          }`}
+          style={{
+            width: '2.25rem',
+            height: '2.25rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '50%',
+            border: `1px solid ${isOpen ? 'var(--border-mid)' : 'var(--border)'}`,
+            color: isOpen ? 'var(--text)' : 'var(--text-faint)',
+            background: 'var(--bg)',
+            transform: isOpen ? 'rotate(45deg)' : 'rotate(0)',
+            transition: 'all 0.2s',
+          }}
+          className={!isOpen ? 'hover:border-[var(--border-mid)] hover:text-[var(--text-muted)]' : ''}
         >
           <FaPlus className="w-[14px] h-[14px]" />
         </button>

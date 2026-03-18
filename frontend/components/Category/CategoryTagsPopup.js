@@ -55,24 +55,68 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
   const canPublish = selectedCategories.length > 0;
 
   return (
-    <div className="fixed inset-0 z-50 bg-white overflow-y-auto">
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 50,
+        background: 'var(--bg)',
+        overflowY: 'auto',
+      }}
+    >
       {/* Top bar */}
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-sm">
-        <div className="max-w-[1032px] mx-auto px-6 flex items-center justify-between h-14">
+      <div
+        style={{
+          position: 'sticky',
+          top: 0,
+          zIndex: 10,
+          background: 'rgba(242, 237, 228, 0.95)',
+          backdropFilter: 'blur(8px)',
+        }}
+      >
+        <div
+          style={{
+            maxWidth: '1032px',
+            margin: '0 auto',
+            padding: '0 1.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            height: '3.5rem',
+          }}
+        >
           <button
             onClick={onCancel}
-            className="p-2 -ml-2 text-[#6b6b6b] hover:text-[#292929] transition-colors"
+            style={{
+              padding: '0.5rem',
+              marginLeft: '-0.5rem',
+              color: 'var(--text-muted)',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'color 0.2s',
+            }}
+            className="hover:text-[var(--text)]"
           >
             <FaTimes className="w-5 h-5" />
           </button>
           <button
             onClick={handlePublish}
             disabled={!canPublish}
-            className={`px-5 py-2 text-sm rounded-full transition-all ${
-              canPublish
-                ? 'bg-[#1a8917] text-white hover:bg-[#156d12]'
-                : 'bg-[#e6e6e6] text-[#b3b3b1] cursor-not-allowed'
-            }`}
+            style={{
+              padding: '0.5rem 1.25rem',
+              fontFamily: 'var(--font-display)',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              borderRadius: '3px',
+              border: 'none',
+              cursor: canPublish ? 'pointer' : 'not-allowed',
+              background: canPublish ? 'var(--accent)' : 'var(--bg-surface)',
+              color: canPublish ? 'var(--text-inverse)' : 'var(--text-faint)',
+              transition: 'opacity 0.2s',
+              letterSpacing: '-0.01em',
+            }}
+            className={canPublish ? 'hover:opacity-85' : ''}
           >
             Publish now
           </button>
@@ -83,62 +127,154 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
       <div className="max-w-[1032px] mx-auto px-6 py-12">
         <div className="flex flex-col lg:flex-row gap-16 lg:gap-20">
           {/* Left — Story preview */}
-          <div className="flex-1 min-w-0">
-            <p className="text-[13px] font-medium text-[#6b6b6b] tracking-wide mb-4">
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '0.8125rem',
+                fontWeight: 600,
+                color: 'var(--text-muted)',
+                letterSpacing: '0.05em',
+                textTransform: 'uppercase',
+                marginBottom: '1rem',
+              }}
+            >
               Story Preview
             </p>
 
             {imageTitle ? (
-              <div className="aspect-[16/9] overflow-hidden bg-[#fafafa] mb-5">
-                <img src={imageTitle} alt="Cover" className="w-full h-full object-cover" />
+              <div
+                style={{
+                  aspectRatio: '16/9',
+                  overflow: 'hidden',
+                  background: 'var(--bg-surface)',
+                  marginBottom: '1.25rem',
+                }}
+              >
+                <img src={imageTitle} alt="Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
             ) : (
-              <div className="aspect-[16/9] bg-[#fafafa] mb-5 flex items-center justify-center border border-dashed border-[#e0e0e0]">
-                <p className="text-sm text-[#b3b3b1]">
+              <div
+                style={{
+                  aspectRatio: '16/9',
+                  background: 'var(--bg-surface)',
+                  marginBottom: '1.25rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  border: '1px dashed var(--border)',
+                  padding: '1.5rem',
+                }}
+              >
+                <p
+                  style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '0.875rem',
+                    color: 'var(--text-faint)',
+                    textAlign: 'center',
+                    lineHeight: 1.5,
+                  }}
+                >
                   Include a high-quality image in your story to make it more inviting to readers.
                 </p>
               </div>
             )}
 
-            <h3 className="font-serif text-[22px] font-bold text-[#242424] mb-2 leading-tight">
+            <h3
+              style={{
+                fontFamily: 'var(--font-body)',
+                fontSize: '1.375rem',
+                fontWeight: 700,
+                color: 'var(--text)',
+                marginBottom: '0.5rem',
+                lineHeight: 1.3,
+              }}
+            >
               {title || 'Untitled'}
             </h3>
 
-            <div className="mt-4">
+            <div style={{ marginTop: '1rem' }}>
               <textarea
                 value={excerpt}
                 onChange={(e) => setExcerpt(e.target.value)}
                 placeholder={autoExcerpt || 'Write a preview subtitle...'}
-                className="w-full text-[14px] text-[#6b6b6b] leading-relaxed resize-none border-0 border-b border-[#e6e6e6] focus:border-[#292929] focus:outline-none py-2 bg-transparent placeholder:text-[#b3b3b1]"
+                style={{
+                  width: '100%',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '0.875rem',
+                  color: 'var(--text-muted)',
+                  lineHeight: 1.6,
+                  resize: 'none',
+                  border: 0,
+                  borderBottom: '1px solid var(--border)',
+                  outline: 'none',
+                  padding: '0.5rem 0',
+                  background: 'transparent',
+                }}
+                className="focus:border-[var(--border-mid)] placeholder:text-[var(--text-faint)]"
                 rows={2}
                 maxLength={280}
               />
-              <p className="text-[12px] text-[#b3b3b1] mt-2 leading-relaxed">
+              <p
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: '0.75rem',
+                  color: 'var(--text-faint)',
+                  marginTop: '0.5rem',
+                  lineHeight: 1.5,
+                }}
+              >
                 Write a preview subtitle that will appear on the homepage and in emails.
-                <span className="float-right">{displayExcerpt.length}/280</span>
+                <span style={{ float: 'right' }}>{displayExcerpt.length}/280</span>
               </p>
             </div>
           </div>
 
           {/* Right — Publishing options */}
-          <div className="lg:w-[320px] flex-shrink-0">
+          <div style={{ width: '320px', flexShrink: 0 }} className="lg:w-[320px]">
             {/* Topics */}
-            <div className="mb-10">
-              <p className="text-[13px] font-medium text-[#6b6b6b] tracking-wide mb-2">
-                Publishing to: <span className="font-bold text-[#292929]">Your blog</span>
+            <div style={{ marginBottom: '2.5rem' }}>
+              <p
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: '0.8125rem',
+                  fontWeight: 500,
+                  color: 'var(--text-muted)',
+                  letterSpacing: '0.02em',
+                  marginBottom: '0.5rem',
+                }}
+              >
+                Publishing to: <span style={{ fontWeight: 700, color: 'var(--text)' }}>Your blog</span>
               </p>
-              <p className="text-[13px] text-[#6b6b6b] mb-4">
+              <p
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '0.8125rem',
+                  color: 'var(--text-muted)',
+                  marginBottom: '1rem',
+                  lineHeight: 1.5,
+                }}
+              >
                 Add or change topics (up to 3) so readers know what your story is about.
               </p>
 
               {isLoading ? (
-                <div className="space-y-2">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                   {[...Array(4)].map((_, i) => (
-                    <div key={i} className="h-8 w-24 bg-[#f2f2f2] rounded animate-pulse" />
+                    <div
+                      key={i}
+                      style={{
+                        height: '2rem',
+                        width: '6rem',
+                        background: 'var(--bg-surface)',
+                        borderRadius: '3px',
+                        animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                      }}
+                    />
                   ))}
                 </div>
               ) : (
-                <div className="flex flex-wrap gap-2">
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
                   {categories?.map((cat) => {
                     const isSelected = selectedCategories.some(c => c.id === cat.id);
                     const isDisabled = !isSelected && selectedCategories.length >= 3;
@@ -147,13 +283,30 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
                         key={cat.id}
                         onClick={() => !isDisabled && toggleCategory(cat)}
                         disabled={isDisabled}
-                        className={`px-3 py-1.5 text-[13px] rounded-full border transition-colors ${
-                          isSelected
-                            ? 'bg-[#292929] text-white border-[#292929]'
-                            : isDisabled
-                            ? 'border-[#e6e6e6] text-[#c2c2c2] cursor-not-allowed'
-                            : 'border-[#c2c2c2] text-[#6b6b6b] hover:border-[#292929] hover:text-[#292929]'
-                        }`}
+                        style={{
+                          padding: '0.375rem 0.75rem',
+                          fontFamily: 'var(--font-display)',
+                          fontSize: '0.8125rem',
+                          fontWeight: 500,
+                          borderRadius: '3px',
+                          border: `1px solid ${
+                            isSelected
+                              ? 'var(--accent)'
+                              : isDisabled
+                              ? 'var(--border)'
+                              : 'var(--border-mid)'
+                          }`,
+                          background: isSelected ? 'var(--accent)' : 'transparent',
+                          color: isSelected ? 'var(--text-inverse)' : isDisabled ? 'var(--text-faint)' : 'var(--text-muted)',
+                          cursor: isDisabled ? 'not-allowed' : 'pointer',
+                          transition: 'all 0.2s',
+                          letterSpacing: '-0.01em',
+                        }}
+                        className={
+                          !isSelected && !isDisabled
+                            ? 'hover:border-[var(--accent)] hover:text-[var(--accent)]'
+                            : ''
+                        }
                       >
                         {cat.name}
                       </button>
@@ -162,7 +315,14 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
                 </div>
               )}
               {selectedCategories.length > 0 && (
-                <p className="text-[12px] text-[#b3b3b1] mt-3">
+                <p
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '0.75rem',
+                    color: 'var(--text-faint)',
+                    marginTop: '0.75rem',
+                  }}
+                >
                   {selectedCategories.length}/3 selected
                 </p>
               )}
@@ -170,25 +330,74 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
 
             {/* Tags */}
             <div>
-              <p className="text-[13px] font-medium text-[#6b6b6b] tracking-wide mb-2">
+              <p
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: '0.8125rem',
+                  fontWeight: 600,
+                  color: 'var(--text-muted)',
+                  letterSpacing: '0.05em',
+                  textTransform: 'uppercase',
+                  marginBottom: '0.5rem',
+                }}
+              >
                 Tags
               </p>
-              <p className="text-[13px] text-[#6b6b6b] mb-4">
+              <p
+                style={{
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '0.8125rem',
+                  color: 'var(--text-muted)',
+                  marginBottom: '1rem',
+                  lineHeight: 1.5,
+                }}
+              >
                 Add up to 5 tags to help categorize your story.
               </p>
               <div
-                className="flex flex-wrap items-center gap-1.5 px-3 py-2.5 border border-[#c2c2c2] rounded focus-within:border-[#292929] transition-colors min-h-[44px] cursor-text"
+                style={{
+                  display: 'flex',
+                  flexWrap: 'wrap',
+                  alignItems: 'center',
+                  gap: '0.375rem',
+                  padding: '0.625rem 0.75rem',
+                  border: '1px solid var(--border-mid)',
+                  borderRadius: '3px',
+                  minHeight: '2.75rem',
+                  cursor: 'text',
+                  transition: 'border-color 0.2s',
+                }}
+                className="focus-within:border-[var(--accent)]"
                 onClick={() => tagInputRef.current?.focus()}
               >
                 {tags.map((tag, i) => (
                   <span
                     key={i}
-                    className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-[#f2f2f2] text-[#292929] text-[13px] rounded"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.25rem',
+                      padding: '0.25rem 0.625rem',
+                      background: 'var(--bg-surface)',
+                      color: 'var(--text)',
+                      fontFamily: 'var(--font-display)',
+                      fontSize: '0.8125rem',
+                      borderRadius: '3px',
+                    }}
                   >
                     {tag}
                     <button
                       onClick={(e) => { e.stopPropagation(); removeTag(i); }}
-                      className="text-[#b3b3b1] hover:text-[#292929] transition-colors ml-0.5"
+                      style={{
+                        color: 'var(--text-faint)',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        padding: 0,
+                        marginLeft: '0.125rem',
+                        transition: 'color 0.2s',
+                      }}
+                      className="hover:text-[var(--text)]"
                     >
                       <FaTimes className="w-2.5 h-2.5" />
                     </button>
@@ -202,12 +411,29 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
                     onChange={(e) => setTagInput(e.target.value)}
                     onKeyDown={handleTagKeyDown}
                     placeholder={tags.length === 0 ? 'Add a tag...' : ''}
-                    className="flex-1 min-w-[80px] text-[13px] outline-none bg-transparent text-[#292929] placeholder:text-[#b3b3b1]"
+                    style={{
+                      flex: 1,
+                      minWidth: '80px',
+                      fontFamily: 'var(--font-display)',
+                      fontSize: '0.8125rem',
+                      outline: 'none',
+                      background: 'transparent',
+                      color: 'var(--text)',
+                      border: 'none',
+                    }}
+                    className="placeholder:text-[var(--text-faint)]"
                   />
                 )}
               </div>
               {tags.length > 0 && (
-                <p className="text-[12px] text-[#b3b3b1] mt-2">
+                <p
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontSize: '0.75rem',
+                    color: 'var(--text-faint)',
+                    marginTop: '0.5rem',
+                  }}
+                >
                   {tags.length}/5 tags
                 </p>
               )}

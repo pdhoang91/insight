@@ -5,13 +5,10 @@ const withNextIntl = createNextIntlPlugin('./i18n.js');
 const nextConfig = {
   reactStrictMode: true,
   output: 'standalone',
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'localhost', pathname: '/**' },
-      { protocol: 'http', hostname: 'localhost', port: '3000', pathname: '/**' },
+      { protocol: 'http', hostname: 'localhost', port: '3456', pathname: '/**' },
       { protocol: 'http', hostname: 'localhost', port: '81', pathname: '/**' },
       { protocol: 'https', hostname: 'localhost', port: '81', pathname: '/**' },
       { protocol: 'https', hostname: 'www.w3schools.com', pathname: '/**' },

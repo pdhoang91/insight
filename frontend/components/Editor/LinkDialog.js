@@ -27,13 +27,42 @@ const LinkDialog = ({ editor, onClose }) => {
   }, [editor, onClose])
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={onClose}>
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 50,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'rgba(26, 20, 16, 0.3)',
+        backdropFilter: 'blur(4px)',
+      }}
+      onClick={onClose}
+    >
       <form
         onClick={(e) => e.stopPropagation()}
         onSubmit={handleSubmit}
-        className="w-96 p-5 bg-white border border-[#e6e6e6] rounded-lg shadow-lg"
+        style={{
+          width: '24rem',
+          padding: '1.5rem',
+          background: 'var(--bg)',
+          border: '1px solid var(--border-mid)',
+          borderRadius: '4px',
+          boxShadow: 'var(--shadow-lg)',
+        }}
       >
-        <label className="block mb-2 text-sm font-medium text-[#292929]">
+        <label
+          style={{
+            display: 'block',
+            marginBottom: '0.5rem',
+            fontFamily: 'var(--font-display)',
+            fontSize: '0.875rem',
+            fontWeight: 600,
+            color: 'var(--text)',
+            letterSpacing: '-0.01em',
+          }}
+        >
           Link URL
         </label>
         <input
@@ -42,19 +71,79 @@ const LinkDialog = ({ editor, onClose }) => {
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="https://example.com"
-          className="w-full px-3 py-2 mb-4 text-sm border border-[#e6e6e6] rounded-md outline-none text-[#292929] focus:border-[#292929] transition-colors"
+          style={{
+            width: '100%',
+            padding: '0.5rem 0.75rem',
+            marginBottom: '1rem',
+            fontFamily: 'var(--font-body)',
+            fontSize: '0.875rem',
+            border: '1px solid var(--border)',
+            borderRadius: '3px',
+            outline: 'none',
+            color: 'var(--text)',
+            background: 'var(--bg)',
+            transition: 'border-color 0.2s',
+          }}
+          className="focus:border-[var(--border-mid)]"
           onKeyDown={(e) => { if (e.key === 'Escape') onClose() }}
         />
-        <div className="flex justify-end gap-2">
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
           {existingHref && (
-            <button type="button" onClick={handleRemove} className="px-3 py-1.5 text-sm text-red-500 hover:bg-red-50 rounded-md transition-colors">
+            <button
+              type="button"
+              onClick={handleRemove}
+              style={{
+                padding: '0.375rem 0.75rem',
+                fontFamily: 'var(--font-display)',
+                fontSize: '0.875rem',
+                fontWeight: 500,
+                color: '#DC2626',
+                background: 'none',
+                border: 'none',
+                borderRadius: '3px',
+                cursor: 'pointer',
+                transition: 'background 0.2s',
+              }}
+              className="hover:bg-red-50"
+            >
               Remove
             </button>
           )}
-          <button type="button" onClick={onClose} className="px-3 py-1.5 text-sm text-[#757575] hover:text-[#292929] rounded-md transition-colors">
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              padding: '0.375rem 0.75rem',
+              fontFamily: 'var(--font-display)',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              color: 'var(--text-muted)',
+              background: 'none',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              transition: 'color 0.2s',
+            }}
+            className="hover:text-[var(--text)]"
+          >
             Cancel
           </button>
-          <button type="submit" className="px-3 py-1.5 text-sm text-white bg-[#1a8917] rounded-md hover:bg-[#156d12] transition-colors">
+          <button
+            type="submit"
+            style={{
+              padding: '0.375rem 0.75rem',
+              fontFamily: 'var(--font-display)',
+              fontSize: '0.875rem',
+              fontWeight: 600,
+              color: 'var(--text-inverse)',
+              background: 'var(--accent)',
+              border: 'none',
+              borderRadius: '3px',
+              cursor: 'pointer',
+              transition: 'opacity 0.2s',
+            }}
+            className="hover:opacity-85"
+          >
             {existingHref ? 'Update' : 'Add link'}
           </button>
         </div>

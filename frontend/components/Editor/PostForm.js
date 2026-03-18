@@ -39,7 +39,8 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-lg max-w-none focus:outline-none min-h-[60vh] font-serif text-medium-text-primary leading-relaxed',
+        class: 'prose prose-lg max-w-none focus:outline-none min-h-[60vh]',
+        style: 'font-family: var(--font-body); color: var(--text); line-height: 1.72;',
       },
       handleDrop: (view, event) => {
         const files = event.dataTransfer?.files
@@ -173,9 +174,8 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
         </>
       )}
 
-      {/* Word count */}
       {editor && wordCount > 0 && (
-        <div className="text-right mt-6 text-[12px] text-[#b3b3b1]">
+        <div style={{ textAlign: 'right', marginTop: '1.5rem', fontFamily: 'var(--font-display)', fontSize: '0.75rem', color: 'var(--text-faint)' }}>
           {wordCount} words
         </div>
       )}

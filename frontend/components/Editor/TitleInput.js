@@ -14,7 +14,7 @@ const TitleInput = ({
   const textareaRef = useRef(null);
 
   return (
-    <div className="group/title mb-8">
+    <div style={{ marginBottom: '2rem' }}>
       <textarea
         ref={textareaRef}
         value={title}
@@ -24,36 +24,77 @@ const TitleInput = ({
           e.target.style.height = e.target.scrollHeight + 'px';
         }}
         placeholder="Title"
-        className="title-textarea w-full bg-transparent border-none outline-none resize-none font-serif text-[42px] font-bold text-[#292929] leading-[1.25] tracking-[-0.011em] py-0 min-h-[52px]"
+        style={{
+          width: '100%',
+          background: 'transparent',
+          border: 'none',
+          outline: 'none',
+          resize: 'none',
+          fontFamily: 'var(--font-display)',
+          fontSize: 'clamp(2rem, 5vw, 2.625rem)',
+          fontWeight: 800,
+          color: 'var(--text)',
+          lineHeight: 1.25,
+          letterSpacing: '-0.025em',
+          padding: 0,
+          minHeight: '52px',
+        }}
         rows={1}
         autoFocus
       />
 
       {imageTitle ? (
-        <div className="relative mt-6">
+        <div style={{ position: 'relative', marginTop: '1.5rem' }}>
           <img
             src={imageTitle}
             alt="Cover"
-            className="w-full max-h-[400px] object-cover rounded"
+            style={{ width: '100%', maxHeight: '400px', objectFit: 'cover', borderRadius: '4px' }}
           />
           <button
             onClick={() => setImageTitle(null)}
-            className="absolute top-3 right-3 p-1.5 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+            style={{
+              position: 'absolute',
+              top: '0.75rem',
+              right: '0.75rem',
+              padding: '0.5rem',
+              borderRadius: '50%',
+              background: 'rgba(26, 20, 16, 0.6)',
+              color: 'var(--text-inverse)',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'background 0.2s',
+            }}
+            className="hover:bg-[rgba(26,20,16,0.8)]"
           >
-            <FaTimes className="w-3.5 h-3.5" />
+            <FaTimes style={{ width: 14, height: 14 }} />
           </button>
         </div>
       ) : (
         <button
           onClick={handleImageTitleUpload}
           disabled={isUploadingTitle}
-          className="title-cover-btn mt-2 flex items-center gap-2 text-sm text-[#b3b3b1] hover:text-[#757575] transition-all duration-200"
+          style={{
+            marginTop: '0.5rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            fontFamily: 'var(--font-display)',
+            fontSize: '0.875rem',
+            fontWeight: 500,
+            color: 'var(--text-faint)',
+            background: 'none',
+            border: 'none',
+            cursor: isUploadingTitle ? 'not-allowed' : 'pointer',
+            padding: 0,
+            transition: 'color 0.2s',
+          }}
+          className="hover:text-[var(--text-muted)]"
         >
           {isUploadingTitle ? (
             <LoadingSpinner size="sm" />
           ) : (
             <>
-              <FaImage className="w-3.5 h-3.5" />
+              <FaImage style={{ width: 14, height: 14 }} />
               <span>Add a cover image</span>
             </>
           )}

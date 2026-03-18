@@ -14,7 +14,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }) {
-  const { locale, name } = params;
+  const { locale, name } = await params;
   setRequestLocale(locale);
   const decodedName = decodeURIComponent(name);
   return {
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function CategoryPostsPage({ params }) {
-  const { locale, name } = params;
+  const { locale, name } = await params;
   setRequestLocale(locale);
   return <CategoryPostsClient name={name} />;
 }
