@@ -115,15 +115,17 @@ const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId =
           <AnimatePresence>
             {isFocused && (
               <motion.div
-                initial={{ opacity: 0, y: -4 }}
+                initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.625rem' }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ type: 'spring', stiffness: 120, damping: 18 }}
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.75rem' }}
               >
-                <button
+                <motion.button
                   type="button"
                   onClick={handleCancel}
+                  whileTap={{ scale: 0.97 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                   style={{
                     fontFamily: 'var(--font-display)',
                     fontSize: '0.78rem',
@@ -138,10 +140,12 @@ const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId =
                   className="hover:text-[var(--text-muted)]"
                 >
                   {t('editor.cancel')}
-                </button>
-                <button
+                </motion.button>
+                <motion.button
                   type="submit"
                   disabled={isSubmitting || !content.trim()}
+                  whileTap={content.trim() ? { scale: 0.98 } : {}}
+                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                   style={{
                     fontFamily: 'var(--font-display)',
                     fontSize: '0.78rem',
@@ -151,14 +155,14 @@ const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId =
                     background: content.trim() ? 'var(--accent)' : 'var(--bg-elevated)',
                     border: 'none',
                     borderRadius: '2px',
-                    padding: '0.35rem 0.9rem',
+                    padding: '0.4rem 1rem',
                     cursor: content.trim() ? 'pointer' : 'not-allowed',
                     transition: 'background 0.2s, color 0.2s, opacity 0.2s',
                   }}
-                  className="hover:opacity-85"
+                  className={content.trim() ? 'hover:opacity-90' : ''}
                 >
                   {isSubmitting ? '...' : t('comment.respond')}
-                </button>
+                </motion.button>
               </motion.div>
             )}
           </AnimatePresence>

@@ -12,15 +12,10 @@ export default function PostPageClient({ slug, initialPost }) {
 
   const displayPost = post || initialPost;
 
-  const scrollToComments = () => {
-    commentSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
   if (isLoading && !displayPost) {
     return (
       <div style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
-          {/* Warm shimmer skeleton for post loading */}
           <div style={{ maxWidth: 600, padding: '0 1rem' }}>
             <div className="skeleton-warm" style={{ height: '2.5rem', width: '80%', borderRadius: '2px', marginBottom: '1.25rem' }} />
             <div className="skeleton-warm" style={{ height: '2rem', width: '60%', borderRadius: '2px', marginBottom: '2rem' }} />
@@ -57,11 +52,10 @@ export default function PostPageClient({ slug, initialPost }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
-      style={{ paddingTop: 'var(--nav-height)' }}
-      className="px-5 md:px-8"
+      style={{ paddingTop: 'var(--nav-height)', minHeight: '100dvh', background: 'var(--bg)' }}
     >
-      <div style={{ paddingTop: '3rem', paddingBottom: '3rem' }}>
-        <PostDetail post={displayPost} onScrollToComments={scrollToComments} />
+      <div className="max-w-[1192px] mx-auto px-4 md:px-6 lg:px-8 py-8">
+        <PostDetail post={displayPost} />
 
         <motion.section
           ref={commentSectionRef}
@@ -70,8 +64,6 @@ export default function PostPageClient({ slug, initialPost }) {
           viewport={{ once: true, margin: '-60px' }}
           transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
           style={{
-            maxWidth: 'var(--reading-width)',
-            margin: '0 auto',
             marginTop: '3.5rem',
             paddingTop: '2.5rem',
             borderTop: '1px solid var(--border)',

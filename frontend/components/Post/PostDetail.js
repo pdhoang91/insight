@@ -1,14 +1,7 @@
 'use client';
 import React, { useMemo } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { useUser } from '../../context/UserContext';
-import { FaHandsClapping, FaShare } from 'react-icons/fa6';
-import { FaComment, FaUser, FaEdit, FaTrash } from 'react-icons/fa';
-import { useClapsCount } from '../../hooks/useClapsCount';
-import { clapPost } from '../../services/activityService';
-import { deletePost } from '../../services/postService';
-import { useComments } from '../../hooks/useComments';
+import { FaUser } from 'react-icons/fa';
 import SEOHead from '../SEO/SEOHead';
 import RelatedPosts from './RelatedPosts';
 import { renderPostContent, getContentPlainText } from '../../utils/renderContent';
@@ -41,82 +34,9 @@ const AuthorByline = ({ user: postUser, date }) => (
   </div>
 );
 
-const EngagementRow = ({ onClap, hasClapped, clapsCount, onCommentClick, commentCount, isOwner, postSlug, onDelete, onShare }) => (
-  <div style={{
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: '1.25rem',
-    marginTop: '2rem',
-    borderTop: '1px solid var(--border)',
-  }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-      <button
-        onClick={onClap}
-        style={{
-          display: 'flex', alignItems: 'center', gap: '0.4rem',
-          fontFamily: 'var(--font-display)', fontSize: '0.82rem', letterSpacing: '-0.01em',
-          background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-          color: hasClapped ? 'var(--accent)' : 'var(--text-faint)',
-          transition: 'color 0.2s',
-        }}
-        className="hover:text-[var(--accent)]"
-        title="Appreciate"
-      >
-        <FaHandsClapping style={{ width: 16, height: 16 }} />
-        {clapsCount > 0 && <span>{clapsCount}</span>}
-      </button>
 
-      <button
-        onClick={onCommentClick}
-        style={{
-          display: 'flex', alignItems: 'center', gap: '0.4rem',
-          fontFamily: 'var(--font-display)', fontSize: '0.82rem', letterSpacing: '-0.01em',
-          background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-          color: 'var(--text-faint)', transition: 'color 0.2s',
-        }}
-        className="hover:text-[var(--text-muted)]"
-        title="Comments"
-      >
-        <FaComment style={{ width: 14, height: 14 }} />
-        {commentCount > 0 && <span>{commentCount}</span>}
-      </button>
-    </div>
 
-    <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-      {isOwner && (
-        <>
-          <Link
-            href={`/edit/${postSlug}`}
-            style={{ color: 'var(--text-faint)', transition: 'color 0.2s' }}
-            className="hover:text-[var(--text-muted)]"
-            title="Edit"
-          >
-            <FaEdit style={{ width: 13, height: 13 }} />
-          </Link>
-          <button
-            onClick={onDelete}
-            style={{ color: 'var(--text-faint)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s', padding: 0 }}
-            className="hover:text-[#DC2626]"
-            title="Delete"
-          >
-            <FaTrash style={{ width: 13, height: 13 }} />
-          </button>
-        </>
-      )}
-      <button
-        onClick={onShare}
-        style={{ color: 'var(--text-faint)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s', padding: 0 }}
-        className="hover:text-[var(--text-muted)]"
-        title="Copy link"
-      >
-        <FaShare style={{ width: 13, height: 13 }} />
-      </button>
-    </div>
-  </div>
-);
-
-export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
+export const PostDetail = ({ post, relatedPosts = [] }) => {
   if (!post) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 240, color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
@@ -125,29 +45,8 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
     );
   }
 
-  const router = useRouter();
-  const { clapsCount: postClapsCount, hasClapped, mutate: mutateClaps } = useClapsCount('post', post.id);
-  const { user } = useUser();
-  const { totalCommentReply } = useComments(post.id, true, 1, 10);
-  const isOwner = user && post.user && user.id === post.user.id;
-
   const renderedHTML = useMemo(() => renderPostContent(post.content), [post.content]);
   const plainText = useMemo(() => getContentPlainText(post.content), [post.content]);
-
-  const handleClap = async () => {
-    if (!user) return;
-    try { await clapPost(post.id); mutateClaps(); } catch (e) { console.error(e); }
-  };
-
-  const handleShare = () => {
-    const url = `${window.location.origin}/p/${post.slug}`;
-    navigator.clipboard.writeText(url);
-  };
-
-  const handleDelete = async () => {
-    if (!window.confirm('Delete this post?')) return;
-    try { await deletePost(post.id); router.push('/'); } catch (e) { console.error(e); }
-  };
 
   return (
     <>
@@ -163,7 +62,7 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
         url={`${process.env.NEXT_PUBLIC_SITE_URL || ''}/p/${post.slug}`}
       />
 
-      <article className="animate-fade-up" style={{ maxWidth: 'var(--reading-width)', margin: '0 auto' }}>
+      <article className="animate-fade-up">
         <h1 style={{
           fontFamily: 'var(--font-display)',
           fontWeight: 800,
@@ -216,18 +115,6 @@ export const PostDetail = ({ post, relatedPosts = [], onScrollToComments }) => {
             ))}
           </div>
         )}
-
-        <EngagementRow
-          onClap={handleClap}
-          hasClapped={hasClapped}
-          clapsCount={postClapsCount}
-          onCommentClick={onScrollToComments}
-          commentCount={totalCommentReply}
-          isOwner={isOwner}
-          postSlug={post.slug}
-          onDelete={handleDelete}
-          onShare={handleShare}
-        />
 
         {relatedPosts.length > 0 && (
           <div style={{ marginTop: '3rem' }}>

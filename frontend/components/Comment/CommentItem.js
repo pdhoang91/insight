@@ -2,9 +2,7 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { FaUser } from 'react-icons/fa';
-import { FaHandsClapping } from 'react-icons/fa6';
 import { useTranslations } from 'next-intl';
-import { useCommentClap } from '../../hooks/useCommentClap';
 import { useUser } from '../../context/UserContext';
 import { addReply } from '../../services/commentService';
 import AddCommentForm from './AddCommentForm';
@@ -17,7 +15,6 @@ const CommentItem = ({ comment, postId, mutate }) => {
   const t = useTranslations();
   const { user } = useUser();
   const repliesCount = comment.replies?.length || 0;
-  const { clapsCount, clapsLoading, hasClapped, handleClap } = useCommentClap(comment.id, comment.clap_count || 0);
 
   const handleReply = async (content, commentID) => {
     if (!user) { alert(t('comment.loginToComment')); return; }
@@ -91,23 +88,10 @@ const CommentItem = ({ comment, postId, mutate }) => {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
-            <button
-              onClick={handleClap}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '0.3rem',
-                fontFamily: 'var(--font-display)', fontSize: '0.75rem', letterSpacing: '-0.01em',
-                background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-                color: hasClapped ? 'var(--accent)' : 'var(--text-faint)',
-                transition: 'color 0.2s',
-              }}
-              className="hover:text-[var(--accent)]"
-            >
-              <FaHandsClapping style={{ width: 13, height: 13, opacity: clapsLoading ? 0.5 : 1 }} />
-              {clapsCount > 0 && <span>{clapsCount}</span>}
-            </button>
-
-            <button
+            <motion.button
               onClick={() => setShowReplyForm(prev => !prev)}
+              whileTap={{ scale: 0.96 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 25 }}
               style={{
                 fontFamily: 'var(--font-display)',
                 fontSize: '0.75rem',
@@ -121,7 +105,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
               {repliesCount > 0
                 ? `${t('comment.reply')} · ${repliesCount}`
                 : t('comment.reply')}
-            </button>
+            </motion.button>
           </div>
 
           <AnimatePresence>
@@ -130,25 +114,35 @@ const CommentItem = ({ comment, postId, mutate }) => {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+                transition={{ type: 'spring', stiffness: 120, damping: 22 }}
                 style={{ overflow: 'hidden' }}
               >
-                <div style={{ marginTop: '1.25rem' }}>
+                <motion.div
+                  initial={{ y: -8 }}
+                  animate={{ y: 0 }}
+                  transition={{ type: 'spring', stiffness: 100, damping: 20, delay: 0.05 }}
+                  style={{ marginTop: '1.25rem' }}
+                >
                   <AddCommentForm
                     onAddComment={(content) => handleReply(content, comment.id)}
                     parentId={comment.id}
                     user={user}
                   />
-                </div>
+                </motion.div>
 
                 {comment.replies?.length > 0 && (
-                  <div style={{
-                    marginTop: '1.25rem',
-                    paddingLeft: '1rem',
-                    borderLeft: '2px solid var(--border)',
-                  }}>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.15 }}
+                    style={{
+                      marginTop: '1.25rem',
+                      paddingLeft: '1rem',
+                      borderLeft: '2px solid var(--border)',
+                    }}
+                  >
                     <ReplyList replies={comment.replies} commentId={comment.id} mutate={mutate} />
-                  </div>
+                  </motion.div>
                 )}
               </motion.div>
             )}

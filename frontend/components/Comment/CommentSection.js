@@ -15,29 +15,39 @@ const CommentSection = ({ postId }) => {
 
   return (
     <div>
-      <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.625rem', marginBottom: '1.75rem' }}>
+      <div style={{ marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.625rem', marginBottom: '0.5rem' }}>
+          <h3 style={{
+            fontFamily: 'var(--font-display)',
+            fontSize: '1rem',
+            fontWeight: 700,
+            letterSpacing: '-0.015em',
+            color: 'var(--text)',
+            margin: 0,
+          }}>
+            {t('comment.responses')}
+          </h3>
+          {totalCount > 0 && (
+            <span style={{
+              fontFamily: 'var(--font-display)',
+              fontSize: '0.75rem',
+              fontWeight: 500,
+              color: 'var(--text-faint)',
+              letterSpacing: '0.02em',
+            }}>
+              ({totalCount})
+            </span>
+          )}
+        </div>
         <p style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: '0.66rem',
-          fontWeight: 600,
-          letterSpacing: '0.12em',
-          textTransform: 'uppercase',
-          color: 'var(--text-faint)',
+          fontFamily: 'var(--font-body)',
+          fontSize: '0.85rem',
+          lineHeight: 1.5,
+          color: 'var(--text-muted)',
           margin: 0,
         }}>
-          {t('comment.responses')}
+          Join the conversation
         </p>
-        {totalCount > 0 && (
-          <span style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: '0.72rem',
-            fontWeight: 500,
-            color: 'var(--text-faint)',
-            letterSpacing: '0.02em',
-          }}>
-            {totalCount}
-          </span>
-        )}
       </div>
 
       <AddCommentForm
@@ -46,7 +56,7 @@ const CommentSection = ({ postId }) => {
         onCommentAdded={() => mutate()}
       />
 
-      <div style={{ marginTop: '2rem' }}>
+      <div style={{ marginTop: '2.5rem' }}>
         <LimitedCommentList
           comments={flatComments}
           postId={postId}

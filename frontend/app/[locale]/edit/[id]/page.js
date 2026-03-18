@@ -7,7 +7,11 @@ import { useUser } from '../../../../context/UserContext';
 import LoadingSpinner from '../../../../components/Shared/LoadingSpinner';
 
 const PostForm = dynamic(() => import('../../../../components/Editor/PostForm'), {
-  loading: () => <div className="flex justify-center py-20"><LoadingSpinner size="lg" /></div>,
+  loading: () => (
+    <div style={{ display: 'flex', justifyContent: 'center', padding: '5rem 0' }}>
+      <LoadingSpinner size="lg" />
+    </div>
+  ),
   ssr: false,
 });
 const CategoryTagsPopup = dynamic(() => import('../../../../components/Category/CategoryTagsPopup'), {
@@ -117,10 +121,12 @@ export default function EditPage() {
 
   if (isLoading || loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
+      <div style={{ minHeight: '100dvh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-medium-text-secondary">Đang tải trình soạn thảo...</p>
+          <p style={{ marginTop: '1rem', fontFamily: 'var(--font-display)', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+            Đang tải trình soạn thảo...
+          </p>
         </div>
       </div>
     );
@@ -128,10 +134,14 @@ export default function EditPage() {
 
   if (isError) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-500 font-serif text-lg mb-2">Lỗi khi tải bài viết</div>
-          <p className="text-medium-text-muted">Không thể tìm thấy bài viết bạn muốn chỉnh sửa.</p>
+      <div style={{ minHeight: '100dvh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center', padding: '0 1rem' }}>
+          <div style={{ color: '#DC2626', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.05rem', marginBottom: '0.5rem' }}>
+            Lỗi khi tải bài viết
+          </div>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.9rem', color: 'var(--text-muted)', margin: 0 }}>
+            Không thể tìm thấy bài viết bạn muốn chỉnh sửa.
+          </p>
         </div>
       </div>
     );
@@ -141,10 +151,14 @@ export default function EditPage() {
 
   if (post && user && post.user?.id !== user.id && !isSuperAdmin()) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-500 font-serif text-lg mb-2">Không có quyền chỉnh sửa</div>
-          <p className="text-medium-text-muted">Bạn không phải là tác giả của bài viết này.</p>
+      <div style={{ minHeight: '100dvh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center', padding: '0 1rem' }}>
+          <div style={{ color: '#DC2626', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.05rem', marginBottom: '0.5rem' }}>
+            Không có quyền chỉnh sửa
+          </div>
+          <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.9rem', color: 'var(--text-muted)', margin: 0 }}>
+            Bạn không phải là tác giả của bài viết này.
+          </p>
         </div>
       </div>
     );
@@ -152,28 +166,54 @@ export default function EditPage() {
 
   if (!isInitialized) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
+      <div style={{ minHeight: '100dvh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'center' }}>
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-medium-text-secondary">Đang tải trình soạn thảo...</p>
+          <p style={{ marginTop: '1rem', fontFamily: 'var(--font-display)', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+            Đang tải trình soạn thảo...
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={isFullscreen ? 'fixed inset-0 z-50 bg-white overflow-y-auto' : 'min-h-screen bg-white'}>
+    <div
+      style={{
+        minHeight: '100dvh',
+        background: 'var(--bg)',
+        position: isFullscreen ? 'fixed' : 'relative',
+        inset: isFullscreen ? 0 : 'auto',
+        zIndex: isFullscreen ? 50 : 'auto',
+        overflowY: 'auto',
+      }}
+    >
       {isFullscreen && (
         <button
           onClick={() => setIsFullscreen(false)}
-          className="fixed top-4 right-4 z-50 p-2 rounded-lg bg-white/80 backdrop-blur-sm text-medium-text-secondary hover:text-medium-text-primary transition-colors"
+          style={{
+            position: 'fixed',
+            top: '1rem',
+            right: '1rem',
+            zIndex: 50,
+            padding: '0.5rem',
+            borderRadius: '4px',
+            background: 'rgba(242, 237, 228, 0.9)',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)',
+            color: 'var(--text-muted)',
+            border: '1px solid var(--border)',
+            cursor: 'pointer',
+            transition: 'color 0.2s',
+          }}
+          className="hover:text-[var(--text)]"
           title="Thoát toàn màn hình"
         >
-          <FaTimes className="w-5 h-5" />
+          <FaTimes style={{ width: 18, height: 18 }} />
         </button>
       )}
 
-      <main className="max-w-[720px] mx-auto px-4 md:px-6 pt-28 pb-16">
+      <main style={{ maxWidth: '720px', margin: '0 auto', padding: '7rem 1rem 4rem' }} className="md:px-6">
         <PostForm
           title={title}
           setTitle={setTitle}

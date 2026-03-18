@@ -498,3 +498,30 @@ a {
   from { transform: scale(0.95); opacity: 0; }
   to   { transform: scale(1);    opacity: 1; }
 }
+
+/* ─────────────────────────────────────────
+   CATEGORY CARD HOVER EFFECTS
+   ───────────────────────────────────────── */
+.category-card {
+  position: relative;
+}
+
+.category-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent-light);
+  opacity: 0;
+  border-radius: 3px;
+  transition: opacity 0.2s;
+  pointer-events: none;
+}
+
+.category-card:hover::before {
+  opacity: 1;
+}
+
+.category-card:hover {
+  border-color: var(--border-mid);
+  transform: translateY(-2px);
+}

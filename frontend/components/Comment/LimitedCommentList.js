@@ -6,12 +6,16 @@ import { FaChevronDown } from 'react-icons/fa';
 import CommentItem from './CommentItem';
 
 const listVariants = {
-  visible: { transition: { staggerChildren: 0.06 } },
+  visible: { transition: { staggerChildren: 0.08 } },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.38, ease: [0.16, 1, 0.3, 1] } },
+  hidden: { opacity: 0, y: 12 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: 'spring', stiffness: 100, damping: 20 },
+  },
 };
 
 const LimitedCommentList = ({ comments, postId, mutate, canLoadMore, loadMore, isLoadingMore, totalCount }) => {
@@ -27,17 +31,38 @@ const LimitedCommentList = ({ comments, postId, mutate, canLoadMore, loadMore, i
 
   if (comments.length === 0) {
     return (
-      <div style={{ padding: '2rem 0', textAlign: 'center' }}>
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+        style={{
+          padding: '3rem 1.5rem',
+          textAlign: 'center',
+          border: '1px dashed var(--border)',
+          borderRadius: '3px',
+          background: 'var(--bg-surface)',
+        }}
+      >
         <p style={{
           fontFamily: 'var(--font-display)',
-          fontSize: '0.82rem',
+          fontSize: '0.875rem',
+          fontWeight: 500,
           letterSpacing: '-0.01em',
-          color: 'var(--text-faint)',
-          margin: 0,
+          color: 'var(--text-muted)',
+          margin: '0 0 0.35rem 0',
         }}>
           {t('comment.noComments')}
         </p>
-      </div>
+        <p style={{
+          fontFamily: 'var(--font-body)',
+          fontSize: '0.8rem',
+          lineHeight: 1.5,
+          color: 'var(--text-faint)',
+          margin: 0,
+        }}>
+          Be the first to share your thoughts
+        </p>
+      </motion.div>
     );
   }
 
@@ -59,35 +84,43 @@ const LimitedCommentList = ({ comments, postId, mutate, canLoadMore, loadMore, i
       </motion.ul>
 
       {canLoadMore && (
-        <div style={{ paddingTop: '1.25rem', display: 'flex', justifyContent: 'center' }}>
-          <button
+        <div style={{ paddingTop: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+          <motion.button
             onClick={loadMore}
             disabled={isLoadingMore}
+            whileTap={!isLoadingMore ? { scale: 0.97 } : {}}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.375rem',
+              gap: '0.5rem',
               fontFamily: 'var(--font-display)',
               fontSize: '0.75rem',
-              fontWeight: 500,
-              letterSpacing: '0.02em',
+              fontWeight: 600,
+              letterSpacing: '0.04em',
+              textTransform: 'uppercase',
               color: 'var(--text-faint)',
               background: 'none',
               border: 'none',
               cursor: isLoadingMore ? 'default' : 'pointer',
-              padding: 0,
+              padding: '0.5rem 0.75rem',
               opacity: isLoadingMore ? 0.5 : 1,
               transition: 'color 0.2s, opacity 0.2s',
             }}
             className="hover:text-[var(--text-muted)]"
           >
-            <FaChevronDown style={{ width: 10, height: 10 }} />
+            <motion.div
+              animate={isLoadingMore ? { rotate: 180 } : { rotate: 0 }}
+              transition={{ type: 'spring', stiffness: 100, damping: 20 }}
+            >
+              <FaChevronDown style={{ width: 10, height: 10 }} />
+            </motion.div>
             <span>
               {isLoadingMore
-                ? '...'
+                ? 'Loading...'
                 : `${t('comment.loadMore')} · ${Math.max(0, totalCount - comments.length)} ${t('comment.remaining')}`}
             </span>
-          </button>
+          </motion.button>
         </div>
       )}
     </div>

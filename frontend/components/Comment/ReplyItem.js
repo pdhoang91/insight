@@ -1,20 +1,9 @@
 'use client';
 import React from 'react';
 import { FaUser } from 'react-icons/fa';
-import { FaHandsClapping } from 'react-icons/fa6';
-import { useClapsCount } from '../../hooks/useClapsCount';
-import { clapReply } from '../../services/activityService';
-import { useUser } from '../../context/UserContext';
 import TimeAgo from '../Utils/TimeAgo';
 
 const ReplyItem = ({ reply, commentId, mutate }) => {
-  const { user } = useUser();
-  const { clapsCount, loading: clapsLoading, hasClapped, mutate: mutateClaps } = useClapsCount('reply', reply.id);
-
-  const handleClap = async () => {
-    if (!user) return;
-    try { await clapReply(reply.id); mutateClaps(); } catch (error) { console.error(error); }
-  };
 
   return (
     <div style={{
@@ -69,26 +58,9 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
           fontSize: '0.875rem',
           lineHeight: 1.6,
           color: 'var(--text)',
-          marginBottom: '0.5rem',
         }}>
           {reply.content}
         </div>
-
-        <button
-          onClick={handleClap}
-          disabled={clapsLoading}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '0.3rem',
-            fontFamily: 'var(--font-display)', fontSize: '0.72rem', letterSpacing: '-0.01em',
-            background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-            color: hasClapped ? 'var(--accent)' : 'var(--text-faint)',
-            transition: 'color 0.2s',
-          }}
-          className="hover:text-[var(--accent)]"
-        >
-          <FaHandsClapping style={{ width: 11, height: 11, opacity: clapsLoading ? 0.5 : 1 }} />
-          {clapsCount > 0 && <span>{clapsCount}</span>}
-        </button>
       </div>
     </div>
   );
