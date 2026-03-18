@@ -1,143 +1,57 @@
 'use client';
 import React from 'react';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { useCategories } from '../../hooks/useCategories';
-import { LoadingScreen } from '../UI';
+import CategoryHero from './CategoryHero';
+import BentoGrid from './BentoGrid';
+import CategorySkeletonLoader from './CategorySkeletonLoader';
 
 const CategoryList = () => {
   const { categories, isLoading, isError } = useCategories();
 
   if (isLoading) {
-    return <LoadingScreen message="Đang tải danh mục..." />;
-  }
-
-  if (isError) {
     return (
-      <div style={{ textAlign: 'center', paddingTop: '2rem', paddingBottom: '2rem' }}>
-        <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-          Không thể tải danh mục
-        </p>
+      <div className="space-y-16">
+        <CategoryHero />
+        <CategorySkeletonLoader />
       </div>
     );
   }
 
-  if (!categories || categories.length === 0) {
+  if (isError) {
     return (
-      <div style={{ textAlign: 'center', paddingTop: '2rem', paddingBottom: '2rem' }}>
-        <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-          Không tìm thấy danh mục nào
-        </p>
+      <div className="space-y-16">
+        <CategoryHero />
+        <div className="text-center py-16">
+          <div className="max-w-md mx-auto space-y-4">
+            <div className="w-16 h-16 mx-auto bg-red-50 rounded-full flex items-center justify-center">
+              <svg className="w-8 h-8 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+              </svg>
+            </div>
+            <h3 className="font-display font-semibold text-lg text-slate-900">
+              Có lỗi xảy ra
+            </h3>
+            <p className="font-body text-slate-600">
+              Không thể tải danh mục. Vui lòng thử lại sau.
+            </p>
+            <button 
+              onClick={() => window.location.reload()}
+              className="inline-flex items-center px-4 py-2 bg-[var(--accent)] text-white 
+                         font-display font-medium rounded-full hover:bg-[var(--accent-dark)]
+                         transition-colors duration-200"
+            >
+              Thử lại
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div
-      style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '1.5rem',
-        width: '100%',
-      }}
-    >
-      {categories.map((category, index) => {
-        const isLargeCard = index % 3 === 0;
-        
-        return (
-          <motion.div
-            key={category.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              duration: 0.4,
-              delay: index * 0.08,
-              ease: [0.16, 1, 0.3, 1],
-            }}
-            style={{
-              gridColumn: isLargeCard ? 'span 2' : 'span 1',
-            }}
-            className="md:grid-column-span"
-          >
-            <Link
-              href={`/category/${category.name.toLowerCase()}`}
-              style={{
-                display: 'block',
-                padding: isLargeCard ? '2rem' : '1.5rem',
-                background: 'var(--bg-surface)',
-                border: '1px solid var(--border)',
-                borderRadius: '3px',
-                transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                height: '100%',
-              }}
-              className="category-card group"
-            >
-              <h3
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: isLargeCard ? '1.375rem' : '1.1rem',
-                  fontWeight: 700,
-                  letterSpacing: '-0.02em',
-                  color: 'var(--text)',
-                  marginBottom: '0.5rem',
-                  transition: 'color 0.2s',
-                  lineHeight: 1.25,
-                }}
-                className="group-hover:text-[var(--accent)]"
-              >
-                {category.name}
-              </h3>
-              
-              <p
-                style={{
-                  fontFamily: 'var(--font-body)',
-                  fontSize: '0.875rem',
-                  lineHeight: 1.6,
-                  color: 'var(--text-muted)',
-                  marginBottom: '1rem',
-                }}
-              >
-                {category.description || 'Khám phá các bài viết trong danh mục này'}
-              </p>
-              
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                }}
-              >
-                <span
-                  style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: '0.75rem',
-                    fontWeight: 600,
-                    letterSpacing: '0.04em',
-                    textTransform: 'uppercase',
-                    color: 'var(--text-faint)',
-                  }}
-                >
-                  {category.post_count || 0} bài viết
-                </span>
-                
-                <span
-                  style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: '1.25rem',
-                    color: 'var(--accent)',
-                    opacity: 0,
-                    transform: 'translateX(-4px)',
-                    transition: 'all 0.2s',
-                  }}
-                  className="group-hover:opacity-100 group-hover:translate-x-0"
-                >
-                  →
-                </span>
-              </div>
-            </Link>
-          </motion.div>
-        );
-      })}
+    <div className="space-y-16">
+      <CategoryHero />
+      <BentoGrid categories={categories} />
     </div>
   );
 };

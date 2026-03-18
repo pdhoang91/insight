@@ -1,16 +1,16 @@
 'use client';
 
 import React from 'react';
-import { PageLayout } from '../../../components/Layout';
 import { CategoryList } from '../../../components/Category';
+import Footer from '../../../components/Layout/Footer';
 
 export default function CategoryPageClient({ initialCategories }) {
   return (
-    <PageLayout
-      title="Danh mục"
-      description="Khám phá bài viết theo danh mục"
-    >
-      <CategoryList initialCategories={initialCategories} />
-    </PageLayout>
+    <div style={{ minHeight: '100dvh', background: 'var(--bg)', display: 'flex', flexDirection: 'column' }}>
+      <main style={{ paddingTop: 'var(--nav-height)', flex: 1 }}>
+        <CategoryList initialCategories={initialCategories} />
+      </main>
+      <Footer />
+    </div>
   );
 }

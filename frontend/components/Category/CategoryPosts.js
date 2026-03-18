@@ -1,6 +1,10 @@
 // components/Category/CategoryPosts.js
-import React from 'react';
-import PostList from '../Post/PostList';
+import React, { useMemo } from 'react';
+import { motion } from 'framer-motion';
+import { StaggerContainer, FloatingElement, SpringDiv } from '../UI/SpringMotion';
+import CategoryPostsHero from './CategoryPostsHero';
+import MasonryPostGrid from './MasonryPostGrid';
+
 const CategoryPosts = ({ 
   categoryName, 
   posts, 
@@ -9,38 +13,75 @@ const CategoryPosts = ({
   setSize, 
   isReachingEnd 
 }) => {
+  // Calculate category stats for hero section
+  const categoryStats = useMemo(() => {
+    const totalPosts = posts?.length || 0;
+    const avgReadTime = Math.round((totalPosts * 5) + Math.random() * 3); // Simulated
+    
+    return {
+      totalPosts,
+      avgReadTime,
+      lastUpdated: 'Hôm nay' // Could be calculated from actual data
+    };
+  }, [posts]);
 
   if (isError) {
     return (
-      <div className="text-center py-12 text-medium-text-secondary">
-        <h3 className="text-lg font-medium mb-2">Có lỗi xảy ra</h3>
-        <p>Không thể tải bài viết cho danh mục này.</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <motion.div 
+          className="text-center py-16 max-w-md mx-auto"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        >
+          <div className="w-20 h-20 mx-auto bg-red-50 rounded-full flex items-center justify-center mb-6">
+            <svg className="w-10 h-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          
+          <h3 className="font-display font-bold text-xl text-slate-900 mb-4">
+            Không thể tải bài viết
+          </h3>
+          <p className="font-body text-slate-600 mb-6 leading-relaxed">
+            Có lỗi xảy ra khi tải bài viết cho danh mục "{categoryName}". 
+            Vui lòng thử lại sau.
+          </p>
+          
+          <motion.button 
+            onClick={() => window.location.reload()}
+            className="inline-flex items-center px-6 py-3 bg-[var(--accent)] text-white 
+                       font-display font-semibold rounded-full hover:bg-[var(--accent-dark)]
+                       transition-colors duration-200 shadow-lg hover:shadow-xl"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          >
+            <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Thử lại
+          </motion.button>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 lg:space-y-8">
-      {/* Category Header */}
-      <header className="text-center lg:text-left">
-        <h1 className="font-serif font-bold text-3xl sm:text-4xl lg:text-5xl text-medium-text-primary mb-3 lg:mb-4">
-          {categoryName?.charAt(0).toUpperCase() + categoryName?.slice(1)}
-        </h1>
-        <p className="text-base sm:text-lg text-medium-text-secondary max-w-2xl mx-auto lg:mx-0">
-          Khám phá các bài viết trong danh mục này
-        </p>
-      </header>
+    <div className="space-y-16">
+      {/* Enhanced Category Hero */}
+      <CategoryPostsHero 
+        categoryName={categoryName}
+        stats={categoryStats}
+      />
 
-      {/* Posts List */}
-      <PostList
+      {/* Masonry Posts Grid with Staggered Reveals */}
+      <MasonryPostGrid
         posts={posts}
         isLoading={isLoading}
-        isError={isError}
         setSize={setSize}
         isReachingEnd={isReachingEnd}
-        variant="category"
-        showImages={true}
-        showExcerpts={true}
+        categoryName={categoryName}
       />
     </div>
   );

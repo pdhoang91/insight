@@ -109,6 +109,16 @@ body {
   --shadow-md: 0 4px 12px rgba(26, 20, 16, 0.08);
   --shadow-lg: 0 8px 24px rgba(26, 20, 16, 0.1);
   --shadow-xl: 0 20px 40px rgba(26, 20, 16, 0.12);
+  
+  /* Bento 2.0 Diffusion Shadows */
+  --shadow-bento-sm: 0 10px 20px -10px rgba(26, 20, 16, 0.05);
+  --shadow-bento-md: 0 20px 40px -15px rgba(26, 20, 16, 0.05);
+  --shadow-bento-lg: 0 25px 50px -12px rgba(26, 20, 16, 0.08);
+  
+  /* Spring Animation Configs */
+  --spring-stiff: 100;
+  --spring-damp: 20;
+  --spring-mass: 0.5;
 
   /* Border radius — kept for compat */
   --border-radius-sm:   0.25rem;
@@ -121,6 +131,180 @@ body {
 
 *, *::before, *::after {
   box-sizing: border-box;
+}
+
+/* Spring-based utility classes for premium interactions */
+.spring-hover {
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.spring-active {
+  transition: all 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Hardware acceleration for smooth animations */
+.gpu-accelerated {
+  will-change: transform;
+  transform: translateZ(0);
+}
+
+/* Perpetual motion keyframes */
+@keyframes float-gentle {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes pulse-gentle {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Bento card hover states with spring physics simulation */
+.bento-card {
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.bento-card:hover {
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: var(--shadow-bento-lg);
+}
+
+.bento-card:active {
+  transform: translateY(0px) scale(0.99);
+  transition: all 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Premium interaction utilities */
+.magnetic-element {
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  will-change: transform;
+}
+
+.directional-fill {
+  position: relative;
+  overflow: hidden;
+}
+
+.directional-fill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--accent-light);
+  transform: scale(0);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.directional-fill:hover::before {
+  transform: scale(1);
+}
+
+/* Enhanced focus states for accessibility */
+.focus-ring {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent-light), 0 0 0 4px rgba(196, 84, 29, 0.2);
+  transition: box-shadow 0.2s ease-out;
+}
+
+/* Smooth text selection */
+::selection {
+  background: var(--accent-light);
+  color: var(--text);
+}
+
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-mid);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* Performance optimizations for mobile and low-end devices */
+@media (max-width: 768px), (pointer: coarse) {
+  /* Reduce animation complexity on mobile */
+  .gpu-accelerated {
+    will-change: transform;
+    backface-visibility: hidden;
+    perspective: 1000px;
+  }
+  
+  /* Simplify hover effects on touch devices */
+  .spring-hover:hover {
+    transform: none;
+  }
+  
+  /* Reduce shadow complexity on mobile */
+  .bento-card:hover {
+    box-shadow: var(--shadow-md);
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .gpu-accelerated,
+  .spring-hover,
+  .spring-active,
+  .float-gentle,
+  .pulse-gentle {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Performance hints for browsers */
+.contain-layout {
+  contain: layout style paint;
+}
+
+.contain-paint {
+  contain: paint;
+}
+
+/* Optimize font loading */
+@font-face {
+  font-display: swap;
+}
+
+/* Critical rendering optimizations */
+.critical-content {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 200px;
+}
+
+/* Scroll performance */
+.scroll-smooth {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-smooth {
+    scroll-behavior: auto;
+  }
 }
 
 .scrollbar-hide {

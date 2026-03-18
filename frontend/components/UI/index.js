@@ -26,3 +26,46 @@ export {
 
 // Legacy aliases for backward compatibility
 export { Spinner as LoadingSpinner } from './Loading';
+
+// Advanced Animation Components
+export { default as SpotlightBorder } from './SpotlightBorder';
+export { 
+  default as SpringMotion,
+  springConfigs,
+  animationVariants,
+  SpringDiv,
+  StaggerContainer,
+  StaggerChild,
+  MagneticButton,
+  FloatingElement,
+  PulseElement
+} from './SpringMotion';
+
+// Premium Interactions
+export { 
+  default as PremiumInteractions,
+  MagneticButton as AdvancedMagneticButton,
+  DirectionalButton,
+  ShimmerCard,
+  FloatingActionButton
+} from './PremiumInteractions';
+
+// Error Handling
+export { 
+  default as ErrorBoundary,
+  useErrorBoundary,
+  withErrorBoundary
+} from './ErrorBoundary';
+
+// Performance Optimization
+export {
+  default as PerformanceOptimizer,
+  useAnimationPerformance,
+  useOptimizedMotionValue,
+  useDeviceCapabilities,
+  useAdaptiveAnimationConfig,
+  useOptimizedIntersectionObserver,
+  useDebouncedAnimation,
+  useAnimationLoop,
+  withPerformanceOptimization
+} from './PerformanceOptimizer';
