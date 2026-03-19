@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PostProvider } from '../../context/PostContext';
 import UserContext from '../../context/UserContext';
 import Navbar from '../../components/Navbar/Navbar';
@@ -8,10 +8,24 @@ import LoginModal from '../../components/Auth/LoginModal';
 import GrainOverlay from '../../components/UI/GrainOverlay';
 import FrogScrollbar from '../../components/UI/FrogScrollbar';
 import useAuth from '../../hooks/useAuth';
+import { useDesktopChromiumScrollUI } from '../../hooks/useDesktopChromiumScrollUI';
 
 export default function ClientProviders({ children }) {
   const { user, setUser, loading, mutate } = useAuth();
   const [modalOpen, setModalOpen] = useState(false);
+  const { enabled: frogScrollEnabled } = useDesktopChromiumScrollUI();
+
+  useEffect(() => {
+    const html = document.documentElement;
+    if (frogScrollEnabled) {
+      html.setAttribute('data-frog-scroll', 'on');
+    } else {
+      html.removeAttribute('data-frog-scroll');
+    }
+    return () => {
+      html.removeAttribute('data-frog-scroll');
+    };
+  }, [frogScrollEnabled]);
 
   return (
     <PostProvider>
