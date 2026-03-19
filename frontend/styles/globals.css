@@ -216,24 +216,6 @@ body {
   color: var(--text);
 }
 
-/* Custom scrollbar for webkit browsers */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--bg);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--border-mid);
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--accent);
-}
 
 /* Performance optimizations for mobile and low-end devices */
 @media (max-width: 768px), (pointer: coarse) {
@@ -708,4 +690,66 @@ a {
 .category-card:hover {
   border-color: var(--border-mid);
   transform: translateY(-2px);
+}
+
+/* ─────────────────────────────────────────
+   FROG SCROLLBAR MODE
+   Scoped under html[data-frog-scroll='on']
+   — only applied on desktop Chromium
+   ───────────────────────────────────────── */
+
+/* CSS custom properties for frog rail layout */
+html[data-frog-scroll='on'] {
+  --frog-rail-width: 4px;
+  --frog-rail-z-index: 40;
+  --frog-rail-top: 80px;
+  --frog-rail-right: 12px;
+  --frog-frog-size: 28px;
+  --frog-track-padding: 8px;
+  --frog-track-color: rgba(26, 20, 16, 0.08);
+  --frog-progress-color: var(--accent);
+}
+
+/* Hide native Chromium scrollbar when frog mode is active */
+html[data-frog-scroll='on']::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+  background: transparent;
+}
+
+html[data-frog-scroll='on']::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html[data-frog-scroll='on']::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
+/* Opt-out: restore native behavior for reduced-motion users */
+@media (prefers-reduced-motion: reduce) {
+  html[data-frog-scroll='on'] {
+    --frog-rail-width: 0;
+  }
+  html[data-frog-scroll='on']::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+    background: var(--bg);
+  }
+  html[data-frog-scroll='on']::-webkit-scrollbar-thumb {
+    background: var(--border-mid);
+    border-radius: 3px;
+  }
+}
+
+/* Opt-out: restore native behavior for touch/coarse-pointer devices */
+@media (pointer: coarse) {
+  html[data-frog-scroll='on']::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+    background: var(--bg);
+  }
+  html[data-frog-scroll='on']::-webkit-scrollbar-thumb {
+    background: var(--border-mid);
+    border-radius: 3px;
+  }
 }
