@@ -84,27 +84,6 @@ export const getPostsByCategory = async (category, page = 1, limit = 10) => {
   }
 };
 
-export const getRecentPosts = async (limit = 10) => {
-  try {
-    const response = await axiosPublicInstance.get('/posts/recent', {
-      params: { limit },
-    });
-
-    const data = response.data;
-    
-    if (!data || !Array.isArray(data.data)) {
-      return [];
-    }
-
-    return data.data;
-  } catch (error) {
-    console.error('Error in getRecentPosts:', error);
-    return [];
-  }
-};
-
-
-
 export const getLatestPosts = async (limit = 5) => {
   try {
     const response = await axiosPublicInstance.get('/posts/latest', {
@@ -137,34 +116,3 @@ export const getLatestPosts = async (limit = 5) => {
   }
 };
 
-export const getPopularPosts = async (limit = 5) => {
-  try {
-    const response = await axiosPublicInstance.get('/posts/popular', {
-      params: { limit },
-    });
-
-    const data = response.data;
-    
-    if (!data || !Array.isArray(data.data)) {
-      // Fallback to regular posts if popular endpoint fails
-      const fallbackResponse = await axiosPublicInstance.get('/posts', {
-        params: { limit },
-      });
-      return fallbackResponse.data?.data || [];
-    }
-
-    return data.data;
-  } catch (error) {
-    console.error('Error in getPopularPosts:', error);
-    // Fallback to regular posts if popular endpoint fails
-    try {
-      const fallbackResponse = await axiosPublicInstance.get('/posts', {
-        params: { limit },
-      });
-      return fallbackResponse.data?.data || [];
-    } catch (fallbackError) {
-      console.error('Error in getPopularPosts fallback:', fallbackError);
-      return [];
-    }
-  }
-};

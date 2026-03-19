@@ -26,9 +26,6 @@ export { default as ToolbarButton } from './Editor/ToolbarButton';
 // Sidebar Components
 export { default as PersonalBlogSidebar } from './Sidebar/PersonalBlogSidebar';
 
-// Post Components
-export { default as PopularPosts } from './Post/PopularPosts';
-
 // Archive Components
 export { default as Archive } from './Archive/Archive';
 

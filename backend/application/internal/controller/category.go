@@ -97,25 +97,6 @@ func (c *CategoryController) DeleteCategory(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "Category deleted successfully"})
 }
 
-func (c *CategoryController) GetCategoriesWithPostCount(ctx *gin.Context) {
-	req, err := parsePagination(ctx)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
-		return
-	}
-
-	responses, total, err := c.svc.GetCategoriesWithPostCount(req)
-	if err != nil {
-		respondError(ctx, err)
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"data": ensureNotNil(responses), "total_count": total,
-		"limit": req.Limit, "offset": req.Offset,
-	})
-}
-
 func (c *CategoryController) GetTopCategories(ctx *gin.Context) {
 	req, err := parsePagination(ctx)
 	if err != nil {

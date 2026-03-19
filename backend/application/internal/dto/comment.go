@@ -24,10 +24,6 @@ type CreateReplyRequest struct {
 	Content   string `json:"content" validate:"required,min=1,max=1000"`
 }
 
-type UpdateReplyRequest struct {
-	Content string `json:"content" validate:"required,min=1,max=1000"`
-}
-
 // Comment responses
 type CommentResponse struct {
 	ID           uuid.UUID        `json:"id"`

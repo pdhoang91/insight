@@ -35,8 +35,7 @@ func main() {
 
 	storageManager := storage.NewManager("s3", db)
 	bucket, region, cdnDomain := config.GetS3Config()
-	basePath := "uploads"
-	s3Provider := storage.NewS3Provider(config.S3Client, bucket, region, basePath, cdnDomain)
+	s3Provider := storage.NewS3Provider(config.S3Client, bucket, region, "uploads", cdnDomain)
 	storageManager.RegisterProvider("s3", s3Provider)
 
 	appCache := cache.New()

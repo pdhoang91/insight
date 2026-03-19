@@ -58,10 +58,7 @@
   "sidebar": {
     "popularPosts": "Popular Posts",
     "categories": "Categories",
-    "archive": "Archive",
-    "noPopularPosts": "No popular posts yet.",
-    "noPopular": "No popular posts",
-    "moreFromBlog": "More from this blog"
+    "archive": "Archive"
   },
   "common": {
     "error": "An error occurred",

@@ -28,16 +28,6 @@ export async function fetchPosts(page = 1, limit = 10) {
   return { posts: data.data || [], total: data.total_count || 0 };
 }
 
-export async function fetchPopularPosts(limit = 5) {
-  const data = await fetchAPI(`/posts/popular?limit=${limit}`);
-  return data.data || [];
-}
-
-export async function fetchRecentPosts(limit = 5) {
-  const data = await fetchAPI(`/posts/recent?limit=${limit}`);
-  return data.data || [];
-}
-
 export async function fetchCategories(limit = 50) {
   const data = await fetchAPI(`/categories?limit=${limit}`);
   return data.data || [];

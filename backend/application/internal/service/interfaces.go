@@ -42,9 +42,7 @@ type PostService interface {
 	ListPosts(req *dto.PaginationRequest) ([]*dto.PostResponse, int64, error)
 	GetUserPosts(userID uuid.UUID, req *dto.PaginationRequest) ([]*dto.PostResponse, int64, error)
 	GetLatestPosts(limit int) ([]*dto.PostResponse, error)
-	GetRecentPosts(limit int) ([]*dto.PostResponse, error)
 	GetPopularPosts(limit int) ([]*dto.PostResponse, error)
-	GetTopPosts(limit int) ([]*dto.PostResponse, error)
 	GetPostsByYearMonth(year, month int, req *dto.PaginationRequest) ([]*dto.PostResponse, int64, error)
 	GetPostsByCategory(categoryName string, req *dto.PaginationRequest) ([]*dto.PostResponse, int64, error)
 	GetHomeData() (*dto.HomeResponse, error)
@@ -85,7 +83,6 @@ type CategoryService interface {
 	DeleteCategory(id uuid.UUID) error
 	GetTopCategories(req *dto.PaginationRequest) ([]*dto.CategoryResponse, int64, error)
 	GetPopularCategories(req *dto.PaginationRequest) ([]dto.CategoryWithCount, int64, error)
-	GetCategoriesWithPostCount(req *dto.PaginationRequest) ([]*dto.CategoryWithCount, int64, error)
 }
 
 type TagService interface {

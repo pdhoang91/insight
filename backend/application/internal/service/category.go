@@ -181,29 +181,3 @@ func (s *InsightService) DeleteCategory(id uuid.UUID) error {
 	s.invalidateCategoryCache()
 	return nil
 }
-
-// GetCategoriesWithPostCount retrieves categories with post counts
-func (s *InsightService) GetCategoriesWithPostCount(req *dto.PaginationRequest) ([]*dto.CategoryWithCount, int64, error) {
-	if req.Limit == 0 {
-		req.Limit = 10
-	}
-
-	categories, err := s.CategoryRepo.FindAll(req.Limit, req.Offset)
-	if err != nil {
-		return nil, 0, apperror.NewInternal("failed to list categories", err)
-	}
-
-	total, err := s.CategoryRepo.Count()
-	if err != nil {
-		return nil, 0, apperror.NewInternal("failed to count categories", err)
-	}
-
-	responses := make([]*dto.CategoryWithCount, 0, len(categories))
-	for _, category := range categories {
-		responses = append(responses, &dto.CategoryWithCount{
-			CategoryResponse: *dto.NewCategoryResponse(category),
-			PostCount:        0,
-		})
-	}
-	return responses, total, nil
-}

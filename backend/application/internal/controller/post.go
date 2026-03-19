@@ -123,26 +123,6 @@ func (c *PostController) DeletePost(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"message": "Post deleted successfully"})
 }
 
-func (c *PostController) TestDeletePost(ctx *gin.Context) {
-	id, err := uuid.FromString(ctx.Param("id"))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid post ID"})
-		return
-	}
-
-	post, err := c.svc.GetPostEntity(id)
-	if err != nil {
-		respondError(ctx, err)
-		return
-	}
-
-	if err := c.svc.DeletePost(post.UserID, id); err != nil {
-		respondError(ctx, err)
-		return
-	}
-	ctx.JSON(http.StatusOK, gin.H{"message": "Post soft deleted successfully (test)"})
-}
-
 func (c *PostController) GetLatestPosts(ctx *gin.Context) {
 	req, err := parsePagination(ctx)
 	if err != nil {
@@ -151,25 +131,6 @@ func (c *PostController) GetLatestPosts(ctx *gin.Context) {
 	}
 
 	responses, err := c.svc.GetLatestPosts(req.Limit)
-	if err != nil {
-		respondError(ctx, err)
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"data": ensureNotNil(responses), "total_count": int64(len(responses)),
-		"limit": req.Limit, "offset": req.Offset,
-	})
-}
-
-func (c *PostController) GetRecentPosts(ctx *gin.Context) {
-	req, err := parsePagination(ctx)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
-		return
-	}
-
-	responses, err := c.svc.GetRecentPosts(req.Limit)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -304,10 +265,6 @@ func (c *PostController) GetPopularPosts(ctx *gin.Context) {
 		"data": ensureNotNil(responses), "total_count": int64(len(responses)),
 		"limit": req.Limit, "offset": req.Offset,
 	})
-}
-
-func (c *PostController) GetTopPosts(ctx *gin.Context) {
-	c.GetPopularPosts(ctx)
 }
 
 func (c *PostController) GetPostsByYearMonth(ctx *gin.Context) {

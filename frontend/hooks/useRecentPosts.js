@@ -1,6 +1,6 @@
 // hooks/useRecentPosts.js
 import useSWR from 'swr';
-import { getLatestPosts, getPopularPosts } from '../services/postService';
+import { getLatestPosts } from '../services/postService';
 
 export const useRecentPosts = (limit = 5) => {
   const { data, error, mutate } = useSWR(
@@ -8,7 +8,7 @@ export const useRecentPosts = (limit = 5) => {
     () => getLatestPosts(limit),
     {
       revalidateOnMount: true,
-      dedupingInterval: 300000, // Cache for 5 minutes
+      dedupingInterval: 300000,
     }
   );
 
@@ -19,21 +19,3 @@ export const useRecentPosts = (limit = 5) => {
     mutate,
   };
 };
-
-export const usePopularPosts = (limit = 5) => {
-  const { data, error, mutate } = useSWR(
-    `/posts/popular?limit=${limit}`,
-    () => getPopularPosts(limit),
-    {
-      revalidateOnMount: true,
-      dedupingInterval: 300000, // Cache for 5 minutes
-    }
-  );
-
-  return {
-    posts: data || [],
-    isLoading: !error && !data,
-    isError: error,
-    mutate,
-  };
-}; 

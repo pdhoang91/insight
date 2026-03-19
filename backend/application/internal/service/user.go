@@ -291,32 +291,6 @@ func (s *InsightService) DeleteProfile(userID uuid.UUID) error {
 	return nil
 }
 
-// GetAllUsers retrieves all users (admin only)
-func (s *InsightService) GetAllUsers(req *dto.PaginationRequest) ([]*dto.UserResponse, int64, error) {
-	if req.Limit == 0 {
-		req.Limit = 50
-	}
-
-	users, err := s.UserRepo.List(req.Limit, req.Offset)
-	if err != nil {
-		return nil, 0, apperror.NewInternal("failed to list users", err)
-	}
-
-	responses := make([]*dto.UserResponse, 0, len(users))
-	for _, user := range users {
-		responses = append(responses, dto.NewUserResponse(user))
-	}
-	return responses, int64(len(responses)), nil
-}
-
-// DeleteUser deletes a user by ID (admin only)
-func (s *InsightService) DeleteUser(id uuid.UUID) error {
-	if err := s.UserRepo.Delete(id); err != nil {
-		return apperror.NewInternal("failed to delete user", err)
-	}
-	return nil
-}
-
 // UploadAvatarV2 uploads user avatar using V2 system
 func (s *InsightService) UploadAvatarV2(ctx context.Context, file *multipart.FileHeader, userID uuid.UUID) (*storage.UploadResponse, error) {
 	return s.UploadImageV2(ctx, file, userID, "avatar")

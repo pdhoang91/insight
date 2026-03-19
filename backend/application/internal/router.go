@@ -28,10 +28,7 @@ func DefineAPIRoutes(r *gin.Engine, ctrl *controller.Controller) {
 
 		// Posts
 		public.GET("/posts", ctrl.Post.ListPosts)
-		public.GET("/posts/latest", ctrl.Post.ListPosts)
-		public.GET("/posts/recent", ctrl.Post.GetRecentPosts)
 		public.GET("/posts/popular", ctrl.Post.GetPopularPosts)
-		public.GET("/posts/top", ctrl.Post.GetTopPosts)
 		public.GET("/posts/:id", ctrl.Post.GetPost)
 		public.GET("/posts/:id/comments", ctrl.Comment.GetPostComments)
 		public.GET("/p/:titleName", ctrl.Post.GetPostByTitleName)
@@ -45,7 +42,6 @@ func DefineAPIRoutes(r *gin.Engine, ctrl *controller.Controller) {
 		// Categories
 		public.GET("/categories", ctrl.Category.ListCategories)
 		public.GET("/categories/top", ctrl.Category.GetTopCategories)
-		public.GET("/categories_top", ctrl.Category.GetTopCategories)
 		public.GET("/categories/popular", ctrl.Category.GetPopularCategories)
 		public.GET("/categories/id/:id", ctrl.Category.GetCategory)
 		public.GET("/categories/:name/posts", ctrl.Post.GetPostsByCategory)
@@ -86,11 +82,8 @@ func DefineAPIRoutes(r *gin.Engine, ctrl *controller.Controller) {
 
 		// Posts
 		protected.POST("/posts", ctrl.Post.CreatePost)
-		protected.POST("/api/posts", ctrl.Post.CreatePost)
 		protected.PUT("/posts/:id", ctrl.Post.UpdatePost)
-		protected.PUT("/api/posts/:id", ctrl.Post.UpdatePost)
 		protected.DELETE("/posts/:id", ctrl.Post.DeletePost)
-		protected.DELETE("/api/posts/:id", ctrl.Post.DeletePost)
 		protected.POST("/posts/:id/clap", ctrl.Engagement.ClapPost)
 
 		// Categories

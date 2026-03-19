@@ -173,34 +173,6 @@ func (s *InsightService) CreateReply(userID uuid.UUID, req *dto.CreateReplyReque
 	return dto.NewReplyResponse(reply), nil
 }
 
-// UpdateReply updates a reply by ID
-func (s *InsightService) UpdateReply(userID uuid.UUID, replyID uuid.UUID, req *dto.UpdateReplyRequest) (*dto.ReplyResponse, error) {
-	reply, err := s.ReplyRepo.FindByID(replyID)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, apperror.NewNotFound("reply not found")
-		}
-		return nil, apperror.NewInternal("failed to find reply", err)
-	}
-
-	if reply.UserID != userID {
-		return nil, apperror.NewForbidden("you do not own this reply")
-	}
-
-	reply.Content = req.Content
-	if err := s.ReplyRepo.Update(reply); err != nil {
-		return nil, apperror.NewInternal("failed to update reply", err)
-	}
-
-	reply, err = s.ReplyRepo.FindByID(reply.ID)
-	if err != nil {
-		return nil, apperror.NewInternal("failed to load reply user", err)
-	}
-
-	return dto.NewReplyResponse(reply), nil
-}
-
-// DeleteReply deletes a reply by ID
 func (s *InsightService) DeleteReply(userID uuid.UUID, replyID uuid.UUID) error {
 	reply, err := s.ReplyRepo.FindByID(replyID)
 	if err != nil {

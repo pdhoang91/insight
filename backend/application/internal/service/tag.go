@@ -47,19 +47,6 @@ func (s *InsightService) GetPopularTags(limit int) ([]*dto.TagResponse, error) {
 	return responses, nil
 }
 
-// GetTag retrieves a tag by ID
-func (s *InsightService) GetTag(id uuid.UUID) (*dto.TagResponse, error) {
-	tag, err := s.TagRepo.FindByID(id)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, apperror.NewNotFound("tag not found")
-		}
-		return nil, apperror.NewInternal("failed to get tag", err)
-	}
-	return dto.NewTagResponse(tag), nil
-}
-
-// CreateTag creates a new tag
 func (s *InsightService) CreateTag(req *dto.CreateTagRequest) (*dto.TagResponse, error) {
 	existing, err := s.TagRepo.FindByName(req.Name)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -111,22 +98,4 @@ func (s *InsightService) DeleteTag(id uuid.UUID) error {
 		return apperror.NewInternal("failed to delete tag", err)
 	}
 	return nil
-}
-
-// SearchTags searches tags by query
-func (s *InsightService) SearchTags(query string, limit int) ([]*dto.TagResponse, error) {
-	if limit == 0 {
-		limit = 10
-	}
-
-	tags, err := s.TagRepo.Search(query, limit)
-	if err != nil {
-		return nil, apperror.NewInternal("failed to search tags", err)
-	}
-
-	responses := make([]*dto.TagResponse, 0, len(tags))
-	for _, tag := range tags {
-		responses = append(responses, dto.NewTagResponse(tag))
-	}
-	return responses, nil
 }

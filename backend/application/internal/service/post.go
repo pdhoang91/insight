@@ -489,31 +489,6 @@ func (s *InsightService) SearchPosts(query string, req *dto.PaginationRequest) (
 	return responses, int64(len(responses)), nil
 }
 
-// GetAllPosts retrieves all posts (admin only)
-func (s *InsightService) GetAllPosts(req *dto.PaginationRequest) ([]*dto.PostResponse, int64, error) {
-	if req.Limit == 0 {
-		req.Limit = 50
-	}
-
-	posts, err := s.PostRepo.List(req.Limit, req.Offset)
-	if err != nil {
-		return nil, 0, apperror.NewInternal("failed to list all posts", err)
-	}
-
-	_ = s.PostRepo.CalculateCountsForPosts(posts)
-
-	responses := make([]*dto.PostResponse, 0, len(posts))
-	for _, post := range posts {
-		responses = append(responses, dto.NewPostResponse(post))
-	}
-	return responses, int64(len(responses)), nil
-}
-
-// SearchAll searches across all content
-func (s *InsightService) SearchAll(query string) (interface{}, error) {
-	return map[string]interface{}{"message": "Search all not implemented yet", "query": query}, nil
-}
-
 func (s *InsightService) GetLatestPosts(limit int) ([]*dto.PostResponse, error) {
 	if limit == 0 {
 		limit = 5
@@ -564,14 +539,6 @@ func (s *InsightService) GetPopularPosts(limit int) ([]*dto.PostResponse, error)
 
 	s.Cache.Set(cacheKey, responses, 5*time.Minute)
 	return responses, nil
-}
-
-func (s *InsightService) GetRecentPosts(limit int) ([]*dto.PostResponse, error) {
-	return s.GetLatestPosts(limit)
-}
-
-func (s *InsightService) GetTopPosts(limit int) ([]*dto.PostResponse, error) {
-	return s.GetPopularPosts(limit)
 }
 
 func (s *InsightService) GetHomeData() (*dto.HomeResponse, error) {

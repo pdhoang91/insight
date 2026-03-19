@@ -58,10 +58,7 @@
   "sidebar": {
     "popularPosts": "Bài viết phổ biến",
     "categories": "Danh mục",
-    "archive": "Lưu trữ",
-    "noPopularPosts": "Hiện tại chưa có bài viết phổ biến nào.",
-    "noPopular": "Không có bài viết phổ biến",
-    "moreFromBlog": "Xem thêm từ blog"
+    "archive": "Lưu trữ"
   },
   "common": {
     "error": "Đã xảy ra lỗi",
