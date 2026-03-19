@@ -1,6 +1,7 @@
 'use client';
 
-import { motion, useSpring } from 'framer-motion';
+import { useEffect } from 'react';
+import { motion, useSpring, useMotionValue } from 'framer-motion';
 import FrogIcon from './FrogIcon';
 import { useDesktopChromiumScrollUI } from '../../hooks/useDesktopChromiumScrollUI';
 import { useScrollProgress } from '../../hooks/useScrollProgress';
@@ -20,11 +21,16 @@ export default function FrogScrollbar() {
 
   const rawY = progress * trackHeight + trackPadding;
 
-  const springY = useSpring(rawY, {
+  const motionY = useMotionValue(rawY);
+  const springY = useSpring(motionY, {
     stiffness: 120,
     damping: 22,
     mass: 0.6,
   });
+
+  useEffect(() => {
+    motionY.set(rawY);
+  }, [rawY, motionY]);
 
   // Gate: hide on non-Chromium, mobile/touch, or reduced-motion
   if (!enabled) return null;
