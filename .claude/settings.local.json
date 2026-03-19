@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(sudo chown:*)"
+      "Bash(sudo chown:*)",
+      "Bash(grep -r \"memory\\\\|GOMAXPROCS\\\\|MaxIdleConns\\\\|MaxOpenConns\" /Users/anhoaian/Documents/pdhoang91/insight --include=*.go --include=*.conf --include=*.yml)"
     ]
   }
 }

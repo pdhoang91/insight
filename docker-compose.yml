@@ -16,6 +16,7 @@ services:
      - search-service
    networks:
      - app-network
+   mem_limit: 128m
 
   # Certbot service for SSL certificate management
   certbot:
@@ -29,6 +30,7 @@ services:
    command: ["-c", "echo 'Certbot service ready for SSL certificate operations' && sleep infinity"]
    networks:
      - app-network
+   mem_limit: 64m
   db:
     image: postgres:13
     container_name: database
@@ -39,12 +41,19 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: postgres
+    command: >
+      postgres
+      -c shared_buffers=128MB
+      -c work_mem=4MB
+      -c max_connections=50
+      -c effective_cache_size=256MB
     ports:
       - "5433:5432" # Cổng này chỉ để truy cập từ host, không cần thiết cho kết nối giữa các container
     volumes:
       - db-data:/var/lib/postgresql/data
     networks:
       - app-network
+    mem_limit: 512m
     healthcheck:
       test: ["CMD", "pg_isready", "-q", "-d", "postgres", "-U", "postgres"]
       interval: 5s
@@ -77,6 +86,7 @@ services:
       - ./backend/migrate:/migrations:ro  # Read-only mount
     networks:
       - app-network
+    mem_limit: 128m
     restart: "no"  # Run once and exit
 
   application:
@@ -103,6 +113,8 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=postgres
       - DB_NAME=postgres
+      - MAX_OPEN_CONNS=10
+      - MAX_IDLE_CONNS=5
 
       - JWT_SECRET=${JWT_SECRET}
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
@@ -122,6 +134,7 @@ services:
       - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN:-}
     networks:
       - app-network
+    mem_limit: 256m
     # logging:
     #   driver: "fluentd"
     #   options:
@@ -155,11 +168,14 @@ services:
       - DB_USER=postgres
       - DB_PASSWORD=postgres
       - DB_NAME=postgres
+      - MAX_OPEN_CONNS=10
+      - MAX_IDLE_CONNS=5
 
       - BASE_API_URL=${BASE_API_URL}
       - LOG_LEVEL=DEBUG
     networks:
       - app-network
+    mem_limit: 256m
     # logging:
     #   driver: "fluentd"
     #   options:
@@ -184,10 +200,12 @@ services:
     environment:
       - NEXT_PUBLIC_BASE_API_URL=${NEXT_PUBLIC_BASE_API_URL}
       - NEXT_PUBLIC_BASE_FE_URL=${NEXT_PUBLIC_BASE_FE_URL}
+      - NODE_OPTIONS=--max-old-space-size=512
     # depends_on:
     #   - fluentd
     networks:
       - app-network
+    mem_limit: 768m
 
 networks:
   app-network:
