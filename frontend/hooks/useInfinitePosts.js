@@ -2,7 +2,7 @@
 import useSWRInfinite from 'swr/infinite';
 import { getPosts } from '../services/postService';
 
-export const useInfinitePosts = () => {
+export const useInfinitePosts = (fallbackData) => {
   const PAGE_SIZE = 10; // Số lượng bài post mỗi trang
 
   // Fetcher function - chỉ sử dụng getPosts
@@ -29,6 +29,7 @@ export const useInfinitePosts = () => {
     getKey,
     ([, page, limit]) => fetcher(page, limit),
     {
+      fallbackData: fallbackData || undefined,
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       dedupingInterval: 10000, // Prevent duplicate requests within 10 seconds

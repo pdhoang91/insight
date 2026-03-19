@@ -105,13 +105,15 @@ const SectionLabel = ({ children }) => (
   </p>
 );
 
-export default function HomeClient({ initialPosts, totalCount }) {
-  const { posts, isLoading, isError, setSize, isReachingEnd } = useInfinitePosts();
-
-  const flatPosts = posts?.flat().filter(Boolean) || [];
+export default function HomeClient({ initialHomeData }) {
+  const { posts, isLoading, isError, setSize, isReachingEnd } = useInfinitePosts(
+    initialHomeData
+      ? [{ posts: initialHomeData.latest_posts, totalCount: initialHomeData.total_posts }]
+      : undefined
+  );
 
   return (
-    <HomeLayout sidebar={<PersonalBlogSidebar />}>
+    <HomeLayout sidebar={<PersonalBlogSidebar initialHomeData={initialHomeData} />}>
       <HomeHero />
       <div className="animate-fade-up delay-200">
         <SectionLabel>Latest writing</SectionLabel>

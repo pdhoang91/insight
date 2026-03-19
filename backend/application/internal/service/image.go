@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"mime/multipart"
+	"time"
 
 	"github.com/pdhoang91/blog/internal/apperror"
 	"github.com/pdhoang91/blog/internal/entities"
@@ -32,7 +33,11 @@ func (s *InsightService) DeleteImageV2(ctx context.Context, imageID string, user
 	if image.UserID != userID {
 		return apperror.NewForbidden("not authorized to delete this image")
 	}
-	return s.StorageManager.DeleteImage(ctx, imageID)
+	if err := s.StorageManager.DeleteImage(ctx, imageID); err != nil {
+		return err
+	}
+	s.InvalidateImageCache(imageID)
+	return nil
 }
 
 // ListUserImages returns images uploaded by a user
@@ -70,8 +75,12 @@ func (s *InsightService) GetImageURL(imageID string) string {
 	return s.StorageManager.GetImageURL(imageID)
 }
 
-// GetImageRedirectURL returns a redirect URL for serving an image
 func (s *InsightService) GetImageRedirectURL(ctx context.Context, imageID string) (string, error) {
+	cacheKey := "img_redirect:" + imageID
+	if cached, ok := s.Cache.Get(cacheKey); ok {
+		return cached.(string), nil
+	}
+
 	image, err := s.StorageManager.GetImageByID(ctx, imageID)
 	if err != nil {
 		return "", apperror.NewNotFound("image not found")
@@ -84,5 +93,11 @@ func (s *InsightService) GetImageRedirectURL(ctx context.Context, imageID string
 	if err != nil {
 		return "", apperror.NewInternal("failed to generate URL", err)
 	}
+
+	s.Cache.Set(cacheKey, url, time.Hour)
 	return url, nil
+}
+
+func (s *InsightService) InvalidateImageCache(imageID string) {
+	s.Cache.Delete("img_redirect:" + imageID)
 }

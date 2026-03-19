@@ -42,7 +42,7 @@ type PostRepository interface {
 	ReplaceTags(post *entities.Post, tags []entities.Tag) error
 	LoadRelationships(post *entities.Post) error
 	ExistsBySlugExcluding(slug string, excludeID uuid.UUID) bool
-	// WithTx returns a new repository instance that uses the given transaction.
+	RecalculateAllEngagementScores() error
 	WithTx(tx *gorm.DB) PostRepository
 }
 

@@ -23,9 +23,9 @@ type Controller struct {
 	Tag        *TagController
 	Image      *ImageController
 	Search     *SearchController
+	Home       *HomeController
 }
 
-// NewController creates a Controller from a composite Service.
 func NewController(svc service.Service) *Controller {
 	return &Controller{
 		Auth:       &AuthController{svc: svc},
@@ -38,6 +38,7 @@ func NewController(svc service.Service) *Controller {
 		Tag:        &TagController{svc: svc},
 		Image:      &ImageController{svc: svc},
 		Search:     &SearchController{svc: svc},
+		Home:       &HomeController{svc: svc},
 	}
 }
 

@@ -80,11 +80,24 @@ func (r *postRepo) Search(query string, limit, offset int) ([]*entities.Post, er
 func (r *postRepo) GetPopular(limit int) ([]*entities.Post, error) {
 	var posts []*entities.Post
 	err := r.db.Preload("User").Preload("Categories").Preload("Tags").
-		Select("posts.*, COALESCE((SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id), 0) as comments_count").
-		Order("(posts.views * 0.7 + COALESCE((SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id), 0) * 0.3) DESC").
+		Order("engagement_score DESC").
 		Limit(limit).
 		Find(&posts).Error
 	return posts, err
+}
+
+func (r *postRepo) RecalculateAllEngagementScores() error {
+	return r.db.Exec(`
+		UPDATE posts
+		SET engagement_score = (
+			views * 0.7 +
+			COALESCE((
+				SELECT COUNT(*) FROM comments
+				WHERE comments.post_id = posts.id AND comments.deleted_at IS NULL
+			), 0) * 0.3
+		)
+		WHERE deleted_at IS NULL
+	`).Error
 }
 
 func (r *postRepo) FindByCategory(categoryID uuid.UUID, limit, offset int) ([]*entities.Post, error) {

@@ -24,6 +24,8 @@ func DefineAPIRoutes(r *gin.Engine, ctrl *controller.Controller) {
 		// Debug
 		public.GET("/debug-jwt", ctrl.User.DebugJWT)
 
+		public.GET("/home", ctrl.Home.GetHomeData)
+
 		// Posts
 		public.GET("/posts", ctrl.Post.ListPosts)
 		public.GET("/posts/latest", ctrl.Post.ListPosts)

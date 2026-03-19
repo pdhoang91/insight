@@ -80,6 +80,7 @@ func (c *ImageController) ServeImageV2(ctx *gin.Context) {
 		return
 	}
 
+	ctx.Header("Cache-Control", "public, max-age=86400")
 	ctx.Redirect(http.StatusFound, redirectURL)
 }
 

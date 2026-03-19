@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/pdhoang91/blog/internal/apperror"
@@ -130,14 +131,28 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 	}
 
 	revalidation.TriggerPostRevalidation(post.Slug)
+	s.invalidatePostListCaches()
 
 	return dto.NewPostResponse(post), nil
 }
 
-// ListPosts retrieves all posts with pagination
+func (s *InsightService) invalidatePostListCaches() {
+	s.Cache.DeletePrefix("list_posts:")
+	s.Cache.DeletePrefix("latest_posts:")
+	s.Cache.DeletePrefix("popular_posts:")
+	s.Cache.Delete("home_data")
+}
+
 func (s *InsightService) ListPosts(req *dto.PaginationRequest) ([]*dto.PostResponse, int64, error) {
 	if req.Limit == 0 {
 		req.Limit = 20
+	}
+
+	cacheKey := fmt.Sprintf("list_posts:%d:%d", req.Limit, req.Offset)
+	if cachedPosts, ok1 := s.Cache.Get(cacheKey); ok1 {
+		if cachedTotal, ok2 := s.Cache.Get(cacheKey + ":total"); ok2 {
+			return cachedPosts.([]*dto.PostResponse), cachedTotal.(int64), nil
+		}
 	}
 
 	posts, err := s.PostRepo.FindAll(req.Limit, req.Offset)
@@ -156,6 +171,9 @@ func (s *InsightService) ListPosts(req *dto.PaginationRequest) ([]*dto.PostRespo
 	for _, post := range posts {
 		responses = append(responses, dto.NewPostResponse(post))
 	}
+
+	s.Cache.Set(cacheKey, responses, 2*time.Minute)
+	s.Cache.Set(cacheKey+":total", total, 2*time.Minute)
 	return responses, total, nil
 }
 
@@ -354,11 +372,11 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 	}
 
 	revalidation.TriggerPostRevalidation(post.Slug)
+	s.invalidatePostListCaches()
 
 	return dto.NewPostResponse(post), nil
 }
 
-// DeletePost soft deletes a post by ID
 func (s *InsightService) DeletePost(userID uuid.UUID, id uuid.UUID) error {
 	tx := s.DB.Begin()
 	if tx.Error != nil {
@@ -407,7 +425,6 @@ func (s *InsightService) DeletePost(userID uuid.UUID, id uuid.UUID) error {
 		return apperror.NewInternal("failed to delete post content", err)
 	}
 
-	// Send notifications (best-effort)
 	eventProcessor := notification.GetDefaultProcessor(s.DB)
 	_ = eventProcessor.SendPostNotification(notification.EventTypePostDeleted, userID, id, "Post deleted")
 
@@ -416,11 +433,11 @@ func (s *InsightService) DeletePost(userID uuid.UUID, id uuid.UUID) error {
 	}
 
 	revalidation.TriggerPostRevalidation(post.Slug)
+	s.invalidatePostListCaches()
 
 	return nil
 }
 
-// DeletePostImages deletes all images referenced in a post
 func (s *InsightService) DeletePostImages(ctx context.Context, postID uuid.UUID, userID uuid.UUID) error {
 	imageRefs, err := s.ImageRepo.FindReferencesByPostID(postID)
 	if err != nil {
@@ -497,13 +514,17 @@ func (s *InsightService) SearchAll(query string) (interface{}, error) {
 	return map[string]interface{}{"message": "Search all not implemented yet", "query": query}, nil
 }
 
-// GetLatestPosts retrieves latest posts
 func (s *InsightService) GetLatestPosts(limit int) ([]*dto.PostResponse, error) {
 	if limit == 0 {
 		limit = 5
 	}
 
-	posts, err := s.PostRepo.List(limit, 0)
+	cacheKey := fmt.Sprintf("latest_posts:%d", limit)
+	if cached, ok := s.Cache.Get(cacheKey); ok {
+		return cached.([]*dto.PostResponse), nil
+	}
+
+	posts, err := s.PostRepo.FindAll(limit, 0)
 	if err != nil {
 		return nil, apperror.NewInternal("failed to get latest posts", err)
 	}
@@ -514,13 +535,19 @@ func (s *InsightService) GetLatestPosts(limit int) ([]*dto.PostResponse, error) 
 	for _, post := range posts {
 		responses = append(responses, dto.NewPostResponse(post))
 	}
+
+	s.Cache.Set(cacheKey, responses, 2*time.Minute)
 	return responses, nil
 }
 
-// GetPopularPosts retrieves popular posts based on engagement
 func (s *InsightService) GetPopularPosts(limit int) ([]*dto.PostResponse, error) {
 	if limit == 0 {
 		limit = 5
+	}
+
+	cacheKey := fmt.Sprintf("popular_posts:%d", limit)
+	if cached, ok := s.Cache.Get(cacheKey); ok {
+		return cached.([]*dto.PostResponse), nil
 	}
 
 	posts, err := s.PostRepo.GetPopular(limit)
@@ -534,17 +561,84 @@ func (s *InsightService) GetPopularPosts(limit int) ([]*dto.PostResponse, error)
 	for _, post := range posts {
 		responses = append(responses, dto.NewPostResponse(post))
 	}
+
+	s.Cache.Set(cacheKey, responses, 5*time.Minute)
 	return responses, nil
 }
 
-// GetRecentPosts retrieves recent posts (alias for GetLatestPosts)
 func (s *InsightService) GetRecentPosts(limit int) ([]*dto.PostResponse, error) {
 	return s.GetLatestPosts(limit)
 }
 
-// GetTopPosts retrieves top posts (alias for GetPopularPosts)
 func (s *InsightService) GetTopPosts(limit int) ([]*dto.PostResponse, error) {
 	return s.GetPopularPosts(limit)
+}
+
+func (s *InsightService) GetHomeData() (*dto.HomeResponse, error) {
+	if cached, ok := s.Cache.Get("home_data"); ok {
+		return cached.(*dto.HomeResponse), nil
+	}
+
+	var (
+		latestPosts  []*dto.PostResponse
+		popularPosts []*dto.PostResponse
+		categories   []*dto.CategoryResponse
+		totalPosts   int64
+		latestErr    error
+		popularErr   error
+		catErr       error
+		countErr     error
+		wg           sync.WaitGroup
+	)
+
+	wg.Add(4)
+	go func() {
+		defer wg.Done()
+		latestPosts, latestErr = s.GetLatestPosts(10)
+	}()
+	go func() {
+		defer wg.Done()
+		popularPosts, popularErr = s.GetPopularPosts(5)
+	}()
+	go func() {
+		defer wg.Done()
+		cats, _, err := s.ListCategories(&dto.PaginationRequest{Limit: 8})
+		categories, catErr = cats, err
+	}()
+	go func() {
+		defer wg.Done()
+		totalPosts, countErr = s.PostRepo.Count()
+	}()
+	wg.Wait()
+
+	if latestErr != nil {
+		return nil, latestErr
+	}
+	if popularErr != nil {
+		return nil, popularErr
+	}
+	if catErr != nil {
+		return nil, catErr
+	}
+	if countErr != nil {
+		return nil, apperror.NewInternal("failed to count posts", countErr)
+	}
+
+	resp := &dto.HomeResponse{
+		LatestPosts:  latestPosts,
+		PopularPosts: popularPosts,
+		Categories:   categories,
+		TotalPosts:   totalPosts,
+	}
+
+	s.Cache.Set("home_data", resp, 2*time.Minute)
+	return resp, nil
+}
+
+func (s *InsightService) RecalculateEngagementScores() {
+	_ = s.PostRepo.RecalculateAllEngagementScores()
+	s.Cache.DeletePrefix("popular_posts:")
+	s.Cache.Delete("home_data")
 }
 
 // GetPostsByYearMonth retrieves posts by year and month

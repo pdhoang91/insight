@@ -66,3 +66,8 @@ export async function fetchPopularTags(limit = 20) {
   const data = await fetchAPI(`/tags/popular?limit=${limit}`);
   return data.data || [];
 }
+
+export async function fetchHomeData() {
+  const data = await fetchAPI('/home');
+  return data?.data || { latest_posts: [], popular_posts: [], categories: [], total_posts: 0 };
+}

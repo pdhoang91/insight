@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/gin-contrib/cors"
 
@@ -13,6 +14,7 @@ import (
 	"github.com/pdhoang91/blog/internal/controller"
 	"github.com/pdhoang91/blog/internal/repository"
 	"github.com/pdhoang91/blog/internal/service"
+	"github.com/pdhoang91/blog/pkg/cache"
 	"github.com/pdhoang91/blog/pkg/storage"
 )
 
@@ -37,7 +39,8 @@ func main() {
 	s3Provider := storage.NewS3Provider(config.S3Client, bucket, region, basePath, cdnDomain)
 	storageManager.RegisterProvider("s3", s3Provider)
 
-	// Repositories — DB injected via constructor
+	appCache := cache.New()
+
 	userRepo := repository.NewUserRepository(db)
 	postRepo := repository.NewPostRepository(db)
 	commentRepo := repository.NewCommentRepository(db)
@@ -51,6 +54,7 @@ func main() {
 
 	baseService := service.NewBaseService(
 		db,
+		appCache,
 		config.GoogleOauthConfig,
 		config.S3Client,
 		storageManager,
@@ -60,6 +64,15 @@ func main() {
 	)
 
 	insightService := service.NewInsightService(baseService)
+
+	go func() {
+		ticker := time.NewTicker(5 * time.Minute)
+		defer ticker.Stop()
+		for range ticker.C {
+			insightService.RecalculateEngagementScores()
+		}
+	}()
+
 	mainController := controller.NewController(insightService)
 	internal.DefineAPIRoutes(r, mainController)
 

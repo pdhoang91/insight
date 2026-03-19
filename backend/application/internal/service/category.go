@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/pdhoang91/blog/internal/apperror"
@@ -11,10 +12,16 @@ import (
 	"gorm.io/gorm"
 )
 
-// ListCategories retrieves all categories with pagination
 func (s *InsightService) ListCategories(req *dto.PaginationRequest) ([]*dto.CategoryResponse, int64, error) {
 	if req.Limit == 0 {
 		req.Limit = 10
+	}
+
+	cacheKey := fmt.Sprintf("categories:%d:%d", req.Limit, req.Offset)
+	if cachedCats, ok1 := s.Cache.Get(cacheKey); ok1 {
+		if cachedTotal, ok2 := s.Cache.Get(cacheKey + ":total"); ok2 {
+			return cachedCats.([]*dto.CategoryResponse), cachedTotal.(int64), nil
+		}
 	}
 
 	categories, err := s.CategoryRepo.FindAll(req.Limit, req.Offset)
@@ -31,6 +38,9 @@ func (s *InsightService) ListCategories(req *dto.PaginationRequest) ([]*dto.Cate
 	for _, category := range categories {
 		responses = append(responses, dto.NewCategoryResponse(category))
 	}
+
+	s.Cache.Set(cacheKey, responses, 10*time.Minute)
+	s.Cache.Set(cacheKey+":total", total, 10*time.Minute)
 	return responses, total, nil
 }
 
@@ -81,7 +91,6 @@ func (s *InsightService) GetPopularCategories(req *dto.PaginationRequest) ([]dto
 	return categories, totalCount, nil
 }
 
-// CreateCategory creates a new category
 func (s *InsightService) CreateCategory(req *dto.CreateCategoryRequest) (*dto.CategoryResponse, error) {
 	existing, err := s.CategoryRepo.FindByName(req.Name)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -98,6 +107,7 @@ func (s *InsightService) CreateCategory(req *dto.CreateCategoryRequest) (*dto.Ca
 	if err := s.CategoryRepo.Create(category); err != nil {
 		return nil, apperror.NewInternal("failed to create category", err)
 	}
+	s.invalidateCategoryCache()
 	return dto.NewCategoryResponse(category), nil
 }
 
@@ -113,7 +123,11 @@ func (s *InsightService) GetCategory(id uuid.UUID) (*dto.CategoryResponse, error
 	return dto.NewCategoryResponse(category), nil
 }
 
-// UpdateCategory updates a category by ID
+func (s *InsightService) invalidateCategoryCache() {
+	s.Cache.DeletePrefix("categories:")
+	s.Cache.Delete("home_data")
+}
+
 func (s *InsightService) UpdateCategory(id uuid.UUID, req *dto.UpdateCategoryRequest) (*dto.CategoryResponse, error) {
 	category, err := s.CategoryRepo.FindByID(id)
 	if err != nil {
@@ -141,10 +155,10 @@ func (s *InsightService) UpdateCategory(id uuid.UUID, req *dto.UpdateCategoryReq
 	if err := s.CategoryRepo.Update(category); err != nil {
 		return nil, apperror.NewInternal("failed to update category", err)
 	}
+	s.invalidateCategoryCache()
 	return dto.NewCategoryResponse(category), nil
 }
 
-// DeleteCategory deletes a category by ID
 func (s *InsightService) DeleteCategory(id uuid.UUID) error {
 	if _, err := s.CategoryRepo.FindByID(id); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -164,6 +178,7 @@ func (s *InsightService) DeleteCategory(id uuid.UUID) error {
 	if err := s.CategoryRepo.Delete(id); err != nil {
 		return apperror.NewInternal("failed to delete category", err)
 	}
+	s.invalidateCategoryCache()
 	return nil
 }
 

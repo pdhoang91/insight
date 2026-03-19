@@ -3,15 +3,16 @@ package service
 import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/pdhoang91/blog/internal/repository"
+	"github.com/pdhoang91/blog/pkg/cache"
 	"github.com/pdhoang91/blog/pkg/storage"
 	"golang.org/x/oauth2"
 	"gorm.io/gorm"
 )
 
-// BaseService contains common dependencies for all services.
 type BaseService struct {
 	DB *gorm.DB
 
+	Cache             *cache.MemoryCache
 	GoogleOauthConfig *oauth2.Config
 	S3Client          *s3.Client
 	StorageManager    *storage.Manager
@@ -30,6 +31,7 @@ type BaseService struct {
 
 func NewBaseService(
 	db *gorm.DB,
+	appCache *cache.MemoryCache,
 	googleOauthConfig *oauth2.Config,
 	s3Client *s3.Client,
 	storageManager *storage.Manager,
@@ -46,6 +48,7 @@ func NewBaseService(
 ) *BaseService {
 	return &BaseService{
 		DB:                db,
+		Cache:             appCache,
 		GoogleOauthConfig: googleOauthConfig,
 		S3Client:          s3Client,
 		StorageManager:    storageManager,
