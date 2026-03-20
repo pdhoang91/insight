@@ -3,12 +3,28 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
-import { FaUser, FaSignOutAlt, FaEdit, FaBars, FaTimes } from 'react-icons/fa';
+import { UserCircle, SignOut, PencilSimple, List } from '@phosphor-icons/react';
 import { useUser } from '../../context/UserContext';
 import { usePostContext } from '../../context/PostContext';
 import SimpleSearchBar from '../Shared/SimpleSearchBar';
 import { canWritePosts } from '../../services/authService';
 import { useTranslations } from 'next-intl';
+import MobileSlidePanel from './MobileSlidePanel';
+import LanguageTogglePill from '../Shared/LanguageTogglePill';
+
+const panelContainer = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.06 } },
+};
+
+const panelItem = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { type: 'spring', stiffness: 300, damping: 30, mass: 0.3 },
+  },
+};
 
 const Navbar = () => {
   const t = useTranslations();
@@ -126,11 +142,13 @@ const Navbar = () => {
                   }}
                   className="hover:text-[var(--text)]"
                 >
-                  <FaEdit style={{ width: 13, height: 13 }} />
+                  <PencilSimple size={16} weight="regular" />
                   {t('nav.write')}
                 </button>
               )
             )}
+
+            <LanguageTogglePill />
 
             {user ? (
               <div className="relative" ref={userMenuRef}>
@@ -152,7 +170,7 @@ const Navbar = () => {
                       border: '1.5px solid var(--border-mid)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>
-                      <FaUser style={{ width: 13, height: 13, color: 'var(--text-muted)' }} />
+                      <UserCircle size={16} weight="regular" color="var(--text-muted)" />
                     </div>
                   )}
                 </button>
@@ -189,7 +207,7 @@ const Navbar = () => {
                             width: 36, height: 36, borderRadius: '50%',
                             background: 'var(--bg-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center',
                           }}>
-                            <FaUser style={{ width: 14, height: 14, color: 'var(--text-muted)' }} />
+                            <UserCircle size={16} weight="regular" color="var(--text-muted)" />
                           </div>
                         )}
                         <div style={{ minWidth: 0 }}>
@@ -210,7 +228,7 @@ const Navbar = () => {
                         }}
                         className="hover:text-[var(--text)]"
                       >
-                        <FaSignOutAlt style={{ width: 13, height: 13 }} />
+                        <SignOut size={16} weight="regular" />
                         {t('nav.logout')}
                       </button>
                     </motion.div>
@@ -247,101 +265,123 @@ const Navbar = () => {
             <div className="w-32">
               <SimpleSearchBar placeholder={t('nav.search')} />
             </div>
+            {user && canWritePosts(user) && (
+              isWritePage ? (
+                <button
+                  onClick={() => handlePublish?.()}
+                  style={{
+                    fontFamily: 'var(--font-display)',
+                    fontWeight: 600,
+                    fontSize: '0.8rem',
+                    letterSpacing: '-0.01em',
+                    background: 'var(--accent)',
+                    color: 'var(--text-inverse)',
+                    padding: '0.4rem 0.85rem',
+                    borderRadius: '3px',
+                    border: 'none',
+                    cursor: 'pointer',
+                    transition: 'opacity 0.2s',
+                  }}
+                  className="hover:opacity-85"
+                >
+                  {t('nav.publish')}
+                </button>
+              ) : (
+                <button
+                  onClick={() => router.push('/write')}
+                  style={{ padding: '6px', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s' }}
+                  className="hover:text-[var(--text)]"
+                  aria-label="Write"
+                >
+                  <PencilSimple size={20} weight="regular" />
+                </button>
+              )
+            )}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               style={{ padding: '6px', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s' }}
               className="hover:text-[var(--text)]"
-              aria-label="Toggle menu"
+              aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
             >
-              {isMobileMenuOpen
-                ? <FaTimes style={{ width: 18, height: 18 }} />
-                : <FaBars style={{ width: 18, height: 18 }} />
-              }
+              <List size={20} weight="regular" />
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile menu */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-            style={{
-              background: 'var(--bg)',
-              borderTop: '1px solid var(--border)',
-              overflow: 'hidden',
-            }}
-            className="md:hidden"
-          >
-            <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {user && canWritePosts(user) && !isWritePage && (
-                <button
-                  onClick={() => { router.push('/write'); setIsMobileMenuOpen(false); }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 8, width: '100%',
-                    fontFamily: 'var(--font-display)', fontSize: '0.875rem',
-                    color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer',
-                    letterSpacing: '-0.01em', padding: '6px 0',
-                  }}
-                >
-                  <FaEdit style={{ width: 13, height: 13 }} />
-                  {t('nav.write')}
-                </button>
-              )}
+      {/* Mobile slide panel */}
+      <MobileSlidePanel
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+      >
+        <motion.div
+          variants={panelContainer}
+          initial="hidden"
+          animate="visible"
+          style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
+        >
+          {user && (
+            <motion.div variants={panelItem}>
+              <Link
+                href={`/${user.username}`}
+                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0' }}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {user.avatar_url ? (
+                  <img src={user.avatar_url} alt={user.name} style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }} />
+                ) : (
+                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--bg-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <UserCircle size={18} weight="regular" color="var(--text-muted)" />
+                  </div>
+                )}
+                <span style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '0.9rem', color: 'var(--text)', letterSpacing: '-0.01em' }}>
+                  {user.name}
+                </span>
+              </Link>
+            </motion.div>
+          )}
 
-              {user ? (
-                <>
-                  <Link
-                    href={`/${user.username}`}
-                    style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' }}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {user.avatar_url ? (
-                      <img src={user.avatar_url} alt={user.name} style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover' }} />
-                    ) : (
-                      <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--bg-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <FaUser style={{ width: 12, height: 12, color: 'var(--text-muted)' }} />
-                      </div>
-                    )}
-                    <span style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '0.875rem', color: 'var(--text)', letterSpacing: '-0.01em' }}>
-                      {user.name}
-                    </span>
-                  </Link>
-                  <button
-                    onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 8, width: '100%',
-                      fontFamily: 'var(--font-display)', fontSize: '0.875rem',
-                      color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer',
-                      letterSpacing: '-0.01em', padding: '6px 0', textAlign: 'left',
-                    }}
-                  >
-                    <FaSignOutAlt style={{ width: 13, height: 13 }} />
-                    {t('nav.logout')}
-                  </button>
-                </>
-              ) : (
-                <button
-                  onClick={() => { setModalOpen(true); setIsMobileMenuOpen(false); }}
-                  style={{
-                    fontFamily: 'var(--font-display)', fontWeight: 500, fontSize: '0.875rem',
-                    letterSpacing: '-0.01em', color: 'var(--text)',
-                    background: 'none', border: '1px solid var(--border-mid)',
-                    borderRadius: '3px', padding: '8px 16px', cursor: 'pointer',
-                    alignSelf: 'flex-start',
-                  }}
-                >
-                  {t('nav.login')}
-                </button>
-              )}
-            </div>
+          <motion.div variants={panelItem} style={{ padding: '4px 0' }}>
+            <LanguageTogglePill />
           </motion.div>
-        )}
-      </AnimatePresence>
+
+          <motion.div variants={panelItem}>
+            <div style={{ borderTop: '1px solid var(--border)', margin: '8px 0' }} />
+          </motion.div>
+
+          {user ? (
+            <motion.div variants={panelItem}>
+              <button
+                onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 8, width: '100%',
+                  fontFamily: 'var(--font-display)', fontSize: '0.875rem',
+                  color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer',
+                  letterSpacing: '-0.01em', padding: '8px 0', textAlign: 'left',
+                }}
+              >
+                <SignOut size={16} weight="regular" />
+                {t('nav.logout')}
+              </button>
+            </motion.div>
+          ) : (
+            <motion.div variants={panelItem}>
+              <button
+                onClick={() => { setIsMobileMenuOpen(false); setModalOpen(true); }}
+                style={{
+                  fontFamily: 'var(--font-display)', fontWeight: 500, fontSize: '0.875rem',
+                  letterSpacing: '-0.01em', color: 'var(--text)',
+                  background: 'none', border: '1px solid var(--border-mid)',
+                  borderRadius: '3px', padding: '8px 16px', cursor: 'pointer',
+                  alignSelf: 'flex-start',
+                }}
+              >
+                {t('nav.login')}
+              </button>
+            </motion.div>
+          )}
+        </motion.div>
+      </MobileSlidePanel>
     </nav>
   );
 };

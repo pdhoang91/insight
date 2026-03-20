@@ -2,7 +2,33 @@
   "permissions": {
     "allow": [
       "Bash(sudo chown:*)",
-      "Bash(grep -r \"memory\\\\|GOMAXPROCS\\\\|MaxIdleConns\\\\|MaxOpenConns\" /Users/anhoaian/Documents/pdhoang91/insight --include=*.go --include=*.conf --include=*.yml)"
+      "Bash(grep -r \"memory\\\\|GOMAXPROCS\\\\|MaxIdleConns\\\\|MaxOpenConns\" /Users/anhoaian/Documents/pdhoang91/insight --include=*.go --include=*.conf --include=*.yml)",
+      "Read(//Users/anhoaian/.config/opencode/**)",
+      "Read(//Users/anhoaian/.opencode/**)",
+      "Bash(env)",
+      "Bash(find /Users/anhoaian -name *chamber*)",
+      "Bash(python3:*)",
+      "Bash(opencode --version)",
+      "Bash(/dev/null --include=*.js -l)",
+      "Bash(find /Users/anhoaian/.local/share/opencode -name opencode -o -name *.go)",
+      "Bash(opencode auth:*)",
+      "Bash(opencode --help)",
+      "Bash(cp /Users/anhoaian/.config/opencode/oh-my-opencode.json /Users/anhoaian/.config/opencode/oh-my-opencode.json.schema-backup)",
+      "Bash(cp /Users/anhoaian/.config/opencode/oh-my-opencode.json.bak.2026-03-17T10-19-29-090Z /Users/anhoaian/.config/opencode/oh-my-opencode.json)",
+      "Bash(npm show:*)",
+      "Bash(npx opencode@latest --version)",
+      "WebSearch",
+      "Bash(npm list:*)",
+      "Read(//usr/local/lib/node_modules/opencode-ai/bin/**)",
+      "Bash(brew list:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(sudo npm:*)",
+      "Bash(sudo rm:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(grep -E \"^\\\\d+ errors|error$\")",
+      "Bash(node:*)",
+      "Bash(grep -r 'Invalid state' /Users/anhoaian/Documents/pdhoang91/insight --include=*.go --include=*.js --include=*.ts)"
     ]
   }
 }
