@@ -28,7 +28,8 @@
       "Bash(npm run:*)",
       "Bash(grep -E \"^\\\\d+ errors|error$\")",
       "Bash(node:*)",
-      "Bash(grep -r 'Invalid state' /Users/anhoaian/Documents/pdhoang91/insight --include=*.go --include=*.js --include=*.ts)"
+      "Bash(grep -r 'Invalid state' /Users/anhoaian/Documents/pdhoang91/insight --include=*.go --include=*.js --include=*.ts)",
+      "Bash(curl:*)"
     ]
   }
 }

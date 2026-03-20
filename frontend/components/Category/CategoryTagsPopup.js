@@ -1,14 +1,17 @@
 // components/Category/CategoryTagsPopup.js — Medium-style full-page publish flow
-import React, { useState, useRef, useMemo } from 'react';
-import { FaTimes } from 'react-icons/fa';
+import React, { useState, useRef, useMemo, useCallback } from 'react';
+import { X, Image, ArrowCircleUp } from '@phosphor-icons/react';
 import { useCategories } from '../../hooks/useCategories';
 import { getContentPlainText } from '../../utils/renderContent';
+import { uploadImage } from '../../services/imageService';
+import LoadingSpinner from '../Shared/LoadingSpinner';
 
-const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) => {
+const CategoryTagsPopup = ({ title, content, imageTitle, setImageTitle, onPublish, onCancel }) => {
   const { categories, isLoading } = useCategories();
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [tags, setTags] = useState([]);
   const [tagInput, setTagInput] = useState('');
+  const [isUploadingCover, setIsUploadingCover] = useState(false);
   const tagInputRef = useRef(null);
 
   const autoExcerpt = useMemo(() => {
@@ -18,6 +21,26 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
 
   const [excerpt, setExcerpt] = useState('');
   const displayExcerpt = excerpt || autoExcerpt;
+
+  const handleCoverUpload = useCallback(() => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+    input.onchange = async () => {
+      const file = input.files[0];
+      if (!file) return;
+      setIsUploadingCover(true);
+      try {
+        const url = await uploadImage(file, 'title');
+        setImageTitle(url);
+      } catch (err) {
+        console.error('Cover upload failed', err);
+      } finally {
+        setIsUploadingCover(false);
+      }
+    };
+  }, [setImageTitle]);
 
   const toggleCategory = (category) => {
     const isSelected = selectedCategories.some(c => c.id === category.id);
@@ -98,7 +121,7 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
             }}
             className="hover:text-[var(--text)]"
           >
-            <FaTimes className="w-5 h-5" />
+            <X size={20} weight="regular" />
           </button>
           <button
             onClick={handlePublish}
@@ -142,42 +165,121 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
               Story Preview
             </p>
 
+            {/* Cover image area */}
             {imageTitle ? (
-              <div
-                style={{
-                  aspectRatio: '16/9',
-                  overflow: 'hidden',
-                  background: 'var(--bg-surface)',
-                  marginBottom: '1.25rem',
-                }}
-              >
-                <img src={imageTitle} alt="Cover" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <div style={{ position: 'relative', aspectRatio: '16/9', overflow: 'hidden', marginBottom: '1.25rem' }}>
+                <img
+                  src={imageTitle}
+                  alt="Cover"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                />
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'rgba(0,0,0,0)',
+                    transition: 'background 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.75rem',
+                  }}
+                  className="group hover:bg-[rgba(0,0,0,0.35)]"
+                >
+                  <button
+                    onClick={handleCoverUpload}
+                    disabled={isUploadingCover}
+                    style={{
+                      opacity: 0,
+                      padding: '0.5rem 1rem',
+                      fontFamily: 'var(--font-display)',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      letterSpacing: '-0.01em',
+                      color: 'var(--text-inverse)',
+                      background: 'rgba(0,0,0,0.55)',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                      borderRadius: '3px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      transition: 'opacity 0.2s',
+                      backdropFilter: 'blur(4px)',
+                    }}
+                    className="group-hover:opacity-100"
+                  >
+                    <ArrowCircleUp size={15} weight="regular" />
+                    Change
+                  </button>
+                  <button
+                    onClick={() => setImageTitle(null)}
+                    style={{
+                      opacity: 0,
+                      padding: '0.5rem 1rem',
+                      fontFamily: 'var(--font-display)',
+                      fontSize: '0.8rem',
+                      fontWeight: 600,
+                      letterSpacing: '-0.01em',
+                      color: 'var(--text-inverse)',
+                      background: 'rgba(0,0,0,0.55)',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                      borderRadius: '3px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      transition: 'opacity 0.2s',
+                      backdropFilter: 'blur(4px)',
+                    }}
+                    className="group-hover:opacity-100"
+                  >
+                    <X size={14} weight="regular" />
+                    Remove
+                  </button>
+                </div>
               </div>
             ) : (
-              <div
+              <button
+                onClick={handleCoverUpload}
+                disabled={isUploadingCover}
                 style={{
+                  width: '100%',
                   aspectRatio: '16/9',
                   background: 'var(--bg-surface)',
                   marginBottom: '1.25rem',
                   display: 'flex',
+                  flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  gap: '0.625rem',
                   border: '1px dashed var(--border)',
-                  padding: '1.5rem',
+                  borderRadius: '2px',
+                  cursor: isUploadingCover ? 'not-allowed' : 'pointer',
+                  transition: 'border-color 0.2s, background 0.2s',
+                  padding: 0,
                 }}
+                className="hover:border-[var(--border-mid)] hover:bg-[var(--bg-elevated)]"
               >
-                <p
-                  style={{
-                    fontFamily: 'var(--font-body)',
-                    fontSize: '0.875rem',
-                    color: 'var(--text-faint)',
-                    textAlign: 'center',
-                    lineHeight: 1.5,
-                  }}
-                >
-                  Include a high-quality image in your story to make it more inviting to readers.
-                </p>
-              </div>
+                {isUploadingCover ? (
+                  <LoadingSpinner size="sm" />
+                ) : (
+                  <>
+                    <Image size={22} weight="thin" color="var(--text-faint)" />
+                    <span
+                      style={{
+                        fontFamily: 'var(--font-display)',
+                        fontSize: '0.8125rem',
+                        fontWeight: 500,
+                        color: 'var(--text-faint)',
+                        letterSpacing: '-0.01em',
+                      }}
+                    >
+                      Add a cover image
+                    </span>
+                  </>
+                )}
+              </button>
             )}
 
             <h3
@@ -395,11 +497,12 @@ const CategoryTagsPopup = ({ title, content, imageTitle, onPublish, onCancel }) 
                         cursor: 'pointer',
                         padding: 0,
                         marginLeft: '0.125rem',
+                        display: 'flex',
                         transition: 'color 0.2s',
                       }}
                       className="hover:text-[var(--text)]"
                     >
-                      <FaTimes className="w-2.5 h-2.5" />
+                      <X size={10} weight="bold" />
                     </button>
                   </span>
                 ))}

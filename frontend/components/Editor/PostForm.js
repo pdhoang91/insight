@@ -13,9 +13,8 @@ import YouTubeDialog from './YouTubeDialog'
 import BubbleToolbar from './BubbleToolbar'
 import FloatingToolbar from './FloatingToolbar'
 
-const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTitle, isFullscreen = false }) => {
+const PostForm = ({ title, setTitle, content, setContent, isFullscreen = false }) => {
   const [isUploading, setIsUploading] = useState(false)
-  const [isUploadingTitle, setIsUploadingTitle] = useState(false)
   const [showLinkDialog, setShowLinkDialog] = useState(false)
   const [showYoutubeDialog, setShowYoutubeDialog] = useState(false)
 
@@ -116,28 +115,6 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
     }
   }, [editor])
 
-  const handleImageTitleUpload = useCallback(() => {
-    const input = document.createElement('input')
-    input.setAttribute('type', 'file')
-    input.setAttribute('accept', 'image/*')
-    input.click()
-
-    input.onchange = async () => {
-      const file = input.files[0]
-      if (!file) return
-      setIsUploadingTitle(true)
-      try {
-        const uploadedUrl = await uploadImage(file, 'title')
-        setImageTitle(uploadedUrl)
-      } catch (error) {
-        console.error('Error uploading image title', error)
-        alert('Đã xảy ra lỗi khi tải lên ảnh tiêu đề.')
-      } finally {
-        setIsUploadingTitle(false)
-      }
-    }
-  }, [setImageTitle])
-
   const charCount = editor?.storage.characterCount
   const wordCount = charCount?.words?.() || 0
 
@@ -147,10 +124,6 @@ const PostForm = ({ title, setTitle, content, setContent, imageTitle, setImageTi
       <TitleInput
         title={title}
         setTitle={setTitle}
-        imageTitle={imageTitle}
-        setImageTitle={setImageTitle}
-        handleImageTitleUpload={handleImageTitleUpload}
-        isUploadingTitle={isUploadingTitle}
       />
 
       {/* Editor */}

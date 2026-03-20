@@ -219,8 +219,6 @@ export default function EditPage() {
           setTitle={setTitle}
           content={content}
           setContent={setContent}
-          imageTitle={imageTitle}
-          setImageTitle={setImageTitle}
           isFullscreen={isFullscreen}
         />
       </main>
@@ -230,6 +228,7 @@ export default function EditPage() {
           title={title}
           content={content}
           imageTitle={imageTitle}
+          setImageTitle={setImageTitle}
           onPublish={updateFunction}
           onCancel={() => setShowPopup(false)}
         />

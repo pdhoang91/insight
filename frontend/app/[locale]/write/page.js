@@ -155,8 +155,6 @@ export default function WritePage() {
           setTitle={setTitle}
           content={content}
           setContent={setContent}
-          imageTitle={imageTitle}
-          setImageTitle={setImageTitle}
           isFullscreen={isFullscreen}
         />
       </main>
@@ -166,6 +164,7 @@ export default function WritePage() {
           title={title}
           content={content}
           imageTitle={imageTitle}
+          setImageTitle={setImageTitle}
           onPublish={publishFunction}
           onCancel={() => setShowPopup(false)}
         />

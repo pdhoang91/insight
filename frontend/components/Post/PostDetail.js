@@ -78,16 +78,10 @@ export const PostDetail = ({ post, relatedPosts = [] }) => {
 
         <AuthorByline user={post.user} date={post.created_at} />
 
-        {post.cover_image && (
-          <div style={{ margin: '2.5rem 0' }}>
-            <img src={post.cover_image} alt={post.title} style={{ width: '100%', height: 'auto', display: 'block' }} loading="eager" />
-          </div>
-        )}
-
         <div
           className="post-content reading-content"
           dangerouslySetInnerHTML={{ __html: renderedHTML }}
-          style={{ marginTop: post.cover_image ? 0 : '2rem' }}
+          style={{ marginTop: '2rem' }}
         />
 
         {post.categories?.length > 0 && (
