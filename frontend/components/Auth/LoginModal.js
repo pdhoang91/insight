@@ -1,7 +1,7 @@
 // components/Auth/LoginModal.js
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaGoogle, FaTimes, FaUser, FaLock } from 'react-icons/fa';
+import { GoogleLogo, X, User, Lock } from '@phosphor-icons/react';
 import { loginWithEmailAndPassword, registerUser, loginWithGoogle } from '../../services/authService';
 import { getUserProfile } from '../../services/userService';
 import { useLoginModal } from '../../hooks/useLoginModal';
@@ -131,7 +131,7 @@ const LoginModal = ({ isOpen, onClose }) => {
             }}
             className="hover:text-[var(--text)] active:-translate-y-[1px]"
           >
-            <FaTimes style={{ width: 14, height: 14 }} />
+            <X style={{ width: 14, height: 14 }} />
           </button>
 
           <div style={{ marginBottom: '1.75rem', textAlign: 'center' }}>
@@ -188,7 +188,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                 {t('auth.email')}
               </label>
               <div style={{ position: 'relative' }}>
-                <FaUser
+                <User
                   style={{
                     position: 'absolute',
                     left: '0.875rem',
@@ -243,7 +243,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                 {t('auth.password')}
               </label>
               <div style={{ position: 'relative' }}>
-                <FaLock
+                <Lock
                   style={{
                     position: 'absolute',
                     left: '0.875rem',
@@ -347,7 +347,7 @@ const LoginModal = ({ isOpen, onClose }) => {
               }}
               className="hover:bg-[var(--bg-elevated)] hover:border-[var(--border-strong)] active:-translate-y-[1px]"
             >
-              <FaGoogle style={{ width: 14, height: 14 }} />
+              <GoogleLogo style={{ width: 14, height: 14 }} />
               <span>{t('auth.continueWithGoogle')}</span>
             </button>
 

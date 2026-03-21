@@ -1,44 +1,48 @@
 
-
-// // src/components/TimeAgo.js
-// src/components/TimeAgo.js
+// src/components/Utils/TimeAgo.js
 import React from 'react';
+import { useLocale, useTranslations } from 'next-intl';
 
-// Hàm để tính khoảng thời gian từ một thời điểm nhất định
-export const timeAgo = (date) => {
+// Pure function - accepts optional locale and t() for server-side or legacy use
+export const timeAgo = (date, locale = 'en', t = null) => {
   const now = new Date();
   const seconds = Math.floor((now - new Date(date)) / 1000);
 
-  // Kiểm tra nếu thời gian đã vượt quá 1 ngày
   if (seconds >= 86400) {
     const dateObj = new Date(date);
-    const month = dateObj.toLocaleString('en-US', { month: 'short' });
+    const localeStr = locale === 'vi' ? 'vi-VN' : 'en-US';
+    const month = dateObj.toLocaleString(localeStr, { month: 'short' });
     const day = dateObj.getDate();
-    return `${month} ${day}`; // Ensures the date is rendered in one line
+    return `${month} ${day}`;
   }
 
-  // Các khoảng thời gian khác (theo giờ, phút, giây)
   if (seconds >= 3600) {
     const hours = Math.floor(seconds / 3600);
-    return `${hours} giờ trước`;
+    if (t) return t('timeago.hoursAgo', { hours });
+    return `${hours} hours ago`;
   }
 
   if (seconds >= 60) {
     const minutes = Math.floor(seconds / 60);
-    return `${minutes} phút trước`;
+    if (t) return t('timeago.minutesAgo', { minutes });
+    return `${minutes} minutes ago`;
   }
 
-  return 'vừa xong';
+  if (t) return t('timeago.justNow');
+  return 'just now';
 };
 
-// Component TimeAgo
+// Component TimeAgo — locale-aware
 const TimeAgo = ({ timestamp }) => {
+  const locale = useLocale();
+  const t = useTranslations();
+
   return (
     <span
       className="text-body-small text-medium-text-secondary inline-flex items-center space-x-1"
-      style={{ fontFamily: 'inherit' }} // Ensures consistent font-family
+      style={{ fontFamily: 'inherit' }}
     >
-      <span>{timeAgo(timestamp)}</span>
+      <span>{timeAgo(timestamp, locale, t)}</span>
     </span>
   );
 };

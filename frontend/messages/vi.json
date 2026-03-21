@@ -119,7 +119,12 @@
     "noResultsFor": "Không tìm thấy bài viết cho \"{query}\". Thử từ khóa khác hoặc duyệt danh mục.",
     "results": "Kết quả tìm kiếm",
     "foundResults": "Tìm thấy {count} bài viết cho \"{query}\"",
-    "showing": "đang hiển thị"
+    "showing": "đang hiển thị",
+    "title": "Tìm kiếm",
+    "subtitle": "Khám phá bài viết qua tìm kiếm",
+    "tipTitles": "Tìm trong tiêu đề và nội dung",
+    "tipQuotes": "Dùng ngoặc kép cho cụm từ chính xác",
+    "tipRelevance": "Kết quả sắp xếp theo độ phù hợp"
   },
   "profile": {
     "unknownUser": "Người dùng ẩn danh",
@@ -173,7 +178,15 @@
   "archive": {
     "noPosts": "Chưa có bài viết.",
     "recentOnly": "← Chỉ gần đây",
-    "allMonths": "Tất cả {count} tháng →"
+    "allMonths": "Tất cả {count} tháng →",
+    "title": "Lưu trữ: {month} {year}",
+    "postsFrom": "{count} bài viết tháng {month} năm {year}",
+    "noPostsFor": "Không tìm thấy bài viết tháng {month} năm {year}",
+    "invalidDate": "Ngày lưu trữ không hợp lệ",
+    "invalidDateMessage": "Vui lòng nhập năm và tháng hợp lệ.",
+    "loadingArchive": "Đang tải lưu trữ...",
+    "errorTitle": "Lỗi tải lưu trữ",
+    "errorMessage": "Không thể tải bài viết cho tháng này."
   },
   "footer": {
     "navigate": "Điều hướng",
@@ -185,9 +198,14 @@
     "copyright": "© {year} Insight. Bảo lưu mọi quyền.",
     "builtWith": "Được xây dựng có chủ đích"
   },
+  "timeago": {
+    "hoursAgo": "{hours} giờ trước",
+    "minutesAgo": "{minutes} phút trước",
+    "justNow": "vừa xong"
+  },
   "home": {
-    "personalWriting": "Viết lách cá nhân",
-    "tagline": "Ghi chép về phần mềm, kỹ năng, và tư duy đằng sau những gì được xây dựng.",
+    "personalWriting": "Ghi chép kỹ thuật",
+    "tagline": "Viết về code, kiến trúc, và nghề xây dựng phần mềm.",
     "latestWriting": "Bài viết mới nhất"
   },
   "common": {

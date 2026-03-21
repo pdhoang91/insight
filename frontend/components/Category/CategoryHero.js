@@ -4,24 +4,24 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 
-const CategoryHero = () => {
+const CategoryHero = ({ totalCategories = null, totalArticles = null }) => {
   const t = useTranslations();
   return (
     <section className="relative mb-16 overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-[0.03]">
-        <svg 
-          className="w-full h-full" 
+        <svg
+          className="w-full h-full"
           viewBox="0 0 200 200"
           preserveAspectRatio="none"
         >
           <defs>
-            <pattern 
-              id="hero-grain" 
-              x="0" 
-              y="0" 
-              width="20" 
-              height="20" 
+            <pattern
+              id="hero-grain"
+              x="0"
+              y="0"
+              width="20"
+              height="20"
               patternUnits="userSpaceOnUse"
             >
               <circle cx="10" cy="10" r="1" fill="currentColor" opacity="0.5" />
@@ -36,7 +36,7 @@ const CategoryHero = () => {
       <div className="relative max-w-[1192px] mx-auto px-4 md:px-6 lg:px-8 py-16 lg:py-24">
         {/* Asymmetric Layout - Left aligned content violating center bias */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center">
-          
+
           {/* Content Section - Offset for asymmetry */}
           <div className="lg:col-span-7 lg:col-start-2 space-y-6">
             <motion.div
@@ -48,7 +48,7 @@ const CategoryHero = () => {
                 damping: 20,
                 delay: 0.2
               }}
-              className="inline-flex items-center space-x-2 text-sm font-display 
+              className="inline-flex items-center space-x-2 text-sm font-display
                          font-semibold tracking-wide uppercase text-[var(--accent)]"
             >
               <motion.div
@@ -65,9 +65,9 @@ const CategoryHero = () => {
               <span>{t('category.explore')}</span>
             </motion.div>
 
-            <motion.h1 
-              className="font-display font-bold text-4xl md:text-6xl 
-                         tracking-tighter leading-none text-slate-900"
+            <motion.h1
+              className="font-display font-bold text-4xl md:text-6xl
+                         tracking-tighter leading-none text-[var(--text)]"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
@@ -100,8 +100,8 @@ const CategoryHero = () => {
               </motion.span>
             </motion.h1>
 
-            <motion.p 
-              className="font-body text-lg text-slate-600 leading-relaxed max-w-[65ch]"
+            <motion.p
+              className="font-body text-lg text-[var(--text-muted)] leading-relaxed max-w-[65ch]"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
@@ -114,49 +114,42 @@ const CategoryHero = () => {
               {t('category.heroDescription')}
             </motion.p>
 
-            {/* Floating Stats */}
-            <motion.div 
-              className="flex items-center space-x-8 pt-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                type: "spring",
-                stiffness: 100,
-                damping: 20,
-                delay: 0.6
-              }}
-            >
-              <motion.div 
-                className="text-center"
-                animate={{
-                  y: [0, -4, 0],
-                }}
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-              >
-                <div className="font-display font-bold text-2xl text-slate-900">12+</div>
-                <div className="font-body text-sm text-slate-500 uppercase tracking-wide">{t('sidebar.categories')}</div>
-              </motion.div>
-
+            {/* Dynamic Stats — only shown when data is available */}
+            {(totalCategories != null || totalArticles != null) && (
               <motion.div
-                className="text-center"
-                animate={{
-                  y: [0, -4, 0],
-                }}
+                className="flex items-center space-x-8 pt-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: 0.5
+                  type: "spring",
+                  stiffness: 100,
+                  damping: 20,
+                  delay: 0.6
                 }}
               >
-                <div className="font-display font-bold text-2xl text-slate-900">100+</div>
-                <div className="font-body text-sm text-slate-500 uppercase tracking-wide">{t('category.articles')}</div>
+                {totalCategories != null && (
+                  <motion.div
+                    className="text-center"
+                    animate={{ y: [0, -4, 0] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <div className="font-display font-bold text-2xl text-[var(--text)]">{totalCategories}</div>
+                    <div className="font-body text-sm text-[var(--text-faint)] uppercase tracking-wide">{t('sidebar.categories')}</div>
+                  </motion.div>
+                )}
+
+                {totalArticles != null && (
+                  <motion.div
+                    className="text-center"
+                    animate={{ y: [0, -4, 0] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+                  >
+                    <div className="font-display font-bold text-2xl text-[var(--text)]">{totalArticles}</div>
+                    <div className="font-body text-sm text-[var(--text-faint)] uppercase tracking-wide">{t('category.articles')}</div>
+                  </motion.div>
+                )}
               </motion.div>
-            </motion.div>
+            )}
           </div>
 
           {/* Visual Element - Right side for asymmetry */}
@@ -174,8 +167,8 @@ const CategoryHero = () => {
             >
               {/* Floating geometric shapes */}
               <motion.div
-                className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-br 
-                           from-slate-100 to-slate-200 border border-slate-200
+                className="absolute inset-0 rounded-[2.5rem] bg-gradient-to-br
+                           from-[var(--bg-surface)] to-[var(--bg)] border border-[var(--border)]
                            shadow-[0_20px_40px_-15px_rgba(26,20,16,0.05)]"
                 animate={{
                   rotateY: [0, 5, 0],
@@ -187,13 +180,13 @@ const CategoryHero = () => {
                   ease: "easeInOut"
                 }}
               />
-              
+
               {/* Inner content representing categories */}
               <div className="absolute inset-4 space-y-3 p-6">
                 {[...Array(4)].map((_, i) => (
                   <motion.div
                     key={i}
-                    className="h-4 bg-gradient-to-r from-slate-300 to-slate-200 rounded-full"
+                    className="h-4 bg-gradient-to-r from-[var(--bg-elevated)] to-[var(--bg-surface)] rounded-full"
                     style={{ width: `${Math.random() * 40 + 60}%` }}
                     animate={{
                       opacity: [0.6, 1, 0.6],
@@ -221,7 +214,7 @@ const CategoryHero = () => {
                   ease: "easeInOut"
                 }}
               />
-              
+
               <motion.div
                 className="absolute -bottom-2 -left-2 w-4 h-4 bg-[var(--accent)] rounded-full"
                 animate={{

@@ -119,7 +119,12 @@
     "noResultsFor": "No posts found for \"{query}\". Try different keywords or browse categories.",
     "results": "Search results",
     "foundResults": "Found {count} posts for \"{query}\"",
-    "showing": "showing"
+    "showing": "showing",
+    "title": "Search",
+    "subtitle": "Discover articles through search",
+    "tipTitles": "Search in titles and content",
+    "tipQuotes": "Use quotes for exact phrases",
+    "tipRelevance": "Results sorted by relevance"
   },
   "profile": {
     "unknownUser": "Unknown User",
@@ -173,7 +178,15 @@
   "archive": {
     "noPosts": "No posts yet.",
     "recentOnly": "← Recent only",
-    "allMonths": "All {count} months →"
+    "allMonths": "All {count} months →",
+    "title": "Archive: {month} {year}",
+    "postsFrom": "{count, plural, one {# post from {month} {year}} other {# posts from {month} {year}}}",
+    "noPostsFor": "No posts found for {month} {year}",
+    "invalidDate": "Invalid archive date",
+    "invalidDateMessage": "Please provide a valid year and month.",
+    "loadingArchive": "Loading archive...",
+    "errorTitle": "Error loading archive",
+    "errorMessage": "Could not load posts for this archive."
   },
   "footer": {
     "navigate": "Navigate",
@@ -185,9 +198,14 @@
     "copyright": "© {year} Insight. All rights reserved.",
     "builtWith": "Built with intention"
   },
+  "timeago": {
+    "hoursAgo": "{hours} hours ago",
+    "minutesAgo": "{minutes} minutes ago",
+    "justNow": "just now"
+  },
   "home": {
-    "personalWriting": "Personal writing",
-    "tagline": "Notes on software, craft, and the thinking behind what gets built.",
+    "personalWriting": "Engineering notes",
+    "tagline": "Writing about code, architecture, and the craft of building software.",
     "latestWriting": "Latest writing"
   },
   "common": {

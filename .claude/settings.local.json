@@ -32,7 +32,8 @@
       "Bash(curl:*)",
       "Read(//Users/anhoaian/.claude/**)",
       "Read(//Users/anhoaian/**)",
-      "Bash(find /Users/anhoaian/Documents/pdhoang91/insight/frontend/app/[locale] -type f \\\\\\( -name \"*.js\" -o -name \"*.jsx\" \\\\\\))"
+      "Bash(find /Users/anhoaian/Documents/pdhoang91/insight/frontend/app/[locale] -type f \\\\\\( -name \"*.js\" -o -name \"*.jsx\" \\\\\\))",
+      "Bash(ls:*)"
     ]
   }
 }

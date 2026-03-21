@@ -32,6 +32,35 @@ const SidebarSection = ({ title, children }) => (
   </div>
 );
 
+/* ─── Author bio card ─── */
+const AuthorBio = () => (
+  <div style={{ marginBottom: '2rem', paddingBottom: '2rem', borderBottom: '1px solid var(--border)' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '0.75rem' }}>
+      <div style={{
+        width: 40, height: 40, borderRadius: '50%',
+        background: 'var(--bg-surface)', flexShrink: 0,
+        border: '1.5px solid var(--border)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <svg width="18" height="18" fill="none" stroke="var(--text-faint)" strokeWidth="1.5" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+        </svg>
+      </div>
+      <div>
+        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '0.9rem', letterSpacing: '-0.01em', color: 'var(--text)' }}>
+          Insight
+        </div>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: '0.72rem', color: 'var(--text-faint)', letterSpacing: '0.01em' }}>
+          Software
+        </div>
+      </div>
+    </div>
+    <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.85rem', lineHeight: 1.6, color: 'var(--text-muted)', margin: 0 }}>
+      Writing about software — how it's built, how it breaks, and what it teaches.
+    </p>
+  </div>
+);
+
 const PersonalBlogSidebar = ({ initialHomeData }) => {
   const t = useTranslations();
   const { categories, popularPosts, latestPosts, isLoading: homeLoading } = useHomeData(initialHomeData);
@@ -41,25 +70,27 @@ const PersonalBlogSidebar = ({ initialHomeData }) => {
 
   return (
     <div>
+      <AuthorBio />
+
       <SidebarSection title={t('sidebar.popularPosts')}>
         {postsLoading ? (
           <div className="space-y-3">
             {[...Array(3)].map((_, i) => (
               <div key={i} className="space-y-1.5">
-                <div className="h-4 w-3/4 bg-[#f2f2f2] rounded animate-pulse" />
-                <div className="h-3 w-16 bg-[#f2f2f2] rounded animate-pulse" />
+                <div className="h-4 w-3/4 bg-[var(--bg-surface)] rounded animate-pulse" />
+                <div className="h-3 w-16 bg-[var(--bg-surface)] rounded animate-pulse" />
               </div>
             ))}
           </div>
         ) : (
           <div className="space-y-0">
             {popularPosts.slice(0, 5).map((post) => (
-              <article key={post.id} className="py-2 border-b border-[#f2f2f2] last:border-0">
-                <a href={`/p/${post.slug}`} className="block group">
-                  <h4 className="text-[13px] font-medium text-[#292929] group-hover:underline line-clamp-2 leading-snug">
+              <article key={post.id} className="py-2 border-b border-[var(--border)] last:border-0">
+                <Link href={`/p/${post.slug}`} className="block group">
+                  <h4 className="text-[13px] font-medium text-[var(--text)] group-hover:underline line-clamp-2 leading-snug">
                     {post.title}
                   </h4>
-                </a>
+                </Link>
               </article>
             ))}
           </div>

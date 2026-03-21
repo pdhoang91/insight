@@ -1,7 +1,7 @@
 'use client';
 import React, { useMemo } from 'react';
 import Link from 'next/link';
-import { FaUser } from 'react-icons/fa';
+import { User } from '@phosphor-icons/react';
 import SEOHead from '../SEO/SEOHead';
 import RelatedPosts from './RelatedPosts';
 import { renderPostContent, getContentPlainText } from '../../utils/renderContent';
@@ -21,7 +21,7 @@ const AuthorByline = ({ user: postUser, date }) => {
           <img src={postUser.avatar_url} alt={postUser.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (
           <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <FaUser style={{ width: 14, height: 14, color: 'var(--text-faint)' }} />
+            <User style={{ width: 14, height: 14, color: 'var(--text-faint)' }} />
           </div>
         )}
       </div>

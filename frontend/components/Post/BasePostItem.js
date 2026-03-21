@@ -2,7 +2,7 @@
 // components/Post/BasePostItem.js — Warm Dispatch edition
 import React from 'react';
 import Link from 'next/link';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import { PencilSimple, Trash } from '@phosphor-icons/react';
 import { useRouter } from 'next/navigation';
 import TextUtils from '../Utils/TextUtils';
 import TimeAgo from '../Utils/TimeAgo';
@@ -163,7 +163,7 @@ const BasePostItem = ({
                   }}
                   className="hover:text-[var(--text)] hover:border-[var(--border-mid)]"
                 >
-                  <FaEdit style={{ width: 10, height: 10 }} />
+                  <PencilSimple style={{ width: 10, height: 10 }} />
                   {t('common.edit')}
                 </Link>
                 <button
@@ -177,7 +177,7 @@ const BasePostItem = ({
                   }}
                   className="hover:text-[#DC2626] hover:border-[#DC2626]/30"
                 >
-                  <FaTrash style={{ width: 10, height: 10 }} />
+                  <Trash style={{ width: 10, height: 10 }} />
                   {t('common.delete')}
                 </button>
               </>
