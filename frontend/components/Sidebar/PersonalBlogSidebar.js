@@ -35,7 +35,7 @@ const SidebarSection = ({ title, children }) => (
 
 /* ─── Author bio card ─── */
 const AuthorBio = () => (
-  <div style={{ marginBottom: '2rem', paddingBottom: '2rem', borderBottom: '1px solid var(--border)' }}>
+  <div style={{ marginBottom: '2rem' }}>
     <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.85rem', lineHeight: 1.6, color: 'var(--text-muted)', margin: 0 }}>
       Writing about software — how it's built, how it breaks, and what it teaches.
     </p>
@@ -67,7 +67,7 @@ const PersonalBlogSidebar = ({ initialHomeData }) => {
         ) : (
           <div className="space-y-0">
             {popularPosts.slice(0, 5).map((post) => (
-              <article key={post.id} className="py-2 border-b border-[var(--border)] last:border-0">
+              <article key={post.id} className="py-2">
                 <Link href={`/p/${post.slug}`} className="block group">
                   <h4 className="text-[13px] font-medium text-[var(--text)] group-hover:underline line-clamp-2 leading-snug">
                     {post.title}
