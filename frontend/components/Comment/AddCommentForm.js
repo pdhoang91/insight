@@ -2,7 +2,6 @@
 import React, { useState, useRef } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaUser } from 'react-icons/fa';
 import { addComment } from '../../services/commentService';
 
 const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId = null }) => {
@@ -67,23 +66,7 @@ const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId =
 
   return (
     <form onSubmit={handleSubmit}>
-      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-        <div style={{
-          width: 30, height: 30, borderRadius: '50%',
-          background: 'var(--bg-surface)',
-          overflow: 'hidden', flexShrink: 0,
-          border: '1.5px solid var(--border)',
-          marginTop: '0.1rem',
-        }}>
-          {user.avatar_url ? (
-            <img src={user.avatar_url} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : (
-            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <FaUser style={{ width: 11, height: 11, color: 'var(--text-faint)' }} />
-            </div>
-          )}
-        </div>
-
+      <div>
         <div style={{ flex: 1, minWidth: 0 }}>
           <textarea
             ref={textareaRef}
@@ -95,6 +78,12 @@ const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId =
               e.target.style.height = e.target.scrollHeight + 'px';
             }}
             onFocus={() => setIsFocused(true)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (content.trim() && !isSubmitting) handleSubmit(e);
+              }
+            }}
             rows={1}
             style={{
               width: '100%',

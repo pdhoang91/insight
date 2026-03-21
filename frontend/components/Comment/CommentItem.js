@@ -101,11 +101,19 @@ const CommentItem = ({ comment, postId, mutate }) => {
               }}
               className="hover:text-[var(--text-muted)]"
             >
-              {repliesCount > 0
-                ? `${t('comment.reply')} · ${repliesCount}`
-                : t('comment.reply')}
+              {t('comment.reply')}
             </motion.button>
           </div>
+
+          {comment.replies?.length > 0 && (
+            <div style={{
+              marginTop: '1.25rem',
+              paddingLeft: '1rem',
+              borderLeft: '2px solid var(--border)',
+            }}>
+              <ReplyList replies={comment.replies} commentId={comment.id} mutate={mutate} />
+            </div>
+          )}
 
           <AnimatePresence>
             {showReplyForm && (
@@ -128,21 +136,6 @@ const CommentItem = ({ comment, postId, mutate }) => {
                     user={user}
                   />
                 </motion.div>
-
-                {comment.replies?.length > 0 && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.15 }}
-                    style={{
-                      marginTop: '1.25rem',
-                      paddingLeft: '1rem',
-                      borderLeft: '2px solid var(--border)',
-                    }}
-                  >
-                    <ReplyList replies={comment.replies} commentId={comment.id} mutate={mutate} />
-                  </motion.div>
-                )}
               </motion.div>
             )}
           </AnimatePresence>
