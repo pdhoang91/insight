@@ -27,7 +27,6 @@ const HomeHero = () => {
       gap: '2rem',
       paddingBottom: '3rem',
       marginBottom: '3rem',
-      borderBottom: '1px solid var(--border)',
     }}
   >
     {/* Left: identity */}

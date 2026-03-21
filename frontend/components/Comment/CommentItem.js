@@ -32,11 +32,10 @@ const CommentItem = ({ comment, postId, mutate }) => {
   return (
     <li style={{
       listStyle: 'none',
-      borderBottom: '1px solid var(--border)',
       paddingBottom: '1.5rem',
       marginBottom: '1.5rem',
     }}
-    className="last:border-0 last:pb-0 last:mb-0"
+    className="last:pb-0 last:mb-0"
     >
       <div style={{ display: 'flex', gap: '0.875rem' }}>
         <div style={{

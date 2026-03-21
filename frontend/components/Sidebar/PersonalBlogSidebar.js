@@ -11,9 +11,8 @@ const SidebarSection = ({ title, children }) => (
     style={{
       paddingBottom: '1.75rem',
       marginBottom: '1.75rem',
-      borderBottom: '1px solid var(--border)',
     }}
-    className="last:border-0 last:pb-0 last:mb-0"
+    className="last:pb-0 last:mb-0"
   >
     <p
       style={{

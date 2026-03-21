@@ -29,7 +29,6 @@ const ProfileHeader = ({
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       style={{
         paddingBottom: '2.5rem',
-        borderBottom: '1px solid var(--border)',
         marginBottom: '2.5rem',
       }}
     >

@@ -62,7 +62,6 @@ const Archive = ({ posts = [], className = '', limit = 12 }) => {
               letterSpacing: '-0.01em',
               color: 'var(--text-muted)',
               transition: 'color 0.2s',
-              borderBottom: '1px solid rgba(26, 20, 16, 0.06)',
             }}
             className="hover:text-[var(--text)]"
           >

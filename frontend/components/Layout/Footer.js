@@ -138,9 +138,6 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Divider */}
-        <div style={{ borderTop: '1px solid rgba(242, 237, 228, 0.08)', marginBottom: '1.5rem' }} />
-
         {/* Bottom row */}
         <div
           style={{

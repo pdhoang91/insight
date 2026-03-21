@@ -37,7 +37,6 @@ const UserPostsSection = ({ posts, isLoading, isError, setSize, isReachingEnd, i
             gap: '0 1.5rem',
             paddingBottom: '2rem',
             marginBottom: '2rem',
-            borderBottom: '1px solid var(--border)',
           }}
         >
           <div style={{ paddingTop: '0.2rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>

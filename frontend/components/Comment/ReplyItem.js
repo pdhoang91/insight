@@ -11,9 +11,8 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
       gap: '0.625rem',
       paddingBottom: '0.875rem',
       marginBottom: '0.875rem',
-      borderBottom: '1px solid var(--border)',
     }}
-    className="last:border-0 last:pb-0 last:mb-0"
+    className="last:pb-0 last:mb-0"
     >
       <div style={{
         flexShrink: 0,

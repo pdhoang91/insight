@@ -66,7 +66,6 @@ export default function PostPageClient({ slug, initialPost }) {
           style={{
             marginTop: '3.5rem',
             paddingTop: '2.5rem',
-            borderTop: '1px solid var(--border)',
           }}
         >
           <CommentSection postId={displayPost.id} />

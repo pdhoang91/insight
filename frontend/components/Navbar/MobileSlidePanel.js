@@ -83,7 +83,6 @@ export default function MobileSlidePanel({ isOpen, onClose, children }) {
                 justifyContent: 'flex-end',
                 height: 'var(--nav-height)',
                 padding: '0 1.5rem',
-                borderBottom: '1px solid var(--border)',
               }}
             >
               <button

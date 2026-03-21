@@ -201,7 +201,7 @@ const Navbar = () => {
                     >
                       <Link
                         href={`/${user.username}`}
-                        style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', borderBottom: '1px solid var(--border)' }}
+                        style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px' }}
                         onClick={() => setIsUserMenuOpen(false)}
                       >
                         {user.avatar_url ? (
@@ -364,10 +364,6 @@ const Navbar = () => {
 
           <motion.div variants={panelItem} style={{ padding: '4px 0' }}>
             <LanguageTogglePill />
-          </motion.div>
-
-          <motion.div variants={panelItem}>
-            <div style={{ borderTop: '1px solid var(--border)', margin: '8px 0' }} />
           </motion.div>
 
           {user ? (

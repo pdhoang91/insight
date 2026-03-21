@@ -33,7 +33,6 @@ const DiscoveryBreak = ({ posts = [] }) => {
       ref={containerRef}
       className="lg:hidden"
       style={{
-        borderTop: '1px solid var(--border)',
         padding: '2rem 0 2.5rem',
         margin: '0.5rem 0 1.5rem',
       }}

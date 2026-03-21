@@ -15,7 +15,6 @@ const PostSkeleton = () => (
       gap: '0 1.5rem',
       paddingBottom: '2rem',
       marginBottom: '2rem',
-      borderBottom: '1px solid var(--border)',
     }}
   >
     {/* Date col */}

@@ -52,7 +52,7 @@ const BasePostItem = ({
   /* ─── Compact: sidebar popular posts ─── */
   if (variant === 'compact') {
     return (
-      <article style={{ paddingBottom: '0.875rem', marginBottom: '0.875rem', borderBottom: '1px solid var(--border)' }} className="last:border-0 last:pb-0 last:mb-0">
+      <article style={{ paddingBottom: '0.875rem', marginBottom: '0.875rem' }} className="last:pb-0 last:mb-0">
         <Link href={`/p/${post.slug}`} className="block group">
           <h4
             style={{
@@ -83,7 +83,7 @@ const BasePostItem = ({
   /* ─── Horizontal: related posts / search ─── */
   if (variant === 'horizontal') {
     return (
-      <article className="group" style={{ borderBottom: '1px solid var(--border)', paddingBottom: '1rem', marginBottom: '1rem' }} >
+      <article className="group" style={{ paddingBottom: '1rem', marginBottom: '1rem' }} >
         <Link href={`/p/${post.slug}`} style={{ display: 'flex', gap: '1rem', paddingTop: '0.5rem' }}>
           {post.cover_image && (
             <div style={{ flexShrink: 0, width: 72, height: 72, overflow: 'hidden', background: 'var(--bg-surface)' }}>
@@ -117,11 +117,10 @@ const BasePostItem = ({
   return (
     <article
       style={{
-        borderBottom: '1px solid var(--border)',
         paddingBottom: '2rem',
         marginBottom: '2rem',
       }}
-      className="last:border-0 last:pb-0 last:mb-0"
+      className="last:pb-0 last:mb-0"
     >
       {/* Date-column grid: [date col] [content] [optional thumb] */}
       <div style={{ display: 'grid', gridTemplateColumns: '72px 1fr', gap: '0 1.5rem', alignItems: 'start' }}>

@@ -54,7 +54,6 @@ const ExplorePanelContent = ({ onClose }) => {
           style={{
             paddingBottom: '1.5rem',
             marginBottom: '1.5rem',
-            borderBottom: '1px solid var(--border)',
           }}
         >
           <SectionLabel>{t('sidebar.popularPosts')}</SectionLabel>
@@ -78,7 +77,6 @@ const ExplorePanelContent = ({ onClose }) => {
                   className="group block"
                   style={{
                     padding: '0.55rem 0',
-                    borderBottom: '1px solid rgba(26, 20, 16, 0.06)',
                   }}
                 >
                   <p
@@ -114,7 +112,6 @@ const ExplorePanelContent = ({ onClose }) => {
           style={{
             paddingBottom: '1.5rem',
             marginBottom: '1.5rem',
-            borderBottom: '1px solid var(--border)',
           }}
         >
           <SectionLabel>{t('sidebar.categories')}</SectionLabel>
@@ -145,7 +142,6 @@ const ExplorePanelContent = ({ onClose }) => {
                     letterSpacing: '-0.01em',
                     color: 'var(--text-muted)',
                     padding: '0.45rem 0',
-                    borderBottom: '1px solid rgba(26, 20, 16, 0.06)',
                     transition: 'color 0.2s',
                   }}
                   className="hover:text-[var(--text)]"
