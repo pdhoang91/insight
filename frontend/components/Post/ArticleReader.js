@@ -142,7 +142,7 @@ const ArticleReader = ({ post }) => {
                 {post.tags.map((tag, index) => (
                   <Link
                     key={index}
-                    href={`/tag/${tag}`}
+                    href={`/tag/${tag.name}`}
                     className={combineClasses(
                       themeClasses.patterns.tag,
                       themeClasses.interactive.base,
@@ -150,7 +150,7 @@ const ArticleReader = ({ post }) => {
                       themeClasses.animations.smooth
                     )}
                   >
-                    {tag}
+                    {tag.name}
                   </Link>
                 ))}
               </div>

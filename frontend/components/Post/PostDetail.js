@@ -116,6 +116,31 @@ export const PostDetail = ({ post, relatedPosts = [] }) => {
           </div>
         )}
 
+        {post.tags?.length > 0 && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.75rem' }}>
+            {post.tags.map((tag) => (
+              <Link
+                key={tag.id || tag.name}
+                href={`/tag/${tag.name}`}
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: '0.7rem',
+                  fontWeight: 500,
+                  letterSpacing: '0.02em',
+                  color: 'var(--text-faint)',
+                  padding: '0.25rem 0.65rem',
+                  background: 'var(--bg-surface)',
+                  borderRadius: '2px',
+                  transition: 'color 0.2s, background 0.2s',
+                }}
+                className="hover:text-[var(--accent)] hover:bg-[var(--accent-light)]"
+              >
+                #{tag.name}
+              </Link>
+            ))}
+          </div>
+        )}
+
         {relatedPosts.length > 0 && (
           <div style={{ marginTop: '3rem' }}>
             <RelatedPosts posts={relatedPosts} currentPostId={post.id} />

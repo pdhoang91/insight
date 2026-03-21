@@ -107,7 +107,7 @@ const MasonryPostGrid = ({
               }}
               whileHover={{ y: -4 }}
             >
-              <Link href={`/posts/${post.slug}`}>
+              <Link href={`/p/${post.slug}`}>
                 <div className="bg-white/80 backdrop-blur-sm rounded-[1.5rem] 
                                border border-slate-200/50 overflow-hidden
                                shadow-[0_10px_30px_-10px_rgba(26,20,16,0.03)]
