@@ -9,9 +9,7 @@ const TextUtils = ({ html, maxLength = 200 }) => {
   // Hàm để loại bỏ thẻ HTML và lấy đoạn văn bản thuần túy
   const stripHtml = (html) => {
     if (!html) return '';
-    const div = document.createElement('div');
-    div.innerHTML = html;
-    return div.textContent || div.innerText || '';
+    return html.replace(/<[^>]*>/g, '');
   };
 
   // Hàm để lấy đoạn văn bản ngắn từ nội dung
