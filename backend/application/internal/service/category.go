@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"time"
 
 	"github.com/pdhoang91/blog/internal/apperror"
@@ -11,6 +12,9 @@ import (
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
+
+// allows letters (including Unicode/Vietnamese), numbers, spaces, hyphens, underscores, dots
+var validCategoryName = regexp.MustCompile(`^[\p{L}\p{N}\s\-_.]+$`)
 
 func (s *InsightService) ListCategories(req *dto.PaginationRequest) ([]*dto.CategoryResponse, int64, error) {
 	if req.Limit == 0 {
@@ -85,6 +89,9 @@ func (s *InsightService) GetPopularCategories(req *dto.PaginationRequest) ([]dto
 }
 
 func (s *InsightService) CreateCategory(req *dto.CreateCategoryRequest) (*dto.CategoryResponse, error) {
+	if !validCategoryName.MatchString(req.Name) {
+		return nil, apperror.NewBadRequest("category name contains invalid characters")
+	}
 	existing, err := s.CategoryRepo.FindByName(req.Name)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, apperror.NewInternal("failed to check category existence", err)
@@ -131,6 +138,9 @@ func (s *InsightService) UpdateCategory(id uuid.UUID, req *dto.UpdateCategoryReq
 	}
 
 	if req.Name != "" {
+		if !validCategoryName.MatchString(req.Name) {
+			return nil, apperror.NewBadRequest("category name contains invalid characters")
+		}
 		existing, err := s.CategoryRepo.FindByName(req.Name)
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewInternal("failed to check category name", err)

@@ -126,5 +126,5 @@ export const getPopularCategories = async (page = 1, limit = 7) => {
 
 export const createCategory = async (name) => {
   const response = await axiosPrivateInstance.post('/admin/categories', { name: name.trim() });
-  return response.data;
+  return response.data.data; // unwrap gin.H{"data": ...} wrapper
 };

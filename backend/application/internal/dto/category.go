@@ -8,12 +8,12 @@ import (
 
 // Category requests
 type CreateCategoryRequest struct {
-	Name        string `json:"name" validate:"required,min=2,max=100"`
+	Name        string `json:"name" binding:"required,min=2,max=100"`
 	Description string `json:"description,omitempty"`
 }
 
 type UpdateCategoryRequest struct {
-	Name        string `json:"name,omitempty" validate:"omitempty,min=2,max=100"`
+	Name        string `json:"name,omitempty" binding:"omitempty,min=2,max=100"`
 	Description string `json:"description,omitempty"`
 }
 

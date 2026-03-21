@@ -12,6 +12,7 @@ import { isAdmin } from '../../constants/roles';
 import LoadingSpinner from '../Shared/LoadingSpinner';
 
 const spring = { type: 'spring', stiffness: 100, damping: 20 };
+const VALID_CATEGORY_NAME = /^[\p{L}\p{N}\s\-_.]+$/u;
 
 const SkeletonChip = ({ width = '5rem' }) => (
   <div
@@ -47,7 +48,7 @@ const PublishPanel = ({
   onCancel,
 }) => {
   const { user } = useUser();
-  const { categories, isLoading } = useCategories();
+  const { categories, isLoading, mutate: mutateCategories } = useCategories();
   const [selectedCategories, setSelectedCategories] = useState(initialCategories);
   const [tags, setTags] = useState(
     initialTags.map(t => (typeof t === 'string' ? t : t.name))
@@ -103,13 +104,25 @@ const PublishPanel = ({
   const handleCreateCategory = async () => {
     const name = newCategoryInput.trim();
     if (!name) return;
+    if (name.length < 2) {
+      setCreateError('Name must be at least 2 characters');
+      return;
+    }
+    if (name.length > 100) {
+      setCreateError('Name must be 100 characters or less');
+      return;
+    }
+    if (!VALID_CATEGORY_NAME.test(name)) {
+      setCreateError('No special characters allowed (letters, numbers, spaces, - _ . only)');
+      return;
+    }
     setIsCreatingCategory(true);
     setCreateError('');
     try {
       const created = await createCategory(name);
+      await mutateCategories();
       setNewCategoryInput('');
       setShowNewCategoryInput(false);
-      // Auto-select newly created category if slots available
       if (selectedCategories.length < 3) {
         setSelectedCategories(prev => [...prev, created]);
       }
