@@ -183,11 +183,11 @@ const CategoryHero = ({ totalCategories = null, totalArticles = null }) => {
 
               {/* Inner content representing categories */}
               <div className="absolute inset-4 space-y-3 p-6">
-                {[...Array(4)].map((_, i) => (
+                {['75%', '62%', '88%', '71%'].map((width, i) => (
                   <motion.div
                     key={i}
                     className="h-4 bg-gradient-to-r from-[var(--bg-elevated)] to-[var(--bg-surface)] rounded-full"
-                    style={{ width: `${Math.random() * 40 + 60}%` }}
+                    style={{ width }}
                     animate={{
                       opacity: [0.6, 1, 0.6],
                     }}
