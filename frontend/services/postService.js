@@ -27,6 +27,11 @@ export const deletePost = async (id) => {
   return response.data;
 };
 
+export const getArchiveSummary = async () => {
+  const response = await axiosPublicInstance.get('/archive/summary');
+  return response.data.data || [];
+};
+
 export const getPostsByYearMonth = async (year, month, page = 1, limit = 20) => {
   const response = await axiosPublicInstance.get(`/archive/${year}/${month}`, {
     params: { page, limit }

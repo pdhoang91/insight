@@ -34,6 +34,7 @@ func DefineAPIRoutes(r *gin.Engine, ctrl *controller.Controller) {
 		public.GET("/p/:titleName", ctrl.Post.GetPostByTitleName)
 
 		// Archive
+		public.GET("/archive/summary", ctrl.Post.GetArchiveSummary)
 		public.GET("/archive/:year/:month", ctrl.Post.GetPostsByYearMonth)
 
 		// Search

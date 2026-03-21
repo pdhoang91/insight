@@ -6,7 +6,6 @@ import { HomeLayout } from '../../../../../components/Layout/Layout';
 import PersonalBlogSidebar from '../../../../../components/Sidebar/PersonalBlogSidebar';
 import PostList from '../../../../../components/Post/PostList';
 import { useArchivePosts } from '../../../../../hooks/useArchivePosts';
-import LoadingSpinner from '../../../../../components/Shared/LoadingSpinner';
 
 export default function ArchivePageClient({ year, month }) {
   const t = useTranslations();
@@ -14,7 +13,7 @@ export default function ArchivePageClient({ year, month }) {
   const yearInt = parseInt(year);
   const monthInt = parseInt(month);
 
-  const { posts, totalCount, isLoading, isError, hasMore, loadMore } = useArchivePosts(yearInt, monthInt);
+  const { posts, totalCount, isLoading, isError, hasMore, setSize } = useArchivePosts(yearInt, monthInt);
 
   const localeStr = locale === 'vi' ? 'vi-VN' : 'en-US';
   const monthName = !isNaN(monthInt) && monthInt >= 1 && monthInt <= 12
@@ -29,17 +28,6 @@ export default function ArchivePageClient({ year, month }) {
           <p>{t('archive.invalidDateMessage')}</p>
         </div>
       </HomeLayout>
-    );
-  }
-
-  if (!yearInt || !monthInt) {
-    return (
-      <div className="min-h-screen bg-[var(--bg)] flex items-center justify-center">
-        <div className="text-center">
-          <LoadingSpinner size="lg" />
-          <p className="mt-4 text-[var(--text-muted)] text-sm">{t('archive.loadingArchive')}</p>
-        </div>
-      </div>
     );
   }
 
@@ -69,14 +57,12 @@ export default function ArchivePageClient({ year, month }) {
         </header>
 
         <PostList
-          posts={[posts]}
+          posts={posts}
           isLoading={isLoading}
           isError={isError}
-          setSize={loadMore}
+          setSize={setSize}
           isReachingEnd={!hasMore}
           variant="archive"
-          showImages={true}
-          showExcerpts={true}
         />
       </div>
     </HomeLayout>

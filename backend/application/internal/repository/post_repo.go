@@ -158,6 +158,27 @@ func (r *postRepo) CountByYearMonth(year, month int) (int64, error) {
 	return count, err
 }
 
+func (r *postRepo) GetArchiveSummary() ([]*ArchiveSummaryItem, error) {
+	var items []*ArchiveSummaryItem
+	err := r.db.Raw(`
+		SELECT
+			EXTRACT(YEAR FROM created_at)::int  AS year,
+			EXTRACT(MONTH FROM created_at)::int AS month,
+			COUNT(*)                            AS count
+		FROM posts
+		WHERE deleted_at IS NULL
+		GROUP BY EXTRACT(YEAR FROM created_at), EXTRACT(MONTH FROM created_at)
+		ORDER BY year DESC, month DESC
+	`).Scan(&items).Error
+	if err != nil {
+		return nil, err
+	}
+	if items == nil {
+		items = []*ArchiveSummaryItem{}
+	}
+	return items, nil
+}
+
 func (r *postRepo) IncrementViews(post *entities.Post) error {
 	return r.db.Model(post).UpdateColumn("views", gorm.Expr("views + ?", 1)).Error
 }

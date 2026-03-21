@@ -4,41 +4,19 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useTranslations, useLocale } from 'next-intl';
 
-const Archive = ({ posts = [], className = '', limit = 12 }) => {
+// archiveList = [{ year, month, count }, ...] — server-provided, month is 1-based
+const Archive = ({ archiveList = [], className = '', limit = 12 }) => {
   const t = useTranslations();
   const locale = useLocale();
   const [isShowingAll, setIsShowingAll] = useState(false);
 
-  const createArchiveList = (posts) => {
-    const grouped = {};
-    posts.forEach(post => {
-      const date = new Date(post.created_at);
-      const year = date.getFullYear();
-      const month = date.getMonth();
-      const key = `${year}-${month.toString().padStart(2, '0')}`;
-      if (!grouped[key]) {
-        grouped[key] = { year, month, posts: [] };
-      }
-      grouped[key].posts.push(post);
-    });
-
-    return Object.keys(grouped)
-      .sort((a, b) => b.localeCompare(a))
-      .map(key => ({
-        key,
-        year: grouped[key].year,
-        month: grouped[key].month,
-        count: grouped[key].posts.length,
-      }));
-  };
-
-  const archiveList = createArchiveList(posts);
   const displayList = isShowingAll ? archiveList : archiveList.slice(0, limit);
 
+  // month is 1-based from server (SQL EXTRACT)
   const formatMonth = (year, month) =>
-    new Date(year, month).toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', { month: 'long', year: 'numeric' });
+    new Date(year, month - 1).toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', { month: 'long', year: 'numeric' });
 
-  if (!posts.length) {
+  if (!archiveList.length) {
     return (
       <div className={className}>
         <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.82rem', color: 'var(--text-faint)' }}>{t('archive.noPosts')}</p>
@@ -49,10 +27,10 @@ const Archive = ({ posts = [], className = '', limit = 12 }) => {
   return (
     <div className={className}>
       <div className="space-y-1">
-        {displayList.map(({ key, year, month, count }) => (
+        {displayList.map(({ year, month, count }) => (
           <Link
-            key={key}
-            href={`/archive/${year}/${month + 1}`}
+            key={`${year}-${month}`}
+            href={`/archive/${year}/${month}`}
             style={{
               display: 'block',
               padding: '0.3rem 0',

@@ -17,6 +17,13 @@ type UserRepository interface {
 	List(limit, offset int) ([]*entities.User, error)
 }
 
+// ArchiveSummaryItem represents one month-bucket in the archive sidebar.
+type ArchiveSummaryItem struct {
+	Year  int   `json:"year"`
+	Month int   `json:"month"`
+	Count int64 `json:"count"`
+}
+
 type PostRepository interface {
 	Create(post *entities.Post) error
 	Update(post *entities.Post) error
@@ -35,6 +42,7 @@ type PostRepository interface {
 	CountByTag(tagID uuid.UUID) (int64, error)
 	FindByYearMonth(year, month int, limit, offset int) ([]*entities.Post, error)
 	CountByYearMonth(year, month int) (int64, error)
+	GetArchiveSummary() ([]*ArchiveSummaryItem, error)
 	IncrementViews(post *entities.Post) error
 	CalculateCounts(post *entities.Post) error
 	CalculateCountsForPosts(posts []*entities.Post) error

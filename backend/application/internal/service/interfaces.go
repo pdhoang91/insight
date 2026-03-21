@@ -6,6 +6,7 @@ import (
 
 	"github.com/pdhoang91/blog/internal/dto"
 	"github.com/pdhoang91/blog/internal/entities"
+	"github.com/pdhoang91/blog/internal/repository"
 	"github.com/pdhoang91/blog/pkg/httpclient"
 	"github.com/pdhoang91/blog/pkg/storage"
 	uuid "github.com/satori/go.uuid"
@@ -47,6 +48,7 @@ type PostService interface {
 	GetPostsByCategory(categoryName string, req *dto.PaginationRequest) ([]*dto.PostResponse, int64, error)
 	GetPostsByTag(tagName string, req *dto.PaginationRequest) ([]*dto.PostResponse, int64, error)
 	GetHomeData() (*dto.HomeResponse, error)
+	GetArchiveSummary() ([]*repository.ArchiveSummaryItem, error)
 }
 
 type CommentService interface {

@@ -1,217 +1,168 @@
-1. Tổng quan codebase
-Blog xây dựng trên Next.js 16 (App Router) + Go backend (Gin/GORM). Frontend dùng next-intl cho i18n (vi/en), Tailwind CSS + CSS variables cho design system "Warm Dispatch" (cream/terracotta), Framer Motion cho animations, TipTap cho editor.
+Review: Infinite Scroll & Archive Sidebar
+1. Search Page (/search) — Infinite Scroll
+Status: Implemented correctly
 
-2. Review i18n: EN/VN chưa apply hết
-Bạn đúng — có nhiều chỗ chưa apply i18n. Đây là danh sách đầy đủ:
+SearchResults.js uses react-infinite-scroll-component + useSearch hook built on useSWRInfinite. Data flow:
 
-A. Search page — hardcoded hoàn toàn
+useSearch (useSWRInfinite, PAGE_SIZE=10)
+  → fetchStories (GET /search/posts?q=&page=&limit=)
+    → SearchResults (InfiniteScroll component)
+No issues found. hasMore logic checks posts.length < totalCount, loadMore increments setSize, and the InfiniteScroll component receives correct dataLength, next, hasMore, and loader props.
 
-page.js
-Lines 1-28
-const SearchHeader = () => (
-  <div className="text-center py-12">
-    <h1 className="font-serif text-3xl font-bold text-[#292929] mb-3">Search</h1>
-    <p className="text-[#757575] max-w-md mx-auto mb-8">
-      Discover articles through search
-    </p>
-    // ...
-    <div className="max-w-sm mx-auto text-[13px] text-[#b3b3b1] space-y-1.5">
-      <p>Search in titles and content</p>
-      <p>Use quotes for exact phrases</p>
-      <p>Results sorted by relevance</p>
-    </div>
-  </div>
-);
-6 string cần đưa vào messages/en.json & vi.json:
+2. Archive Page (/archive/[year]/[month]) — Infinite Scroll
+Status: Implemented, but has bugs
 
-"Search", "Discover articles through search", "Search in titles and content", "Use quotes for exact phrases", "Results sorted by relevance"
-B. TimeAgo — hardcoded tiếng Việt, không hỗ trợ EN
+Bug 1: posts prop wrapping (Critical)
+In ArchivePageClient.js line 72:
 
-TimeAgo.js
-Lines 8-32
-export const timeAgo = (date) => {
-  // ...
-  if (seconds >= 86400) {
-    const month = dateObj.toLocaleString('en-US', { month: 'short' }); // always English!
-    // ...
-  }
-  if (seconds >= 3600) {
-    return `${hours} giờ trước`;      // Vietnamese only
-  }
-  if (seconds >= 60) {
-    return `${minutes} phút trước`;   // Vietnamese only
-  }
-  return 'vừa xong';                  // Vietnamese only
-};
-Component này không dùng useTranslations hay useLocale — khi switch sang EN, date > 1 ngày hiển thị tiếng Anh (do en-US), nhưng < 1 ngày thì hiển thị tiếng Việt. Cần refactor thành hook sử dụng locale.
-
-C. ArchivePageClient — toàn bộ hardcoded English
 
 ArchivePageClient.js
-Lines 16-66
-  const monthNames = [
-    'January', 'February', ...  // Hardcoded EN
-  ];
-  // ...
-  <h1>Archive: {monthName} {yearInt}</h1>
-  <p>{totalCount} post{totalCount === 1 ? '' : 's'} from {monthName} {yearInt}</p>
-  // Error messages also hardcoded:
-  "Invalid archive date"
-  "Error loading archive"
-  "Loading archive..."
-Cần thêm ~8 translation keys cho archive.* section.
+Lines 72-72
+          posts={[posts]}
+posts from useArchivePosts is already a flat array (allPosts). Wrapping it in [posts] creates [[post1, post2, ...]]. While PostList does posts.flat() so it works accidentally, this is semantically wrong — PostList expects an array-of-arrays pattern from useSWRInfinite (where each element is a page). Passing a manually wrapped array creates a mismatch in the contract.
 
-D. Archive metadata — mixed language
+Bug 2: setSize / loadMore signature mismatch (Works accidentally)
+PostList calls setSize((prev) => prev + 1) — it expects setSize from useSWRInfinite which accepts a callback. But loadMore from useArchivePosts takes zero arguments:
 
-page.js
-Lines 9-18
-  const monthNames = ['January', 'February', ...]; // English
-  return {
-    title: `Archive: ${monthName} ${year}`,                    // English
-    description: `Bài viết lưu trữ tháng ${monthName} năm ${year}`, // Vietnamese!
+
+useArchivePosts.js
+Lines 42-46
+  const loadMore = () => {
+    if (!isLoading && hasMore) {
+      setPage(prev => prev + 1);
+    }
   };
-E. EmptyState/ErrorState — default props chưa i18n
+This works because loadMore simply ignores the argument, but it's fragile.
 
-EmptyState.js
-Lines 5-8
-const EmptyState = ({
-  title = 'No content yet',          // hardcoded EN fallback
-  message = 'Be the first to add content.',
-}) => ...
+Bug 3: useArchivePosts uses useSWR instead of useSWRInfinite
+The hook manually manages pagination with useState + useEffect to accumulate posts. This creates:
 
-ErrorState.js
-Lines 5-8
-const ErrorState = ({
-  title = 'Something went wrong',    // hardcoded EN fallback
-  message = 'An error occurred. Please try again.',
-}) => ...
-Callers (SearchResults, etc.) đã truyền translated strings, nhưng default fallback vẫn hardcoded.
+Race conditions: If year/month changes while a fetch is in-flight, the useEffect on [data, page] can append stale data
+No SWR cache per page: Each page overwrites the same cache key pattern, losing previous page data on revalidation
+Double loading guard: Both PostList.fetchMore and loadMore check !isLoading, but the outer guard uses isReachingEnd while inner uses hasMore — these can desync
+Verdict
+The archive page kinda works for basic cases but is built on a fragile foundation. It needs to be refactored to use useSWRInfinite like the search hook.
 
-Tóm tắt translation keys cần thêm
-Area	Keys cần thêm
-search.*	title, subtitle, tipTitles, tipQuotes, tipRelevance
-timeago.*	hoursAgo, minutesAgo, justNow
-archive.*	title, postsFrom, noPostsFor, invalidDate, invalidDateMessage, loadingArchive, errorTitle, errorMessage
-3. Review UX/UI theo taste-skill
-Đang follow tốt:
-Font stack: Cabinet Grotesk (display) + Source Serif 4 (body) + JetBrains Mono (code) — không dùng Inter
-Color: Single accent terracotta (
-#C4541D), neutral warm palette, không purple/neon
-Hero asymmetric: Left text + right decorative element — follow ANTI-CENTER BIAS
-Spring physics: Framer Motion với stiffness: 100, damping: 20
-Container constraint: max-w-[1192px]
-Anti-emoji: Toàn bộ code sạch emoji
-Icons: Dùng @phosphor-icons/react (Navbar)
-Hardware acceleration: Animate qua transform/opacity
-Staggered animations & warm skeleton loaders
-Active state feedback: active:-translate-y-[1px], scale-[0.98]
-Loading/Empty/Error states đều có
-Vi phạm taste-skill:
-1. Icon inconsistency — vi phạm Section 2
+3. Archive Sidebar (Right Sidebar) — Data Query
+Status: Logic is fundamentally wrong
 
-Taste-skill yêu cầu dùng exclusively @phosphor-icons/react hoặc @radix-ui/react-icons. Nhưng BasePostItem.js, LoginModal.js, PostDetail.js dùng react-icons (FaEdit, FaTrash, FaGoogle, FaTimes, FaUser, FaLock).
-
-2. Old Medium green colors chưa migrate — vi phạm color consistency
-
-Nhiều component vẫn dùng hardcoded #1a8917 (Medium green) thay vì var(--accent):
-
-EmptyState.js: bg-[#1a8917], hover:bg-[#156d12]
-ErrorState.js: bg-[#1a8917], hover:bg-[#156d12]
-SearchHeader: bg-[#1a8917]/10, text-[#1a8917]
-Và dùng hardcoded grays thay vì CSS variables:
-
-text-[#292929] → nên dùng var(--text)
-text-[#757575] → nên dùng var(--text-muted)
-bg-[#f2f2f2] → nên dùng var(--bg-surface)
-bg-white (ArchivePageClient) → nên dùng var(--bg)
-3. CategoryHero dùng Slate colors — vi phạm COLOR CONSISTENCY
-
-
-CategoryHero.js
-Lines 69-70
-  className="font-display font-bold text-4xl md:text-6xl 
-             tracking-tighter leading-none text-slate-900"
-Dùng text-slate-900, text-slate-600, text-slate-500 thay vì warm palette (var(--text), var(--text-muted)). Toàn bộ project dùng warm gray nhưng CategoryHero lại cool gray.
-
-4. EmptyState/ErrorState dùng font-serif cho headings — vi phạm typography hierarchy
-
-Design system dùng var(--font-display) (Cabinet Grotesk) cho headings, nhưng EmptyState/ErrorState dùng font-serif (Source Serif 4) cho <h3>. Nên đổi thành font-display.
-
-5. rounded-full buttons trong EmptyState/ErrorState
-
-Design system dùng sharp corners (borderRadius 3px-4px) cho buttons (xem LoginModal, Navbar). Nhưng EmptyState/ErrorState lại dùng rounded-full — inconsistent.
-
-6. PersonalBlogSidebar popular posts dùng old Tailwind classes
-
+Problem
 
 PersonalBlogSidebar.js
-Lines 57-63
-  <article key={post.id} className="py-2 border-b border-[#f2f2f2] last:border-0">
-    <a href={`/p/${post.slug}`} className="block group">
-      <h4 className="text-[13px] font-medium text-[#292929] group-hover:underline line-clamp-2 leading-snug">
-Dùng <a> thay vì <Link>, dùng hardcoded colors thay vì CSS variables.
+Lines 124-126
+      <SidebarSection title={t('sidebar.archive')}>
+        <Archive posts={latestPosts} />
+      </SidebarSection>
+latestPosts comes from:
 
-4. Content suggestions cho blog kỹ sư phần mềm
-Hiện tại hero content:
-
-
-HomeClient.js
-Lines 46-72
-  <p>{t('home.personalWriting')}</p>  // "Personal writing" / "Viết lách cá nhân"
-  <h1>Insight</h1>
-  <p>{t('home.tagline')}</p>          // "Notes on software, craft, and the thinking behind what gets built."
-Suggestions cải thiện:
-A. Hero tagline — quá generic, nên cụ thể hơn
-
-Hiện tại:
-
-EN: "Notes on software, craft, and the thinking behind what gets built."
-VN: "Ghi chép về phần mềm, kỹ năng, và tư duy đằng sau những gì được xây dựng."
-Gợi ý (concrete hơn, tránh AI filler words theo taste-skill Rule 7):
-
-EN: "A backend engineer writing about system design, Go, distributed systems, and lessons from building things that scale."
-VN: "Một kỹ sư backend viết về thiết kế hệ thống, Go, hệ thống phân tán, và những bài học từ việc xây dựng sản phẩm."
-Hoặc minimal style:
-
-EN: "Writing about code, architecture, and the craft of building software."
-VN: "Viết về code, kiến trúc, và nghề xây dựng phần mềm."
-B. Label "Personal writing" — nên thay bằng gì đó identity hơn
-
-Gợi ý:
-
-"Engineering notes" / "Ghi chép kỹ thuật"
-"From the terminal" / "Từ terminal"
-"Build log" / "Nhật ký xây dựng"
-C. Footer "Built with intention" — có thể thêm identity
-
-Gợi ý:
-
-"Built with Go, Next.js, and good coffee" / "Xây bằng Go, Next.js, và cà phê"
-"Open source on GitHub" (nếu muốn link repo)
-D. Nên thêm About section
-
-Blog cá nhân kỹ sư phần mềm rất nên có 1 trang /about hoặc ít nhất 1 bio section ở sidebar. Hiện tại PersonalBlogSidebar chỉ có popular posts + categories + archive. Gợi ý thêm:
-
-Author card ở đầu sidebar: avatar, tên, 1-2 dòng bio, links (GitHub, LinkedIn, Twitter)
-Hoặc 1 mini intro section ngay dưới hero
-E. Category hero stats hardcoded
+useHomeData → fetchHomeData() → GET /home → data.latest_posts
+The Archive component then groups these posts by created_at month/year and counts them:
 
 
-CategoryHero.js
-Lines 140-158
-  <div className="font-display font-bold text-2xl text-slate-900">12+</div>
-  // ...
-  <div className="font-display font-bold text-2xl text-slate-900">100+</div>
-12+ categories và 100+ articles là hardcoded — nên fetch dynamic từ API hoặc bỏ nếu chưa đủ data.
+Archive.js
+Lines 13-34
+  const createArchiveList = (posts) => {
+    const grouped = {};
+    posts.forEach(post => {
+      const date = new Date(post.created_at);
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      // ...groups and counts
+    });
+    // ...
+  };
+Issues
+Issue	Severity	Description
+Wrong data source	Critical	latest_posts from /home API is a small subset (probably 10-20 recent posts). The archive sidebar should show ALL months that have posts, not just months covered by the latest few.
+Inaccurate counts	Critical	Post counts per month are derived from the subset, not the real totals. If a month has 50 posts but only 3 appear in latest_posts, the sidebar shows "3".
+Missing months	Critical	Any month not represented in latest_posts simply won't appear in the sidebar at all. Older months are completely invisible.
+Client-side grouping	Minor	Grouping should be done server-side via a dedicated endpoint, not by iterating over a random subset of posts.
+4. Implementation Plan
+Task 1: Create /archive/summary backend endpoint
+A new API endpoint that returns aggregated archive data:
 
-Summary — Priority action items:
-Priority	Task
-P0	i18n cho Search page (5 strings)
-P0	Refactor TimeAgo để support locale
-P0	i18n cho ArchivePageClient (~8 strings)
-P1	Migrate old #1a8917 green → var(--accent) trong EmptyState/ErrorState/SearchHeader
-P1	Fix CategoryHero slate colors → warm palette
-P1	Replace react-icons → @phosphor-icons/react
-P2	Thêm author bio card vào sidebar
-P2	Cập nhật hero tagline cho cụ thể hơn
-P2	Dynamic stats cho CategoryHero
+GET /api/archive/summary
+Response:
+{
+  "data": [
+    { "year": 2026, "month": 3, "count": 12 },
+    { "year": 2026, "month": 2, "count": 8 },
+    { "year": 2026, "month": 1, "count": 15 },
+    ...
+  ]
+}
+This is a simple GROUP BY YEAR(created_at), MONTH(created_at) SQL query.
+
+Task 2: Create useArchiveSummary hook
+// hooks/useArchiveSummary.js
+import useSWR from 'swr';
+import { getArchiveSummary } from '../services/postService';
+export const useArchiveSummary = () => {
+  const { data, error } = useSWR('archive-summary', getArchiveSummary, {
+    revalidateOnFocus: false,
+    dedupingInterval: 10 * 60 * 1000,
+  });
+  return {
+    archiveList: data || [],
+    isLoading: !error && !data,
+    isError: error,
+  };
+};
+Task 3: Refactor Archive component
+Replace client-side grouping with server-provided data:
+
+// Archive.js — receives archiveList directly
+const Archive = ({ archiveList = [], limit = 12 }) => {
+  // archiveList = [{ year, month, count }, ...]
+  // No more client-side grouping from posts
+  const displayList = isShowingAll ? archiveList : archiveList.slice(0, limit);
+  // ... render links
+};
+Task 4: Update PersonalBlogSidebar
+// PersonalBlogSidebar.js
+const { archiveList } = useArchiveSummary();
+// ...
+<SidebarSection title={t('sidebar.archive')}>
+  <Archive archiveList={archiveList} />
+</SidebarSection>
+Task 5: Refactor useArchivePosts to use useSWRInfinite
+// hooks/useArchivePosts.js
+import useSWRInfinite from 'swr/infinite';
+import { getPostsByYearMonth } from '../services/postService';
+const PAGE_SIZE = 20;
+export const useArchivePosts = (year, month) => {
+  const getKey = (pageIndex, previousPageData) => {
+    if (!year || !month) return null;
+    if (previousPageData && previousPageData.posts.length < PAGE_SIZE) return null;
+    return { year, month, page: pageIndex + 1, limit: PAGE_SIZE };
+  };
+  const fetcher = ({ year, month, page, limit }) =>
+    getPostsByYearMonth(year, month, page, limit);
+  const { data, error, size, setSize, isValidating } = useSWRInfinite(getKey, fetcher, {
+    revalidateOnFocus: false,
+  });
+  const posts = data ? data.flatMap(d => d.posts) : [];
+  const totalCount = data?.[0]?.totalCount || 0;
+  const hasMore = data ? posts.length < totalCount : false;
+  return { posts, totalCount, isLoading: !data && !error, isError: error, hasMore, size, setSize };
+};
+Task 6: Fix ArchivePageClient to use refactored hook
+// ArchivePageClient.js
+const { posts, totalCount, isLoading, isError, hasMore, size, setSize } = useArchivePosts(yearInt, monthInt);
+<PostList
+  posts={posts}        // no wrapping in array — let PostList handle flat array
+  isLoading={isLoading}
+  isError={isError}
+  setSize={setSize}    // real useSWRInfinite setSize
+  isReachingEnd={!hasMore}
+/>
+Or if PostList expects array-of-arrays from useSWRInfinite, pass the raw data pages directly.
+
+Priority Order
+#	Task	Impact	Effort
+1	Backend: GET /archive/summary endpoint	Critical (sidebar)	Low
+2	useArchiveSummary hook	Critical (sidebar)	Low
+3	Refactor Archive + PersonalBlogSidebar	Critical (sidebar)	Low
+4	Refactor useArchivePosts → useSWRInfinite	Medium (archive page)	Medium
+5	Fix ArchivePageClient props to PostList	Medium (archive page)	Low
+Tasks 1-3 fix the sidebar. Tasks 4-5 fix the archive page infinite scroll. Search page needs no changes.

@@ -3,6 +3,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useHomeData } from '../../hooks/useHomeData';
+import { useArchiveSummary } from '../../hooks/useArchiveSummary';
 import Archive from '../Archive/Archive';
 
 /* ─── Section header ─── */
@@ -35,26 +36,6 @@ const SidebarSection = ({ title, children }) => (
 /* ─── Author bio card ─── */
 const AuthorBio = () => (
   <div style={{ marginBottom: '2rem', paddingBottom: '2rem', borderBottom: '1px solid var(--border)' }}>
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '0.75rem' }}>
-      <div style={{
-        width: 40, height: 40, borderRadius: '50%',
-        background: 'var(--bg-surface)', flexShrink: 0,
-        border: '1.5px solid var(--border)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}>
-        <svg width="18" height="18" fill="none" stroke="var(--text-faint)" strokeWidth="1.5" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-        </svg>
-      </div>
-      <div>
-        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '0.9rem', letterSpacing: '-0.01em', color: 'var(--text)' }}>
-          Insight
-        </div>
-        <div style={{ fontFamily: 'var(--font-display)', fontSize: '0.72rem', color: 'var(--text-faint)', letterSpacing: '0.01em' }}>
-          Software
-        </div>
-      </div>
-    </div>
     <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.85rem', lineHeight: 1.6, color: 'var(--text-muted)', margin: 0 }}>
       Writing about software — how it's built, how it breaks, and what it teaches.
     </p>
@@ -63,7 +44,8 @@ const AuthorBio = () => (
 
 const PersonalBlogSidebar = ({ initialHomeData }) => {
   const t = useTranslations();
-  const { categories, popularPosts, latestPosts, isLoading: homeLoading } = useHomeData(initialHomeData);
+  const { categories, popularPosts, isLoading: homeLoading } = useHomeData(initialHomeData);
+  const { archiveList } = useArchiveSummary();
 
   const categoriesLoading = homeLoading && !initialHomeData;
   const postsLoading = homeLoading && !initialHomeData;
@@ -142,7 +124,7 @@ const PersonalBlogSidebar = ({ initialHomeData }) => {
       </SidebarSection>
 
       <SidebarSection title={t('sidebar.archive')}>
-        <Archive posts={latestPosts} />
+        <Archive archiveList={archiveList} />
       </SidebarSection>
     </div>
   );

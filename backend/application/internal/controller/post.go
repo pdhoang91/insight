@@ -292,6 +292,15 @@ func (c *PostController) GetPopularPosts(ctx *gin.Context) {
 	})
 }
 
+func (c *PostController) GetArchiveSummary(ctx *gin.Context) {
+	items, err := c.svc.GetArchiveSummary()
+	if err != nil {
+		respondError(ctx, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"data": items})
+}
+
 func (c *PostController) GetPostsByYearMonth(ctx *gin.Context) {
 	year, err := strconv.Atoi(ctx.Param("year"))
 	if err != nil || year < 1900 || year > 2100 {

@@ -621,6 +621,21 @@ func (s *InsightService) RecalculateEngagementScores() {
 	s.Cache.Delete("home_data")
 }
 
+func (s *InsightService) GetArchiveSummary() ([]*repository.ArchiveSummaryItem, error) {
+	const cacheKey = "archive_summary"
+	if cached, ok := s.Cache.Get(cacheKey); ok {
+		return cached.([]*repository.ArchiveSummaryItem), nil
+	}
+
+	items, err := s.PostRepo.GetArchiveSummary()
+	if err != nil {
+		return nil, apperror.NewInternal("failed to get archive summary", err)
+	}
+
+	s.Cache.Set(cacheKey, items, 10*time.Minute)
+	return items, nil
+}
+
 // GetPostsByYearMonth retrieves posts by year and month
 func (s *InsightService) GetPostsByYearMonth(year, month int, req *dto.PaginationRequest) ([]*dto.PostResponse, int64, error) {
 	if req.Limit == 0 {
