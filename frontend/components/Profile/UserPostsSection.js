@@ -31,22 +31,13 @@ const UserPostsSection = ({ posts, isLoading, isError, setSize, isReachingEnd, i
       {[...Array(3)].map((_, i) => (
         <div
           key={i}
-          style={{
-            display: 'grid',
-            gridTemplateColumns: '72px 1fr',
-            gap: '0 1.5rem',
-            paddingBottom: '2rem',
-            marginBottom: '2rem',
-          }}
+          style={{ display: 'flex', gap: '1.25rem', paddingBottom: '2rem', marginBottom: '2rem' }}
         >
-          <div style={{ paddingTop: '0.2rem', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-            <div className="skeleton-warm" style={{ height: '1.1rem', width: '2.5rem', borderRadius: '2px' }} />
-            <div className="skeleton-warm" style={{ height: '0.75rem', width: '1.75rem', borderRadius: '2px' }} />
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
             <div className="skeleton-warm" style={{ height: '1.1rem', width: '70%', borderRadius: '2px' }} />
             <div className="skeleton-warm" style={{ height: '0.85rem', width: '90%', borderRadius: '2px' }} />
             <div className="skeleton-warm" style={{ height: '0.85rem', width: '55%', borderRadius: '2px' }} />
+            <div className="skeleton-warm" style={{ height: '0.72rem', width: '4rem', borderRadius: '2px', marginTop: '0.2rem' }} />
           </div>
         </div>
       ))}
