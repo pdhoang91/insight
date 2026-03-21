@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
-import { UserCircle, SignOut, PencilSimple, List } from '@phosphor-icons/react';
+import { UserCircle, SignOut, PencilSimple, List, Compass } from '@phosphor-icons/react';
 import { useUser } from '../../context/UserContext';
 import { usePostContext } from '../../context/PostContext';
 import SimpleSearchBar from '../Shared/SimpleSearchBar';
@@ -11,6 +11,7 @@ import { canWritePosts } from '../../services/authService';
 import { useTranslations } from 'next-intl';
 import MobileSlidePanel from './MobileSlidePanel';
 import LanguageTogglePill from '../Shared/LanguageTogglePill';
+import ExplorePanelContent from '../Sidebar/ExplorePanelContent';
 
 const panelContainer = {
   hidden: { opacity: 0 },
@@ -36,6 +37,7 @@ const Navbar = () => {
 
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isExploreOpen, setIsExploreOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const userMenuRef = useRef();
 
@@ -57,6 +59,7 @@ const Navbar = () => {
 
   useEffect(() => {
     setIsMobileMenuOpen(false);
+    setIsExploreOpen(false);
   }, [pathname]);
 
   const handleLogout = () => {
@@ -67,6 +70,7 @@ const Navbar = () => {
   };
 
   return (
+    <>
     <nav
       style={{
         background: scrolled ? 'rgba(242, 237, 228, 0.96)' : 'transparent',
@@ -298,6 +302,14 @@ const Navbar = () => {
               )
             )}
             <button
+              onClick={() => setIsExploreOpen(true)}
+              style={{ padding: '6px', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s' }}
+              className="hover:text-[var(--text)]"
+              aria-label="Explore"
+            >
+              <Compass size={20} weight="regular" />
+            </button>
+            <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               style={{ padding: '6px', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s' }}
               className="hover:text-[var(--text)]"
@@ -309,7 +321,16 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile slide panel */}
+    </nav>
+
+      {/* Panels rendered outside <nav> to avoid backdrop-filter containing block */}
+      <MobileSlidePanel
+        isOpen={isExploreOpen}
+        onClose={() => setIsExploreOpen(false)}
+      >
+        <ExplorePanelContent onClose={() => setIsExploreOpen(false)} />
+      </MobileSlidePanel>
+
       <MobileSlidePanel
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
@@ -382,7 +403,7 @@ const Navbar = () => {
           )}
         </motion.div>
       </MobileSlidePanel>
-    </nav>
+    </>
   );
 };
 

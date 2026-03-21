@@ -60,6 +60,7 @@ const PostList = ({
   variant = 'default',
   skipFirst = false,
   className = '',
+  interstitial = null,
 }) => {
   const t = useTranslations();
 
@@ -159,9 +160,15 @@ const PostList = ({
           animate="visible"
         >
           {flatPosts.map((post, index) => (
-            <motion.div key={`${post.id}-${index}`} variants={itemVariants}>
-              <BasePostItem post={post} variant={variant} />
-            </motion.div>
+            <React.Fragment key={`${post.id}-${index}`}>
+              <motion.div variants={itemVariants}>
+                <BasePostItem post={post} variant={variant} />
+              </motion.div>
+              {interstitial &&
+                index === interstitial.afterIndex &&
+                flatPosts.length > interstitial.afterIndex + 1 &&
+                interstitial.element}
+            </React.Fragment>
           ))}
         </motion.div>
       </InfiniteScroll>

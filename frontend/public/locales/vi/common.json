@@ -61,7 +61,10 @@
     "archive": "Lưu trữ",
     "noPopularPosts": "Hiện tại chưa có bài viết phổ biến nào.",
     "noPopular": "Không có bài viết phổ biến",
-    "moreFromBlog": "Xem thêm từ blog"
+    "moreFromBlog": "Xem thêm từ blog",
+    "explore": "Khám phá",
+    "readingElsewhere": "Đọc thêm",
+    "viewArchive": "Xem kho lưu trữ"
   },
   "common": {
     "error": "Đã xảy ra lỗi",

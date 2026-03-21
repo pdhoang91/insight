@@ -70,31 +70,47 @@ export default function MobileSlidePanel({ isOpen, onClose, children }) {
               background: 'var(--bg)',
               borderLeft: '1px solid var(--border)',
               boxShadow: 'inset 1px 0 0 rgba(255,255,255,0.06)',
-              padding: '2rem',
               display: 'flex',
               flexDirection: 'column',
-              overflowY: 'auto',
             }}
           >
-            <button
-              onClick={onClose}
-              aria-label="Close menu"
+            {/* Header — always visible, never scrolls */}
+            <div
               style={{
-                position: 'absolute',
-                top: '1.25rem',
-                right: '1.25rem',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                color: 'var(--text-muted)',
-                padding: '4px',
-                transition: 'color 0.2s',
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                height: 'var(--nav-height)',
+                padding: '0 1.5rem',
+                borderBottom: '1px solid var(--border)',
               }}
-              className="hover:text-[var(--text)]"
             >
-              <X size={20} weight="regular" />
-            </button>
-            <div style={{ marginTop: '2.5rem' }}>
+              <button
+                onClick={onClose}
+                aria-label="Close menu"
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: 'var(--text-muted)',
+                  padding: '4px',
+                  transition: 'color 0.2s',
+                }}
+                className="hover:text-[var(--text)]"
+              >
+                <X size={20} weight="regular" />
+              </button>
+            </div>
+            {/* Scrollable body */}
+            <div
+              style={{
+                flex: 1,
+                overflowY: 'auto',
+                padding: '1.75rem 2rem 2.5rem',
+                WebkitOverflowScrolling: 'touch',
+              }}
+            >
               {children}
             </div>
           </motion.div>

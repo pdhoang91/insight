@@ -39,7 +39,7 @@ const Archive = ({ posts = [], className = '', limit = 12 }) => {
   if (!posts.length) {
     return (
       <div className={className}>
-        <p className="text-[13px] text-[#b3b3b1]">No posts yet.</p>
+        <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.82rem', color: 'var(--text-faint)' }}>No posts yet.</p>
       </div>
     );
   }
@@ -51,20 +51,52 @@ const Archive = ({ posts = [], className = '', limit = 12 }) => {
           <Link
             key={key}
             href={`/archive/${year}/${month + 1}`}
-            className="block py-1 text-[13px] text-[#757575] hover:text-[#292929] transition-colors"
+            style={{
+              display: 'block',
+              padding: '0.3rem 0',
+              fontFamily: 'var(--font-display)',
+              fontSize: '0.82rem',
+              fontWeight: 500,
+              letterSpacing: '-0.01em',
+              color: 'var(--text-muted)',
+              transition: 'color 0.2s',
+              borderBottom: '1px solid rgba(26, 20, 16, 0.06)',
+            }}
+            className="hover:text-[var(--text)]"
           >
             {monthNames[month]} {year}
-            <span className="ml-1.5 text-[#b3b3b1]">({count})</span>
+            <span
+              style={{
+                marginLeft: '0.4rem',
+                fontSize: '0.68rem',
+                color: 'var(--text-faint)',
+                letterSpacing: '0.02em',
+              }}
+            >
+              {count}
+            </span>
           </Link>
         ))}
 
         {archiveList.length > limit && (
-          <div className="pt-2">
+          <div style={{ paddingTop: '0.5rem' }}>
             <button
               onClick={() => setIsShowingAll(!isShowingAll)}
-              className="text-[12px] text-[#1a8917] hover:underline"
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '0.72rem',
+                fontWeight: 600,
+                letterSpacing: '-0.01em',
+                color: 'var(--accent)',
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                padding: 0,
+                transition: 'opacity 0.2s',
+              }}
+              className="hover:opacity-70"
             >
-              {isShowingAll ? '← Show recent only' : `Show all (${archiveList.length}) →`}
+              {isShowingAll ? '← Recent only' : `All ${archiveList.length} months →`}
             </button>
           </div>
         )}

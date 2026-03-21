@@ -72,6 +72,7 @@ const Layout = ({
   variant = 'container',
   showSidebar = true,
   sidebarPosition = 'right',
+  hideMobileSidebar = false,
   className = '',
   ...props
 }) => {
@@ -103,10 +104,12 @@ const Layout = ({
                 <div className="hidden lg:block">
                   <StickyDesktopSidebar>{sidebar}</StickyDesktopSidebar>
                 </div>
-                {/* Mobile: collapsible */}
-                <div className="block lg:hidden">
-                  <MobileSidebarContent sidebar={sidebar} />
-                </div>
+                {/* Mobile: collapsible (hidden when parent provides custom mobile discovery) */}
+                {!hideMobileSidebar && (
+                  <div className="block lg:hidden">
+                    <MobileSidebarContent sidebar={sidebar} />
+                  </div>
+                )}
               </aside>
             </div>
           ) : (
@@ -171,8 +174,8 @@ export const ArticleLayout = ({ children, ...props }) => (
   </Layout>
 );
 
-export const HomeLayout = ({ children, sidebar, ...props }) => (
-  <Layout variant="container" sidebar={sidebar} {...props}>
+export const HomeLayout = ({ children, sidebar, hideMobileSidebar, ...props }) => (
+  <Layout variant="container" sidebar={sidebar} hideMobileSidebar={hideMobileSidebar} {...props}>
     {children}
   </Layout>
 );

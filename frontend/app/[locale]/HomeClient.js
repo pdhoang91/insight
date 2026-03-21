@@ -2,9 +2,12 @@
 
 import React from 'react';
 import { useInfinitePosts } from '../../hooks/useInfinitePosts';
+import { useHomeData } from '../../hooks/useHomeData';
 import { HomeLayout } from '../../components/Layout/Layout';
 import PostList from '../../components/Post/PostList';
+import DiscoveryBreak from '../../components/Post/DiscoveryBreak';
 import PersonalBlogSidebar from '../../components/Sidebar/PersonalBlogSidebar';
+import StickyCategoryBar from '../../components/Sidebar/StickyCategoryBar';
 
 /* ─── Asymmetric hero header ─────────────────────────────────────
    Left: blog identity (name + tagline)
@@ -112,9 +115,18 @@ export default function HomeClient({ initialHomeData }) {
       : undefined
   );
 
+  const { categories, popularPosts } = useHomeData(initialHomeData);
+
   return (
-    <HomeLayout sidebar={<PersonalBlogSidebar initialHomeData={initialHomeData} />}>
+    <HomeLayout
+      sidebar={<PersonalBlogSidebar initialHomeData={initialHomeData} />}
+      hideMobileSidebar
+    >
       <HomeHero />
+
+      {/* Mobile: sticky category bar — appears below hero, sticks under navbar */}
+      <StickyCategoryBar categories={categories} />
+
       <div className="animate-fade-up delay-200">
         <SectionLabel>Latest writing</SectionLabel>
         <PostList
@@ -123,8 +135,13 @@ export default function HomeClient({ initialHomeData }) {
           isError={isError}
           setSize={setSize}
           isReachingEnd={isReachingEnd}
+          interstitial={{
+            afterIndex: 4,
+            element: <DiscoveryBreak posts={popularPosts} />,
+          }}
         />
       </div>
+
     </HomeLayout>
   );
 }

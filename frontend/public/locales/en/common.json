@@ -61,7 +61,10 @@
     "archive": "Archive",
     "noPopularPosts": "No popular posts yet.",
     "noPopular": "No popular posts",
-    "moreFromBlog": "More from this blog"
+    "moreFromBlog": "More from this blog",
+    "explore": "Explore",
+    "readingElsewhere": "Reading elsewhere",
+    "viewArchive": "View full archive"
   },
   "common": {
     "error": "An error occurred",

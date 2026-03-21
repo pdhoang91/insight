@@ -1,0 +1,73 @@
+'use client';
+import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
+
+const StickyCategoryBar = ({ categories = [] }) => {
+  const [isStuck, setIsStuck] = useState(false);
+  const sentinelRef = useRef(null);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsStuck(!entry.isIntersecting),
+      { threshold: 0, rootMargin: '-65px 0px 0px 0px' }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  if (!categories?.length) return null;
+
+  return (
+    <div className="lg:hidden -mx-4 md:-mx-6">
+      <div ref={sentinelRef} aria-hidden="true" style={{ height: 0 }} />
+      <nav
+        className="sticky z-30 px-4 md:px-6"
+        style={{
+          top: 'var(--nav-height)',
+          background: isStuck ? 'rgba(242, 237, 228, 0.96)' : 'transparent',
+          backdropFilter: isStuck ? 'blur(16px)' : 'none',
+          WebkitBackdropFilter: isStuck ? 'blur(16px)' : 'none',
+          borderBottom: isStuck
+            ? '1px solid var(--border)'
+            : '1px solid transparent',
+          transition:
+            'background 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s, backdrop-filter 0.3s',
+        }}
+      >
+        <div
+          className="flex gap-6 overflow-x-auto scrollbar-hide"
+          style={{ padding: '0.65rem 0', WebkitOverflowScrolling: 'touch' }}
+        >
+          {categories.slice(0, 8).map((cat) => (
+            <Link
+              key={cat.id}
+              href={`/category/${cat.name}`}
+              className="flex-shrink-0 group"
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '0.78rem',
+                fontWeight: 500,
+                letterSpacing: '0.015em',
+                color: 'var(--text-muted)',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <span
+                className="group-hover:text-[var(--text)] group-active:scale-[0.97] inline-block"
+                style={{ transition: 'color 0.2s, transform 0.12s' }}
+              >
+                {cat.name}
+              </span>
+            </Link>
+          ))}
+        </div>
+      </nav>
+    </div>
+  );
+};
+
+export default StickyCategoryBar;
