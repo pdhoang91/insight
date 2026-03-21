@@ -31,6 +31,8 @@ type PostRepository interface {
 	GetPopular(limit int) ([]*entities.Post, error)
 	FindByCategory(categoryID uuid.UUID, limit, offset int) ([]*entities.Post, error)
 	CountByCategory(categoryID uuid.UUID) (int64, error)
+	FindByTag(tagID uuid.UUID, limit, offset int) ([]*entities.Post, error)
+	CountByTag(tagID uuid.UUID) (int64, error)
 	FindByYearMonth(year, month int, limit, offset int) ([]*entities.Post, error)
 	CountByYearMonth(year, month int) (int64, error)
 	IncrementViews(post *entities.Post) error
@@ -85,6 +87,7 @@ type CategoryRepository interface {
 	CountByNames(names []string) (int64, error)
 	FindPopularByPostCount(limit, offset int) ([]CategoryPostCount, int64, error)
 	CountPostsByCategory(categoryID uuid.UUID) (int64, error)
+	WithTx(tx *gorm.DB) CategoryRepository
 }
 
 type TagRepository interface {
@@ -97,6 +100,8 @@ type TagRepository interface {
 	GetPopular(limit int) ([]*entities.Tag, error)
 	Search(query string, limit int) ([]*entities.Tag, error)
 	Count() (int64, error)
+	CountPostsByTag(tagID uuid.UUID) (int64, error)
+	WithTx(tx *gorm.DB) TagRepository
 }
 
 type BookmarkRepository interface {

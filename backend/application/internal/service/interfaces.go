@@ -45,6 +45,7 @@ type PostService interface {
 	GetPopularPosts(limit int) ([]*dto.PostResponse, error)
 	GetPostsByYearMonth(year, month int, req *dto.PaginationRequest) ([]*dto.PostResponse, int64, error)
 	GetPostsByCategory(categoryName string, req *dto.PaginationRequest) ([]*dto.PostResponse, int64, error)
+	GetPostsByTag(tagName string, req *dto.PaginationRequest) ([]*dto.PostResponse, int64, error)
 	GetHomeData() (*dto.HomeResponse, error)
 }
 

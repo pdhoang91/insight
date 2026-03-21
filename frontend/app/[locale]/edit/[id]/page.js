@@ -14,7 +14,7 @@ const PostForm = dynamic(() => import('../../../../components/Editor/PostForm'),
   ),
   ssr: false,
 });
-const CategoryTagsPopup = dynamic(() => import('../../../../components/Category/CategoryTagsPopup'), {
+const PublishPanel = dynamic(() => import('../../../../components/Category/PublishPanel'), {
   ssr: false,
 });
 import { updatePost } from '../../../../services/postService';
@@ -83,7 +83,7 @@ export default function EditPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isFullscreen, handleUpdate]);
 
-  const updateFunction = useCallback(async (categories, tags) => {
+  const updateFunction = useCallback(async (selectedCategories, tags) => {
     if (!user) {
       setModalOpen(true);
       return;
@@ -93,8 +93,8 @@ export default function EditPage() {
         title,
         content,
         cover_image: imageTitle,
-        categories: categories ? categories.split(',').map(cat => cat.trim()) : [],
-        tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
+        categories: selectedCategories.map(cat => cat.name),
+        tags: tags,
       });
       router.push(`/p/${res.data.slug}`);
     } catch (error) {
@@ -224,11 +224,13 @@ export default function EditPage() {
       </main>
 
       {showPopup && (
-        <CategoryTagsPopup
+        <PublishPanel
           title={title}
           content={content}
           imageTitle={imageTitle}
           setImageTitle={setImageTitle}
+          initialCategories={post?.categories || []}
+          initialTags={post?.tags?.map(t => t.name) || []}
           onPublish={updateFunction}
           onCancel={() => setShowPopup(false)}
         />

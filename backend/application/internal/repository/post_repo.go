@@ -120,6 +120,26 @@ func (r *postRepo) CountByCategory(categoryID uuid.UUID) (int64, error) {
 	return count, err
 }
 
+func (r *postRepo) FindByTag(tagID uuid.UUID, limit, offset int) ([]*entities.Post, error) {
+	var posts []*entities.Post
+	err := r.db.Preload("User").Preload("Categories").Preload("Tags").
+		Joins("JOIN post_tags ON posts.id = post_tags.post_id").
+		Where("post_tags.tag_id = ?", tagID).
+		Order("posts.created_at DESC").
+		Limit(limit).Offset(offset).
+		Find(&posts).Error
+	return posts, err
+}
+
+func (r *postRepo) CountByTag(tagID uuid.UUID) (int64, error) {
+	var count int64
+	err := r.db.Model(&entities.Post{}).
+		Joins("JOIN post_tags ON posts.id = post_tags.post_id").
+		Where("post_tags.tag_id = ?", tagID).
+		Count(&count).Error
+	return count, err
+}
+
 func (r *postRepo) FindByYearMonth(year, month int, limit, offset int) ([]*entities.Post, error) {
 	var posts []*entities.Post
 	err := r.db.Preload("User").Preload("Categories").Preload("Tags").

@@ -10,6 +10,8 @@ type categoryRepo struct{ db *gorm.DB }
 
 func NewCategoryRepository(db *gorm.DB) CategoryRepository { return &categoryRepo{db: db} }
 
+func (r *categoryRepo) WithTx(tx *gorm.DB) CategoryRepository { return &categoryRepo{db: tx} }
+
 func (r *categoryRepo) Create(category *entities.Category) error {
 	return r.db.Create(category).Error
 }
@@ -25,13 +27,19 @@ func (r *categoryRepo) Delete(id uuid.UUID) error {
 func (r *categoryRepo) FindByID(id uuid.UUID) (*entities.Category, error) {
 	var category entities.Category
 	err := r.db.Where("id = ?", id).First(&category).Error
-	return &category, err
+	if err != nil {
+		return nil, err
+	}
+	return &category, nil
 }
 
 func (r *categoryRepo) FindByName(name string) (*entities.Category, error) {
 	var category entities.Category
 	err := r.db.Where("name = ?", name).First(&category).Error
-	return &category, err
+	if err != nil {
+		return nil, err
+	}
+	return &category, nil
 }
 
 func (r *categoryRepo) FindAll(limit, offset int) ([]*entities.Category, error) {

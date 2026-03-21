@@ -1,5 +1,6 @@
 // services/categoryService.js
 import axiosPublicInstance from '../utils/axiosPublicInstance';
+import axiosPrivateInstance from '../utils/axiosPrivateInstance';
 
 export const getCategories = async (page = 1, limit = 10) => {
   try {
@@ -28,7 +29,7 @@ export const getCategories = async (page = 1, limit = 10) => {
 
 export const getTopCategories = async (page = 1, limit = 10) => {
   try {
-    const response = await axiosPublicInstance.get(`/categories_top?page=${page}&limit=${limit}`);
+    const response = await axiosPublicInstance.get(`/categories/top?page=${page}&limit=${limit}`);
     const data = response.data;
 
     // Kiểm tra định dạng dữ liệu trả về
@@ -121,4 +122,9 @@ export const getPopularCategories = async (page = 1, limit = 7) => {
       };
     }
   }
+};
+
+export const createCategory = async (name) => {
+  const response = await axiosPrivateInstance.post('/admin/categories', { name: name.trim() });
+  return response.data;
 };

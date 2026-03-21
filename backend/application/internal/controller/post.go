@@ -248,6 +248,31 @@ func (c *PostController) GetPostsByCategory(ctx *gin.Context) {
 	})
 }
 
+func (c *PostController) GetPostsByTag(ctx *gin.Context) {
+	tagName := ctx.Param("name")
+	if tagName == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Tag name is required"})
+		return
+	}
+
+	req, err := parsePagination(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
+		return
+	}
+
+	responses, total, err := c.svc.GetPostsByTag(tagName, req)
+	if err != nil {
+		respondError(ctx, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"data": ensureNotNil(responses), "total_count": total,
+		"limit": req.Limit, "offset": req.Offset,
+	})
+}
+
 func (c *PostController) GetPopularPosts(ctx *gin.Context) {
 	req, err := parsePagination(ctx)
 	if err != nil {

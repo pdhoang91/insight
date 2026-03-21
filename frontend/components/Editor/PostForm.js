@@ -1,6 +1,7 @@
 // components/Editor/PostForm.js
 'use client';
 import React, { useEffect, useState, useCallback, useRef } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useEditor } from '@tiptap/react'
 import Placeholder from '@tiptap/extension-placeholder'
 import CharacterCount from '@tiptap/extension-character-count'
@@ -121,8 +122,15 @@ const PostForm = ({ title, setTitle, content, setContent, isFullscreen = false }
   const charCount = editor?.storage.characterCount
   const wordCount = charCount?.words?.() || 0
 
+  const springConfig = { type: 'spring', stiffness: 100, damping: 20 }
+
   return (
-    <div className="w-full max-w-[720px] mx-auto">
+    <motion.div
+      className="w-full max-w-[720px] mx-auto"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={springConfig}
+    >
       {/* Title */}
       <TitleInput
         title={title}
@@ -152,11 +160,40 @@ const PostForm = ({ title, setTitle, content, setContent, isFullscreen = false }
         </>
       )}
 
-      {editor && wordCount > 0 && (
-        <div style={{ textAlign: 'right', marginTop: '1.5rem', fontFamily: 'var(--font-display)', fontSize: '0.75rem', color: 'var(--text-faint)' }}>
-          {wordCount} {t('editor.words')}
-        </div>
-      )}
+      {/* Floating word count chip */}
+      <AnimatePresence>
+        {wordCount > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 4, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 4, scale: 0.95 }}
+            transition={springConfig}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              marginTop: '1.5rem',
+              float: 'right',
+              padding: '0.3rem 0.75rem',
+              background: 'var(--bg-surface)',
+              border: '1px solid var(--border)',
+              borderRadius: '99px',
+              fontFamily: 'var(--font-display)',
+              fontSize: '0.75rem',
+              color: 'var(--text-faint)',
+            }}
+          >
+            <span>{wordCount.toLocaleString()} {t('editor.words')}</span>
+            <span style={{
+              width: '1px',
+              height: '0.75rem',
+              background: 'var(--border)',
+              display: 'inline-block',
+            }} />
+            <span>{Math.max(1, Math.ceil(wordCount / 200))} min read</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Dialogs */}
       {showLinkDialog && (
@@ -165,7 +202,7 @@ const PostForm = ({ title, setTitle, content, setContent, isFullscreen = false }
       {showYoutubeDialog && (
         <YouTubeDialog editor={editor} onClose={() => setShowYoutubeDialog(false)} />
       )}
-    </div>
+    </motion.div>
   )
 }
 

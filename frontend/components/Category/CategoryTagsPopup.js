@@ -357,7 +357,7 @@ const CategoryTagsPopup = ({ title, content, imageTitle, setImageTitle, onPublis
                   lineHeight: 1.5,
                 }}
               >
-                Add or change topics (up to 3) so readers know what your story is about.
+                Add or change categories (up to 3) so readers know what your story is about.
               </p>
 
               {isLoading ? (

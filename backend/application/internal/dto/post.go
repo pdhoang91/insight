@@ -23,8 +23,8 @@ type UpdatePostRequest struct {
 	CoverImage string          `json:"cover_image,omitempty"`
 	Excerpt    string          `json:"excerpt,omitempty" validate:"omitempty,min=10,max=500"`
 	Content    json.RawMessage `json:"content,omitempty"`
-	CategoryNames []string     `json:"categories,omitempty"`
-	TagNames      []string     `json:"tags,omitempty"`
+	CategoryNames *[]string    `json:"categories,omitempty"`
+	TagNames      *[]string    `json:"tags,omitempty"`
 }
 
 // Post responses

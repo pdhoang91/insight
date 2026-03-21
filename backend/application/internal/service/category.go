@@ -44,27 +44,20 @@ func (s *InsightService) ListCategories(req *dto.PaginationRequest) ([]*dto.Cate
 	return responses, total, nil
 }
 
-// GetTopCategories retrieves top categories
+// GetTopCategories retrieves top categories by post count
 func (s *InsightService) GetTopCategories(req *dto.PaginationRequest) ([]*dto.CategoryResponse, int64, error) {
 	if req.Limit == 0 {
 		req.Limit = 10
 	}
 
-	topCategories := []string{"Technology", "Music", "Movies", "AI", "Golang"}
-
-	totalCount, err := s.CategoryRepo.CountByNames(topCategories)
-	if err != nil {
-		return nil, 0, apperror.NewInternal("failed to count top categories", err)
-	}
-
-	categories, err := s.CategoryRepo.FindByNames(topCategories, req.Limit, req.Offset)
+	results, totalCount, err := s.CategoryRepo.FindPopularByPostCount(req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to get top categories", err)
 	}
 
-	responses := make([]*dto.CategoryResponse, 0, len(categories))
-	for _, category := range categories {
-		responses = append(responses, dto.NewCategoryResponse(category))
+	responses := make([]*dto.CategoryResponse, 0, len(results))
+	for _, result := range results {
+		responses = append(responses, dto.NewCategoryResponse(result.Category))
 	}
 	return responses, totalCount, nil
 }

@@ -91,7 +91,7 @@
     "explore": "Explore categories",
     "collection": "Collection",
     "content": "content",
-    "heroDescription": "Discover and explore topics that interest you. Each category is carefully curated to offer a rich and diverse reading experience.",
+    "heroDescription": "Discover and explore categories that interest you. Each category is carefully curated to offer a rich and diverse reading experience.",
     "home": "Home",
     "articles": "Articles",
     "readTime": "Read time",
@@ -178,7 +178,7 @@
   "footer": {
     "navigate": "Navigate",
     "writing": "Writing",
-    "topics": "Topics",
+    "topics": "Categories",
     "more": "More",
     "search": "Search",
     "write": "Write",

@@ -49,6 +49,7 @@ func DefineAPIRoutes(r *gin.Engine, ctrl *controller.Controller) {
 		// Tags
 		public.GET("/tags", ctrl.Tag.ListTags)
 		public.GET("/tags/popular", ctrl.Tag.GetPopularTags)
+		public.GET("/tags/:name/posts", ctrl.Post.GetPostsByTag)
 
 		// Users
 		public.GET("/users/:id", ctrl.User.GetUser)
@@ -85,11 +86,6 @@ func DefineAPIRoutes(r *gin.Engine, ctrl *controller.Controller) {
 		protected.PUT("/posts/:id", ctrl.Post.UpdatePost)
 		protected.DELETE("/posts/:id", ctrl.Post.DeletePost)
 		protected.POST("/posts/:id/clap", ctrl.Engagement.ClapPost)
-
-		// Categories
-		protected.POST("/categories", ctrl.Category.CreateCategory)
-		protected.PUT("/categories/id/:id", ctrl.Category.UpdateCategory)
-		protected.DELETE("/categories/id/:id", ctrl.Category.DeleteCategory)
 
 		// Comments
 		protected.POST("/comments", ctrl.Comment.CreateComment)
@@ -128,5 +124,10 @@ func DefineAPIRoutes(r *gin.Engine, ctrl *controller.Controller) {
 	admin.Use(middleware.AuthMiddleware(), middleware.AdminMiddleware())
 	{
 		admin.DELETE("/posts/:id", ctrl.Post.DeletePost)
+		
+		// Categories (Admin only)
+		admin.POST("/categories", ctrl.Category.CreateCategory)
+		admin.PUT("/categories/id/:id", ctrl.Category.UpdateCategory)
+		admin.DELETE("/categories/id/:id", ctrl.Category.DeleteCategory)
 	}
 }

@@ -10,7 +10,7 @@ const PostForm = dynamic(() => import('../../../components/Editor/PostForm'), {
   loading: () => <div className="flex justify-center py-20"><LoadingSpinner size="lg" /></div>,
   ssr: false,
 });
-const CategoryTagsPopup = dynamic(() => import('../../../components/Category/CategoryTagsPopup'), {
+const PublishPanel = dynamic(() => import('../../../components/Category/PublishPanel'), {
   ssr: false,
 });
 import { createPost } from '../../../services/postService';
@@ -70,7 +70,7 @@ export default function WritePage() {
     }
   }, [pathname, router]);
 
-  const publishFunction = useCallback(async (categories, tags) => {
+  const publishFunction = useCallback(async (selectedCategories, tags) => {
     if (!user) {
       setModalOpen(true);
       return;
@@ -80,8 +80,8 @@ export default function WritePage() {
         title,
         content,
         cover_image: imageTitle,
-        categories: categories ? categories.split(',').map(cat => cat.trim()) : [],
-        tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
+        categories: selectedCategories.map(cat => cat.name),
+        tags: tags,
       });
       router.push(`/p/${res.data.slug}`);
     } catch (error) {
@@ -160,7 +160,7 @@ export default function WritePage() {
       </main>
 
       {showPopup && (
-        <CategoryTagsPopup
+        <PublishPanel
           title={title}
           content={content}
           imageTitle={imageTitle}

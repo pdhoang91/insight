@@ -10,6 +10,8 @@ type tagRepo struct{ db *gorm.DB }
 
 func NewTagRepository(db *gorm.DB) TagRepository { return &tagRepo{db: db} }
 
+func (r *tagRepo) WithTx(tx *gorm.DB) TagRepository { return &tagRepo{db: tx} }
+
 func (r *tagRepo) Create(tag *entities.Tag) error {
 	if tag.ID == uuid.Nil {
 		tag.ID = uuid.NewV4()
@@ -28,13 +30,19 @@ func (r *tagRepo) Delete(id uuid.UUID) error {
 func (r *tagRepo) FindByID(id uuid.UUID) (*entities.Tag, error) {
 	var tag entities.Tag
 	err := r.db.Where("id = ?", id).First(&tag).Error
-	return &tag, err
+	if err != nil {
+		return nil, err
+	}
+	return &tag, nil
 }
 
 func (r *tagRepo) FindByName(name string) (*entities.Tag, error) {
 	var tag entities.Tag
 	err := r.db.Where("name = ?", name).First(&tag).Error
-	return &tag, err
+	if err != nil {
+		return nil, err
+	}
+	return &tag, nil
 }
 
 func (r *tagRepo) List(limit, offset int) ([]*entities.Tag, error) {
@@ -65,5 +73,11 @@ func (r *tagRepo) Search(query string, limit int) ([]*entities.Tag, error) {
 func (r *tagRepo) Count() (int64, error) {
 	var count int64
 	err := r.db.Model(&entities.Tag{}).Count(&count).Error
+	return count, err
+}
+
+func (r *tagRepo) CountPostsByTag(tagID uuid.UUID) (int64, error) {
+	var count int64
+	err := r.db.Model(&entities.PostTag{}).Where("tag_id = ?", tagID).Count(&count).Error
 	return count, err
 }

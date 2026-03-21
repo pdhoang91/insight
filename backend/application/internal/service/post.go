@@ -13,6 +13,7 @@ import (
 	"github.com/pdhoang91/blog/internal/apperror"
 	"github.com/pdhoang91/blog/internal/dto"
 	"github.com/pdhoang91/blog/internal/entities"
+	"github.com/pdhoang91/blog/internal/repository"
 	"github.com/pdhoang91/blog/pkg/notification"
 	"github.com/pdhoang91/blog/pkg/revalidation"
 	"github.com/pdhoang91/blog/pkg/utils"
@@ -34,6 +35,8 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 
 	txPostRepo := s.PostRepo.WithTx(tx)
 	txPostContentRepo := s.PostContentRepo.WithTx(tx)
+	txCategoryRepo := s.CategoryRepo.WithTx(tx)
+	txTagRepo := s.TagRepo.WithTx(tx)
 
 	coverImage := req.CoverImage
 	if coverImage == "" {
@@ -87,7 +90,7 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 	}
 
 	if len(req.CategoryNames) > 0 {
-		categories, err := s.findOrCreateCategories(req.CategoryNames)
+		categories, err := s.findOrCreateCategories(req.CategoryNames, txCategoryRepo)
 		if err != nil {
 			tx.Rollback()
 			return nil, err
@@ -99,7 +102,7 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 	}
 
 	if len(req.TagNames) > 0 {
-		tags, err := s.findOrCreateTags(req.TagNames)
+		tags, err := s.findOrCreateTags(req.TagNames, txTagRepo)
 		if err != nil {
 			tx.Rollback()
 			return nil, err
@@ -257,6 +260,8 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 
 	txPostRepo := s.PostRepo.WithTx(tx)
 	txPostContentRepo := s.PostContentRepo.WithTx(tx)
+	txCategoryRepo := s.CategoryRepo.WithTx(tx)
+	txTagRepo := s.TagRepo.WithTx(tx)
 
 	post, err := txPostRepo.FindByID(id)
 	if err != nil {
@@ -335,11 +340,15 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 		_ = s.StorageManager.UpdateJSONImageReferences(context.Background(), post.ID, oldContent, postContent.Content)
 	}
 
-	if len(req.CategoryNames) > 0 {
-		categories, err := s.findOrCreateCategories(req.CategoryNames)
-		if err != nil {
-			tx.Rollback()
-			return nil, err
+	if req.CategoryNames != nil {
+		var categories []entities.Category
+		if len(*req.CategoryNames) > 0 {
+			var err error
+			categories, err = s.findOrCreateCategories(*req.CategoryNames, txCategoryRepo)
+			if err != nil {
+				tx.Rollback()
+				return nil, err
+			}
 		}
 		if err := txPostRepo.ReplaceCategories(post, categories); err != nil {
 			tx.Rollback()
@@ -347,11 +356,15 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 		}
 	}
 
-	if len(req.TagNames) > 0 {
-		tags, err := s.findOrCreateTags(req.TagNames)
-		if err != nil {
-			tx.Rollback()
-			return nil, err
+	if req.TagNames != nil {
+		var tags []entities.Tag
+		if len(*req.TagNames) > 0 {
+			var err error
+			tags, err = s.findOrCreateTags(*req.TagNames, txTagRepo)
+			if err != nil {
+				tx.Rollback()
+				return nil, err
+			}
 		}
 		if err := txPostRepo.ReplaceTags(post, tags); err != nil {
 			tx.Rollback()
@@ -666,6 +679,39 @@ func (s *InsightService) GetPostsByCategory(categoryName string, req *dto.Pagina
 	return responses, total, nil
 }
 
+// GetPostsByTag retrieves posts by tag name
+func (s *InsightService) GetPostsByTag(tagName string, req *dto.PaginationRequest) ([]*dto.PostResponse, int64, error) {
+	if req.Limit == 0 {
+		req.Limit = 10
+	}
+
+	tag, err := s.TagRepo.FindByName(tagName)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, 0, apperror.NewNotFound("tag not found")
+		}
+		return nil, 0, apperror.NewInternal("failed to find tag", err)
+	}
+
+	posts, err := s.PostRepo.FindByTag(tag.ID, req.Limit, req.Offset)
+	if err != nil {
+		return nil, 0, apperror.NewInternal("failed to get posts by tag", err)
+	}
+
+	total, err := s.PostRepo.CountByTag(tag.ID)
+	if err != nil {
+		return nil, 0, apperror.NewInternal("failed to count posts by tag", err)
+	}
+
+	_ = s.PostRepo.CalculateCountsForPosts(posts)
+
+	responses := make([]*dto.PostResponse, 0, len(posts))
+	for _, post := range posts {
+		responses = append(responses, dto.NewPostResponse(post))
+	}
+	return responses, total, nil
+}
+
 // HasUserClappedPost checks if a user has clapped a specific post
 func (s *InsightService) HasUserClappedPost(userID, postID uuid.UUID) (bool, error) {
 	return s.UserActivityRepo.HasUserClapped(userID, "post", postID)
@@ -779,18 +825,18 @@ func (s *InsightService) createImageReference(imageID string, postID uuid.UUID, 
 	return s.ImageRepo.CreateReference(ref)
 }
 
-// findOrCreateCategories finds or creates categories by name
-func (s *InsightService) findOrCreateCategories(names []string) ([]entities.Category, error) {
+// findOrCreateCategories finds or creates categories by name within a transaction
+func (s *InsightService) findOrCreateCategories(names []string, txCategoryRepo repository.CategoryRepository) ([]entities.Category, error) {
 	var categories []entities.Category
 	for _, name := range names {
-		category, err := s.CategoryRepo.FindByName(name)
+		category, err := txCategoryRepo.FindByName(name)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				category = &entities.Category{
 					ID: uuid.NewV4(), Name: name,
 					CreatedAt: time.Now(), UpdatedAt: time.Now(),
 				}
-				if err := s.CategoryRepo.Create(category); err != nil {
+				if err := txCategoryRepo.Create(category); err != nil {
 					return nil, apperror.NewInternal("failed to create category", err)
 				}
 			} else {
@@ -802,18 +848,18 @@ func (s *InsightService) findOrCreateCategories(names []string) ([]entities.Cate
 	return categories, nil
 }
 
-// findOrCreateTags finds or creates tags by name
-func (s *InsightService) findOrCreateTags(names []string) ([]entities.Tag, error) {
+// findOrCreateTags finds or creates tags by name within a transaction
+func (s *InsightService) findOrCreateTags(names []string, txTagRepo repository.TagRepository) ([]entities.Tag, error) {
 	var tags []entities.Tag
 	for _, name := range names {
-		tag, err := s.TagRepo.FindByName(name)
+		tag, err := txTagRepo.FindByName(name)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				tag = &entities.Tag{
 					ID: uuid.NewV4(), Name: name,
 					CreatedAt: time.Now(), UpdatedAt: time.Now(),
 				}
-				if err := s.TagRepo.Create(tag); err != nil {
+				if err := txTagRepo.Create(tag); err != nil {
 					return nil, apperror.NewInternal("failed to create tag", err)
 				}
 			} else {
