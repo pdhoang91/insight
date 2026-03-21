@@ -195,33 +195,6 @@ const BasePostItem = ({
               </p>
             )}
 
-            {/* Categories */}
-            {post.categories?.length > 0 && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.6rem' }}>
-                {post.categories.slice(0, 3).map((cat) => (
-                  <Link
-                    key={cat.id}
-                    href={`/category/${cat.name}`}
-                    style={{
-                      fontFamily: 'var(--font-display)',
-                      fontSize: '0.7rem',
-                      fontWeight: 600,
-                      letterSpacing: '0.07em',
-                      textTransform: 'uppercase',
-                      color: 'var(--text-faint)',
-                      padding: '0.2rem 0.5rem',
-                      background: 'var(--bg-surface)',
-                      borderRadius: '2px',
-                      transition: 'color 0.2s, background 0.2s',
-                    }}
-                    className="hover:text-[var(--accent)] hover:bg-[var(--accent-light)]"
-                  >
-                    {cat.name}
-                  </Link>
-                ))}
-              </div>
-            )}
-
             {isPostOwner && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.875rem' }}>
                 <Link
