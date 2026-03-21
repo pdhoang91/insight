@@ -1,7 +1,6 @@
 'use client';
 // components/Layout/Layout.js
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
 import Footer from './Footer';
 
 /**
@@ -72,7 +71,7 @@ const Layout = ({
   variant = 'container',
   showSidebar = true,
   sidebarPosition = 'right',
-  hideMobileSidebar = false,
+  hideMobileSidebar = true,
   className = '',
   ...props
 }) => {
@@ -104,12 +103,6 @@ const Layout = ({
                 <div className="hidden lg:block">
                   <StickyDesktopSidebar>{sidebar}</StickyDesktopSidebar>
                 </div>
-                {/* Mobile: collapsible (hidden when parent provides custom mobile discovery) */}
-                {!hideMobileSidebar && (
-                  <div className="block lg:hidden">
-                    <MobileSidebarContent sidebar={sidebar} />
-                  </div>
-                )}
               </aside>
             </div>
           ) : (
@@ -124,47 +117,6 @@ const Layout = ({
   );
 };
 
-const MobileSidebarContent = ({ sidebar }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-
-  if (!sidebar) return null;
-
-  return (
-    <div className="mt-8 mb-4">
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        style={{
-          width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '0.75rem 0',
-          borderTop: '1px solid var(--border)', borderBottom: 'none', borderLeft: 'none', borderRight: 'none',
-          background: 'none',
-          cursor: 'pointer', transition: 'color 0.2s',
-        }}
-        aria-expanded={isExpanded}
-        aria-controls="mobile-sidebar-content"
-      >
-        <span style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '0.8rem', letterSpacing: '-0.01em', color: 'var(--text)' }}>
-          More from this blog
-        </span>
-        {isExpanded ? (
-          <FaChevronUp style={{ width: 12, height: 12, color: 'var(--text-muted)' }} />
-        ) : (
-          <FaChevronDown style={{ width: 12, height: 12, color: 'var(--text-muted)' }} />
-        )}
-      </button>
-
-      {isExpanded && (
-        <div
-          id="mobile-sidebar-content"
-          className="mt-4 max-h-[400px] overflow-y-auto overscroll-contain"
-          style={{ WebkitOverflowScrolling: 'touch' }}
-        >
-          {sidebar}
-        </div>
-      )}
-    </div>
-  );
-};
 
 export const ArticleLayout = ({ children, ...props }) => (
   <Layout variant="reading" showSidebar={false} {...props}>
