@@ -6,9 +6,11 @@ import { useRecentPosts } from '../../hooks/useRecentPosts';
 import TimeAgo from '../Utils/TimeAgo';
 import SafeImage from '../Utils/SafeImage';
 import { themeClasses, combineClasses } from '../../utils/themeClasses';
+import { useTranslations } from 'next-intl';
 
 const RelatedArticles = ({ currentPostId, categories = [], tags = [], limit = 3 }) => {
-  // For now, we'll use recent posts. In a real implementation, 
+  const t = useTranslations();
+  // For now, we'll use recent posts. In a real implementation,
   // this would be a more sophisticated recommendation algorithm
   const { posts: relatedPosts, isLoading } = useRecentPosts(limit + 1);
 
@@ -57,7 +59,7 @@ const RelatedArticles = ({ currentPostId, categories = [], tags = [], limit = 3 
           themeClasses.text.primary,
           'mb-2'
         )}>
-          More from Insight
+          {t('article.moreFromInsight')}
         </h2>
         <div className={combineClasses(
           'w-16 h-0.5',
@@ -90,7 +92,7 @@ const RelatedArticles = ({ currentPostId, categories = [], tags = [], limit = 3 
             themeClasses.animations.smooth
           )}
         >
-          View all articles
+          {t('article.viewAll')}
         </Link>
       </div>
     </div>
@@ -99,7 +101,7 @@ const RelatedArticles = ({ currentPostId, categories = [], tags = [], limit = 3 
 
 // Individual Related Article Card
 const RelatedArticleCard = ({ post }) => {
-
+  const t = useTranslations();
   return (
     <article className={combineClasses('group cursor-pointer')}>
       <Link href={`/p/${post.slug}`} className="block">
@@ -155,7 +157,7 @@ const RelatedArticleCard = ({ post }) => {
                   )} />
                 </div>
               )}
-              <span>{post.user?.name || 'Anonymous'}</span>
+              <span>{post.user?.name || t('article.anonymous')}</span>
             </div>
             <span>·</span>
             <TimeAgo timestamp={post.created_at} />

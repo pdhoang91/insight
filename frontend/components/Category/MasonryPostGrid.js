@@ -5,14 +5,17 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { StaggerContainer, SpringDiv } from '../UI/SpringMotion';
+import { useTranslations, useLocale } from 'next-intl';
 
-const MasonryPostGrid = ({ 
-  posts = [], 
-  isLoading, 
-  setSize, 
+const MasonryPostGrid = ({
+  posts = [],
+  isLoading,
+  setSize,
   isReachingEnd,
-  categoryName 
+  categoryName
 }) => {
+  const t = useTranslations();
+  const locale = useLocale();
   const [displayedPosts, setDisplayedPosts] = useState([]);
   const [loadingMore, setLoadingMore] = useState(false);
 
@@ -135,7 +138,7 @@ const MasonryPostGrid = ({
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.2, type: "spring", stiffness: 200, damping: 25 }}
                       >
-                        {post.reading_time || '5'} phút
+                        {post.reading_time || '5'} {t('category.min')}
                       </motion.div>
                     </div>
                   )}
@@ -191,7 +194,7 @@ const MasonryPostGrid = ({
                             {post.author?.full_name || 'Anonymous'}
                           </div>
                           <div className="opacity-75">
-                            {new Date(post.created_at).toLocaleDateString('vi-VN')}
+                            {new Date(post.created_at).toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US')}
                           </div>
                         </div>
                       </div>
@@ -230,7 +233,7 @@ const MasonryPostGrid = ({
             <div className="w-6 h-6 border-2 border-[var(--accent)] border-t-transparent 
                            rounded-full animate-spin" />
             <span className="font-display font-medium text-slate-600">
-              Đang tải thêm bài viết...
+              {t('category.loadingMore')}
             </span>
           </motion.div>
         )}
@@ -244,7 +247,7 @@ const MasonryPostGrid = ({
           >
             <div className="inline-flex items-center space-x-2 text-slate-500">
               <div className="w-8 h-px bg-slate-300" />
-              <span className="font-display text-sm">Đã hiển thị tất cả bài viết</span>
+              <span className="font-display text-sm">{t('category.allPostsShown')}</span>
               <div className="w-8 h-px bg-slate-300" />
             </div>
           </motion.div>
@@ -255,44 +258,46 @@ const MasonryPostGrid = ({
 };
 
 // Empty state component
-const EmptyState = ({ categoryName }) => (
+const EmptyState = ({ categoryName }) => {
+  const t = useTranslations();
+  return (
     <div className="w-full">
-      <motion.div 
+      <motion.div
         className="text-center py-24"
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ type: "spring", stiffness: 100, damping: 20 }}
-    >
-      <div className="w-24 h-24 mx-auto bg-slate-100 rounded-full 
-                     flex items-center justify-center mb-8">
-        <svg className="w-12 h-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} 
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-      </div>
-      
-      <h3 className="font-display font-bold text-2xl text-slate-900 mb-4">
-        Chưa có bài viết nào
-      </h3>
-      <p className="font-body text-lg text-slate-600 max-w-md mx-auto mb-8 leading-relaxed">
-        Danh mục "{categoryName}" hiện tại chưa có bài viết nào. 
-        Hãy quay lại sau để khám phá nội dung mới.
-      </p>
-      
-      <Link href="/category">
-        <motion.div
-          className="inline-flex items-center px-6 py-3 bg-[var(--accent)] text-white 
-                     font-display font-semibold rounded-full hover:bg-[var(--accent-dark)]
-                     transition-colors duration-200"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        >
-          Xem tất cả danh mục
-        </motion.div>
-      </Link>
-    </motion.div>
-  </div>
-);
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+      >
+        <div className="w-24 h-24 mx-auto bg-slate-100 rounded-full
+                       flex items-center justify-center mb-8">
+          <svg className="w-12 h-12 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+        </div>
+
+        <h3 className="font-display font-bold text-2xl text-slate-900 mb-4">
+          {t('category.noPostsTitle')}
+        </h3>
+        <p className="font-body text-lg text-slate-600 max-w-md mx-auto mb-8 leading-relaxed">
+          {t('category.noPostsMessage', { categoryName })}
+        </p>
+
+        <Link href="/category">
+          <motion.div
+            className="inline-flex items-center px-6 py-3 bg-[var(--accent)] text-white
+                       font-display font-semibold rounded-full hover:bg-[var(--accent-dark)]
+                       transition-colors duration-200"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          >
+            {t('category.allCategories')}
+          </motion.div>
+        </Link>
+      </motion.div>
+    </div>
+  );
+};
 
 export default MasonryPostGrid;

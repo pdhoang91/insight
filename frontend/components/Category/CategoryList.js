@@ -4,8 +4,10 @@ import { useCategories } from '../../hooks/useCategories';
 import CategoryHero from './CategoryHero';
 import BentoGrid from './BentoGrid';
 import CategorySkeletonLoader from './CategorySkeletonLoader';
+import { useTranslations } from 'next-intl';
 
 const CategoryList = () => {
+  const t = useTranslations();
   const { categories, isLoading, isError } = useCategories();
 
   if (isLoading) {
@@ -29,18 +31,18 @@ const CategoryList = () => {
               </svg>
             </div>
             <h3 className="font-display font-semibold text-lg text-slate-900">
-              Có lỗi xảy ra
+              {t('category.errorTitle')}
             </h3>
             <p className="font-body text-slate-600">
-              Không thể tải danh mục. Vui lòng thử lại sau.
+              {t('category.errorMessage')}
             </p>
-            <button 
+            <button
               onClick={() => window.location.reload()}
-              className="inline-flex items-center px-4 py-2 bg-[var(--accent)] text-white 
+              className="inline-flex items-center px-4 py-2 bg-[var(--accent)] text-white
                          font-display font-medium rounded-full hover:bg-[var(--accent-dark)]
                          transition-colors duration-200"
             >
-              Thử lại
+              {t('category.retry')}
             </button>
           </div>
         </div>

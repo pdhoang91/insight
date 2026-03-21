@@ -1,18 +1,20 @@
 // components/profile/ProfileSection.js - Unified Profile Components
+'use client';
 import React, { useState } from 'react';
 import { FaUser, FaEdit, FaSave, FaTimes, FaMapMarkerAlt, FaCalendarAlt, FaLink } from 'react-icons/fa';
 import { SafeImage, TimeAgo } from '../common';
 import { Button, Input } from '../ui';
 import { themeClasses, combineClasses } from '../../utils/themeClasses';
+import { useTranslations } from 'next-intl';
 
 // Profile Header Component
-export const ProfileHeader = ({ 
-  user, 
-  isOwner = false, 
+export const ProfileHeader = ({
+  user,
+  isOwner = false,
   onEdit,
   stats = { posts: 0, followers: 0, following: 0 }
 }) => {
-
+  const t = useTranslations();
   return (
     <div className={combineClasses(themeClasses.bg.card, 'p-6 mb-6')}>
       <div className={combineClasses(
@@ -44,7 +46,7 @@ export const ProfileHeader = ({
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <h1 className={combineClasses(themeClasses.heading.h1, 'mb-2')}>
-                {user?.name || 'Unknown User'}
+                {user?.name || t('profile.unknownUser')}
               </h1>
               <p className={combineClasses(themeClasses.text.muted, 'text-lg mb-2')}>
                 @{user?.username}
@@ -71,13 +73,13 @@ export const ProfileHeader = ({
                     className={combineClasses('flex items-center gap-1', themeClasses.text.accent, 'hover:underline')}
                   >
                     <FaLink className="w-3 h-3" />
-                    <span>Website</span>
+                    <span>{t('profile.website')}</span>
                   </a>
                 )}
                 {user?.created_at && (
                   <div className={combineClasses('flex items-center gap-1', themeClasses.text.muted)}>
                     <FaCalendarAlt className="w-3 h-3" />
-                    <span>Tham gia <TimeAgo timestamp={user.created_at} /></span>
+                    <span>{t('profile.joinedDate')} <TimeAgo timestamp={user.created_at} /></span>
                   </div>
                 )}
               </div>
@@ -93,7 +95,7 @@ export const ProfileHeader = ({
                   className="flex items-center gap-2"
                 >
                   <FaEdit className="w-4 h-4" />
-                  Chỉnh sửa hồ sơ
+                  {t('profile.editProfile')}
                 </Button>
               </div>
             )}
@@ -106,7 +108,7 @@ export const ProfileHeader = ({
                 {stats.posts}
               </div>
               <div className={combineClasses(themeClasses.text.muted, 'text-sm')}>
-                Bài viết
+                {t('profile.posts')}
               </div>
             </div>
             <div className="text-center">
@@ -114,7 +116,7 @@ export const ProfileHeader = ({
                 {stats.followers}
               </div>
               <div className={combineClasses(themeClasses.text.muted, 'text-sm')}>
-                Người theo dõi
+                {t('profile.followers')}
               </div>
             </div>
             <div className="text-center">
@@ -122,7 +124,7 @@ export const ProfileHeader = ({
                 {stats.following}
               </div>
               <div className={combineClasses(themeClasses.text.muted, 'text-sm')}>
-                Đang theo dõi
+                {t('profile.following')}
               </div>
             </div>
           </div>
@@ -133,12 +135,13 @@ export const ProfileHeader = ({
 };
 
 // Profile Form Component
-export const ProfileForm = ({ 
-  user, 
-  onSave, 
+export const ProfileForm = ({
+  user,
+  onSave,
   onCancel,
-  isLoading = false 
+  isLoading = false
 }) => {
+  const t = useTranslations();
   const [formData, setFormData] = useState({
     name: user?.name || '',
     bio: user?.bio || '',
@@ -162,56 +165,56 @@ export const ProfileForm = ({
     <div className={combineClasses(themeClasses.card, 'p-6')}>
       <div className="flex items-center justify-between mb-6">
         <h2 className={themeClasses.heading.h2}>
-          Chỉnh sửa hồ sơ
+          {t('profile.editProfile')}
         </h2>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className={combineClasses('block text-sm font-medium mb-2', themeClasses.text.primary)}>
-            Tên hiển thị
+            {t('profile.displayName')}
           </label>
           <Input
             value={formData.name}
             onChange={handleChange('name')}
-            placeholder="Nhập tên của bạn"
+            placeholder={t('profile.namePlaceholder')}
             required
           />
         </div>
 
         <div>
           <label className={combineClasses('block text-sm font-medium mb-2', themeClasses.text.primary)}>
-            Tiểu sử
+            {t('profile.bio')}
           </label>
           <textarea
             className={themeClasses.textarea}
             value={formData.bio}
             onChange={handleChange('bio')}
-            placeholder="Viết một chút về bản thân..."
+            placeholder={t('profile.bioPlaceholder')}
             rows={4}
           />
         </div>
 
         <div>
           <label className={combineClasses('block text-sm font-medium mb-2', themeClasses.text.primary)}>
-            Địa điểm
+            {t('profile.location')}
           </label>
           <Input
             value={formData.location}
             onChange={handleChange('location')}
-            placeholder="Thành phố, Quốc gia"
+            placeholder={t('profile.locationPlaceholder')}
           />
         </div>
 
         <div>
           <label className={combineClasses('block text-sm font-medium mb-2', themeClasses.text.primary)}>
-            Website
+            {t('profile.website')}
           </label>
           <Input
             type="url"
             value={formData.website}
             onChange={handleChange('website')}
-            placeholder="https://example.com"
+            placeholder={t('profile.websitePlaceholder')}
           />
         </div>
 
@@ -223,7 +226,7 @@ export const ProfileForm = ({
             className="flex items-center gap-2"
           >
             <FaSave className="w-4 h-4" />
-            Lưu thay đổi
+            {t('profile.saveChanges')}
           </Button>
           <Button
             type="button"
@@ -233,7 +236,7 @@ export const ProfileForm = ({
             className="flex items-center gap-2"
           >
             <FaTimes className="w-4 h-4" />
-            Hủy
+            {t('profile.cancel')}
           </Button>
         </div>
       </form>
@@ -242,21 +245,22 @@ export const ProfileForm = ({
 };
 
 // User Posts Section Component
-export const UserPostsSection = ({ 
-  posts = [], 
-  isLoading = false, 
+export const UserPostsSection = ({
+  posts = [],
+  isLoading = false,
   isError = false,
   setSize,
   isReachingEnd = false,
   username
 }) => {
+  const t = useTranslations();
   const { PostList } = require('../post');
 
   return (
     <div>
       <div className="mb-6">
         <h2 className={themeClasses.heading.h2}>
-          Bài viết của {username}
+          {t('profile.postsBy', { username })}
         </h2>
       </div>
 
@@ -267,8 +271,8 @@ export const UserPostsSection = ({
         setSize={setSize}
         isReachingEnd={isReachingEnd}
         variant="compact"
-        emptyTitle="Chưa có bài viết"
-        emptyMessage="Người dùng này chưa đăng bài viết nào."
+        emptyTitle={t('profile.noPostsTitle')}
+        emptyMessage={t('profile.noPostsMessage')}
       />
     </div>
   );

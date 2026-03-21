@@ -1,10 +1,13 @@
 // components/Profile/AvatarUpdateModal.js
+'use client';
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaTimes, FaCamera } from 'react-icons/fa';
 import { updateProfileWithAvatar } from '../../services/imageService';
+import { useTranslations } from 'next-intl';
 
 const AvatarUpdateModal = ({ userProfile, onUpdate, onCancel }) => {
+  const t = useTranslations();
   const [avatarUrl, setAvatarUrl] = useState(userProfile.avatar_url || '');
   const [isUploading, setIsUploading] = useState(false);
   const [avatarFile, setAvatarFile] = useState(null);
@@ -20,7 +23,7 @@ const AvatarUpdateModal = ({ userProfile, onUpdate, onCancel }) => {
       onUpdate(response.data);
     } catch (error) {
       console.error('Failed to update avatar:', error);
-      alert('Failed to update avatar. Please try again.');
+      alert(t('profile.avatarUpdateFailed'));
     } finally {
       setIsUploading(false);
     }
@@ -51,7 +54,7 @@ const AvatarUpdateModal = ({ userProfile, onUpdate, onCancel }) => {
           transition={{ type: 'spring', duration: 0.5 }}
         >
           <div className="flex items-center justify-between p-5 border-b border-[#f2f2f2]">
-            <h3 className="font-serif text-lg font-bold text-[#292929]">Update Avatar</h3>
+            <h3 className="font-serif text-lg font-bold text-[#292929]">{t('profile.updateAvatarTitle')}</h3>
             <button onClick={onCancel} className="text-[#b3b3b1] hover:text-[#292929] transition-colors">
               <FaTimes className="w-5 h-5" />
             </button>
@@ -80,7 +83,7 @@ const AvatarUpdateModal = ({ userProfile, onUpdate, onCancel }) => {
                   className="flex items-center gap-2 px-4 py-2 text-[13px] text-[#1a8917] border border-[#1a8917]/30 rounded-full hover:bg-[#1a8917]/5 transition-colors disabled:opacity-50"
                 >
                   <FaCamera className="w-4 h-4" />
-                  <span>{isUploading ? 'Uploading...' : 'Choose photo'}</span>
+                  <span>{isUploading ? t('profile.uploading') : t('profile.choosePhoto')}</span>
                 </button>
 
                 <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
@@ -92,14 +95,14 @@ const AvatarUpdateModal = ({ userProfile, onUpdate, onCancel }) => {
                   onClick={onCancel}
                   className="flex-1 px-4 py-2.5 text-[13px] text-[#757575] border border-[#e6e6e6] rounded-full hover:bg-[#fafafa] transition-colors"
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={isUploading || !avatarFile}
                   className="flex-1 px-4 py-2.5 text-[13px] text-white bg-[#1a8917] rounded-full hover:bg-[#156d12] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isUploading ? 'Saving...' : 'Save'}
+                  {isUploading ? t('common.saving') : t('common.save')}
                 </button>
               </div>
             </form>

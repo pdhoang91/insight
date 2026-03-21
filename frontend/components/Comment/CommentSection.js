@@ -46,7 +46,7 @@ const CommentSection = ({ postId }) => {
           color: 'var(--text-muted)',
           margin: 0,
         }}>
-          Join the conversation
+          {t('comment.joinConversation')}
         </p>
       </div>
 

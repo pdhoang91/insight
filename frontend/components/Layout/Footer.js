@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 
 const FooterLink = ({ href, children }) => (
   <Link
@@ -20,6 +21,7 @@ const FooterLink = ({ href, children }) => (
 );
 
 const Footer = () => {
+  const t = useTranslations();
   const year = new Date().getFullYear();
 
   return (
@@ -109,11 +111,11 @@ const Footer = () => {
                   margin: '0 0 0.25rem 0',
                 }}
               >
-                Navigate
+                {t('footer.navigate')}
               </p>
-              <FooterLink href="/">Writing</FooterLink>
-              <FooterLink href="/category">Topics</FooterLink>
-              <FooterLink href="/archive">Archive</FooterLink>
+              <FooterLink href="/">{t('footer.writing')}</FooterLink>
+              <FooterLink href="/category">{t('footer.topics')}</FooterLink>
+              <FooterLink href="/archive">{t('sidebar.archive')}</FooterLink>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -128,10 +130,10 @@ const Footer = () => {
                   margin: '0 0 0.25rem 0',
                 }}
               >
-                More
+                {t('footer.more')}
               </p>
-              <FooterLink href="/search">Search</FooterLink>
-              <FooterLink href="/write">Write</FooterLink>
+              <FooterLink href="/search">{t('footer.search')}</FooterLink>
+              <FooterLink href="/write">{t('footer.write')}</FooterLink>
             </div>
           </div>
         </div>
@@ -158,7 +160,7 @@ const Footer = () => {
               letterSpacing: '-0.01em',
             }}
           >
-            &copy; {year} Insight. All rights reserved.
+            {t('footer.copyright', { year })}
           </p>
 
           <span
@@ -170,7 +172,7 @@ const Footer = () => {
               textTransform: 'uppercase',
             }}
           >
-            Built with intention
+            {t('footer.builtWith')}
           </span>
         </div>
       </div>

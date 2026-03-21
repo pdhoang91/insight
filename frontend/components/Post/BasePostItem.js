@@ -8,12 +8,13 @@ import TextUtils from '../Utils/TextUtils';
 import TimeAgo from '../Utils/TimeAgo';
 import { useUser } from '../../context/UserContext';
 import { deletePost } from '../../services/postService';
+import { useTranslations, useLocale } from 'next-intl';
 
-/* Format date as "Jan 15" — used in the left date column */
-const formatDateShort = (timestamp) => {
+/* Format date as "Jan 15" / "Thg 1 15" — used in the left date column */
+const formatDateShort = (timestamp, locale) => {
   if (!timestamp) return '';
   const d = new Date(timestamp);
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return d.toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', { month: 'short', day: 'numeric' });
 };
 
 const formatYear = (timestamp) => {
@@ -31,13 +32,15 @@ const BasePostItem = ({
 
   const router = useRouter();
   const { user } = useUser();
+  const t = useTranslations();
+  const locale = useLocale();
 
   const isPostOwner =
     showOwnerActions ||
     (variant === 'profile' && user?.id != null && user.id === post.user?.id);
 
   const handleDelete = async () => {
-    if (!window.confirm('Delete this post?')) return;
+    if (!window.confirm(t('common.confirmDelete'))) return;
     try {
       await deletePost(post.id);
       router.refresh();
@@ -125,7 +128,7 @@ const BasePostItem = ({
 
         {/* Left date column */}
         <div
-          aria-label={`Published ${formatDateShort(post.created_at)} ${formatYear(post.created_at)}`}
+          aria-label={`Published ${formatDateShort(post.created_at, locale)} ${formatYear(post.created_at)}`}
           style={{ paddingTop: '0.2rem', userSelect: 'none' }}
         >
           <div
@@ -138,7 +141,7 @@ const BasePostItem = ({
               color: 'var(--text)',
             }}
           >
-            {formatDateShort(post.created_at)}
+            {formatDateShort(post.created_at, locale)}
           </div>
           <div
             style={{
@@ -241,7 +244,7 @@ const BasePostItem = ({
                   className="hover:text-[var(--text)] hover:border-[var(--border-mid)]"
                 >
                   <FaEdit style={{ width: 10, height: 10 }} />
-                  Edit
+                  {t('common.edit')}
                 </Link>
                 <button
                   onClick={handleDelete}
@@ -265,7 +268,7 @@ const BasePostItem = ({
                   className="hover:text-[#DC2626] hover:border-[#DC2626]/30"
                 >
                   <FaTrash style={{ width: 10, height: 10 }} />
-                  Delete
+                  {t('common.delete')}
                 </button>
               </div>
             )}

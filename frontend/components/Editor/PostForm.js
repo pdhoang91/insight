@@ -1,4 +1,5 @@
 // components/Editor/PostForm.js
+'use client';
 import React, { useEffect, useState, useCallback, useRef } from 'react'
 import { useEditor } from '@tiptap/react'
 import Placeholder from '@tiptap/extension-placeholder'
@@ -12,8 +13,10 @@ import LinkDialog from './LinkDialog'
 import YouTubeDialog from './YouTubeDialog'
 import BubbleToolbar from './BubbleToolbar'
 import FloatingToolbar from './FloatingToolbar'
+import { useTranslations } from 'next-intl'
 
 const PostForm = ({ title, setTitle, content, setContent, isFullscreen = false }) => {
+  const t = useTranslations()
   const [isUploading, setIsUploading] = useState(false)
   const [showLinkDialog, setShowLinkDialog] = useState(false)
   const [showYoutubeDialog, setShowYoutubeDialog] = useState(false)
@@ -24,7 +27,7 @@ const PostForm = ({ title, setTitle, content, setContent, isFullscreen = false }
     extensions: [
       ...getExtensions(),
       Placeholder.configure({
-        placeholder: 'Tell your story...',
+        placeholder: t('editor.storyPlaceholder'),
       }),
       CharacterCount,
       SlashCommands,
@@ -108,7 +111,7 @@ const PostForm = ({ title, setTitle, content, setContent, isFullscreen = false }
         editor.commands.setImageBlock({ src: imageUrl, alignment: 'center', width: '100%' })
       } catch (error) {
         console.error('Error uploading image', error)
-        alert('Đã xảy ra lỗi khi tải lên hình ảnh.')
+        alert(t('editor.uploadError'))
       } finally {
         setIsUploading(false)
       }
@@ -124,12 +127,14 @@ const PostForm = ({ title, setTitle, content, setContent, isFullscreen = false }
       <TitleInput
         title={title}
         setTitle={setTitle}
+        placeholder={t('editor.titlePlaceholder')}
       />
 
       {/* Editor */}
       <ContentEditor
         editor={editor}
         isUploading={isUploading}
+        uploadingText={t('editor.uploadingImage')}
       />
 
       {/* Bubble & Floating Menus */}
@@ -149,7 +154,7 @@ const PostForm = ({ title, setTitle, content, setContent, isFullscreen = false }
 
       {editor && wordCount > 0 && (
         <div style={{ textAlign: 'right', marginTop: '1.5rem', fontFamily: 'var(--font-display)', fontSize: '0.75rem', color: 'var(--text-faint)' }}>
-          {wordCount} words
+          {wordCount} {t('editor.words')}
         </div>
       )}
 

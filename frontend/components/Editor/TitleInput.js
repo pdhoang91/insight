@@ -1,7 +1,7 @@
 // components/Editor/TitleInput.js
 import React, { useRef } from 'react';
 
-const TitleInput = ({ title, setTitle }) => {
+const TitleInput = ({ title, setTitle, placeholder = 'Title' }) => {
   const textareaRef = useRef(null);
 
   return (
@@ -14,7 +14,7 @@ const TitleInput = ({ title, setTitle }) => {
           e.target.style.height = 'auto';
           e.target.style.height = e.target.scrollHeight + 'px';
         }}
-        placeholder="Title"
+        placeholder={placeholder}
         style={{
           width: '100%',
           background: 'transparent',

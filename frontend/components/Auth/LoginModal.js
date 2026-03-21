@@ -6,8 +6,10 @@ import { loginWithEmailAndPassword, registerUser, loginWithGoogle } from '../../
 import { getUserProfile } from '../../services/userService';
 import { useLoginModal } from '../../hooks/useLoginModal';
 import { useUser } from '../../context/UserContext';
+import { useTranslations } from 'next-intl';
 
 const LoginModal = ({ isOpen, onClose }) => {
+  const t = useTranslations();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
@@ -39,7 +41,7 @@ const LoginModal = ({ isOpen, onClose }) => {
       onClose();
     } catch (error) {
       console.error('Login failed:', error);
-      setError('Authentication failed. Please check your credentials.');
+      setError(t('auth.authFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -57,7 +59,7 @@ const LoginModal = ({ isOpen, onClose }) => {
       onClose();
     } catch (error) {
       console.error('Sign up failed:', error);
-      setError('Registration failed. Please try again.');
+      setError(t('auth.registrationFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -71,7 +73,7 @@ const LoginModal = ({ isOpen, onClose }) => {
       loginWithGoogle();
     } catch (error) {
       console.error('Google login failed:', error);
-      setError('Google authentication failed. Please try again.');
+      setError(t('auth.googleFailed'));
       setIsLoading(false);
     }
   };
@@ -143,7 +145,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                 lineHeight: 1.1,
               }}
             >
-              {isSignUp ? 'Create Account' : 'Welcome Back'}
+              {isSignUp ? t('auth.createAccount') : t('auth.welcomeBack')}
             </h2>
           </div>
 
@@ -183,7 +185,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                   color: 'var(--text)',
                 }}
               >
-                Email
+                {t('auth.email')}
               </label>
               <div style={{ position: 'relative' }}>
                 <FaUser
@@ -203,7 +205,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
-                  placeholder="your@email.com"
+                  placeholder={t('auth.emailPlaceholder')}
                   style={{
                     width: '100%',
                     paddingLeft: '2.5rem',
@@ -238,7 +240,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                   color: 'var(--text)',
                 }}
               >
-                Password
+                {t('auth.password')}
               </label>
               <div style={{ position: 'relative' }}>
                 <FaLock
@@ -258,7 +260,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
-                  placeholder="Enter password"
+                  placeholder={t('auth.passwordPlaceholder')}
                   style={{
                     width: '100%',
                     paddingLeft: '2.5rem',
@@ -317,7 +319,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                   }}
                 />
               ) : (
-                <span>{isSignUp ? 'Create Account' : 'Sign In'}</span>
+                <span>{isSignUp ? t('auth.createAccount') : t('auth.signIn')}</span>
               )}
             </button>
 
@@ -346,7 +348,7 @@ const LoginModal = ({ isOpen, onClose }) => {
               className="hover:bg-[var(--bg-elevated)] hover:border-[var(--border-strong)] active:-translate-y-[1px]"
             >
               <FaGoogle style={{ width: 14, height: 14 }} />
-              <span>Continue with Google</span>
+              <span>{t('auth.continueWithGoogle')}</span>
             </button>
 
             <button
@@ -368,7 +370,7 @@ const LoginModal = ({ isOpen, onClose }) => {
               }}
               className="hover:text-[var(--accent)]"
             >
-              {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+              {isSignUp ? t('auth.haveAccount') : t('auth.noAccount')}
             </button>
           </div>
 

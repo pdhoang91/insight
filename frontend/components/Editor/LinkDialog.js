@@ -1,6 +1,9 @@
+'use client';
 import React, { useState, useRef, useEffect, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 
 const LinkDialog = ({ editor, onClose }) => {
+  const t = useTranslations()
   const existingHref = editor?.getAttributes('link')?.href || ''
   const [url, setUrl] = useState(existingHref)
   const inputRef = useRef()
@@ -63,7 +66,7 @@ const LinkDialog = ({ editor, onClose }) => {
             letterSpacing: '-0.01em',
           }}
         >
-          Link URL
+          {t('editor.linkUrlLabel')}
         </label>
         <input
           ref={inputRef}
@@ -106,7 +109,7 @@ const LinkDialog = ({ editor, onClose }) => {
               }}
               className="hover:bg-red-50"
             >
-              Remove
+              {t('common.remove')}
             </button>
           )}
           <button
@@ -126,7 +129,7 @@ const LinkDialog = ({ editor, onClose }) => {
             }}
             className="hover:text-[var(--text)]"
           >
-            Cancel
+            {t('common.cancel')}
           </button>
           <button
             type="submit"
@@ -144,7 +147,7 @@ const LinkDialog = ({ editor, onClose }) => {
             }}
             className="hover:opacity-85"
           >
-            {existingHref ? 'Update' : 'Add link'}
+            {existingHref ? t('editor.updateLink') : t('editor.addLink')}
           </button>
         </div>
       </form>

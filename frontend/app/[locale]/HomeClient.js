@@ -8,13 +8,16 @@ import PostList from '../../components/Post/PostList';
 import DiscoveryBreak from '../../components/Post/DiscoveryBreak';
 import PersonalBlogSidebar from '../../components/Sidebar/PersonalBlogSidebar';
 import StickyCategoryBar from '../../components/Sidebar/StickyCategoryBar';
+import { useTranslations } from 'next-intl';
 
 /* ─── Asymmetric hero header ─────────────────────────────────────
    Left: blog identity (name + tagline)
    Right: a single decorative large label (muted, offset)
    No cards. Just confident white space.
    ────────────────────────────────────────────────────────────── */
-const HomeHero = () => (
+const HomeHero = () => {
+  const t = useTranslations();
+  return (
   <div
     className="animate-fade-up delay-0"
     style={{
@@ -41,7 +44,7 @@ const HomeHero = () => (
           margin: '0 0 0.75rem 0',
         }}
       >
-        Personal writing
+        {t('home.personalWriting')}
       </p>
       <h1
         style={{
@@ -66,7 +69,7 @@ const HomeHero = () => (
           margin: 0,
         }}
       >
-        Notes on software, craft, and the thinking behind what gets built.
+        {t('home.tagline')}
       </p>
     </div>
 
@@ -88,7 +91,8 @@ const HomeHero = () => (
       {new Date().getFullYear()}
     </div>
   </div>
-);
+  );
+};
 
 /* ─── Section label ─── */
 const SectionLabel = ({ children }) => (
@@ -109,6 +113,7 @@ const SectionLabel = ({ children }) => (
 );
 
 export default function HomeClient({ initialHomeData }) {
+  const t = useTranslations();
   const { posts, isLoading, isError, setSize, isReachingEnd } = useInfinitePosts(
     initialHomeData
       ? [{ posts: initialHomeData.latest_posts, totalCount: initialHomeData.total_posts }]
@@ -128,7 +133,7 @@ export default function HomeClient({ initialHomeData }) {
       <StickyCategoryBar categories={categories} />
 
       <div className="animate-fade-up delay-200">
-        <SectionLabel>Latest writing</SectionLabel>
+        <SectionLabel>{t('home.latestWriting')}</SectionLabel>
         <PostList
           posts={posts}
           isLoading={isLoading}

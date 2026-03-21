@@ -7,8 +7,10 @@ import ErrorState from '../Shared/ErrorState';
 import EmptyState from '../Shared/EmptyState';
 import PostSkeleton from '../Shared/PostSkeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
+import { useTranslations } from 'next-intl';
 
 const SearchResults = ({ query }) => {
+  const t = useTranslations();
   const { data, totalCount, isLoading, isValidating, isError, loadMore, hasMore } = useSearch(query);
 
   useEffect(() => {
@@ -18,7 +20,7 @@ const SearchResults = ({ query }) => {
   }, [query, totalCount]);
 
   if (isError) {
-    return <ErrorState title="Search failed" message="An error occurred while searching. Please try again." />;
+    return <ErrorState title={t('search.failed')} message={t('search.failedMessage')} />;
   }
 
   if (isLoading && (!data || !data.stories || data.stories.length === 0)) {
@@ -36,8 +38,8 @@ const SearchResults = ({ query }) => {
   if (stories.length === 0) {
     return (
       <EmptyState
-        title="No posts found"
-        message={`No posts found for "${query}". Try different keywords or browse categories.`}
+        title={t('search.noResults')}
+        message={t('search.noResultsFor', { query })}
       />
     );
   }
@@ -46,12 +48,12 @@ const SearchResults = ({ query }) => {
     <>
       <header className="mb-8">
         <h1 className="font-serif text-3xl font-bold text-[#292929] mb-2">
-          Search results
+          {t('search.results')}
         </h1>
         <p className="text-[#757575]">
-          Found {totalCount || 0} posts for &ldquo;{query}&rdquo;
+          {t('search.foundResults', { count: totalCount || 0, query })}
           {stories.length < (totalCount || 0) && (
-            <span className="text-[#b3b3b1] ml-2">(showing {stories.length})</span>
+            <span className="text-[#b3b3b1] ml-2">({t('search.showing')} {stories.length})</span>
           )}
         </p>
       </header>

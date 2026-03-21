@@ -1,10 +1,12 @@
 // components/Profile/UserPostList.js
 import React from 'react';
 import BasePostItem from '../Post/BasePostItem';
+import { useTranslations } from 'next-intl';
 
 const UserPostList = ({ posts, isOwner }) => {
+  const t = useTranslations();
   if (!Array.isArray(posts)) {
-    return <div>No posts available.</div>;
+    return <div>{t('profile.noPostsAvailable')}</div>;
   }
 
   return (

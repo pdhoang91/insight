@@ -2,8 +2,10 @@
 import React from 'react';
 import Link from 'next/link';
 import BasePostItem from './BasePostItem';
+import { useTranslations } from 'next-intl';
 
 const RelatedPosts = ({ posts = [], currentPostId, className = '' }) => {
+  const t = useTranslations();
   const relatedPosts = posts
     .filter(post => post.id !== currentPostId)
     .slice(0, 3);
@@ -24,7 +26,7 @@ const RelatedPosts = ({ posts = [], currentPostId, className = '' }) => {
             margin: 0,
           }}
         >
-          Related reading
+          {t('post.relatedReading')}
         </p>
         <Link
           href="/search"
@@ -38,7 +40,7 @@ const RelatedPosts = ({ posts = [], currentPostId, className = '' }) => {
           }}
           className="hover:text-[var(--accent)]"
         >
-          Browse all
+          {t('post.browseAll')}
         </Link>
       </div>
 

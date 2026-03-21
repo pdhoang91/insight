@@ -4,26 +4,28 @@ import { motion } from 'framer-motion';
 import { StaggerContainer, FloatingElement, SpringDiv } from '../UI/SpringMotion';
 import CategoryPostsHero from './CategoryPostsHero';
 import MasonryPostGrid from './MasonryPostGrid';
+import { useTranslations } from 'next-intl';
 
-const CategoryPosts = ({ 
-  categoryName, 
-  posts, 
-  isLoading, 
-  isError, 
-  setSize, 
-  isReachingEnd 
+const CategoryPosts = ({
+  categoryName,
+  posts,
+  isLoading,
+  isError,
+  setSize,
+  isReachingEnd
 }) => {
+  const t = useTranslations();
   // Calculate category stats for hero section
   const categoryStats = useMemo(() => {
     const totalPosts = posts?.length || 0;
     const avgReadTime = Math.round((totalPosts * 5) + Math.random() * 3); // Simulated
-    
+
     return {
       totalPosts,
       avgReadTime,
-      lastUpdated: 'Hôm nay' // Could be calculated from actual data
+      lastUpdated: t('category.today')
     };
-  }, [posts]);
+  }, [posts, t]);
 
   if (isError) {
     return (
@@ -41,16 +43,15 @@ const CategoryPosts = ({
           </div>
           
           <h3 className="font-display font-bold text-xl text-slate-900 mb-4">
-            Không thể tải bài viết
+            {t('category.postsErrorTitle')}
           </h3>
           <p className="font-body text-slate-600 mb-6 leading-relaxed">
-            Có lỗi xảy ra khi tải bài viết cho danh mục "{categoryName}". 
-            Vui lòng thử lại sau.
+            {t('category.postsErrorMessage', { categoryName })}
           </p>
-          
-          <motion.button 
+
+          <motion.button
             onClick={() => window.location.reload()}
-            className="inline-flex items-center px-6 py-3 bg-[var(--accent)] text-white 
+            className="inline-flex items-center px-6 py-3 bg-[var(--accent)] text-white
                        font-display font-semibold rounded-full hover:bg-[var(--accent-dark)]
                        transition-colors duration-200 shadow-lg hover:shadow-xl"
             whileHover={{ scale: 1.05 }}
@@ -60,7 +61,7 @@ const CategoryPosts = ({
             <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
             </svg>
-            Thử lại
+            {t('category.retry')}
           </motion.button>
         </motion.div>
       </div>

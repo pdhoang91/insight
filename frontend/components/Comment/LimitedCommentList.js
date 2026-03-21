@@ -60,7 +60,7 @@ const LimitedCommentList = ({ comments, postId, mutate, canLoadMore, loadMore, i
           color: 'var(--text-faint)',
           margin: 0,
         }}>
-          Be the first to share your thoughts
+          {t('comment.beFirstToShare')}
         </p>
       </motion.div>
     );
@@ -117,7 +117,7 @@ const LimitedCommentList = ({ comments, postId, mutate, canLoadMore, loadMore, i
             </motion.div>
             <span>
               {isLoadingMore
-                ? 'Loading...'
+                ? t('comment.loading')
                 : `${t('comment.loadMore')} · ${Math.max(0, totalCount - comments.length)} ${t('comment.remaining')}`}
             </span>
           </motion.button>

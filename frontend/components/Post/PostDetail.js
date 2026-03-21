@@ -5,42 +5,48 @@ import { FaUser } from 'react-icons/fa';
 import SEOHead from '../SEO/SEOHead';
 import RelatedPosts from './RelatedPosts';
 import { renderPostContent, getContentPlainText } from '../../utils/renderContent';
+import { useTranslations, useLocale } from 'next-intl';
 
-const AuthorByline = ({ user: postUser, date }) => (
-  <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '2rem' }}>
-    <div style={{
-      width: 40, height: 40, borderRadius: '50%',
-      background: 'var(--bg-surface)', overflow: 'hidden', flexShrink: 0,
-      border: '1.5px solid var(--border)',
-    }}>
-      {postUser?.avatar_url ? (
-        <img src={postUser.avatar_url} alt={postUser.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-      ) : (
-        <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <FaUser style={{ width: 14, height: 14, color: 'var(--text-faint)' }} />
+const AuthorByline = ({ user: postUser, date }) => {
+  const t = useTranslations();
+  const locale = useLocale();
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '2rem' }}>
+      <div style={{
+        width: 40, height: 40, borderRadius: '50%',
+        background: 'var(--bg-surface)', overflow: 'hidden', flexShrink: 0,
+        border: '1.5px solid var(--border)',
+      }}>
+        {postUser?.avatar_url ? (
+          <img src={postUser.avatar_url} alt={postUser.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        ) : (
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <FaUser style={{ width: 14, height: 14, color: 'var(--text-faint)' }} />
+          </div>
+        )}
+      </div>
+      <div>
+        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '0.9rem', letterSpacing: '-0.01em', color: 'var(--text)' }}>
+          {postUser?.name || t('article.anonymous')}
         </div>
-      )}
-    </div>
-    <div>
-      <div style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '0.9rem', letterSpacing: '-0.01em', color: 'var(--text)' }}>
-        {postUser?.name || 'Anonymous'}
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
-        <time dateTime={date} style={{ fontFamily: 'var(--font-display)', fontSize: '0.775rem', color: 'var(--text-faint)', letterSpacing: '0.01em' }}>
-          {new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-        </time>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
+          <time dateTime={date} style={{ fontFamily: 'var(--font-display)', fontSize: '0.775rem', color: 'var(--text-faint)', letterSpacing: '0.01em' }}>
+            {new Date(date).toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+          </time>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 
 
 export const PostDetail = ({ post, relatedPosts = [] }) => {
+  const t = useTranslations();
   if (!post) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 240, color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
-        Loading...
+        {t('common.loading')}
       </div>
     );
   }

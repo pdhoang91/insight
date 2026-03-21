@@ -18,7 +18,23 @@
     "noStories": "Chưa có bài viết nào",
     "beFirst": "Hãy là người đầu tiên chia sẻ suy nghĩ và trải nghiệm của bạn.",
     "loadFailed": "Không thể tải bài viết. Vui lòng thử lại.",
-    "errorOccurred": "Đã xảy ra lỗi"
+    "errorOccurred": "Đã xảy ra lỗi",
+    "follow": "Theo dõi",
+    "following": "Đang theo dõi",
+    "followers": "Người theo dõi",
+    "writtenBy": "Viết bởi",
+    "moreFrom": "Thêm từ",
+    "relatedReading": "Đọc thêm",
+    "browseAll": "Xem tất cả"
+  },
+  "engagement": {
+    "loginToClap": "Vui lòng đăng nhập để clap.",
+    "loginToBookmark": "Vui lòng đăng nhập để lưu.",
+    "clap": "Clap",
+    "comment": "Bình luận",
+    "save": "Lưu",
+    "copyLink": "Sao chép liên kết",
+    "reportStory": "Báo cáo"
   },
   "comment": {
     "placeholder": "Viết bình luận...",
@@ -35,13 +51,18 @@
     "reply": "Trả lời",
     "loginToComment": "Vui lòng đăng nhập để bình luận.",
     "addError": "Không thể thêm bình luận. Vui lòng thử lại.",
-    "invalidData": "Dữ liệu bình luận không hợp lệ."
+    "invalidData": "Dữ liệu bình luận không hợp lệ.",
+    "joinConversation": "Tham gia cuộc trò chuyện",
+    "beFirstToShare": "Hãy là người đầu tiên chia sẻ suy nghĩ của bạn",
+    "loading": "Đang tải..."
   },
   "editor": {
     "titlePlaceholder": "Tiêu đề bài viết của bạn...",
+    "storyPlaceholder": "Hãy kể câu chuyện của bạn...",
     "contentPlaceholder": "Nhập / để xem các lệnh...",
     "addCoverImage": "Thêm ảnh bìa",
     "uploadingImage": "Đang tải ảnh lên...",
+    "uploadError": "Đã xảy ra lỗi khi tải lên hình ảnh.",
     "words": "từ",
     "publishArticle": "Đăng bài viết",
     "cancel": "Hủy",
@@ -50,7 +71,12 @@
     "tagPlaceholder": "Nhập thẻ và nhấn Enter...",
     "publish": "Đăng",
     "selectCategories": "Chọn danh mục trước",
-    "loadingEditor": "Đang tải trình soạn thảo..."
+    "loadingEditor": "Đang tải trình soạn thảo...",
+    "youtubeUrlLabel": "URL YouTube",
+    "insertVideo": "Chèn video",
+    "linkUrlLabel": "URL liên kết",
+    "updateLink": "Cập nhật",
+    "addLink": "Thêm liên kết"
   },
   "toc": {
     "title": "Mục Lục"
@@ -58,13 +84,135 @@
   "sidebar": {
     "popularPosts": "Bài viết phổ biến",
     "categories": "Danh mục",
-    "archive": "Lưu trữ"
+    "archive": "Lưu trữ",
+    "readingElsewhere": "Đọc ở nơi khác"
+  },
+  "category": {
+    "explore": "Khám phá danh mục",
+    "collection": "Bộ sưu tập",
+    "content": "nội dung",
+    "heroDescription": "Tìm kiếm và khám phá các chủ đề mà bạn quan tâm. Mỗi danh mục được tuyển chọn kỹ lưỡng để mang đến trải nghiệm đọc phong phú và đa dạng.",
+    "home": "Trang chủ",
+    "articles": "Bài viết",
+    "readTime": "Thời gian đọc",
+    "updated": "Cập nhật",
+    "discoverPanel": "Khám phá thêm",
+    "filterPosts": "Lọc bài viết",
+    "allCategories": "Tất cả danh mục",
+    "errorTitle": "Có lỗi xảy ra",
+    "errorMessage": "Không thể tải danh mục. Vui lòng thử lại sau.",
+    "postsErrorTitle": "Không thể tải bài viết",
+    "postsErrorMessage": "Có lỗi xảy ra khi tải bài viết cho danh mục \"{categoryName}\". Vui lòng thử lại sau.",
+    "loadingMore": "Đang tải thêm bài viết...",
+    "allPostsShown": "Đã hiển thị tất cả bài viết",
+    "noPostsTitle": "Chưa có bài viết nào",
+    "noPostsMessage": "Danh mục \"{categoryName}\" hiện tại chưa có bài viết nào. Hãy quay lại sau.",
+    "categoryDescription": "Khám phá bộ sưu tập bài viết được tuyển chọn trong chủ đề {categoryName}. Mỗi bài viết đều mang đến góc nhìn độc đáo và giá trị thực tiễn.",
+    "retry": "Thử lại",
+    "today": "Hôm nay",
+    "min": "phút"
+  },
+  "search": {
+    "failed": "Tìm kiếm thất bại",
+    "failedMessage": "Đã xảy ra lỗi khi tìm kiếm. Vui lòng thử lại.",
+    "noResults": "Không tìm thấy bài viết",
+    "noResultsFor": "Không tìm thấy bài viết cho \"{query}\". Thử từ khóa khác hoặc duyệt danh mục.",
+    "results": "Kết quả tìm kiếm",
+    "foundResults": "Tìm thấy {count} bài viết cho \"{query}\"",
+    "showing": "đang hiển thị"
+  },
+  "profile": {
+    "unknownUser": "Người dùng ẩn danh",
+    "website": "Trang web",
+    "joinedDate": "Tham gia",
+    "editProfile": "Chỉnh sửa hồ sơ",
+    "posts": "Bài viết",
+    "followers": "Người theo dõi",
+    "following": "Đang theo dõi",
+    "displayName": "Tên hiển thị",
+    "bio": "Tiểu sử",
+    "location": "Địa điểm",
+    "namePlaceholder": "Nhập tên của bạn",
+    "bioPlaceholder": "Viết một chút về bản thân...",
+    "locationPlaceholder": "Thành phố, Quốc gia",
+    "websitePlaceholder": "https://example.com",
+    "saveChanges": "Lưu thay đổi",
+    "cancel": "Hủy",
+    "loadingMore": "Đang tải thêm bài viết...",
+    "allPostsLoaded": "Đã tải hết bài viết.",
+    "noPostsAvailable": "Chưa có bài viết.",
+    "loadFailed": "Không thể tải bài viết",
+    "postsBy": "Bài viết của {username}",
+    "noPostsTitle": "Chưa có bài viết",
+    "noPostsMessage": "Người dùng này chưa đăng bài viết nào.",
+    "avatarUpdateFailed": "Không thể cập nhật ảnh đại diện. Vui lòng thử lại.",
+    "updateAvatarTitle": "Cập nhật ảnh đại diện",
+    "uploading": "Đang tải lên...",
+    "choosePhoto": "Chọn ảnh"
+  },
+  "auth": {
+    "createAccount": "Tạo tài khoản",
+    "welcomeBack": "Chào mừng trở lại",
+    "email": "Email",
+    "emailPlaceholder": "email@cua.ban.com",
+    "password": "Mật khẩu",
+    "passwordPlaceholder": "Nhập mật khẩu",
+    "signIn": "Đăng nhập",
+    "continueWithGoogle": "Tiếp tục với Google",
+    "haveAccount": "Đã có tài khoản?",
+    "noAccount": "Chưa có tài khoản?",
+    "authFailed": "Xác thực thất bại. Vui lòng kiểm tra thông tin đăng nhập.",
+    "registrationFailed": "Đăng ký thất bại. Vui lòng thử lại.",
+    "googleFailed": "Đăng nhập Google thất bại. Vui lòng thử lại."
+  },
+  "article": {
+    "moreFromInsight": "Thêm từ Insight",
+    "viewAll": "Xem tất cả bài viết",
+    "anonymous": "Ẩn danh"
+  },
+  "archive": {
+    "noPosts": "Chưa có bài viết.",
+    "recentOnly": "← Chỉ gần đây",
+    "allMonths": "Tất cả {count} tháng →"
+  },
+  "footer": {
+    "navigate": "Điều hướng",
+    "writing": "Bài viết",
+    "topics": "Chủ đề",
+    "more": "Thêm",
+    "search": "Tìm kiếm",
+    "write": "Viết bài",
+    "copyright": "© {year} Insight. Bảo lưu mọi quyền.",
+    "builtWith": "Được xây dựng có chủ đích"
+  },
+  "home": {
+    "personalWriting": "Viết lách cá nhân",
+    "tagline": "Ghi chép về phần mềm, kỹ năng, và tư duy đằng sau những gì được xây dựng.",
+    "latestWriting": "Bài viết mới nhất"
   },
   "common": {
     "error": "Đã xảy ra lỗi",
     "retry": "Thử lại",
     "delete": "Xóa",
     "edit": "Chỉnh sửa",
-    "confirmDelete": "Bạn có chắc chắn muốn xóa bài viết này?"
+    "confirmDelete": "Bạn có chắc chắn muốn xóa bài viết này?",
+    "loading": "Đang tải...",
+    "cancel": "Hủy",
+    "save": "Lưu",
+    "saving": "Đang lưu...",
+    "remove": "Xóa"
+  },
+  "highlights": {
+    "empty": "Chưa có đánh dấu nào. Chọn văn bản để tạo đánh dấu.",
+    "title": "Đánh dấu của bạn",
+    "clearAll": "Xóa tất cả"
+  },
+  "textHighlighter": {
+    "highlight": "Nổi bật",
+    "comment": "Bình luận",
+    "copy": "Sao chép",
+    "share": "Chia sẻ",
+    "tweet": "Tweet",
+    "sharedText": "Văn bản được chia sẻ"
   }
 }

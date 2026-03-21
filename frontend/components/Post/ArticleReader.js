@@ -15,8 +15,10 @@ import { useComments } from '../../hooks/useComments';
 import TimeAgo from '../Utils/TimeAgo';
 import { themeClasses, combineClasses } from '../../utils/themeClasses';
 import { renderPostContent } from '../../utils/renderContent';
+import { useTranslations } from 'next-intl';
 
 const ArticleReader = ({ post }) => {
+  const t = useTranslations();
   const { user } = useUser();
   const [isFollowing, setIsFollowing] = useState(false);
   const contentRef = useRef();
@@ -168,10 +170,11 @@ const ArticleReader = ({ post }) => {
           </div>
 
           {/* Author Bio Card */}
-          <AuthorBioCard 
+          <AuthorBioCard
             author={post.user}
             isFollowing={isFollowing}
             onFollow={handleFollow}
+            t={t}
           />
         </footer>
       </article>
@@ -198,7 +201,7 @@ const ArticleReader = ({ post }) => {
 };
 
 // Author Bio Card Component
-const AuthorBioCard = ({ author, isFollowing, onFollow }) => {
+const AuthorBioCard = ({ author, isFollowing, onFollow, t }) => {
   if (!author) return null;
 
   return (
@@ -231,10 +234,10 @@ const AuthorBioCard = ({ author, isFollowing, onFollow }) => {
                 themeClasses.text.primary,
                 'mb-1'
               )}>
-                Written by {author.name}
+                {t('post.writtenBy')} {author.name}
               </h3>
               <p className={themeClasses.text.secondary}>
-                {author.followers_count || 0} Followers
+                {author.followers_count || 0} {t('post.followers')}
               </p>
             </div>
             
@@ -243,7 +246,7 @@ const AuthorBioCard = ({ author, isFollowing, onFollow }) => {
               size="sm"
               onClick={onFollow}
             >
-              {isFollowing ? "Đang theo dõi" : "Theo dõi"}
+              {isFollowing ? t('post.following') : t('post.follow')}
             </Button>
           </div>
           
@@ -270,7 +273,7 @@ const AuthorBioCard = ({ author, isFollowing, onFollow }) => {
                 themeClasses.animations.smooth
               )}
             >
-              More from {author.name}
+              {t('post.moreFrom')} {author.name}
             </Link>
           </div>
         </div>

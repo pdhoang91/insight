@@ -7,8 +7,9 @@ import { useUser } from '../../context/UserContext';
 import { useClapsCount } from '../../hooks/useClapsCount';
 import { clapPost } from '../../services/activityService';
 import { themeClasses, combineClasses } from '../../utils/themeClasses';
+import { useTranslations } from 'next-intl';
 
-const EngagementActions = ({ 
+const EngagementActions = ({
   post,
   commentsCount = 0,
   layout = 'horizontal', // 'horizontal' | 'vertical'
@@ -16,6 +17,7 @@ const EngagementActions = ({
   showLabels = false,
   className = ''
 }) => {
+  const t = useTranslations();
   const { user } = useUser();
   const { clapsCount, loading: clapsLoading, mutate: mutateClaps } = useClapsCount('post', post.id);
   const [isMoreMenuOpen, setMoreMenuOpen] = useState(false);
@@ -36,7 +38,7 @@ const EngagementActions = ({
   const handleClap = async () => {
     if (!user) {
       // TODO: Show login modal
-      alert('Bạn cần đăng nhập để clap.');
+      alert(t('engagement.loginToClap'));
       return;
     }
     try {
@@ -50,7 +52,7 @@ const EngagementActions = ({
 
   const handleBookmark = () => {
     if (!user) {
-      alert('Bạn cần đăng nhập để bookmark.');
+      alert(t('engagement.loginToBookmark'));
       return;
     }
     setIsBookmarked(!isBookmarked);
@@ -100,7 +102,7 @@ const EngagementActions = ({
         <button
           onClick={handleClap}
           className={combineClasses(buttonClasses, 'group/clap')}
-          aria-label="Thích bài viết này"
+          aria-label={t('engagement.clap')}
           disabled={clapsLoading}
         >
           <FaHandsClapping className={combineClasses(
@@ -109,18 +111,18 @@ const EngagementActions = ({
             themeClasses.animations.smooth
           )} />
           <span className={sizeClasses[size]}>{clapsCount}</span>
-          {showLabels && <span className={sizeClasses[size]}>Clap</span>}
+          {showLabels && <span className={sizeClasses[size]}>{t('engagement.clap')}</span>}
         </button>
 
         {/* Comment Button */}
         <Link
           href={`/p/${post.slug}#comments`}
           className={buttonClasses}
-          aria-label="Xem bình luận"
+          aria-label={t('engagement.comment')}
         >
           <FaComment className={iconSizes[size]} />
           <span className={sizeClasses[size]}>{commentsCount}</span>
-          {showLabels && <span className={sizeClasses[size]}>Bình luận</span>}
+          {showLabels && <span className={sizeClasses[size]}>{t('engagement.comment')}</span>}
         </Link>
       </div>
 
@@ -136,10 +138,10 @@ const EngagementActions = ({
             buttonClasses,
             isBookmarked ? themeClasses.text.accent : ''
           )}
-          aria-label="Đánh dấu bài viết này"
+          aria-label={t('engagement.save')}
         >
           <FaBookmark className={iconSizes[size]} />
-          {showLabels && <span className={sizeClasses[size]}>Lưu</span>}
+          {showLabels && <span className={sizeClasses[size]}>{t('engagement.save')}</span>}
         </button>
 
         {/* More Options */}
@@ -147,15 +149,16 @@ const EngagementActions = ({
           <button
             onClick={handleMoreOptions}
             className={buttonClasses}
-            aria-label="Thêm tùy chọn"
+            aria-label={t('engagement.reportStory')}
           >
             <FaEllipsisH className={iconSizes[size]} />
           </button>
 
           {isMoreMenuOpen && (
-            <MoreOptionsMenu 
+            <MoreOptionsMenu
               post={post}
               onClose={() => setMoreMenuOpen(false)}
+              t={t}
             />
           )}
         </div>
@@ -165,7 +168,7 @@ const EngagementActions = ({
 };
 
 // More options dropdown menu
-const MoreOptionsMenu = ({ post, onClose }) => {
+const MoreOptionsMenu = ({ post, onClose, t }) => {
   const handleCopyLink = () => {
     const url = `${window.location.origin}/p/${post.slug}`;
     navigator.clipboard.writeText(url);
@@ -199,9 +202,9 @@ const MoreOptionsMenu = ({ post, onClose }) => {
           )}
         >
           <FaCopy className={combineClasses(themeClasses.icons.sm, 'mr-3')} />
-          Copy link
+          {t('engagement.copyLink')}
         </button>
-        
+
         <button
           onClick={handleReport}
           className={combineClasses(
@@ -214,7 +217,7 @@ const MoreOptionsMenu = ({ post, onClose }) => {
           )}
         >
           <FaFlag className={combineClasses(themeClasses.icons.sm, 'mr-3')} />
-          Report story
+          {t('engagement.reportStory')}
         </button>
       </div>
     </div>

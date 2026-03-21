@@ -4,8 +4,10 @@ import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { FloatingElement, PulseElement, SpringDiv } from '../UI/SpringMotion';
+import { useTranslations } from 'next-intl';
 
 const CategoryPostsHero = ({ categoryName, stats }) => {
+  const t = useTranslations();
   const capitalizedName = categoryName?.charAt(0).toUpperCase() + categoryName?.slice(1);
 
   return (
@@ -42,7 +44,7 @@ const CategoryPostsHero = ({ categoryName, stats }) => {
                 className="font-display text-slate-500 hover:text-[var(--accent)] 
                            transition-colors duration-200"
               >
-                Trang chủ
+                {t('category.home')}
               </Link>
               <span className="text-slate-300">→</span>
               <Link 
@@ -50,7 +52,7 @@ const CategoryPostsHero = ({ categoryName, stats }) => {
                 className="font-display text-slate-500 hover:text-[var(--accent)] 
                            transition-colors duration-200"
               >
-                Danh mục
+                {t('sidebar.categories')}
               </Link>
               <span className="text-slate-300">→</span>
               <span className="font-display font-semibold text-[var(--accent)]">
@@ -84,9 +86,7 @@ const CategoryPostsHero = ({ categoryName, stats }) => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.3 }}
               >
-                Khám phá bộ sưu tập bài viết được tuyển chọn trong chủ đề{' '}
-                <span className="font-semibold text-slate-900">{categoryName}</span>.
-                Mỗi bài viết đều mang đến góc nhìn độc đáo và giá trị thực tiễn.
+                {t('category.categoryDescription', { categoryName })}
               </motion.p>
             </motion.div>
 
@@ -98,9 +98,9 @@ const CategoryPostsHero = ({ categoryName, stats }) => {
               transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.4 }}
             >
               {[
-                { label: 'Bài viết', value: stats.totalPosts, suffix: '' },
-                { label: 'Thời gian đọc', value: stats.avgReadTime, suffix: 'phút' },
-                { label: 'Cập nhật', value: stats.lastUpdated, suffix: '' }
+                { label: t('category.articles'), value: stats.totalPosts, suffix: '' },
+                { label: t('category.readTime'), value: stats.avgReadTime, suffix: t('category.min') },
+                { label: t('category.updated'), value: stats.lastUpdated, suffix: '' }
               ].map((stat, index) => (
                 <motion.div
                   key={stat.label}
@@ -139,7 +139,7 @@ const CategoryPostsHero = ({ categoryName, stats }) => {
                              shadow-[0_20px_40px_-15px_rgba(26,20,16,0.05)]">
                 
                 <h3 className="font-display font-semibold text-lg text-slate-900 mb-4">
-                  Khám phá thêm
+                  {t('category.discoverPanel')}
                 </h3>
                 
                 <div className="space-y-3">
@@ -153,7 +153,7 @@ const CategoryPostsHero = ({ categoryName, stats }) => {
                     transition={{ type: "spring", stiffness: 300, damping: 30 }}
                   >
                     <span className="font-display font-medium text-sm text-slate-700">
-                      Lọc bài viết
+                      {t('category.filterPosts')}
                     </span>
                     <motion.svg 
                       className="w-4 h-4 text-[var(--accent)]"
@@ -176,7 +176,7 @@ const CategoryPostsHero = ({ categoryName, stats }) => {
                       transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     >
                       <span className="font-display font-medium text-sm text-slate-700">
-                        Tất cả danh mục
+                        {t('category.allCategories')}
                       </span>
                       <motion.svg 
                         className="w-4 h-4 text-slate-400 group-hover:text-[var(--accent)] 

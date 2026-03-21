@@ -1,6 +1,9 @@
+'use client';
 import React, { useState, useRef, useEffect, useCallback } from 'react'
+import { useTranslations } from 'next-intl'
 
 const YouTubeDialog = ({ editor, onClose }) => {
+  const t = useTranslations()
   const [url, setUrl] = useState('')
   const inputRef = useRef()
 
@@ -52,7 +55,7 @@ const YouTubeDialog = ({ editor, onClose }) => {
             letterSpacing: '-0.01em',
           }}
         >
-          YouTube URL
+          {t('editor.youtubeUrlLabel')}
         </label>
         <input
           ref={inputRef}
@@ -94,7 +97,7 @@ const YouTubeDialog = ({ editor, onClose }) => {
             }}
             className="hover:text-[var(--text)]"
           >
-            Cancel
+            {t('common.cancel')}
           </button>
           <button
             type="submit"
@@ -114,7 +117,7 @@ const YouTubeDialog = ({ editor, onClose }) => {
             }}
             className={url.trim() ? 'hover:opacity-85' : ''}
           >
-            Insert video
+            {t('editor.insertVideo')}
           </button>
         </div>
       </form>

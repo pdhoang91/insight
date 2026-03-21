@@ -3,8 +3,10 @@ import React from 'react';
 import InfiniteScrollWrapper from '../Utils/InfiniteScrollWrapper';
 import UserPostList from './UserPostList';
 import BasePostItem from '../Post/BasePostItem';
+import { useTranslations } from 'next-intl';
 
 const UserPostsSection = ({ posts, isLoading, isError, setSize, isReachingEnd, isOwner }) => {
+  const t = useTranslations();
   const fetchMore = () => {
     if (!isReachingEnd && !isLoading) {
       setSize(prevSize => prevSize + 1);
@@ -19,7 +21,7 @@ const UserPostsSection = ({ posts, isLoading, isError, setSize, isReachingEnd, i
   if (isError) return (
     <div style={{ padding: '3rem 0', textAlign: 'center' }}>
       <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.9rem', color: '#DC2626', letterSpacing: '-0.01em' }}>
-        Failed to load posts
+        {t('profile.loadFailed')}
       </p>
     </div>
   );
@@ -58,8 +60,8 @@ const UserPostsSection = ({ posts, isLoading, isError, setSize, isReachingEnd, i
       renderItem={renderItem}
       fetchMore={fetchMore}
       hasMore={!isReachingEnd}
-      loader={<div className="text-center my-4">Đang tải thêm bài viết...</div>}
-      endMessage={<p className="text-center mt-4">Đã tải hết bài viết.</p>}
+      loader={<div className="text-center my-4">{t('profile.loadingMore')}</div>}
+      endMessage={<p className="text-center mt-4">{t('profile.allPostsLoaded')}</p>}
       className="space-y-0"
     />
   );

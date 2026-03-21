@@ -5,14 +5,16 @@ import Avatar from '../UI/Avatar';
 import Button from '../UI/Button';
 import TimeAgo from '../Utils/TimeAgo';
 import { themeClasses, combineClasses } from '../../utils/themeClasses';
+import { useTranslations } from 'next-intl';
 
-const AuthorInfo = ({ 
-  author, 
+const AuthorInfo = ({
+  author,
   publishedAt,
   variant = 'compact',
   showFollowButton = false,
   className = ''
 }) => {
+  const t = useTranslations();
   if (!author) {
     return <AuthorInfoSkeleton />;
   }
@@ -35,10 +37,10 @@ const AuthorInfo = ({
             )}
           />
         </Link>
-        
+
         <div className="flex-1">
           <div className="flex items-center justify-between mb-2">
-            <Link 
+            <Link
               href={`/${author.username}`}
               className={combineClasses(
                 themeClasses.typography.weightMedium,
@@ -51,11 +53,11 @@ const AuthorInfo = ({
             </Link>
             {showFollowButton && (
               <Button variant="outline" size="sm">
-                Follow
+                {t('post.follow')}
               </Button>
             )}
           </div>
-          
+
           {author.bio && (
             <p className={combineClasses(
               themeClasses.text.bodySmall,
@@ -65,7 +67,7 @@ const AuthorInfo = ({
               {author.bio}
             </p>
           )}
-          
+
           <div className={combineClasses(
             'flex items-center',
             themeClasses.spacing.gapSmall,
@@ -78,7 +80,7 @@ const AuthorInfo = ({
                 <span>•</span>
               </>
             )}
-            <span>{author.followers_count || 0} followers</span>
+            <span>{author.followers_count || 0} {t('post.followers')}</span>
           </div>
         </div>
       </div>
@@ -103,10 +105,10 @@ const AuthorInfo = ({
           )}
         />
       </Link>
-      
+
       <div className="flex-1 min-w-0">
         <div className="flex items-center space-x-2">
-          <Link 
+          <Link
             href={`/${author.username}`}
             className={combineClasses(
               themeClasses.typography.weightMedium,
@@ -120,11 +122,11 @@ const AuthorInfo = ({
           </Link>
           {showFollowButton && (
             <Button variant="ghost" size="sm" className="text-xs">
-              Follow
+              {t('post.follow')}
             </Button>
           )}
         </div>
-        
+
         <div className={combineClasses(
           'flex items-center',
           themeClasses.spacing.gapTiny,

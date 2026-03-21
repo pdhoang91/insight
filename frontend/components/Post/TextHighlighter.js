@@ -1,10 +1,13 @@
 // components/Post/TextHighlighter.js - Medium 2024 Design
+'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import { FaHighlighter, FaComment, FaShareAlt, FaCopy, FaTwitter } from 'react-icons/fa';
 import Button from '../UI/Button';
 import { themeClasses, combineClasses } from '../../utils/themeClasses';
+import { useTranslations } from 'next-intl';
 
 const TextHighlighter = ({ children, className = '' }) => {
+  const t = useTranslations();
   const [selectedText, setSelectedText] = useState('');
   const [selectionRect, setSelectionRect] = useState(null);
   const [showToolbar, setShowToolbar] = useState(false);
@@ -92,7 +95,7 @@ const TextHighlighter = ({ children, className = '' }) => {
     
     if (navigator.share) {
       navigator.share({
-        title: 'Shared text',
+        title: t('textHighlighter.sharedText'),
         text: shareText,
         url: shareUrl
       });
@@ -147,27 +150,27 @@ const TextHighlighter = ({ children, className = '' }) => {
           <ToolbarButton
             icon={<FaHighlighter className={themeClasses.icons.sm} />}
             onClick={handleHighlight}
-            tooltip="Nôi bật"
+            tooltip={t('textHighlighter.highlight')}
           />
           <ToolbarButton
             icon={<FaComment className={themeClasses.icons.sm} />}
             onClick={handleComment}
-            tooltip="Bình luận"
+            tooltip={t('textHighlighter.comment')}
           />
           <ToolbarButton
             icon={<FaCopy className={themeClasses.icons.sm} />}
             onClick={handleCopy}
-            tooltip="Sao chép"
+            tooltip={t('textHighlighter.copy')}
           />
           <ToolbarButton
             icon={<FaShareAlt className={themeClasses.icons.sm} />}
             onClick={handleShare}
-            tooltip="Chia sẻ"
+            tooltip={t('textHighlighter.share')}
           />
           <ToolbarButton
             icon={<FaTwitter className={themeClasses.icons.sm} />}
             onClick={handleTweet}
-            tooltip="Tweet"
+            tooltip={t('textHighlighter.tweet')}
           />
         </div>
       )}
@@ -284,13 +287,14 @@ export const useTextHighlights = (articleId) => {
 
 // Highlights Manager Component (for sidebar or settings)
 export const HighlightsManager = ({ articleId, className = '' }) => {
+  const t = useTranslations();
   const { highlights, removeHighlight, clearHighlights } = useTextHighlights(articleId);
 
   if (!highlights.length) {
     return (
       <div className={`text-center py-6 ${className}`}>
         <p className="text-medium-text-muted text-sm">
-          No highlights yet. Select text to create highlights.
+          {t('highlights.empty')}
         </p>
       </div>
     );
@@ -300,7 +304,7 @@ export const HighlightsManager = ({ articleId, className = '' }) => {
     <div className={`space-y-4 ${className}`}>
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-medium text-medium-text-primary">
-          Your Highlights ({highlights.length})
+          {t('highlights.title')} ({highlights.length})
         </h3>
         <Button
           variant="ghost"
@@ -308,13 +312,13 @@ export const HighlightsManager = ({ articleId, className = '' }) => {
           onClick={clearHighlights}
           className="text-xs"
         >
-          Clear all
+          {t('highlights.clearAll')}
         </Button>
       </div>
-      
+
       <div className="space-y-3">
         {highlights.map(highlight => (
-            <div key={highlight.id} className="p-3  rounded-lg">
+          <div key={highlight.id} className="p-3 rounded-lg">
             <p className="text-sm text-medium-text-primary mb-2 line-clamp-3">
               "{highlight.text}"
             </p>
@@ -326,7 +330,7 @@ export const HighlightsManager = ({ articleId, className = '' }) => {
                 onClick={() => removeHighlight(highlight.id)}
                 className="text-xs text-medium-text-muted hover:text-red-500 transition-colors"
               >
-                Remove
+                {t('common.remove')}
               </button>
             </div>
           </div>

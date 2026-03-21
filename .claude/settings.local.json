@@ -29,7 +29,10 @@
       "Bash(grep -E \"^\\\\d+ errors|error$\")",
       "Bash(node:*)",
       "Bash(grep -r 'Invalid state' /Users/anhoaian/Documents/pdhoang91/insight --include=*.go --include=*.js --include=*.ts)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Read(//Users/anhoaian/.claude/**)",
+      "Read(//Users/anhoaian/**)",
+      "Bash(find /Users/anhoaian/Documents/pdhoang91/insight/frontend/app/[locale] -type f \\\\\\( -name \"*.js\" -o -name \"*.jsx\" \\\\\\))"
     ]
   }
 }

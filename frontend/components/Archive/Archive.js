@@ -1,8 +1,12 @@
 // components/Archive/Archive.js
+'use client';
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useTranslations, useLocale } from 'next-intl';
 
 const Archive = ({ posts = [], className = '', limit = 12 }) => {
+  const t = useTranslations();
+  const locale = useLocale();
   const [isShowingAll, setIsShowingAll] = useState(false);
 
   const createArchiveList = (posts) => {
@@ -31,15 +35,13 @@ const Archive = ({ posts = [], className = '', limit = 12 }) => {
   const archiveList = createArchiveList(posts);
   const displayList = isShowingAll ? archiveList : archiveList.slice(0, limit);
 
-  const monthNames = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
-  ];
+  const formatMonth = (year, month) =>
+    new Date(year, month).toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', { month: 'long', year: 'numeric' });
 
   if (!posts.length) {
     return (
       <div className={className}>
-        <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.82rem', color: 'var(--text-faint)' }}>No posts yet.</p>
+        <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.82rem', color: 'var(--text-faint)' }}>{t('archive.noPosts')}</p>
       </div>
     );
   }
@@ -64,7 +66,7 @@ const Archive = ({ posts = [], className = '', limit = 12 }) => {
             }}
             className="hover:text-[var(--text)]"
           >
-            {monthNames[month]} {year}
+            {formatMonth(year, month)}
             <span
               style={{
                 marginLeft: '0.4rem',
@@ -96,7 +98,7 @@ const Archive = ({ posts = [], className = '', limit = 12 }) => {
               }}
               className="hover:opacity-70"
             >
-              {isShowingAll ? '← Recent only' : `All ${archiveList.length} months →`}
+              {isShowingAll ? t('archive.recentOnly') : t('archive.allMonths', { count: archiveList.length })}
             </button>
           </div>
         )}

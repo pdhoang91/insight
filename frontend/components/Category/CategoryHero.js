@@ -2,8 +2,10 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslations } from 'next-intl';
 
 const CategoryHero = () => {
+  const t = useTranslations();
   return (
     <section className="relative mb-16 overflow-hidden">
       {/* Background Pattern */}
@@ -60,7 +62,7 @@ const CategoryHero = () => {
                   delay: 0.4
                 }}
               />
-              <span>Khám phá danh mục</span>
+              <span>{t('category.explore')}</span>
             </motion.div>
 
             <motion.h1 
@@ -75,8 +77,8 @@ const CategoryHero = () => {
                 delay: 0.3
               }}
             >
-              Bộ sưu tập{' '}
-              <motion.span 
+              {t('category.collection')}{' '}
+              <motion.span
                 className="relative"
                 animate={{
                   backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
@@ -94,7 +96,7 @@ const CategoryHero = () => {
                   backgroundClip: 'text'
                 }}
               >
-                nội dung
+                {t('category.content')}
               </motion.span>
             </motion.h1>
 
@@ -109,9 +111,7 @@ const CategoryHero = () => {
                 delay: 0.5
               }}
             >
-              Tìm kiếm và khám phá các chủ đề mà bạn quan tâm. 
-              Mỗi danh mục được tuyển chọn kỹ lưỡng để mang đến 
-              trải nghiệm đọc phong phú và đa dạng.
+              {t('category.heroDescription')}
             </motion.p>
 
             {/* Floating Stats */}
@@ -138,10 +138,10 @@ const CategoryHero = () => {
                 }}
               >
                 <div className="font-display font-bold text-2xl text-slate-900">12+</div>
-                <div className="font-body text-sm text-slate-500 uppercase tracking-wide">Danh mục</div>
+                <div className="font-body text-sm text-slate-500 uppercase tracking-wide">{t('sidebar.categories')}</div>
               </motion.div>
-              
-              <motion.div 
+
+              <motion.div
                 className="text-center"
                 animate={{
                   y: [0, -4, 0],
@@ -154,7 +154,7 @@ const CategoryHero = () => {
                 }}
               >
                 <div className="font-display font-bold text-2xl text-slate-900">100+</div>
-                <div className="font-body text-sm text-slate-500 uppercase tracking-wide">Bài viết</div>
+                <div className="font-body text-sm text-slate-500 uppercase tracking-wide">{t('category.articles')}</div>
               </motion.div>
             </motion.div>
           </div>
