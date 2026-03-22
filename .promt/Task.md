@@ -1,165 +1,140 @@
-C. Recommended Improvements
-C1. Image Delivery — Direct S3/CDN URLs
-Problem: Every image request flows through the Go API server, does a DB lookup, then redirects to S3.
+Fix GetUserPosts/SearchPosts total count — thêm CountByUserID, CountSearch vào repo
+Thêm SetConnMaxLifetime(5 * time.Minute) — 1 dòng trong config.go
+Fix RecalculateAllEngagementScores — dùng comment_count column thay vì subquery
+Bỏ scan thứ 2 trong RedisCache.DeletePrefix
+Fix search service N+1 — batch load categories/tags
+Cleanup FlushViewCounts — delete entries sau khi flush
+Thêm env.example vars — REDIS_URL, AWS_CDN_DOMAIN
+Log errors trong Redis cache thay vì silent fail
+Simplify SafeImage component
+WebP conversion trong image pipeline
+Cursor-based pagination
+Observability (structured logging, request latency metrics)
 
-Why it matters: Images are the heaviest assets. A single post with 10 inline images generates 10 API requests + 10 DB queries + 10 redirects. This makes the Go server a bottleneck for purely static content.
-
-Proposed solution:
-
-On upload, store the S3 public URL or CDN URL directly in the image record
-In ProcessJSONContentForDisplay, emit the direct S3/CDN URL instead of /images/v2/{id}
-Put CloudFront (or Cloudflare) in front of your S3 bucket — AWS free tier gives 1TB/month
-For cover images and avatars, store the direct URL on the entity
-Deprecate the redirect endpoint; keep it only as a legacy fallback with long cache headers
-Expected impact: Eliminates 10+ API calls per post page view. Images load from CDN edge.
-
-Complexity: Medium
-When: NOW — this is your single biggest performance win.
-
-C2. Batch Post Detail Queries
-Problem: GetPostBySlug makes 7 sequential DB roundtrips.
-
-Why it matters: This is the hottest endpoint. Every reader hits it. At p99, you're looking at 7 × network RTT + query time per page view.
-
-Proposed solution:
-
-Combine FindBySlug + content + user + categories + tags into a single query with JOINs, or at minimum use 2 parallel queries (post+relations and content)
-Move CalculateCounts to a denormalized column updated asynchronously (you already have engagement_score — do the same for clap_count and comment_count on the posts table)
-Cache the full post detail response for 30-60 seconds keyed by slug
-Expected impact: Post detail drops from ~7 queries to 1-2 queries. Massive latency improvement.
-
-Complexity: Medium
-When: NOW
-
-C3. Defer View Counting
-Problem: IncrementViews does UPDATE posts SET views = views + 1 synchronously on every page view.
-
-Why it matters: This is a write on your hottest read path. Under load, it causes row lock contention, WAL bloat, and prevents effective read caching.
-
-Proposed solution:
-
-Buffer view increments in the in-memory cache (or Redis) as a counter
-Flush to DB in batches every 30-60 seconds via the background goroutine
-Alternatively, use a separate post_views table with append-only inserts and periodic rollup
-Expected impact: Removes write contention from the read path. Enables response caching for post detail.
-
-Complexity: Low
-When: NOW
-
-C4. Enable Nginx Rate Limiting
-Problem: Rate limiting is explicitly disabled everywhere with # Rate limiting disabled for now.
-
-Why it matters: Any endpoint can be hammered without limit. Comment spam, clap abuse, search DDoS, upload abuse — all wide open.
-
-Proposed solution:
-
-limit_req_zone $binary_remote_addr zone=api:10m rate=30r/s;
-limit_req_zone $binary_remote_addr zone=auth:10m rate=5r/m;
-limit_req_zone $binary_remote_addr zone=upload:10m rate=10r/m;
-Apply limit_req zone=api burst=50 nodelay; to /api/, stricter zones for auth and upload.
-
-Expected impact: Protection against abuse with zero code changes.
-
-Complexity: Low
-When: NOW
-
-C5. Fix Double SSR Fetch on Post Page
-Problem: In frontend/app/[locale]/p/[slug]/page.js, generateMetadata fetches the post, then the page component fetches it again.
-
-
-page.js
-Lines 3-13
-export async function generateMetadata({ params }) {
-  const { locale, slug } = await params;
-  // ...
-  const post = await fetchPostBySlug(slug);
-  // ...
-}
-export default async function PostPage({ params }) {
-  // ...
-  post = await fetchPostBySlug(slug);
-  // ...
-}
-Why it matters: Each SSR render calls the API twice for the same data. Each call triggers IncrementViews, so views are inflated 2x.
-
-Proposed solution: Next.js deduplicates fetch() calls within a single render. Make sure fetchPostBySlug uses native fetch() with the same URL (it likely already does via app/lib/api.js). Alternatively, use React cache() to memoize within a request.
-
-Expected impact: 50% reduction in API calls for post detail SSR. Fixes view double-counting.
-
-Complexity: Low
-When: NOW
-
-C6. Replace In-Memory Cache with Redis
-Problem: sync.Map-based cache is single-process, lost on restart, and blocks horizontal scaling.
-
-Why it matters: You can never run 2+ API instances. Every deploy cold-starts the cache. DeletePrefix does a full scan.
-
-Proposed solution:
-
-Add Redis (single instance, ~$5/month on a small VPS, or free tier on providers)
-Replace MemoryCache with a Redis-backed implementation with the same interface
-Keep the MemoryCache as an L1 cache in front of Redis for ultra-hot keys (home_data, popular_posts)
-Expected impact: Horizontal scaling unlocked. Cache survives deploys. Shared across services.
-
-Complexity: Medium
-When: When you need to run 2+ instances OR when traffic exceeds single-instance capacity (~1k-5k DAU)
-
-C7. Fix FindByYearMonth Query
-Problem: EXTRACT(YEAR FROM created_at) prevents index usage.
-
-Proposed solution:
-
-Where("created_at >= ? AND created_at < ?", startOfMonth, startOfNextMonth)
-This allows the idx_posts_created_at index to be used as a range scan.
-
-Expected impact: Archive queries go from seq scan to index scan.
-
-Complexity: Low
-When: NOW
-
-C8. Add Image Processing Pipeline
-Problem: Images are uploaded as-is. A 5MB iPhone photo is served as a 5MB file. No thumbnails for list views. No WebP/AVIF conversion. No responsive sizes.
-
-Proposed solution:
-
-On upload, generate 3 variants: thumbnail (400w), medium (800w), full (1200w)
-Convert to WebP (with JPEG fallback)
-Store variants in S3 with predictable paths: {key}_thumb.webp, {key}_800.webp
-Use <picture> with srcset on frontend
-Use sharp (already in your frontend deps) for on-the-fly resize if you want to start simpler
-Expected impact: 3-10x smaller image payloads. Dramatically faster page loads on mobile.
-
-Complexity: High
-When: Medium-term — after fixing the delivery path (C1)
-
-C9. Fix DeletePost Transaction Bug
-Problem:
-
+B1. GetUserPosts và SearchPosts trả sai total count — BUG
 
 post.go
-Lines 417-422
-	if err := s.CommentRepo.DeleteByPostID(id); err != nil {
-		tx.Rollback()
-		return apperror.NewInternal("failed to delete comments", err)
+Lines 502-502
+	return responses, int64(len(responses)), nil
+len(responses) = page size, không phải total. Frontend pagination sẽ không biết có bao nhiêu page.
+
+Mức ảnh hưởng: MEDIUM — Infinite scroll có thể hoạt động (dựa vào empty page), nhưng nếu frontend hiển thị "X bài viết" thì sẽ sai.
+
+Fix: Thêm CountByUserID(userID) vào PostRepository và gọi nó. Tương tự cho SearchPosts.
+
+B2. ConnMaxLifetime chưa set — DỄ FIX
+
+config.go
+Lines 120-123
+			sqlDB.SetMaxIdleConns(cfg.MAX_IDLE_CONNS)
+			sqlDB.SetMaxOpenConns(cfg.MAX_OPEN_CONNS)
+			// THIẾU: sqlDB.SetConnMaxLifetime(5 * time.Minute)
+Mức ảnh hưởng: LOW — Nhưng nếu PostgreSQL restart hoặc connection stale, pool sẽ giữ dead connections.
+
+Fix: Thêm 1 dòng sqlDB.SetConnMaxLifetime(5 * time.Minute).
+
+B3. Search Service N+1 chưa fix
+fillPostMetadata trong search-service vẫn chạy 2 query/post (categories + tags). 20 kết quả = 40 extra queries.
+
+Mức ảnh hưởng: MEDIUM — Search không phải hot path như post detail, nhưng sẽ chậm dần khi dùng nhiều.
+
+Fix: Batch load categories và tags cho tất cả post IDs trong 2 query, rồi map in-memory.
+
+B4. usePostName thiếu SWR options — DỄ FIX
+
+usePost.js
+Lines 16-24
+export const usePostName = (slug) => {
+  const { data, error, mutate } = useSWR(slug ? `/p/${slug}` : null, () => getPostBySlug(slug));
+  // Không có dedupingInterval, revalidateOnFocus, v.v.
+Mức ảnh hưởng: LOW-MEDIUM — SWR default dedupingInterval là 2 giây, revalidateOnFocus là true. Mỗi lần user tab back sẽ re-fetch post detail.
+
+Fix:
+
+useSWR(key, fetcher, {
+  dedupingInterval: 30000,
+  revalidateOnFocus: false,
+})
+B5. SafeImage vẫn giữ 3-retry chain
+Backend đã chuyển sang direct CDN URLs, nhưng SafeImage vẫn có logic transform S3 URL + 3-retry fallback. Code này giờ phần lớn là dead code vì image URLs đã là direct CDN.
+
+Mức ảnh hưởng: LOW — Không gây lỗi, chỉ là code thừa. Retry chain vẫn hữu ích cho legacy images chưa có public_url.
+
+Fix (medium-term): Simplify SafeImage — giữ 1 retry + fallback, bỏ transform logic.
+
+B7. FlushViewCounts không cleanup entries đã flush
+
+base_service.go
+Lines 44-54
+func (s *BaseService) FlushViewCounts() {
+	s.viewBuffer.Range(func(k, v interface{}) bool {
+		postID := k.(uuid.UUID)
+		ptr := v.(*int64)
+		delta := atomic.SwapInt64(ptr, 0)
+		if delta > 0 {
+			s.DB.Exec("UPDATE posts SET views = views + ? WHERE id = ?", delta, postID)
+		}
+		return true
+	})
+}
+Sau khi flush, entry vẫn tồn tại trong sync.Map với counter = 0. Theo thời gian, nếu có hàng nghìn post được view rồi không bao giờ view lại, map sẽ phình lên.
+
+Mức ảnh hưởng: LOW — Với blog cá nhân, sẽ không bao giờ đủ lớn để thành vấn đề. Nhưng fix cũng đơn giản.
+
+Fix: Thêm s.viewBuffer.Delete(postID) sau khi flush xong delta.
+
+B8. RecalculateAllEngagementScores dùng correlated subquery
+
+post_repo.go
+Lines 91-103
+func (r *postRepo) RecalculateAllEngagementScores() error {
+	return r.db.Exec(`
+		UPDATE posts SET engagement_score = (
+			views * 0.7 + COALESCE((
+				SELECT COUNT(*) FROM comments WHERE comments.post_id = posts.id AND ...
+			), 0) * 0.3
+		) WHERE deleted_at IS NULL
+	`).Error
+}
+Bây giờ đã có comment_count denormalized, query này nên dùng nó:
+
+UPDATE posts SET engagement_score = views * 0.7 + comment_count * 0.3
+WHERE deleted_at IS NULL
+Mức ảnh hưởng: LOW — Chạy mỗi 5 phút, nhưng query hiện tại scan toàn bộ comments table. Dùng denormalized count sẽ instant.
+
+C. Vấn đề mới phát hiện
+C1. Redis DeletePrefix dùng SCAN — O(N) trên toàn bộ keyspace
+
+redis_cache.go
+Lines 62-82
+func (r *RedisCache) DeletePrefix(prefix string) {
+	iter := r.client.Scan(context.Background(), 0, r.key(prefix)+"*", 0).Iterator()
+	// ... collect keys and delete
+	// PLUS: duplicate scan without prefix
+}
+SCAN trên Redis iterate toàn bộ keyspace. Với ít key thì không sao, nhưng nếu cache lớn sẽ chậm. Plus, method scan 2 lần (một lần với prefix, một lần không) — đoạn scan thứ 2 có vẻ thừa.
+
+Mức ảnh hưởng: LOW cho hiện tại. Sẽ thành vấn đề nếu Redis có 100k+ keys.
+
+Fix: Bỏ đoạn scan thứ 2 (duplicate). Nếu cần optimize sau, dùng Redis keyspace notifications hoặc tổ chức key theo hash tags.
+
+C2. Gob encoding cho Redis cache — fragile
+
+redis_cache.go
+Lines 38-44
+func (r *RedisCache) Set(key string, value any, ttl time.Duration) {
+	var buf bytes.Buffer
+	if err := gob.NewEncoder(&buf).Encode(&value); err != nil {
+		return // SILENT FAIL
 	}
-	if err := s.ReplyRepo.DeleteByPostID(id); err != nil {
-These use s.CommentRepo and s.ReplyRepo (non-transactional), while the post delete above uses txPostRepo. If the post is soft-deleted but comment/reply deletion fails and rolls back, the post remains deleted outside the transaction.
+Gob encoding fail silently. Nếu quên gob.Register cho một type mới, cache sẽ không lưu được mà không báo lỗi. Đã thấy init() register các type chính, nhưng nếu thêm type mới (VD: []*dto.CategoryResponse) mà quên register → cache miss mãi mãi, khó debug.
 
-Proposed solution: Use txCommentRepo and txReplyRepo (create them like you do for other repos at the start of the function).
+Mức ảnh hưởng: LOW — Nhưng sẽ gây confusion khi thêm cache cho data mới.
 
-Complexity: Low
-When: NOW
+Fix: Log error thay vì silent return. Hoặc chuyển sang JSON encoding cho simplicity.
 
-C10. Denormalize Comment/Clap Counts
-Problem: CalculateCounts and CalculateCountsForPosts run aggregate queries (SUM, COUNT) on every list/detail request.
+C3. Comment Preload("Replies.User") vẫn eager
+Backend FindByPostID cho comments vẫn preload tất cả replies cho mỗi comment. Nếu 1 comment có 100 replies → load hết 100.
 
-Proposed solution:
+Mức ảnh hưởng: LOW cho blog cá nhân (ít comment). MEDIUM nếu muốn scale.
 
-Add clap_count and comment_count columns to posts
-Increment/decrement on clap/comment creation/deletion
-The engagement score recalculation background job can also reconcile these counts
-Remove real-time aggregate queries from read paths
-Expected impact: Eliminates 2 queries per post detail, 2 batch queries per list.
-
-Complexity: Medium
-When: Medium-term

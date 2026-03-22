@@ -49,6 +49,7 @@ func (s *BaseService) FlushViewCounts() {
 		if delta > 0 {
 			s.DB.Exec("UPDATE posts SET views = views + ? WHERE id = ?", delta, postID)
 		}
+		s.viewBuffer.Delete(postID)
 		return true
 	})
 }

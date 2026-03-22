@@ -62,6 +62,20 @@ func (r *postRepo) Count() (int64, error) {
 	return count, err
 }
 
+func (r *postRepo) CountByUserID(userID uuid.UUID) (int64, error) {
+	var count int64
+	err := r.db.Model(&entities.Post{}).Where("user_id = ?", userID).Count(&count).Error
+	return count, err
+}
+
+func (r *postRepo) CountSearch(query string) (int64, error) {
+	var count int64
+	err := r.db.Model(&entities.Post{}).
+		Where("title ILIKE ? OR excerpt ILIKE ?", "%"+query+"%", "%"+query+"%").
+		Count(&count).Error
+	return count, err
+}
+
 func (r *postRepo) List(limit, offset int) ([]*entities.Post, error) {
 	var posts []*entities.Post
 	err := r.db.Preload("User").Preload("Categories").Preload("Tags").
@@ -91,13 +105,7 @@ func (r *postRepo) GetPopular(limit int) ([]*entities.Post, error) {
 func (r *postRepo) RecalculateAllEngagementScores() error {
 	return r.db.Exec(`
 		UPDATE posts
-		SET engagement_score = (
-			views * 0.7 +
-			COALESCE((
-				SELECT COUNT(*) FROM comments
-				WHERE comments.post_id = posts.id AND comments.deleted_at IS NULL
-			), 0) * 0.3
-		)
+		SET engagement_score = views * 0.7 + comment_count * 0.3
 		WHERE deleted_at IS NULL
 	`).Error
 }

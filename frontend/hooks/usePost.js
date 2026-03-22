@@ -14,9 +14,16 @@ export const usePost = (postId) => {
 };
 
 export const usePostName = (slug) => {
-  const { data , error, mutate } = useSWR(slug ? `/p/${slug}` : null, () => getPostBySlug(slug));
+  const { data, error, mutate } = useSWR(
+    slug ? `/p/${slug}` : null,
+    () => getPostBySlug(slug),
+    {
+      dedupingInterval: 30000,
+      revalidateOnFocus: false,
+    }
+  );
 
-   return {
+  return {
     post: data ?? null,
     isLoading: !error && !data,
     isError: error,

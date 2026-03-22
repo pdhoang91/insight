@@ -499,7 +499,11 @@ func (s *InsightService) GetUserPosts(userID uuid.UUID, req *dto.PaginationReque
 	for _, post := range posts {
 		responses = append(responses, dto.NewPostResponse(post))
 	}
-	return responses, int64(len(responses)), nil
+	total, err := s.PostRepo.CountByUserID(userID)
+	if err != nil {
+		return nil, 0, apperror.NewInternal("failed to count user posts", err)
+	}
+	return responses, total, nil
 }
 
 // SearchPosts searches for posts
@@ -513,12 +517,19 @@ func (s *InsightService) SearchPosts(query string, req *dto.PaginationRequest) (
 		return nil, 0, apperror.NewInternal("failed to search posts", err)
 	}
 
+	if err := s.PostRepo.CalculateCountsForPosts(posts); err != nil {
+		return nil, 0, apperror.NewInternal("failed to calculate post counts", err)
+	}
 
 	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
 		responses = append(responses, dto.NewPostResponse(post))
 	}
-	return responses, int64(len(responses)), nil
+	total, err := s.PostRepo.CountSearch(query)
+	if err != nil {
+		return nil, 0, apperror.NewInternal("failed to count search results", err)
+	}
+	return responses, total, nil
 }
 
 func (s *InsightService) GetLatestPosts(limit int) ([]*dto.PostResponse, error) {

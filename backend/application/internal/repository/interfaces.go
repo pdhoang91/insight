@@ -34,6 +34,8 @@ type PostRepository interface {
 	FindAll(limit, offset int) ([]*entities.Post, error)
 	List(limit, offset int) ([]*entities.Post, error)
 	Count() (int64, error)
+	CountByUserID(userID uuid.UUID) (int64, error)
+	CountSearch(query string) (int64, error)
 	Search(query string, limit, offset int) ([]*entities.Post, error)
 	GetPopular(limit int) ([]*entities.Post, error)
 	FindByCategory(categoryID uuid.UUID, limit, offset int) ([]*entities.Post, error)

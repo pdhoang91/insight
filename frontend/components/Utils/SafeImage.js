@@ -1,122 +1,60 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 
-const SafeImage = ({ 
-  src, 
-  alt, 
-  width, 
-  height, 
-  className = '', 
+const SafeImage = ({
+  src,
+  alt,
+  width,
+  height,
+  className = '',
   fallbackSrc = '/author-avatar.svg',
   priority = false,
   fill = false,
   sizes,
-  ...props 
+  ...props
 }) => {
-  // Transform S3 URLs to avoid SSL certificate issues
-  const transformS3Url = (originalSrc) => {
-    if (!originalSrc || !originalSrc.includes('s3.amazonaws.com')) {
-      return originalSrc;
-    }
+  const isSvg = (imageSrc) =>
+    imageSrc?.includes('.svg') || imageSrc?.includes('data:image/svg');
 
-    try {
-      // Convert insight.storage.s3.amazonaws.com to s3.amazonaws.com format
-      if (originalSrc.includes('insight.storage.s3.amazonaws.com')) {
-        // Extract the path after the domain
-        const url = new URL(originalSrc);
-        const path = url.pathname;
-        // Convert to standard S3 URL format
-        return `https://s3.amazonaws.com/insight.storage${path}${url.search || ''}`;
-      }
-    } catch (error) {
-
-    }
-    
-    return originalSrc;
-  };
-
-  // Use proxy for S3 images in development to bypass SSL issues
-  const getProxiedSrc = (originalSrc) => {
-    if (!originalSrc) return originalSrc;
-
-    // First try to transform the URL
-    const transformedSrc = transformS3Url(originalSrc);
-    
-    // Don't automatically proxy, let the error handler decide
-    return transformedSrc;
-  };
-
-  // Check if image is SVG
-  const isSvg = (imageSrc) => {
-    return imageSrc?.includes('.svg') || imageSrc?.includes('data:image/svg');
-  };
-
-  const [imageSrc, setImageSrc] = useState(getProxiedSrc(src));
+  const [imageSrc, setImageSrc] = useState(src);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
+  const [retried, setRetried] = useState(false);
 
   const handleError = () => {
-    // Try to retry with different approaches
-    if (retryCount < 3 && src) {
-      setRetryCount(prev => prev + 1);
-      
-      if (retryCount === 0) {
-        // First retry: try with proxy for any external URL
-        if (src.includes('s3.amazonaws.com') || src.includes('localhost:81')) {
-          const proxiedUrl = `/api/image-proxy?url=${encodeURIComponent(src)}`;
-          setImageSrc(proxiedUrl);
-          return;
-        }
-      } else if (retryCount === 1) {
-        // Second retry: try direct URL without proxy
-        setImageSrc(src);
-        return;
-      } else if (retryCount === 2) {
-        // Third retry: try with timestamp
-        const timestampedUrl = `${src}${src.includes('?') ? '&' : '?'}t=${Date.now()}`;
-        setImageSrc(timestampedUrl);
-        return;
-      }
-    }
-
-    // All retries failed, use fallback
-    if (imageSrc !== fallbackSrc) {
+    if (!retried && imageSrc !== fallbackSrc) {
+      setRetried(true);
       setImageSrc(fallbackSrc);
-      setHasError(false);
-      setRetryCount(0);
-    } else {
-      setHasError(true);
+      return;
     }
+    setHasError(true);
     setIsLoading(false);
   };
 
   const handleLoad = () => {
     setIsLoading(false);
     setHasError(false);
-    setRetryCount(0);
   };
 
-  // If there's an error with the fallback image, show a placeholder div
   if (hasError) {
     return (
-      <div 
-        className={` flex items-center justify-center ${className}`}
+      <div
+        className={`flex items-center justify-center ${className}`}
         style={{ width: fill ? '100%' : width, height: fill ? '100%' : height }}
         {...props}
       >
         <div className="text-center">
-          <svg 
-            className="w-12 h-12 text-medium-text-muted mx-auto mb-2" 
-            fill="none" 
-            stroke="currentColor" 
+          <svg
+            className="w-12 h-12 text-medium-text-muted mx-auto mb-2"
+            fill="none"
+            stroke="currentColor"
             viewBox="0 0 24 24"
           >
-            <path 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth={1.5} 
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" 
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={1.5}
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
             />
           </svg>
           <p className="text-xs text-medium-text-muted">Image not available</p>
@@ -133,36 +71,26 @@ const SafeImage = ({
     priority,
     className: `${className} ${isLoading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`,
     placeholder: 'blur',
-    blurDataURL: 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q==',
-    // Add unoptimized for SVG images, localhost images, and S3 images with SSL issues
-    ...((isSvg(imageSrc) || imageSrc?.includes('localhost') || imageSrc?.includes('s3.amazonaws.com') || imageSrc?.includes('/api/image-proxy')) && {
-      unoptimized: true
+    blurDataURL:
+      'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q==',
+    ...((isSvg(imageSrc) || imageSrc?.includes('localhost')) && {
+      unoptimized: true,
     }),
-    ...props
+    ...props,
   };
 
   if (fill) {
-    return (
-      <Image
-        {...imageProps}
-        fill
-        sizes={sizes}
-      />
-    );
+    return <Image {...imageProps} fill sizes={sizes} />;
   }
-
-  // Provide default dimensions if not specified
-  const finalWidth = width || 400;
-  const finalHeight = height || 300;
 
   return (
     <Image
       {...imageProps}
-      width={finalWidth}
-      height={finalHeight}
+      width={width || 400}
+      height={height || 300}
       sizes={sizes}
     />
   );
 };
 
-export default SafeImage; 
+export default SafeImage;

@@ -40,7 +40,8 @@
       "Bash(grep -E \"\\\\.\\(go|yml\\)$\")",
       "Bash(go get:*)",
       "Bash(go vet:*)",
-      "Bash(GOTOOLCHAIN=local go mod download 2>&1)"
+      "Bash(GOTOOLCHAIN=local go mod download 2>&1)",
+      "Bash(echo \"Exit code: $?\")"
     ]
   }
 }

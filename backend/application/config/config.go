@@ -121,6 +121,7 @@ func InitDBConnection(cfg *Config) (*gorm.DB, error) {
 			// Set maximum idle and in-use connections
 			sqlDB.SetMaxIdleConns(cfg.MAX_IDLE_CONNS)
 			sqlDB.SetMaxOpenConns(cfg.MAX_OPEN_CONNS)
+			sqlDB.SetConnMaxLifetime(5 * time.Minute)
 
 			fmt.Println("Connected to the database!")
 			return db, nil
