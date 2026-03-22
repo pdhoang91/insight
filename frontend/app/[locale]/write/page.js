@@ -4,10 +4,10 @@ import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter, usePathname } from 'next/navigation';
 import { useUser } from '../../../context/UserContext';
-import LoadingSpinner from '../../../components/Shared/LoadingSpinner';
+import { Spinner } from '../../../components/UI/Loading';
 
 const PostForm = dynamic(() => import('../../../components/Editor/PostForm'), {
-  loading: () => <div className="flex justify-center py-20"><LoadingSpinner size="lg" /></div>,
+  loading: () => <div className="flex justify-center py-20"><Spinner size="lg" /></div>,
   ssr: false,
 });
 const PublishPanel = dynamic(() => import('../../../components/Category/PublishPanel'), {
@@ -91,7 +91,7 @@ export default function WritePage() {
   }, [user, title, content, imageTitle, router, setModalOpen]);
 
   useEffect(() => {
-    setHandlePublish(() => handlePublish);
+    setHandlePublish(handlePublish);
     setHandleUpdate(null);
     return () => {
       setHandlePublish(null);
@@ -102,7 +102,7 @@ export default function WritePage() {
     return (
       <div style={{ minHeight: '100dvh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
-          <LoadingSpinner size="lg" />
+          <Spinner size="lg" />
           <p style={{ marginTop: '1rem', fontFamily: 'var(--font-display)', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
             Đang tải trình soạn thảo...
           </p>

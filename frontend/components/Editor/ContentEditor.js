@@ -1,7 +1,7 @@
 // components/Editor/ContentEditor.js
 import React from 'react';
 import { EditorContent } from '@tiptap/react';
-import LoadingSpinner from '../Shared/LoadingSpinner';
+import { Spinner } from '../UI/Loading';
 
 const ContentEditor = ({ editor, isUploading, uploadingText = 'Uploading image...' }) => {
   return (
@@ -22,7 +22,7 @@ const ContentEditor = ({ editor, isUploading, uploadingText = 'Uploading image..
           }}
         >
           <div style={{ textAlign: 'center' }}>
-            <LoadingSpinner size="lg" />
+            <Spinner size="lg" />
             <p style={{ marginTop: '0.5rem', fontFamily: 'var(--font-display)', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
               {uploadingText}
             </p>

@@ -1,8 +1,8 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { User } from '@phosphor-icons/react';
 import SEOHead from '../SEO/SEOHead';
+import Avatar from '../UI/Avatar';
 import RelatedPosts from './RelatedPosts';
 import { useTranslations, useLocale } from 'next-intl';
 
@@ -11,19 +11,12 @@ const AuthorByline = ({ user: postUser, date }) => {
   const locale = useLocale();
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '2rem' }}>
-      <div style={{
-        width: 40, height: 40, borderRadius: '50%',
-        background: 'var(--bg-surface)', overflow: 'hidden', flexShrink: 0,
-        border: '1.5px solid var(--border)',
-      }}>
-        {postUser?.avatar_url ? (
-          <img src={postUser.avatar_url} alt={postUser.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        ) : (
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <User style={{ width: 14, height: 14, color: 'var(--text-faint)' }} />
-          </div>
-        )}
-      </div>
+      <Avatar
+        src={postUser?.avatar_url}
+        name={postUser?.name}
+        size="md"
+        style={{ flexShrink: 0 }}
+      />
       <div>
         <div style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '0.9rem', letterSpacing: '-0.01em', color: 'var(--text)' }}>
           {postUser?.name || t('article.anonymous')}

@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
-import { FaUser } from 'react-icons/fa';
 import TimeAgo from '../Utils/TimeAgo';
+import Avatar from '../UI/Avatar';
 
 const ReplyItem = ({ reply, commentId, mutate }) => {
 
@@ -14,22 +14,12 @@ const ReplyItem = ({ reply, commentId, mutate }) => {
     }}
     className="last:pb-0 last:mb-0"
     >
-      <div style={{
-        flexShrink: 0,
-        width: 24, height: 24, borderRadius: '50%',
-        background: 'var(--bg-surface)',
-        overflow: 'hidden',
-        border: '1.5px solid var(--border)',
-        marginTop: '0.1rem',
-      }}>
-        {reply.user?.avatar_url ? (
-          <img src={reply.user.avatar_url} alt={reply.user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        ) : (
-          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <FaUser style={{ width: 9, height: 9, color: 'var(--text-faint)' }} />
-          </div>
-        )}
-      </div>
+      <Avatar
+        src={reply.user?.avatar_url}
+        name={reply.user?.name}
+        size="xs"
+        style={{ flexShrink: 0, marginTop: '0.1rem' }}
+      />
 
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', marginBottom: '0.35rem' }}>

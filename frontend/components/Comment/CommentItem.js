@@ -1,7 +1,6 @@
 'use client';
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { User } from '@phosphor-icons/react';
 import { useTranslations } from 'next-intl';
 import { useUser } from '../../context/UserContext';
 import { addReply } from '../../services/commentService';
@@ -10,6 +9,7 @@ import AddCommentForm from './AddCommentForm';
 import CommentContent from './CommentContent';
 import ReplyList from './ReplyList';
 import TimeAgo from '../Utils/TimeAgo';
+import Avatar from '../UI/Avatar';
 
 const CommentItem = ({ comment, postId, mutate }) => {
   const [showReplyForm, setShowReplyForm] = useState(false);
@@ -44,22 +44,12 @@ const CommentItem = ({ comment, postId, mutate }) => {
     className="last:pb-0 last:mb-0"
     >
       <div style={{ display: 'flex', gap: '0.875rem' }}>
-        <div style={{
-          flexShrink: 0,
-          width: 32, height: 32, borderRadius: '50%',
-          background: 'var(--bg-surface)',
-          overflow: 'hidden',
-          border: '1.5px solid var(--border)',
-          marginTop: '0.1rem',
-        }}>
-          {comment.user?.avatar_url ? (
-            <img src={comment.user.avatar_url} alt={comment.user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : (
-            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <User size={12} color="var(--text-faint)" />
-            </div>
-          )}
-        </div>
+        <Avatar
+          src={comment.user?.avatar_url}
+          name={comment.user?.name}
+          size="sm"
+          style={{ flexShrink: 0, marginTop: '0.1rem' }}
+        />
 
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.625rem', marginBottom: '0.5rem' }}>

@@ -15,11 +15,11 @@ export const PostProvider = ({ children }) => {
   const [handleUpdate, setHandleUpdate] = useState(null);
 
   const stableSetHandlePublish = useCallback((fn) => {
-    setHandlePublish(fn);
+    setHandlePublish(() => fn);
   }, []);
 
   const stableSetHandleUpdate = useCallback((fn) => {
-    setHandleUpdate(fn);
+    setHandleUpdate(() => fn);
   }, []);
 
   const value = useMemo(() => ({

@@ -4,12 +4,12 @@ import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { useRouter, usePathname, useParams } from 'next/navigation';
 import { useUser } from '../../../../context/UserContext';
-import LoadingSpinner from '../../../../components/Shared/LoadingSpinner';
+import { Spinner } from '../../../../components/UI/Loading';
 
 const PostForm = dynamic(() => import('../../../../components/Editor/PostForm'), {
   loading: () => (
     <div style={{ display: 'flex', justifyContent: 'center', padding: '5rem 0' }}>
-      <LoadingSpinner size="lg" />
+      <Spinner size="lg" />
     </div>
   ),
   ssr: false,
@@ -104,8 +104,8 @@ export default function EditPage() {
   }, [user, title, content, imageTitle, post?.id, router, setModalOpen]);
 
   useEffect(() => {
-    setHandleUpdate(() => handleUpdate);
-    setHandlePublish(() => handleUpdate);
+    setHandleUpdate(handleUpdate);
+    setHandlePublish(handleUpdate);
     return () => {
       setHandleUpdate(null);
       setHandlePublish(null);
@@ -123,7 +123,7 @@ export default function EditPage() {
     return (
       <div style={{ minHeight: '100dvh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
-          <LoadingSpinner size="lg" />
+          <Spinner size="lg" />
           <p style={{ marginTop: '1rem', fontFamily: 'var(--font-display)', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
             Đang tải trình soạn thảo...
           </p>
@@ -168,7 +168,7 @@ export default function EditPage() {
     return (
       <div style={{ minHeight: '100dvh', background: 'var(--bg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ textAlign: 'center' }}>
-          <LoadingSpinner size="lg" />
+          <Spinner size="lg" />
           <p style={{ marginTop: '1rem', fontFamily: 'var(--font-display)', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
             Đang tải trình soạn thảo...
           </p>

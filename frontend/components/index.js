@@ -5,7 +5,6 @@ export * from './UI';
 
 // Layout Components
 export { default as Navbar } from './Navbar/Navbar';
-export { default as PageLayout } from './Layout/PageLayout';
 
 // Content Components
 export { default as BasePostItem } from './Post/BasePostItem';

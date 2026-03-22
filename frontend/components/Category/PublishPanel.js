@@ -9,7 +9,7 @@ import { uploadImage } from '../../services/imageService';
 import { createCategory } from '../../services/categoryService';
 import { useUser } from '../../context/UserContext';
 import { isAdmin } from '../../constants/roles';
-import LoadingSpinner from '../Shared/LoadingSpinner';
+import { Spinner } from '../UI/Loading';
 
 const spring = { type: 'spring', stiffness: 100, damping: 20 };
 const VALID_CATEGORY_NAME = /^[\p{L}\p{N}\s\-_.]+$/u;
@@ -365,7 +365,7 @@ const PublishPanel = ({
                 className="hover:bg-[var(--bg-elevated)]"
               >
                 {isUploadingCover ? (
-                  <LoadingSpinner size="sm" />
+                  <Spinner size="sm" />
                 ) : (
                   <>
                     <Image size={22} weight="thin" color="var(--text-faint)" />
@@ -561,7 +561,7 @@ const PublishPanel = ({
                           whiteSpace: 'nowrap',
                         }}
                       >
-                        {isCreatingCategory ? <LoadingSpinner size="xs" /> : <Check size={13} weight="bold" />}
+                        {isCreatingCategory ? <Spinner size="xs" /> : <Check size={13} weight="bold" />}
                         Add
                       </motion.button>
                     </div>

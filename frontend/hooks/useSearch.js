@@ -1,59 +1,35 @@
 // hooks/useSearch.js
-import useSWR from 'swr';
-import useSWRInfinite from 'swr/infinite';
 import { fetchStories } from '../services/searchService';
+import { useInfiniteList } from './useInfiniteList';
 
 export const useSearch = (query) => {
-  const PAGE_SIZE = 10;
-
-  // Tạo hàm getKey cho useSWRInfinite
-  const getKey = (pageIndex, previousPageData) => {
-    if (!query) return null; // Không fetch nếu không có query
-    if (previousPageData && previousPageData.posts && previousPageData.posts.length < PAGE_SIZE) {
-      return null; // Ngừng fetch nếu đã tải hết
-    }
-    return { page: pageIndex + 1, limit: PAGE_SIZE };
-  };
-
-  const fetcher = async ({ page, limit }) => {
-    try {
-      const data = await fetchStories(query, page, limit);
-      return { posts: data.posts, totalCount: data.totalCount };
-    } catch (error) {
-      console.error('Error fetching stories:', error);
-      throw error;
-    }
-  };
-
-  // Khởi tạo useSWRInfinite cho stories
-  const { data: swrData, error, setSize, size, isValidating } = useSWRInfinite(
-    getKey,
-    fetcher
-  );
-
-  const posts = swrData ? swrData.flatMap((page) => page?.posts || []) : [];
-  const totalCount = swrData && swrData.length > 0 && swrData[0] ? swrData[0].totalCount || 0 : 0;
-  
-  // Fixed logic: check if we have more pages to load
-  const hasMore = swrData && swrData.length > 0 && posts.length > 0
-    ? posts.length < totalCount
-    : false;
+  const {
+    posts,
+    totalCount,
+    isLoading,
+    isError,
+    hasMore,
+    size,
+    setSize,
+    isValidating,
+  } = useInfiniteList({
+    // Include query in key so different queries have separate SWR cache entries
+    key: ['search', query],
+    fetcher: (page, limit) => fetchStories(query, page, limit),
+    enabled: !!query,
+  });
 
   const loadMore = () => {
-    if (hasMore && !isValidating) {
-      setSize(size + 1);
-    }
+    if (hasMore && !isValidating) setSize(size + 1);
   };
 
   return {
-    data: { stories: posts }, // Maintain compatibility with existing code
+    data: { stories: posts }, // backward-compatible shape
     totalCount,
-    isLoading: !swrData && !error,
+    isLoading,
     isValidating,
-    isError: error,
+    isError,
     loadMore,
     hasMore,
   };
 };
-
-
