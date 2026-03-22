@@ -17,6 +17,7 @@ export default function TagPostsClient({ name }) {
       <TagPosts
         tagName={decodedName}
         posts={posts}
+        totalCount={totalCount}
         isLoading={isLoading}
         isError={isError}
         setSize={setSize}
