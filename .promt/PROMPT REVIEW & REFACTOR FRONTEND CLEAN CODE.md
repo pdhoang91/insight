@@ -17,6 +17,18 @@ My main goals are:
 - keep the code easy to understand
 - avoid over-abstraction and unnecessary complexity
 
+Critical refactor constraint:
+- Refactor the code without changing the current UX/UI.
+- Do NOT redesign the interface.
+- Do NOT change layout, spacing, visual hierarchy, interaction flow, or user behavior unless I explicitly ask.
+- Keep the rendered output and user experience as close to the current version as possible.
+- The main purpose of this refactor is only:
+  - reduce duplicated code
+  - improve reusability
+  - extract shared components/hooks/utils where appropriate
+  - improve maintainability and readability
+- If a refactor risks changing UX/UI behavior, point it out first and prefer a safer internal refactor.
+
 Important rules:
 - Refactor with a practical mindset, not academic perfection
 - Do NOT over-engineer
@@ -56,12 +68,14 @@ Please review and refactor from these angles:
   - error states
   - confirmation dialogs
 - Point out components that are too generic and should remain feature-specific
+- Prioritize extraction only when it improves reuse without changing current UX/UI
 
 ## 3. SHARED UI / DESIGN SYSTEM THINKING
 - Identify UI elements that should become reusable common components
 - Suggest whether a shared UI layer or design-system-like structure is appropriate
 - Recommend how to organize reusable UI primitives vs business/domain components
-- Help create consistency in spacing, typography, button styles, input styles, card layout, modal patterns, and feedback states
+- Help create consistency in code structure without changing the current visual design
+- Do not propose visual redesign unless explicitly requested
 
 ## 4. LOGIC REUSE
 - Identify common frontend logic that should be extracted into:
@@ -101,6 +115,7 @@ Please review and refactor from these angles:
 - Detect unstable props/callbacks passed too deeply
 - Detect heavy components that should be memoized, lazily loaded, or split
 - Identify places where reuse may accidentally hurt performance or readability
+- Do not introduce performance optimizations that materially change UX/UI unless explicitly requested
 
 ## 8. REFACTORING STRATEGY
 - Propose refactoring steps in a safe order
@@ -110,6 +125,7 @@ Please review and refactor from these angles:
   - medium refactors
   - larger structural refactors
 - Explain what should be done now and what should wait
+- Prefer internal refactors that preserve the existing UI exactly
 
 ## 9. OUTPUT FORMAT
 Please structure your response like this:
@@ -126,6 +142,7 @@ For each item:
 - where it appears
 - whether it should be extracted
 - why or why not
+- whether extraction can be done safely without affecting UX/UI
 
 ### C. Component refactor suggestions
 For each suggestion:
@@ -133,12 +150,14 @@ For each suggestion:
 - proposed refactor
 - expected benefit
 - complexity: low / medium / high
+- risk of UX/UI change: none / low / medium / high
 
 ### D. Shared logic extraction suggestions
 For each suggestion:
 - repeated logic
 - best extraction target (hook / util / constant / service / helper / component)
 - why this is the right abstraction
+- whether it changes UX/UI behavior
 
 ### E. Folder structure recommendation
 - proposed structure
@@ -161,6 +180,7 @@ Please explicitly comment on:
 - maintainability
 - performance trade-offs
 - places where abstraction should be avoided
+- how to preserve the exact current UX/UI during refactor
 
 Important:
 - Be concrete and practical
@@ -169,6 +189,8 @@ Important:
 - Prefer simple refactors that improve maintainability
 - If a component/function should stay local to one feature, say so clearly
 - Refactor toward clean and reusable code, but do not force everything into “common”
+- Do not change UX/UI unless I explicitly ask
+- Focus on internal code quality, reuse, and duplication reduction
 
 I will provide:
 - folder structure

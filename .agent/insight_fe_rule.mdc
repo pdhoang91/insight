@@ -28,21 +28,34 @@ frontend/
 │       └── ...                   # Feature routes
 ├── components/
 │   ├── UI/                       # Design system primitives (Avatar, Button, Card, Input, Skeleton, Loading, Icon, ErrorBoundary)
-│   ├── Shared/                   # Shared presentational components (EmptyState, ErrorState, LoadingSpinner)
+│   ├── Shared/                   # Shared presentational components (PostSkeleton multi-variant, EmptyState, ErrorState, LanguageTogglePill, SimpleSearchBar)
 │   ├── Layout/                   # Layout shells (Layout.js with HomeLayout/ArticleLayout/ProfileLayout variants)
-│   ├── Navbar/                   # Navigation
+│   ├── Navbar/                   # Navigation (Navbar, MobileSlidePanel)
 │   ├── Sidebar/                  # Sidebar components
 │   ├── Editor/                   # TipTap editor (see editor-rule.mdc)
-│   │   └── extensions/           # Custom TipTap extensions
+│   │   ├── extensions/           # Custom TipTap extensions
+│   │   ├── CoverImageUploader.js # Cover image upload + preview
+│   │   ├── CategorySelector.js   # Category chip selector (with admin create)
+│   │   └── TagInput.js           # Tag chip input
 │   ├── Post/                     # Post feature components
+│   │   ├── PostItemSkeleton.js   # Skeleton for post list items (timeline style)
+│   │   └── ...
 │   ├── Comment/                  # Comment feature components
 │   ├── Category/                 # Category feature components
+│   │   └── PublishPanel.js       # Publish workflow panel (uses Editor sub-components)
 │   ├── Profile/                  # Profile feature components
 │   ├── Auth/                     # Auth components (LoginModal)
 │   ├── Search/                   # Search components
 │   ├── Archive/                  # Archive components
 │   └── Tag/                      # Tag components
 ├── hooks/                        # Custom React hooks
+│   ├── useInfiniteList.js        # Generic offset-based infinite scroll
+│   ├── useInfiniteCursor.js      # Generic cursor-based infinite scroll
+│   ├── useOutsideClick.js        # Click-outside detector for dropdowns/menus
+│   ├── useBodyScrollLock.js      # Lock/unlock body scroll for modals
+│   ├── useScrollEffect.js        # Scroll threshold detector (e.g. sticky navbar)
+│   ├── useFileUpload.js          # Generic imperative file picker + upload handler
+│   └── ...                       # Feature hooks (useAuth, usePost, useComments, etc.)
 ├── services/                     # API service functions (axios-based)
 ├── utils/
 │   ├── theme/                    # Design tokens split into modules (tokens, typography, layout, interactive, components)
@@ -51,7 +64,8 @@ frontend/
 │   ├── tiptapBaseExtensions.js   # Shared TipTap extensions factory
 │   ├── tiptapExtensions.js       # Client-side extensions (adds ImageBlock)
 │   ├── renderContent.js          # Client-side content renderer
-│   └── renderContentServer.js    # Server-safe content renderer
+│   ├── renderContentServer.js    # Server-safe content renderer
+│   └── formatDate.js             # Locale-aware date formatter
 ├── context/                      # React contexts (UserContext, PostContext)
 ├── config/api.js                 # API URL constants
 ├── constants/roles.js            # User role constants and permission helpers
@@ -120,6 +134,32 @@ return {
 };
 ```
 
+### Utility hooks — ALWAYS use these, never inline
+
+| Hook | Usage |
+|------|-------|
+| `useOutsideClick(ref, callback)` | Close dropdown/menu on click-outside. Used in `Navbar`. |
+| `useBodyScrollLock(isLocked)` | Lock/unlock `body.style.overflow`. Used in modals (`LoginModal`). |
+| `useScrollEffect(threshold?)` | Returns `boolean` — true when `scrollY > threshold`. Used for sticky navbar. |
+| `useFileUpload({ accept, uploadFn })` | Returns `{ upload(onSuccess), isUploading, error, clearError }`. Used in `CoverImageUploader`. |
+
+```js
+// useOutsideClick example
+const menuRef = useRef();
+useOutsideClick(menuRef, () => setOpen(false));
+
+// useBodyScrollLock example — in a modal
+useBodyScrollLock(isOpen);
+
+// useScrollEffect example — in navbar
+const scrolled = useScrollEffect(20); // true when scrollY > 20px
+
+// useFileUpload example
+const uploadFn = useCallback((file) => uploadImage(file, 'title'), []);
+const { upload, isUploading, error } = useFileUpload({ accept: 'image/*', uploadFn });
+const handleClick = () => upload((url) => setImageTitle(url));
+```
+
 ---
 
 ## Service Layer
@@ -140,6 +180,7 @@ return {
 ### File upload
 - Image uploads use `uploadImage(file, type)` from `services/imageService`
 - Always set `Content-Type: 'multipart/form-data'` for FormData requests
+- For components that trigger file upload imperatively, use `useFileUpload` hook — do NOT recreate the `input[type=file]` pattern manually
 
 ---
 
@@ -155,25 +196,52 @@ These are the canonical shared components. ALWAYS prefer these over hand-rolling
 | `Card` | Card containers |
 | `Input` | Form inputs |
 | `Skeleton`, `SkeletonPost`, `SkeletonComment`, `SkeletonProfile` | Loading skeletons |
-| `Spinner` (from `Loading`) | Spinner indicators. Sizes: `sm`, `md`, `lg`, `xl` |
+| `Spinner` (from `Loading`) | Spinner indicators. Sizes: `xs`, `sm`, `md`, `lg`, `xl` |
 | `LoadingScreen` | Full-page loading |
 | `ErrorBoundary` | Error boundaries |
 | `Icon`, `ActionIcon` | Icon wrappers |
 
 **Anti-patterns — do NOT:**
 - Hand-roll avatar circles with fallback icons — use `<Avatar>`
-- Create inline skeleton divs with `className="skeleton-warm"` — use `<SkeletonPost>` or `<Skeleton>`
+- Hand-roll inline spinner divs with `border-top` animation — use `<Spinner>` from `UI/Loading`
+- Inject `<style jsx>@keyframes spin</style>` — `Spinner` component handles this
+- Create inline skeleton divs with `className="skeleton-warm"` — use `<Skeleton>` or `PostItemSkeleton`
 - Import `LoadingSpinner` from `Shared/` — use `Spinner` from `UI/Loading`
 
 ### Shared Components (components/Shared/)
 | Component | Use for |
 |-----------|---------|
+| `PostSkeleton` | Multi-variant post skeleton (timeline, card, etc.) — used in search, category grids |
 | `EmptyState` | Empty data states |
 | `ErrorState` | Error states with retry |
 | `SimpleSearchBar` | Search inputs |
 
-**ALWAYS use `ErrorState` for error displays.** Do not hand-roll inline error divs.
+**ALWAYS use `ErrorState` for error displays.** Do not hand-roll inline error divs with motion wrappers.
 **ALWAYS use `EmptyState` for empty data.** Do not hand-roll inline empty messages.
+
+### Post skeletons — which one to use
+- `components/Post/PostItemSkeleton` — minimal timeline skeleton for `PostList` (vertical feed). Use in `PostList` and `UserPostsSection`.
+- `components/Shared/PostSkeleton` — multi-variant skeleton with `variant` prop (`timeline`, `card`, etc.). Use in search results, category grids, and anywhere needing variants.
+
+```js
+// CORRECT — for the main post list feed
+import PostItemSkeleton from '../Post/PostItemSkeleton';
+
+// CORRECT — for search results or grids
+import PostSkeleton from '../Shared/PostSkeleton';
+<PostSkeleton variant="timeline" />
+```
+
+### Editor sub-components (components/Editor/)
+The publish workflow is split into focused sub-components. Use them independently or compose via `PublishPanel`:
+
+| Component | Responsibility |
+|-----------|---------------|
+| `CoverImageUploader` | File picker, upload to S3, preview with change/remove overlay |
+| `CategorySelector` | Category chip grid, multi-select (max 3), admin create-new inline input |
+| `TagInput` | Tag chip input (Enter/comma to add, Backspace to remove, max 5) |
+
+`PublishPanel` (in `Category/`) is the container that composes all three. Props: `title`, `content`, `imageTitle`, `setImageTitle`, `initialCategories`, `initialTags`, `onPublish`, `onCancel`.
 
 ### Layout System
 Use layout variants from `components/Layout/Layout.js`:
@@ -204,6 +272,7 @@ components/FeatureName/
 - Export default for the main component
 - Use named exports for sub-components in barrel files
 - Feature components live in their feature folder, not in `UI/` or `Shared/`
+- Local single-use helper components (e.g. `AuthorByline` in `PostDetail`) are fine to keep inline — don't extract unless reused elsewhere
 
 ---
 
@@ -231,6 +300,19 @@ components/FeatureName/
 --font-display, --font-body, --font-mono  # Font families
 --nav-height                          # Navbar height
 ```
+
+---
+
+## Utils
+
+### formatDate
+```js
+import { formatDate } from '../../utils/formatDate';
+
+// Locale-aware long date format: "March 23, 2026" or "23 tháng 3 năm 2026"
+formatDate(post.created_at, locale);  // locale: 'vi' | 'en'
+```
+Use this whenever rendering a full date (not relative time). For relative time ("2 hours ago"), use `<TimeAgo>` component.
 
 ---
 
@@ -331,7 +413,7 @@ export default function SomeClient({ initialData, name }) {
 | Components | PascalCase | `PostList`, `BasePostItem` |
 | Hooks | camelCase with `use` prefix | `useInfinitePosts`, `useAuth` |
 | Service functions | camelCase verb-first | `getPosts`, `createPost`, `fetchUserPosts` |
-| Utils | camelCase | `renderPostContent`, `combineClasses` |
+| Utils | camelCase | `renderPostContent`, `combineClasses`, `formatDate` |
 | Constants | UPPER_SNAKE_CASE | `USER_ROLES`, `PAGE_SIZE` |
 | CSS variables | kebab-case with `--` prefix | `--text-muted`, `--bg-surface` |
 | Files | PascalCase for components, camelCase for hooks/utils/services | `PostList.js`, `useAuth.js`, `postService.js` |
@@ -352,6 +434,7 @@ export default function SomeClient({ initialData, name }) {
 - Use `dedupingInterval` in SWR to prevent duplicate API calls
 - Avoid `will-change` on many elements
 - Use `React.memo()` only when profiling shows unnecessary re-renders — don't prememo everything
+- When extracting sub-components that receive callbacks as props, wrap the callbacks in `useCallback` in the parent to avoid unnecessary re-renders
 
 ---
 
@@ -359,14 +442,21 @@ export default function SomeClient({ initialData, name }) {
 
 1. **Do NOT copy-paste `useSWRInfinite` boilerplate** — always use `useInfiniteList` or `useInfiniteCursor`
 2. **Do NOT hand-roll skeletons/error states/empty states** — use shared components
-3. **Do NOT use named imports for axios instances** — they are default exports
-4. **Do NOT hardcode Vietnamese/English strings in JSX** — use `next-intl` translations
-5. **Do NOT create duplicate service functions** for the same endpoint
-6. **Do NOT duplicate extension lists** — use `tiptapBaseExtensions.js` factory
-7. **Do NOT use `findIndex` for deduplication** — use `Set` for O(n) performance
-8. **Do NOT create 900-line utility files** — split into focused modules under a directory
-9. **Do NOT store functions in React state** without wrapping: `setState(() => fn)` not `setState(fn)`
-10. **Do NOT mix 3 styling approaches in one component** — be consistent
+3. **Do NOT hand-roll avatar circles** — use `<Avatar>` from `UI/`
+4. **Do NOT hand-roll inline spinners** — use `<Spinner>` from `UI/Loading`
+5. **Do NOT hand-roll click-outside listeners inline** — use `useOutsideClick` hook
+6. **Do NOT hand-roll `body.style.overflow = 'hidden'` in modals** — use `useBodyScrollLock` hook
+7. **Do NOT hand-roll scroll listeners for sticky nav** — use `useScrollEffect` hook
+8. **Do NOT hand-roll `input[type=file]` + upload logic** — use `useFileUpload` hook
+9. **Do NOT use named imports for axios instances** — they are default exports
+10. **Do NOT hardcode Vietnamese/English strings in JSX** — use `next-intl` translations
+11. **Do NOT create duplicate service functions** for the same endpoint
+12. **Do NOT duplicate extension lists** — use `tiptapBaseExtensions.js` factory
+13. **Do NOT use `findIndex` for deduplication** — use `Set` for O(n) performance
+14. **Do NOT create 900-line utility files** — split into focused modules under a directory
+15. **Do NOT store functions in React state** without wrapping: `setState(() => fn)` not `setState(fn)`
+16. **Do NOT mix 3 styling approaches in one component** — be consistent
+17. **Do NOT import `Post/PostSkeleton`** — this file no longer exists. Use `Post/PostItemSkeleton` (timeline feed) or `Shared/PostSkeleton` (multi-variant)
 
 ---
 

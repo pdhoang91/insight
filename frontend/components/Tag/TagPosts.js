@@ -4,45 +4,17 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import MasonryPostGrid from '../Category/MasonryPostGrid';
+import ErrorState from '../UI/ErrorState';
 
 const TagPosts = ({ tagName, posts, totalCount, isLoading, isError, setSize, isReachingEnd }) => {
   const t = useTranslations();
 
   if (isError) {
     return (
-      <motion.div
-        style={{ padding: '5rem 0', textAlign: 'center' }}
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ type: 'spring', stiffness: 100, damping: 20 }}
-      >
-        <p style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: '1rem',
-          fontWeight: 600,
-          color: 'var(--text)',
-          letterSpacing: '-0.02em',
-          marginBottom: '0.5rem',
-        }}>
-          {t('common.error')}
-        </p>
-        <button
-          onClick={() => window.location.reload()}
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: '0.78rem',
-            fontWeight: 600,
-            color: 'var(--text-inverse)',
-            background: 'var(--accent)',
-            border: 'none',
-            borderRadius: '2px',
-            padding: '0.5rem 1.25rem',
-            cursor: 'pointer',
-          }}
-        >
-          {t('common.retry')}
-        </button>
-      </motion.div>
+      <ErrorState
+        title={t('common.error')}
+        action={{ label: t('common.retry'), onClick: () => window.location.reload() }}
+      />
     );
   }
 

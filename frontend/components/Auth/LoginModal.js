@@ -1,12 +1,14 @@
 // components/Auth/LoginModal.js
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GoogleLogo, X, User, Lock } from '@phosphor-icons/react';
 import { loginWithEmailAndPassword, registerUser, loginWithGoogle } from '../../services/authService';
 import { getUserProfile } from '../../services/userService';
 import { useLoginModal } from '../../hooks/useLoginModal';
 import { useUser } from '../../context/UserContext';
+import { useBodyScrollLock } from '../../hooks/useBodyScrollLock';
 import { useTranslations } from 'next-intl';
+import { Spinner } from '../UI/Loading';
 
 const LoginModal = ({ isOpen, onClose }) => {
   const t = useTranslations();
@@ -17,53 +19,33 @@ const LoginModal = ({ isOpen, onClose }) => {
   const [error, setError] = useState('');
   const { setUser } = useUser();
   useLoginModal(isOpen, onClose);
+  useBodyScrollLock(isOpen);
 
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      setError('');
-    } else {
-      document.body.style.overflow = 'auto';
-    }
-    return () => { document.body.style.overflow = 'auto'; };
-  }, [isOpen]);
-
-  if (!isOpen) return null;
-
-  const handleLogin = async () => {
+  const executeAuthFlow = useCallback(async (serviceFn, errorKey) => {
     if (isLoading) return;
     setIsLoading(true);
     setError('');
     try {
-      await loginWithEmailAndPassword(email, password);
+      await serviceFn();
       const userData = await getUserProfile();
       setUser(userData);
       onClose();
-    } catch (error) {
-      console.error('Login failed:', error);
-      setError(t('auth.authFailed'));
+    } catch (err) {
+      console.error('Auth failed:', err);
+      setError(t(errorKey));
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isLoading, setUser, onClose, t]);
 
-  const handleSignUp = async () => {
-    if (isLoading) return;
-    setIsLoading(true);
-    setError('');
-    try {
+  const handleLogin = () =>
+    executeAuthFlow(() => loginWithEmailAndPassword(email, password), 'auth.authFailed');
+
+  const handleSignUp = () =>
+    executeAuthFlow(async () => {
       await registerUser(email, password);
-      const userData = await getUserProfile();
-      setUser(userData);
       setIsSignUp(false);
-      onClose();
-    } catch (error) {
-      console.error('Sign up failed:', error);
-      setError(t('auth.registrationFailed'));
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    }, 'auth.registrationFailed');
 
   const handleGoogleLogin = () => {
     if (isLoading) return;
@@ -71,12 +53,14 @@ const LoginModal = ({ isOpen, onClose }) => {
     setError('');
     try {
       loginWithGoogle();
-    } catch (error) {
-      console.error('Google login failed:', error);
+    } catch (err) {
+      console.error('Google login failed:', err);
       setError(t('auth.googleFailed'));
       setIsLoading(false);
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <AnimatePresence>
@@ -308,16 +292,7 @@ const LoginModal = ({ isOpen, onClose }) => {
               className="hover:opacity-90 active:-translate-y-[1px]"
             >
               {isLoading ? (
-                <div
-                  style={{
-                    width: 18,
-                    height: 18,
-                    border: '2px solid rgba(242, 237, 228, 0.3)',
-                    borderTopColor: 'var(--text-inverse)',
-                    borderRadius: '50%',
-                    animation: 'spin 0.7s linear infinite',
-                  }}
-                />
+                <Spinner size="sm" color="white" />
               ) : (
                 <span>{isSignUp ? t('auth.createAccount') : t('auth.signIn')}</span>
               )}
@@ -373,14 +348,6 @@ const LoginModal = ({ isOpen, onClose }) => {
               {isSignUp ? t('auth.haveAccount') : t('auth.noAccount')}
             </button>
           </div>
-
-          <style jsx>{`
-            @keyframes spin {
-              to {
-                transform: rotate(360deg);
-              }
-            }
-          `}</style>
         </motion.div>
       </motion.div>
     </AnimatePresence>

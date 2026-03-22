@@ -3,7 +3,7 @@ import React from 'react';
 import InfiniteScrollWrapper from '../UI/InfiniteScrollWrapper';
 import UserPostList from './UserPostList';
 import BasePostItem from '../Post/BasePostItem';
-import PostSkeleton from '../Post/PostSkeleton';
+import PostItemSkeleton from '../Post/PostItemSkeleton';
 import { useTranslations } from 'next-intl';
 
 const UserPostsSection = ({ posts, isLoading, isError, setSize, isReachingEnd, isOwner }) => {
@@ -29,7 +29,7 @@ const UserPostsSection = ({ posts, isLoading, isError, setSize, isReachingEnd, i
 
   if (isLoading && posts.length === 0) return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-      {[...Array(3)].map((_, i) => <PostSkeleton key={i} />)}
+      {[...Array(3)].map((_, i) => <PostItemSkeleton key={i} />)}
     </div>
   );
 

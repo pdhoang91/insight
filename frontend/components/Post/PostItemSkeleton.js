@@ -1,5 +1,5 @@
-// components/Post/PostSkeleton.js — Shared skeleton for post list items
-const PostSkeleton = () => (
+// components/Post/PostItemSkeleton.js — Skeleton for post list items
+const PostItemSkeleton = () => (
   <div style={{ display: 'flex', gap: '1.25rem', paddingBottom: '2rem', marginBottom: '2rem' }}>
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
       <div className="skeleton-warm" style={{ height: '1.1rem', width: '75%', borderRadius: '2px' }} />
@@ -10,4 +10,4 @@ const PostSkeleton = () => (
   </div>
 );
 
-export default PostSkeleton;
+export default PostItemSkeleton;

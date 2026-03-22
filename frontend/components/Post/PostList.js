@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import BasePostItem from './BasePostItem';
-import PostSkeleton from './PostSkeleton';
+import PostItemSkeleton from './PostItemSkeleton';
 import ErrorState from '../UI/ErrorState';
 
 const newItemVariants = {
@@ -65,7 +65,7 @@ const PostList = ({
   if (isLoading && (!posts || posts.length === 0)) {
     return (
       <div className={className}>
-        {[...Array(4)].map((_, i) => <PostSkeleton key={i} />)}
+        {[...Array(4)].map((_, i) => <PostItemSkeleton key={i} />)}
       </div>
     );
   }
@@ -94,7 +94,7 @@ const PostList = ({
         hasMore={!isReachingEnd}
         loader={
           <div style={{ marginTop: '2rem' }}>
-            {[...Array(2)].map((_, i) => <PostSkeleton key={`l-${i}`} />)}
+            {[...Array(2)].map((_, i) => <PostItemSkeleton key={`l-${i}`} />)}
           </div>
         }
         endMessage={

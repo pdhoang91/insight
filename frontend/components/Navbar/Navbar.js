@@ -1,17 +1,20 @@
 'use client';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
-import { UserCircle, SignOut, PencilSimple, List, Compass } from '@phosphor-icons/react';
+import { SignOut, PencilSimple, List, Compass } from '@phosphor-icons/react';
 import { useUser } from '../../context/UserContext';
 import { usePostContext } from '../../context/PostContext';
+import { useOutsideClick } from '../../hooks/useOutsideClick';
+import { useScrollEffect } from '../../hooks/useScrollEffect';
 import SimpleSearchBar from '../Shared/SimpleSearchBar';
 import { canWritePosts } from '../../services/authService';
 import { useTranslations } from 'next-intl';
 import MobileSlidePanel from './MobileSlidePanel';
 import LanguageTogglePill from '../Shared/LanguageTogglePill';
 import ExplorePanelContent from '../Sidebar/ExplorePanelContent';
+import Avatar from '../UI/Avatar';
 
 const panelContainer = {
   hidden: { opacity: 0 },
@@ -27,37 +30,92 @@ const panelItem = {
   },
 };
 
+/** Write or Publish button depending on current page */
+const NavWriteAction = ({ isWritePage, onPublish, compact = false }) => {
+  const t = useTranslations();
+  const router = useRouter();
+
+  if (isWritePage) {
+    return (
+      <button
+        onClick={() => onPublish?.()}
+        style={{
+          fontFamily: 'var(--font-display)',
+          fontWeight: 600,
+          fontSize: compact ? '0.8rem' : '0.875rem',
+          letterSpacing: '-0.01em',
+          background: 'var(--accent)',
+          color: 'var(--text-inverse)',
+          padding: compact ? '0.4rem 0.85rem' : '0.45rem 1.1rem',
+          borderRadius: '3px',
+          border: 'none',
+          cursor: 'pointer',
+          transition: 'opacity 0.2s',
+        }}
+        className="hover:opacity-85"
+      >
+        {t('nav.publish')}
+      </button>
+    );
+  }
+
+  if (compact) {
+    return (
+      <button
+        onClick={() => router.push('/write')}
+        style={{ padding: '6px', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s' }}
+        className="hover:text-[var(--text)]"
+        aria-label="Write"
+      >
+        <PencilSimple size={20} weight="regular" />
+      </button>
+    );
+  }
+
+  return (
+    <button
+      onClick={() => router.push('/write')}
+      style={{
+        fontFamily: 'var(--font-display)',
+        fontWeight: 500,
+        fontSize: '0.875rem',
+        color: 'var(--text-muted)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '6px',
+        background: 'none',
+        border: 'none',
+        cursor: 'pointer',
+        transition: 'color 0.2s',
+        letterSpacing: '-0.01em',
+      }}
+      className="hover:text-[var(--text)]"
+    >
+      <PencilSimple size={16} weight="regular" />
+      {t('nav.write')}
+    </button>
+  );
+};
+
 const Navbar = () => {
   const t = useTranslations();
   const { user, setUser, setModalOpen } = useUser();
   const { handlePublish } = usePostContext();
-  const router = useRouter();
   const pathname = usePathname();
+  const router = useRouter();
   const isWritePage = pathname === '/write' || pathname.startsWith('/edit/');
 
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isExploreOpen, setIsExploreOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+
+  const scrolled = useScrollEffect(20);
   const userMenuRef = useRef();
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  const closeUserMenu = useCallback(() => setIsUserMenuOpen(false), []);
+  useOutsideClick(userMenuRef, closeUserMenu);
 
-  useEffect(() => {
-    const onClick = (e) => {
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
-        setIsUserMenuOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', onClick);
-    return () => document.removeEventListener('mousedown', onClick);
-  }, []);
-
-  useEffect(() => {
+  React.useEffect(() => {
     setIsMobileMenuOpen(false);
     setIsExploreOpen(false);
   }, [pathname]);
@@ -107,49 +165,7 @@ const Navbar = () => {
             </div>
 
             {user && canWritePosts(user) && (
-              isWritePage ? (
-                <button
-                  onClick={() => handlePublish?.()}
-                  style={{
-                    fontFamily: 'var(--font-display)',
-                    fontWeight: 600,
-                    fontSize: '0.875rem',
-                    letterSpacing: '-0.01em',
-                    background: 'var(--accent)',
-                    color: 'var(--text-inverse)',
-                    padding: '0.45rem 1.1rem',
-                    borderRadius: '3px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    transition: 'opacity 0.2s',
-                  }}
-                  className="hover:opacity-85"
-                >
-                  {t('nav.publish')}
-                </button>
-              ) : (
-                <button
-                  onClick={() => router.push('/write')}
-                  style={{
-                    fontFamily: 'var(--font-display)',
-                    fontWeight: 500,
-                    fontSize: '0.875rem',
-                    color: 'var(--text-muted)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    transition: 'color 0.2s',
-                    letterSpacing: '-0.01em',
-                  }}
-                  className="hover:text-[var(--text)]"
-                >
-                  <PencilSimple size={16} weight="regular" />
-                  {t('nav.write')}
-                </button>
-              )
+              <NavWriteAction isWritePage={isWritePage} onPublish={handlePublish} />
             )}
 
             <LanguageTogglePill />
@@ -161,22 +177,7 @@ const Navbar = () => {
                   className="flex items-center"
                   style={{ padding: '2px', transition: 'opacity 0.2s' }}
                 >
-                  {user.avatar_url ? (
-                    <img
-                      src={user.avatar_url}
-                      alt={user.name}
-                      style={{ width: 30, height: 30, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid var(--border-mid)' }}
-                    />
-                  ) : (
-                    <div style={{
-                      width: 30, height: 30, borderRadius: '50%',
-                      background: 'var(--bg-surface)',
-                      border: '1.5px solid var(--border-mid)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}>
-                      <UserCircle size={16} weight="regular" color="var(--text-muted)" />
-                    </div>
-                  )}
+                  <Avatar src={user.avatar_url} name={user.name} size="sm" />
                 </button>
 
                 <AnimatePresence>
@@ -204,16 +205,7 @@ const Navbar = () => {
                         style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px' }}
                         onClick={() => setIsUserMenuOpen(false)}
                       >
-                        {user.avatar_url ? (
-                          <img src={user.avatar_url} alt={user.name} style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover' }} />
-                        ) : (
-                          <div style={{
-                            width: 36, height: 36, borderRadius: '50%',
-                            background: 'var(--bg-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          }}>
-                            <UserCircle size={16} weight="regular" color="var(--text-muted)" />
-                          </div>
-                        )}
+                        <Avatar src={user.avatar_url} name={user.name} size="md" />
                         <div style={{ minWidth: 0 }}>
                           <div style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '0.875rem', color: 'var(--text)', letterSpacing: '-0.01em' }} className="truncate">{user.name}</div>
                           <div style={{ fontSize: '0.75rem', color: 'var(--text-faint)' }} className="truncate">{user.email}</div>
@@ -270,36 +262,7 @@ const Navbar = () => {
               <SimpleSearchBar placeholder={t('nav.search')} />
             </div>
             {user && canWritePosts(user) && (
-              isWritePage ? (
-                <button
-                  onClick={() => handlePublish?.()}
-                  style={{
-                    fontFamily: 'var(--font-display)',
-                    fontWeight: 600,
-                    fontSize: '0.8rem',
-                    letterSpacing: '-0.01em',
-                    background: 'var(--accent)',
-                    color: 'var(--text-inverse)',
-                    padding: '0.4rem 0.85rem',
-                    borderRadius: '3px',
-                    border: 'none',
-                    cursor: 'pointer',
-                    transition: 'opacity 0.2s',
-                  }}
-                  className="hover:opacity-85"
-                >
-                  {t('nav.publish')}
-                </button>
-              ) : (
-                <button
-                  onClick={() => router.push('/write')}
-                  style={{ padding: '6px', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s' }}
-                  className="hover:text-[var(--text)]"
-                  aria-label="Write"
-                >
-                  <PencilSimple size={20} weight="regular" />
-                </button>
-              )
+              <NavWriteAction isWritePage={isWritePage} onPublish={handlePublish} compact />
             )}
             <button
               onClick={() => setIsExploreOpen(true)}
@@ -348,13 +311,7 @@ const Navbar = () => {
                 style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0' }}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                {user.avatar_url ? (
-                  <img src={user.avatar_url} alt={user.name} style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }} />
-                ) : (
-                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'var(--bg-surface)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <UserCircle size={18} weight="regular" color="var(--text-muted)" />
-                  </div>
-                )}
+                <Avatar src={user.avatar_url} name={user.name} size="sm" />
                 <span style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '0.9rem', color: 'var(--text)', letterSpacing: '-0.01em' }}>
                   {user.name}
                 </span>

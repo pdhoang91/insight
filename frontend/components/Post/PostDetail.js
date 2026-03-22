@@ -4,6 +4,7 @@ import Link from 'next/link';
 import SEOHead from '../SEO/SEOHead';
 import Avatar from '../UI/Avatar';
 import RelatedPosts from './RelatedPosts';
+import { formatDate } from '../../utils/formatDate';
 import { useTranslations, useLocale } from 'next-intl';
 
 const AuthorByline = ({ user: postUser, date }) => {
@@ -23,13 +24,35 @@ const AuthorByline = ({ user: postUser, date }) => {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
           <time dateTime={date} style={{ fontFamily: 'var(--font-display)', fontSize: '0.775rem', color: 'var(--text-faint)', letterSpacing: '0.01em' }}>
-            {new Date(date).toLocaleDateString(locale === 'vi' ? 'vi-VN' : 'en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+            {formatDate(date, locale)}
           </time>
         </div>
       </div>
     </div>
   );
 };
+
+/** Renders a single category or tag chip link */
+const TaxonomyChip = ({ href, label, fontWeight = 600 }) => (
+  <Link
+    href={href}
+    style={{
+      fontFamily: 'var(--font-display)',
+      fontSize: '0.7rem',
+      fontWeight,
+      letterSpacing: '0.08em',
+      textTransform: 'uppercase',
+      color: 'var(--text-faint)',
+      padding: '0.25rem 0.65rem',
+      background: 'var(--bg-surface)',
+      borderRadius: '2px',
+      transition: 'color 0.2s, background 0.2s',
+    }}
+    className="hover:text-[var(--accent)] hover:bg-[var(--accent-light)]"
+  >
+    {label}
+  </Link>
+);
 
 // htmlContent: pre-rendered HTML from server (avoids shipping TipTap to client).
 // Falls back to lazy client-side rendering only when htmlContent is not provided.
@@ -98,25 +121,12 @@ export const PostDetail = ({ post, htmlContent, relatedPosts = [] }) => {
         {post.categories?.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '2.5rem' }}>
             {post.categories.map((cat) => (
-              <Link
+              <TaxonomyChip
                 key={cat.id || cat.name}
                 href={`/category/${cat.name.toLowerCase()}`}
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: '0.7rem',
-                  fontWeight: 600,
-                  letterSpacing: '0.08em',
-                  textTransform: 'uppercase',
-                  color: 'var(--text-faint)',
-                  padding: '0.25rem 0.65rem',
-                  background: 'var(--bg-surface)',
-                  borderRadius: '2px',
-                  transition: 'color 0.2s, background 0.2s',
-                }}
-                className="hover:text-[var(--accent)] hover:bg-[var(--accent-light)]"
-              >
-                {cat.name}
-              </Link>
+                label={cat.name}
+                fontWeight={600}
+              />
             ))}
           </div>
         )}
@@ -124,24 +134,12 @@ export const PostDetail = ({ post, htmlContent, relatedPosts = [] }) => {
         {post.tags?.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.75rem' }}>
             {post.tags.map((tag) => (
-              <Link
+              <TaxonomyChip
                 key={tag.id || tag.name}
                 href={`/tag/${tag.name}`}
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: '0.7rem',
-                  fontWeight: 500,
-                  letterSpacing: '0.02em',
-                  color: 'var(--text-faint)',
-                  padding: '0.25rem 0.65rem',
-                  background: 'var(--bg-surface)',
-                  borderRadius: '2px',
-                  transition: 'color 0.2s, background 0.2s',
-                }}
-                className="hover:text-[var(--accent)] hover:bg-[var(--accent-light)]"
-              >
-                #{tag.name}
-              </Link>
+                label={`#${tag.name}`}
+                fontWeight={500}
+              />
             ))}
           </div>
         )}

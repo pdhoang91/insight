@@ -135,23 +135,35 @@ insight/
 │   │       ├── image-proxy/     # Image proxy route
 │   │       └── revalidate/      # ISR revalidation trigger
 │   ├── components/
+│   │   ├── UI/                  # Design system primitives (Avatar, Button, Spinner, Input, etc.)
 │   │   ├── Editor/              # TipTap editor + toolbars + slash commands
+│   │   │   ├── CoverImageUploader.js  # Cover image upload sub-component
+│   │   │   ├── CategorySelector.js    # Category chip selector sub-component
+│   │   │   └── TagInput.js            # Tag chip input sub-component
 │   │   ├── Post/                # Post list, detail, engagement
 │   │   ├── Navbar/              # Desktop & mobile nav
 │   │   ├── Auth/                # Login modal
 │   │   ├── Sidebar/             # Explore panel
-│   │   ├── Category/, Tag/, Archive/, Search/
-│   │   └── Shared/              # LanguageTogglePill, LoadingSpinner, etc.
+│   │   ├── Category/            # Category pages + PublishPanel
+│   │   ├── Tag/, Archive/, Search/
+│   │   └── Shared/              # PostSkeleton (multi-variant), LanguageTogglePill, etc.
 │   ├── context/
 │   │   ├── UserContext.js       # Logged-in user state, auth modal
 │   │   └── PostContext.js       # Publish/update handlers
-│   ├── hooks/                   # 18 SWR-based custom hooks
+│   ├── hooks/                   # 22 custom hooks (SWR data + utility hooks)
+│   │   ├── useInfiniteList.js   # Generic offset-based infinite scroll
+│   │   ├── useInfiniteCursor.js # Generic cursor-based infinite scroll
+│   │   ├── useOutsideClick.js   # Click-outside detector
+│   │   ├── useBodyScrollLock.js # Modal scroll lock
+│   │   ├── useScrollEffect.js   # Scroll threshold (sticky navbar)
+│   │   └── useFileUpload.js     # Imperative file picker + upload
 │   ├── services/                # API call modules (post, auth, image, etc.)
 │   ├── utils/
 │   │   ├── axiosPublicInstance.js
 │   │   ├── axiosPrivateInstance.js  # Injects JWT from localStorage
 │   │   ├── renderContent.js         # TipTap JSON → HTML (client)
-│   │   └── renderContentServer.js   # TipTap JSON → HTML (server)
+│   │   ├── renderContentServer.js   # TipTap JSON → HTML (server)
+│   │   └── formatDate.js            # Locale-aware date formatter
 │   ├── messages/
 │   │   ├── vi.json              # Vietnamese translations
 │   │   └── en.json              # English translations
