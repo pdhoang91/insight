@@ -8,7 +8,7 @@ import { useLoginModal } from '../../hooks/useLoginModal';
 import { useUser } from '../../context/UserContext';
 import { useBodyScrollLock } from '../../hooks/useBodyScrollLock';
 import { useTranslations } from 'next-intl';
-import { Spinner } from '../UI/Loading';
+import Button from '../UI/Button';
 
 const LoginModal = ({ isOpen, onClose }) => {
   const t = useTranslations();
@@ -268,85 +268,41 @@ const LoginModal = ({ isOpen, onClose }) => {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <button
+            <Button
+              variant="primary"
+              size="lg"
               onClick={isSignUp ? handleSignUp : handleLogin}
-              disabled={isLoading || !email || !password}
-              style={{
-                width: '100%',
-                padding: '0.8rem 1.25rem',
-                fontFamily: 'var(--font-display)',
-                fontSize: '0.9375rem',
-                fontWeight: 600,
-                letterSpacing: '-0.01em',
-                color: 'var(--text-inverse)',
-                background: 'var(--accent)',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: isLoading || !email || !password ? 'not-allowed' : 'pointer',
-                opacity: isLoading || !email || !password ? 0.5 : 1,
-                transition: 'opacity 0.2s, transform 0.15s',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-              className="hover:opacity-90 active:-translate-y-[1px]"
+              disabled={!email || !password}
+              loading={isLoading}
+              fullWidth
+              style={{ fontSize: '0.9375rem', fontWeight: 600 }}
             >
-              {isLoading ? (
-                <Spinner size="sm" color="white" />
-              ) : (
-                <span>{isSignUp ? t('auth.createAccount') : t('auth.signIn')}</span>
-              )}
-            </button>
+              {isSignUp ? t('auth.createAccount') : t('auth.signIn')}
+            </Button>
 
-            <button
+            <Button
+              variant="secondary"
+              size="lg"
               onClick={handleGoogleLogin}
               disabled={isLoading}
-              style={{
-                width: '100%',
-                padding: '0.8rem 1.25rem',
-                fontFamily: 'var(--font-display)',
-                fontSize: '0.9375rem',
-                fontWeight: 500,
-                letterSpacing: '-0.01em',
-                color: 'var(--text)',
-                background: 'var(--bg-surface)',
-                border: '1px solid var(--border-mid)',
-                borderRadius: '4px',
-                cursor: isLoading ? 'not-allowed' : 'pointer',
-                opacity: isLoading ? 0.5 : 1,
-                transition: 'background 0.2s, border-color 0.2s, transform 0.15s',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem',
-              }}
-              className="hover:bg-[var(--bg-elevated)] hover:border-[var(--border-strong)] active:-translate-y-[1px]"
+              fullWidth
+              style={{ fontSize: '0.9375rem', fontWeight: 500, gap: '0.5rem' }}
             >
               <GoogleLogo style={{ width: 14, height: 14 }} />
-              <span>{t('auth.continueWithGoogle')}</span>
-            </button>
+              {t('auth.continueWithGoogle')}
+            </Button>
 
-            <button
+            <Button
+              variant="ghost"
+              size="md"
               onClick={() => setIsSignUp(!isSignUp)}
               disabled={isLoading}
-              style={{
-                width: '100%',
-                padding: '0.625rem 0',
-                fontFamily: 'var(--font-display)',
-                fontSize: '0.875rem',
-                fontWeight: 500,
-                letterSpacing: '-0.01em',
-                color: 'var(--text-muted)',
-                background: 'none',
-                border: 'none',
-                cursor: isLoading ? 'not-allowed' : 'pointer',
-                opacity: isLoading ? 0.5 : 1,
-                transition: 'color 0.2s',
-              }}
+              fullWidth
               className="hover:text-[var(--accent)]"
+              style={{ fontSize: '0.875rem', fontWeight: 500 }}
             >
               {isSignUp ? t('auth.haveAccount') : t('auth.noAccount')}
-            </button>
+            </Button>
           </div>
         </motion.div>
       </motion.div>

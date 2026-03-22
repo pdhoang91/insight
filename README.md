@@ -136,21 +136,25 @@ insight/
 │   │       └── revalidate/      # ISR revalidation trigger
 │   ├── components/
 │   │   ├── UI/                  # Design system primitives (Avatar, Button, Spinner, Input, etc.)
-│   │   ├── Editor/              # TipTap editor + toolbars + slash commands
+│   │   ├── layout/              # Canonical import barrel for app shell components
+│   │   ├── Editor/              # TipTap editor + publish workflow
+│   │   │   ├── PublishPanel.js        # Publish workflow panel (canonical location)
 │   │   │   ├── CoverImageUploader.js  # Cover image upload sub-component
 │   │   │   ├── CategorySelector.js    # Category chip selector sub-component
 │   │   │   └── TagInput.js            # Tag chip input sub-component
 │   │   ├── Post/                # Post list, detail, engagement
+│   │   │   ├── PostFeed.js            # Shared feed: header slot + MasonryPostGrid + ErrorState
+│   │   │   └── PostItemSkeleton.js    # Timeline skeleton for vertical post feeds
 │   │   ├── Navbar/              # Desktop & mobile nav
-│   │   ├── Auth/                # Login modal
+│   │   ├── Auth/                # Login modal (uses Button component)
 │   │   ├── Sidebar/             # Explore panel
-│   │   ├── Category/            # Category pages + PublishPanel
+│   │   ├── Category/            # Category pages
 │   │   ├── Tag/, Archive/, Search/
 │   │   └── Shared/              # PostSkeleton (multi-variant), LanguageTogglePill, etc.
 │   ├── context/
 │   │   ├── UserContext.js       # Logged-in user state, auth modal
 │   │   └── PostContext.js       # Publish/update handlers
-│   ├── hooks/                   # 22 custom hooks (SWR data + utility hooks)
+│   ├── hooks/                   # Custom hooks (SWR data + utility hooks)
 │   │   ├── useInfiniteList.js   # Generic offset-based infinite scroll
 │   │   ├── useInfiniteCursor.js # Generic cursor-based infinite scroll
 │   │   ├── useOutsideClick.js   # Click-outside detector
@@ -158,6 +162,8 @@ insight/
 │   │   ├── useScrollEffect.js   # Scroll threshold (sticky navbar)
 │   │   └── useFileUpload.js     # Imperative file picker + upload
 │   ├── services/                # API call modules (post, auth, image, etc.)
+│   ├── types/
+│   │   └── index.js             # JSDoc typedefs: Post, User, Category, Tag, Comment, etc.
 │   ├── utils/
 │   │   ├── axiosPublicInstance.js
 │   │   ├── axiosPrivateInstance.js  # Injects JWT from localStorage

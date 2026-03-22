@@ -27,22 +27,36 @@ frontend/
 │       ├── page.js               # Home
 │       └── ...                   # Feature routes
 ├── components/
-│   ├── UI/                       # Design system primitives (Avatar, Button, Card, Input, Skeleton, Loading, Icon, ErrorBoundary)
-│   ├── Shared/                   # Shared presentational components (PostSkeleton multi-variant, EmptyState, ErrorState, LanguageTogglePill, SimpleSearchBar)
-│   ├── Layout/                   # Layout shells (Layout.js with HomeLayout/ArticleLayout/ProfileLayout variants)
+│   ├── UI/                       # Design system primitives
+│   │   ├── Button.js             # Primary button — variants: primary/secondary/ghost/danger
+│   │   ├── Avatar.js             # User avatar with initials fallback
+│   │   ├── Loading.js            # Spinner, LoadingScreen, InlineLoading
+│   │   ├── Skeleton.js           # Skeleton loaders
+│   │   ├── ErrorState.js         # Error state with retry action
+│   │   ├── EmptyState.js         # Empty data state
+│   │   └── ...                   # Card, Input, Icon, ErrorBoundary, TimeAgo, SafeImage, etc.
+│   ├── Shared/                   # Cross-cutting shared UI
+│   │   ├── PostSkeleton.js       # Multi-variant post skeleton (timeline, card, etc.)
+│   │   ├── SimpleSearchBar.js    # Search input
+│   │   └── LanguageTogglePill.js # Language switcher
+│   ├── layout/                   # ⭐ New canonical import path for app shell
+│   │   └── index.js              # Barrel: re-exports Layout, Navbar, Sidebar components
+│   ├── Layout/                   # Page shell components (Layout.js with layout variants)
 │   ├── Navbar/                   # Navigation (Navbar, MobileSlidePanel)
 │   ├── Sidebar/                  # Sidebar components
 │   ├── Editor/                   # TipTap editor (see editor-rule.mdc)
 │   │   ├── extensions/           # Custom TipTap extensions
+│   │   ├── PublishPanel.js       # ⭐ Canonical location for publish workflow panel
 │   │   ├── CoverImageUploader.js # Cover image upload + preview
 │   │   ├── CategorySelector.js   # Category chip selector (with admin create)
 │   │   └── TagInput.js           # Tag chip input
 │   ├── Post/                     # Post feature components
-│   │   ├── PostItemSkeleton.js   # Skeleton for post list items (timeline style)
+│   │   ├── PostFeed.js           # ⭐ Shared feed: header slot + MasonryPostGrid + ErrorState
+│   │   ├── PostItemSkeleton.js   # Minimal timeline skeleton (PostList, UserPostsSection)
 │   │   └── ...
 │   ├── Comment/                  # Comment feature components
 │   ├── Category/                 # Category feature components
-│   │   └── PublishPanel.js       # Publish workflow panel (uses Editor sub-components)
+│   │   └── PublishPanel.js       # Re-export shim → Editor/PublishPanel (backward compat)
 │   ├── Profile/                  # Profile feature components
 │   ├── Auth/                     # Auth components (LoginModal)
 │   ├── Search/                   # Search components
@@ -66,6 +80,8 @@ frontend/
 │   ├── renderContent.js          # Client-side content renderer
 │   ├── renderContentServer.js    # Server-safe content renderer
 │   └── formatDate.js             # Locale-aware date formatter
+├── types/
+│   └── index.js                  # JSDoc typedefs: Post, User, Category, Tag, Comment, Reply
 ├── context/                      # React contexts (UserContext, PostContext)
 ├── config/api.js                 # API URL constants
 ├── constants/roles.js            # User role constants and permission helpers
@@ -191,22 +207,53 @@ These are the canonical shared components. ALWAYS prefer these over hand-rolling
 
 | Component | Use for |
 |-----------|---------|
-| `Avatar` | User avatars with fallback initials. Sizes: `xs`, `sm`, `md`, `lg`, `xl`, `2xl` |
-| `Button` | All buttons |
+| `Button` | All standard buttons. Variants: `primary` / `secondary` / `ghost` / `danger`. Sizes: `sm` / `md` / `lg`. Built-in `loading` spinner. |
+| `Avatar` | User avatars with initials fallback. Sizes: `xs`, `sm`, `md`, `lg`, `xl`, `2xl` |
 | `Card` | Card containers |
 | `Input` | Form inputs |
 | `Skeleton`, `SkeletonPost`, `SkeletonComment`, `SkeletonProfile` | Loading skeletons |
-| `Spinner` (from `Loading`) | Spinner indicators. Sizes: `xs`, `sm`, `md`, `lg`, `xl` |
+| `Spinner` (from `Loading`) | Inline spinner indicators. Sizes: `xs`, `sm`, `md`, `lg`, `xl` |
 | `LoadingScreen` | Full-page loading |
 | `ErrorBoundary` | Error boundaries |
 | `Icon`, `ActionIcon` | Icon wrappers |
+| `ErrorState` | Error state with retry action |
+| `EmptyState` | Empty data state |
 
 **Anti-patterns — do NOT:**
+- Hand-roll buttons with inline styles — use `<Button variant="primary">`
 - Hand-roll avatar circles with fallback icons — use `<Avatar>`
 - Hand-roll inline spinner divs with `border-top` animation — use `<Spinner>` from `UI/Loading`
-- Inject `<style jsx>@keyframes spin</style>` — `Spinner` component handles this
+- Inject `<style jsx>@keyframes spin</style>` — `Button loading` and `Spinner` handle this
 - Create inline skeleton divs with `className="skeleton-warm"` — use `<Skeleton>` or `PostItemSkeleton`
 - Import `LoadingSpinner` from `Shared/` — use `Spinner` from `UI/Loading`
+- Hand-roll error state JSX with motion wrappers — use `<ErrorState>`
+- Hand-roll empty state JSX — use `<EmptyState>`
+
+### Button API
+
+```js
+import Button from '../UI/Button';
+
+// Variants
+<Button variant="primary">Publish</Button>
+<Button variant="secondary">Cancel</Button>
+<Button variant="ghost">Toggle</Button>
+<Button variant="danger">Delete</Button>
+
+// Sizes
+<Button size="sm">Small</Button>   // px-3 py-1.5 min-h-[36px]
+<Button size="md">Medium</Button>  // px-4 py-2 min-h-[44px] (default)
+<Button size="lg">Large</Button>   // px-6 py-3 min-h-[48px]
+
+// Loading state — shows spinner, disables button
+<Button loading loadingText="Saving...">Save</Button>
+
+// Full width
+<Button fullWidth>Submit</Button>
+
+// Extra style override (use sparingly)
+<Button style={{ fontSize: '0.9375rem', fontWeight: 600 }}>Custom size</Button>
+```
 
 ### Shared Components (components/Shared/)
 | Component | Use for |
@@ -216,7 +263,7 @@ These are the canonical shared components. ALWAYS prefer these over hand-rolling
 | `ErrorState` | Error states with retry |
 | `SimpleSearchBar` | Search inputs |
 
-**ALWAYS use `ErrorState` for error displays.** Do not hand-roll inline error divs with motion wrappers.
+**ALWAYS use `ErrorState` for error displays.** Do not hand-roll inline error divs.
 **ALWAYS use `EmptyState` for empty data.** Do not hand-roll inline empty messages.
 
 ### Post skeletons — which one to use
@@ -232,19 +279,64 @@ import PostSkeleton from '../Shared/PostSkeleton';
 <PostSkeleton variant="timeline" />
 ```
 
+### PostFeed — shared feed layout
+
+`components/Post/PostFeed.js` is the shared component used by both `CategoryPosts` and `TagPosts`. It accepts a `header` slot, renders it above `MasonryPostGrid`, and handles the error state via `ErrorState`.
+
+```js
+import PostFeed from '../Post/PostFeed';
+
+// Usage — e.g. in a new taxonomy page
+<PostFeed
+  header={<MyPageHeader name={name} count={totalCount} />}
+  posts={posts}
+  isLoading={isLoading}
+  isError={isError}
+  setSize={setSize}
+  isReachingEnd={isReachingEnd}
+  errorTitle={t('common.error')}
+  errorMessage="Could not load posts."
+/>
+```
+
+Use `PostFeed` whenever building a page that renders a masonry post grid with a custom header. Do not duplicate the `MasonryPostGrid + ErrorState` pattern inline.
+
 ### Editor sub-components (components/Editor/)
-The publish workflow is split into focused sub-components. Use them independently or compose via `PublishPanel`:
+The publish workflow lives entirely in `Editor/`. Use sub-components independently or compose via `PublishPanel`:
 
 | Component | Responsibility |
 |-----------|---------------|
+| `PublishPanel` | ⭐ **Canonical location**: `components/Editor/PublishPanel.js`. Compose sub-components below. |
 | `CoverImageUploader` | File picker, upload to S3, preview with change/remove overlay |
 | `CategorySelector` | Category chip grid, multi-select (max 3), admin create-new inline input |
 | `TagInput` | Tag chip input (Enter/comma to add, Backspace to remove, max 5) |
 
-`PublishPanel` (in `Category/`) is the container that composes all three. Props: `title`, `content`, `imageTitle`, `setImageTitle`, `initialCategories`, `initialTags`, `onPublish`, `onCancel`.
+`PublishPanel` props: `title`, `content`, `imageTitle`, `setImageTitle`, `initialCategories`, `initialTags`, `onPublish`, `onCancel`.
+
+```js
+// CORRECT — import from Editor/
+import PublishPanel from '../Editor/PublishPanel';
+// or via dynamic import (preferred for editor pages):
+const PublishPanel = dynamic(() => import('../Editor/PublishPanel'), { ssr: false });
+
+// WRONG — Category/ re-export still works but is deprecated
+// import PublishPanel from '../Category/PublishPanel'; // ← avoid
+```
 
 ### Layout System
-Use layout variants from `components/Layout/Layout.js`:
+
+**Canonical import path** (going forward): `components/layout` barrel.
+
+```js
+// PREFERRED — new canonical path
+import { HomeLayout, PersonalBlogSidebar, Navbar } from '../../components/layout';
+
+// STILL WORKS — legacy direct paths (not deprecated, but prefer barrel above)
+import { HomeLayout } from '../../components/Layout/Layout';
+import PersonalBlogSidebar from '../../components/Sidebar/PersonalBlogSidebar';
+```
+
+Available layout variants:
 - `HomeLayout` — main content + sidebar
 - `ArticleLayout` — reading layout for posts
 - `ProfileLayout` — profile pages
@@ -252,9 +344,6 @@ Use layout variants from `components/Layout/Layout.js`:
 - `WriteLayout` — editor layout
 
 ```js
-import { HomeLayout } from '../../components/Layout/Layout';
-
-// Standard page pattern:
 <HomeLayout sidebar={<PersonalBlogSidebar />}>
   <YourContent />
 </HomeLayout>
@@ -264,15 +353,14 @@ import { HomeLayout } from '../../components/Layout/Layout';
 ```
 components/FeatureName/
 ├── MainComponent.js      # Primary exported component
-├── SubComponent.js        # Internal/child components
-└── index.js               # Barrel exports (optional)
+├── SubComponent.js       # Internal/child components
+└── index.js              # Barrel exports (optional)
 ```
 
 - One component per file
 - Export default for the main component
-- Use named exports for sub-components in barrel files
 - Feature components live in their feature folder, not in `UI/` or `Shared/`
-- Local single-use helper components (e.g. `AuthorByline` in `PostDetail`) are fine to keep inline — don't extract unless reused elsewhere
+- Local single-use helper components (e.g. `AuthorByline` in `PostDetail`, `TagHeader` in `TagPosts`) are fine to keep inline — don't extract unless reused elsewhere
 
 ---
 
@@ -296,7 +384,8 @@ components/FeatureName/
 --bg, --bg-surface, --bg-elevated    # Background surfaces
 --text, --text-muted, --text-faint   # Text colors
 --accent                              # Primary accent (terracotta)
---border, --border-subtle             # Borders
+--border, --border-mid, --border-strong  # Borders
+--text-inverse                        # Text on accent background
 --font-display, --font-body, --font-mono  # Font families
 --nav-height                          # Navbar height
 ```
@@ -312,7 +401,21 @@ import { formatDate } from '../../utils/formatDate';
 // Locale-aware long date format: "March 23, 2026" or "23 tháng 3 năm 2026"
 formatDate(post.created_at, locale);  // locale: 'vi' | 'en'
 ```
-Use this whenever rendering a full date (not relative time). For relative time ("2 hours ago"), use `<TimeAgo>` component.
+Use for full dates. For relative time ("2 hours ago"), use `<TimeAgo>` component.
+
+---
+
+## Types (JSDoc)
+
+Domain type definitions live in `types/index.js`. Reference them with `@typedef`:
+
+```js
+/**
+ * @param {import('../../types').Post} post
+ */
+```
+
+Available types: `Post`, `User`, `Category`, `Tag`, `Comment`, `Reply`, `PaginatedResult`, `CursorResult`.
 
 ---
 
@@ -346,7 +449,6 @@ export const revalidate = 300; // ISR interval in seconds
 export async function generateMetadata({ params }) {
   const { locale, name } = await params;
   setRequestLocale(locale);
-  // Return locale-aware metadata
   return locale === 'vi'
     ? { title: `Tiêu đề: ${name}`, description: `Mô tả cho ${name}` }
     : { title: `Title: ${name}`, description: `Description for ${name}` };
@@ -355,7 +457,6 @@ export async function generateMetadata({ params }) {
 export default async function Page({ params }) {
   const { locale, ...rest } = await params;
   setRequestLocale(locale);
-  // Optional: prefetch data for SSR
   let initialData = null;
   try { initialData = await fetchData(); } catch { /* fallback to client */ }
   return <ClientComponent initialData={initialData} {...rest} />;
@@ -434,29 +535,32 @@ export default function SomeClient({ initialData, name }) {
 - Use `dedupingInterval` in SWR to prevent duplicate API calls
 - Avoid `will-change` on many elements
 - Use `React.memo()` only when profiling shows unnecessary re-renders — don't prememo everything
-- When extracting sub-components that receive callbacks as props, wrap the callbacks in `useCallback` in the parent to avoid unnecessary re-renders
+- When extracting sub-components that receive callbacks as props, wrap callbacks in `useCallback` in the parent
 
 ---
 
 ## Anti-Patterns to Avoid
 
 1. **Do NOT copy-paste `useSWRInfinite` boilerplate** — always use `useInfiniteList` or `useInfiniteCursor`
-2. **Do NOT hand-roll skeletons/error states/empty states** — use shared components
-3. **Do NOT hand-roll avatar circles** — use `<Avatar>` from `UI/`
-4. **Do NOT hand-roll inline spinners** — use `<Spinner>` from `UI/Loading`
-5. **Do NOT hand-roll click-outside listeners inline** — use `useOutsideClick` hook
-6. **Do NOT hand-roll `body.style.overflow = 'hidden'` in modals** — use `useBodyScrollLock` hook
-7. **Do NOT hand-roll scroll listeners for sticky nav** — use `useScrollEffect` hook
-8. **Do NOT hand-roll `input[type=file]` + upload logic** — use `useFileUpload` hook
-9. **Do NOT use named imports for axios instances** — they are default exports
-10. **Do NOT hardcode Vietnamese/English strings in JSX** — use `next-intl` translations
-11. **Do NOT create duplicate service functions** for the same endpoint
-12. **Do NOT duplicate extension lists** — use `tiptapBaseExtensions.js` factory
-13. **Do NOT use `findIndex` for deduplication** — use `Set` for O(n) performance
-14. **Do NOT create 900-line utility files** — split into focused modules under a directory
-15. **Do NOT store functions in React state** without wrapping: `setState(() => fn)` not `setState(fn)`
-16. **Do NOT mix 3 styling approaches in one component** — be consistent
-17. **Do NOT import `Post/PostSkeleton`** — this file no longer exists. Use `Post/PostItemSkeleton` (timeline feed) or `Shared/PostSkeleton` (multi-variant)
+2. **Do NOT hand-roll error/empty/skeleton states** — use `ErrorState`, `EmptyState`, `PostItemSkeleton`, `PostSkeleton`
+3. **Do NOT hand-roll buttons with inline styles** — use `<Button variant="...">` from `UI/`
+4. **Do NOT hand-roll avatar circles** — use `<Avatar>` from `UI/`
+5. **Do NOT hand-roll inline spinners** — `Button` has built-in `loading` prop; use `<Spinner>` for standalone cases
+6. **Do NOT hand-roll click-outside listeners** — use `useOutsideClick` hook
+7. **Do NOT hand-roll `body.style.overflow = 'hidden'` in modals** — use `useBodyScrollLock` hook
+8. **Do NOT hand-roll scroll listeners for sticky nav** — use `useScrollEffect` hook
+9. **Do NOT hand-roll `input[type=file]` + upload logic** — use `useFileUpload` hook
+10. **Do NOT use named imports for axios instances** — they are default exports
+11. **Do NOT hardcode Vietnamese/English strings in JSX** — use `next-intl` translations
+12. **Do NOT create duplicate service functions** for the same endpoint
+13. **Do NOT duplicate extension lists** — use `tiptapBaseExtensions.js` factory
+14. **Do NOT use `findIndex` for deduplication** — use `Set` for O(n) performance
+15. **Do NOT create 900-line utility files** — split into focused modules under a directory
+16. **Do NOT store functions in React state** without wrapping: `setState(() => fn)` not `setState(fn)`
+17. **Do NOT mix 3 styling approaches in one component** — be consistent
+18. **Do NOT import `Post/PostSkeleton`** — file no longer exists. Use `Post/PostItemSkeleton` or `Shared/PostSkeleton`
+19. **Do NOT import `PublishPanel` from `Category/`** — canonical location is `Editor/PublishPanel`
+20. **Do NOT duplicate `MasonryPostGrid + ErrorState` inline** — use `PostFeed` component
 
 ---
 

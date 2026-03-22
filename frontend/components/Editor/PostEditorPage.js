@@ -12,7 +12,7 @@ const PostForm = dynamic(() => import('./PostForm'), {
   loading: () => <div className="flex justify-center py-20"><Spinner size="lg" /></div>,
   ssr: false,
 });
-const PublishPanel = dynamic(() => import('../Category/PublishPanel'), {
+const PublishPanel = dynamic(() => import('./PublishPanel'), {
   ssr: false,
 });
 
