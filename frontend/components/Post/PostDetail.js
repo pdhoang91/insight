@@ -1,10 +1,9 @@
 'use client';
-import React, { useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { User } from '@phosphor-icons/react';
 import SEOHead from '../SEO/SEOHead';
 import RelatedPosts from './RelatedPosts';
-import { renderPostContent, getContentPlainText } from '../../utils/renderContent';
 import { useTranslations, useLocale } from 'next-intl';
 
 const AuthorByline = ({ user: postUser, date }) => {
@@ -39,10 +38,24 @@ const AuthorByline = ({ user: postUser, date }) => {
   );
 };
 
-
-
-export const PostDetail = ({ post, relatedPosts = [] }) => {
+// htmlContent: pre-rendered HTML from server (avoids shipping TipTap to client).
+// Falls back to lazy client-side rendering only when htmlContent is not provided.
+export const PostDetail = ({ post, htmlContent, relatedPosts = [] }) => {
   const t = useTranslations();
+  const [renderedHTML, setRenderedHTML] = useState(htmlContent || '');
+
+  useEffect(() => {
+    // Server pre-rendered HTML is available — no need to load TipTap on client
+    if (htmlContent) return;
+    if (!post?.content) return;
+
+    // Lazy-load TipTap only for client-side navigation where server HTML is absent
+    import('../../utils/renderContent').then(({ renderPostContent }) => {
+      const html = renderPostContent(post.content);
+      if (html) setRenderedHTML(html);
+    });
+  }, [post?.id, htmlContent]);
+
   if (!post) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 240, color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
@@ -51,14 +64,13 @@ export const PostDetail = ({ post, relatedPosts = [] }) => {
     );
   }
 
-  const renderedHTML = useMemo(() => renderPostContent(post.content), [post.content]);
-  const plainText = useMemo(() => getContentPlainText(post.content), [post.content]);
+  const description = post.excerpt || renderedHTML.replace(/<[^>]*>/g, '').substring(0, 160);
 
   return (
     <>
       <SEOHead
         title={post.title}
-        description={post.excerpt || plainText?.substring(0, 160)}
+        description={description}
         image={post.cover_image}
         type="article"
         publishedTime={post.created_at}

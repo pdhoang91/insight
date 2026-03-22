@@ -2,6 +2,7 @@
 // components/Post/BasePostItem.js — Warm Dispatch edition
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { PencilSimple, Trash } from '@phosphor-icons/react';
 import { useRouter } from 'next/navigation';
 import TextUtils from '../Utils/TextUtils';
@@ -67,14 +68,23 @@ const BasePostItem = ({
     );
   }
 
+  const isLocalImage = (src) => src?.includes('localhost');
+
   /* ─── Horizontal: related posts / search ─── */
   if (variant === 'horizontal') {
     return (
       <article className="group" style={{ paddingBottom: '1rem', marginBottom: '1rem' }} >
         <Link href={`/p/${post.slug}`} style={{ display: 'flex', gap: '1rem', paddingTop: '0.5rem' }}>
           {post.cover_image && (
-            <div style={{ flexShrink: 0, width: 72, height: 72, overflow: 'hidden', background: 'var(--bg-surface)' }}>
-              <img src={post.cover_image} alt={post.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
+            <div style={{ flexShrink: 0, width: 72, height: 72, overflow: 'hidden', background: 'var(--bg-surface)', position: 'relative' }}>
+              <Image
+                src={post.cover_image}
+                alt={post.title}
+                fill
+                sizes="72px"
+                style={{ objectFit: 'cover' }}
+                unoptimized={isLocalImage(post.cover_image)}
+              />
             </div>
           )}
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -185,16 +195,18 @@ const BasePostItem = ({
           </div>
         </div>
 
-        {/* Thumbnail */}
+        {/* Thumbnail — next/image: WebP/AVIF, correct sizing, no CLS */}
         {post.cover_image && (
           <Link href={`/p/${post.slug}`} style={{ flexShrink: 0 }} className="hidden md:block">
-            <div style={{ width: 112, height: 112, overflow: 'hidden', background: 'var(--bg-surface)' }}>
-              <img
+            <div style={{ width: 112, height: 112, overflow: 'hidden', background: 'var(--bg-surface)', position: 'relative' }}>
+              <Image
                 src={post.cover_image}
                 alt=""
-                style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)' }}
-                loading="lazy"
+                fill
+                sizes="112px"
+                style={{ objectFit: 'cover', transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)' }}
                 className="group-hover:scale-105"
+                unoptimized={isLocalImage(post.cover_image)}
               />
             </div>
           </Link>

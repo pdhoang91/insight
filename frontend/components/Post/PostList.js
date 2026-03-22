@@ -1,6 +1,6 @@
 'use client';
 // components/Post/PostList.js — Warm Dispatch with staggered entry
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -18,17 +18,7 @@ const PostSkeleton = () => (
   </div>
 );
 
-/* ─── Staggered animation variants ─── */
-const listVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.07,
-    },
-  },
-};
-
-const itemVariants = {
+const newItemVariants = {
   hidden:  { opacity: 0, y: 14 },
   visible: {
     opacity: 1,
@@ -49,6 +39,20 @@ const PostList = ({
   interstitial = null,
 }) => {
   const t = useTranslations();
+
+  // Track how many items existed before the latest "load more" batch.
+  // Items below this index are already rendered — skip animation to avoid
+  // 50+ Framer Motion instances accumulating on long feeds.
+  const prevCountRef = useRef(0);
+  const flatPosts = (() => {
+    let fp = (posts || []).flat().filter(Boolean);
+    if (skipFirst && fp.length > 0) fp = fp.slice(1);
+    return fp;
+  })();
+
+  useEffect(() => {
+    prevCountRef.current = flatPosts.length;
+  });
 
   const fetchMore = () => {
     if (!isReachingEnd && !isLoading) {
@@ -105,8 +109,7 @@ const PostList = ({
     );
   }
 
-  let flatPosts = posts.flat().filter(Boolean);
-  if (skipFirst && flatPosts.length > 0) flatPosts = flatPosts.slice(1);
+  const prevCount = prevCountRef.current;
 
   return (
     <div className={className}>
@@ -139,24 +142,32 @@ const PostList = ({
           )
         }
       >
-        {/* Staggered reveal on first render */}
-        <motion.div
-          variants={listVariants}
-          initial="hidden"
-          animate="visible"
-        >
+        <div>
           {flatPosts.map((post, index) => (
             <React.Fragment key={`${post.id}-${index}`}>
-              <motion.div variants={itemVariants}>
-                <BasePostItem post={post} variant={variant} />
-              </motion.div>
+              {index < prevCount ? (
+                // Already-visible items: plain div — no animation overhead
+                <div>
+                  <BasePostItem post={post} variant={variant} />
+                </div>
+              ) : (
+                // New batch: animate in with stagger
+                <motion.div
+                  variants={newItemVariants}
+                  initial="hidden"
+                  animate="visible"
+                  transition={{ delay: (index - prevCount) * 0.07 }}
+                >
+                  <BasePostItem post={post} variant={variant} />
+                </motion.div>
+              )}
               {interstitial &&
                 index === interstitial.afterIndex &&
                 flatPosts.length > interstitial.afterIndex + 1 &&
                 interstitial.element}
             </React.Fragment>
           ))}
-        </motion.div>
+        </div>
       </InfiniteScroll>
     </div>
   );

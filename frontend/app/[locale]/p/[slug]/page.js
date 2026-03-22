@@ -2,6 +2,7 @@ import { cache } from 'react';
 import { fetchAllPostSlugs, fetchPostBySlug } from '../../../lib/api';
 import { setRequestLocale } from 'next-intl/server';
 import PostPageClient from './PostPageClient';
+import { renderPostContent } from '../../../../utils/renderContentServer';
 
 const getCachedPost = cache(fetchPostBySlug);
 
@@ -40,12 +41,16 @@ export default async function PostPage({ params }) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
   let post = null;
+  let initialHtml = null;
 
   try {
     post = await getCachedPost(slug);
+    if (post?.content) {
+      initialHtml = renderPostContent(post.content);
+    }
   } catch {
     // Fallback to client-side fetching
   }
 
-  return <PostPageClient slug={slug} initialPost={post} />;
+  return <PostPageClient slug={slug} initialPost={post} initialHtml={initialHtml} />;
 }

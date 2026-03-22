@@ -1,7 +1,7 @@
 // components/Post/EngagementActions.js - Fully theme-based design
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { FaComment, FaEllipsisH, FaFlag, FaCopy } from 'react-icons/fa';
+import { ChatCircle, DotsThree, Flag, Copy } from '@phosphor-icons/react';
 import { themeClasses, combineClasses } from '../../utils/themeClasses';
 import { useTranslations } from 'next-intl';
 
@@ -67,7 +67,7 @@ const EngagementActions = ({
           className={buttonClasses}
           aria-label={t('engagement.comment')}
         >
-          <FaComment className={iconSizes[size]} />
+          <ChatCircle className={iconSizes[size]} />
           <span className={sizeClasses[size]}>{commentsCount}</span>
           {showLabels && <span className={sizeClasses[size]}>{t('engagement.comment')}</span>}
         </Link>
@@ -85,7 +85,7 @@ const EngagementActions = ({
             className={buttonClasses}
             aria-label={t('engagement.reportStory')}
           >
-            <FaEllipsisH className={iconSizes[size]} />
+            <DotsThree className={iconSizes[size]} />
           </button>
 
           {isMoreMenuOpen && (
@@ -132,7 +132,7 @@ const MoreOptionsMenu = ({ post, onClose, t }) => {
             themeClasses.animations.smooth
           )}
         >
-          <FaCopy className={combineClasses(themeClasses.icons.sm, 'mr-3')} />
+          <Copy className={combineClasses(themeClasses.icons.sm, 'mr-3')} />
           {t('engagement.copyLink')}
         </button>
 
@@ -147,7 +147,7 @@ const MoreOptionsMenu = ({ post, onClose, t }) => {
             themeClasses.animations.smooth
           )}
         >
-          <FaFlag className={combineClasses(themeClasses.icons.sm, 'mr-3')} />
+          <Flag className={combineClasses(themeClasses.icons.sm, 'mr-3')} />
           {t('engagement.reportStory')}
         </button>
       </div>

@@ -2,7 +2,7 @@
 'use client';
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaTimes, FaCamera } from 'react-icons/fa';
+import { X, Camera } from '@phosphor-icons/react';
 import { updateProfileWithAvatar } from '../../services/imageService';
 import { useTranslations } from 'next-intl';
 
@@ -56,7 +56,7 @@ const AvatarUpdateModal = ({ userProfile, onUpdate, onCancel }) => {
           <div className="flex items-center justify-between p-5 border-b border-[#f2f2f2]">
             <h3 className="font-serif text-lg font-bold text-[#292929]">{t('profile.updateAvatarTitle')}</h3>
             <button onClick={onCancel} className="text-[#b3b3b1] hover:text-[#292929] transition-colors">
-              <FaTimes className="w-5 h-5" />
+              <X size={20} />
             </button>
           </div>
 
@@ -82,7 +82,7 @@ const AvatarUpdateModal = ({ userProfile, onUpdate, onCancel }) => {
                   disabled={isUploading}
                   className="flex items-center gap-2 px-4 py-2 text-[13px] text-[#1a8917] border border-[#1a8917]/30 rounded-full hover:bg-[#1a8917]/5 transition-colors disabled:opacity-50"
                 >
-                  <FaCamera className="w-4 h-4" />
+                  <Camera size={16} />
                   <span>{isUploading ? t('profile.uploading') : t('profile.choosePhoto')}</span>
                 </button>
 

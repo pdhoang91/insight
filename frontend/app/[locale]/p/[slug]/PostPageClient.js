@@ -6,9 +6,11 @@ import { usePostName } from '../../../../hooks/usePost';
 import CommentSection from '../../../../components/Comment/CommentSection';
 import PostDetail from '../../../../components/Post/PostDetail';
 
-export default function PostPageClient({ slug, initialPost }) {
+export default function PostPageClient({ slug, initialPost, initialHtml }) {
   const commentSectionRef = useRef(null);
-  const { post, isLoading, isError, mutate } = usePostName(slug);
+  const { post, isLoading, isError } = usePostName(slug, {
+    fallbackData: initialPost,
+  });
 
   const displayPost = post || initialPost;
 
@@ -55,7 +57,7 @@ export default function PostPageClient({ slug, initialPost }) {
       style={{ paddingTop: 'var(--nav-height)', minHeight: '100dvh', background: 'var(--bg)' }}
     >
       <div className="max-w-[1192px] mx-auto px-4 md:px-6 lg:px-8 py-8">
-        <PostDetail post={displayPost} />
+        <PostDetail post={displayPost} htmlContent={initialHtml} />
 
         <motion.section
           ref={commentSectionRef}

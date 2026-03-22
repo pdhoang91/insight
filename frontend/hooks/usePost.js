@@ -13,13 +13,14 @@ export const usePost = (postId) => {
   };
 };
 
-export const usePostName = (slug) => {
+export const usePostName = (slug, options = {}) => {
   const { data, error, mutate } = useSWR(
     slug ? `/p/${slug}` : null,
     () => getPostBySlug(slug),
     {
       dedupingInterval: 30000,
       revalidateOnFocus: false,
+      ...options,
     }
   );
 

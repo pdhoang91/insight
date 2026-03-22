@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { FaUser } from 'react-icons/fa';
+import { User } from '@phosphor-icons/react';
 import { useTranslations } from 'next-intl';
 import { useUser } from '../../context/UserContext';
 import { addReply } from '../../services/commentService';
@@ -56,7 +56,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
             <img src={comment.user.avatar_url} alt={comment.user.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           ) : (
             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <FaUser style={{ width: 12, height: 12, color: 'var(--text-faint)' }} />
+              <User size={12} color="var(--text-faint)" />
             </div>
           )}
         </div>

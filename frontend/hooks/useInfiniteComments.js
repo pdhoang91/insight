@@ -35,9 +35,14 @@ export const useInfiniteComments = (postId, isEnabled = true, pageSize = 5) => {
   const isLoadingMore = !data && !error || (size > 0 && data && typeof data[size - 1] === 'undefined');
 
   const comments = data
-    ? data
-        .flatMap(page => page.data || [])
-        .filter((item, index, arr) => arr.findIndex(i => i.id === item.id) === index)
+    ? (() => {
+        const seen = new Set();
+        return data.flatMap(page => page.data || []).filter(item => {
+          if (seen.has(item.id)) return false;
+          seen.add(item.id);
+          return true;
+        });
+      })()
     : [];
 
   // Can load more if the last page returned a next_cursor

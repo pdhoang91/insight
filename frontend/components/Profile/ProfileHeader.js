@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaCamera, FaShieldAlt } from 'react-icons/fa';
+import { Camera, ShieldCheck } from '@phosphor-icons/react';
 import { getRoleDisplayName, USER_ROLES } from '../../constants/roles';
 
 const ProfileHeader = ({
@@ -86,7 +86,7 @@ const ProfileHeader = ({
               }}
               aria-label="Update avatar"
             >
-              <FaCamera style={{ width: 10, height: 10 }} />
+              <Camera size={10} />
             </motion.button>
           )}
         </div>
@@ -124,7 +124,7 @@ const ProfileHeader = ({
                   borderRadius: '2px',
                 }}
               >
-                <FaShieldAlt style={{ width: 9, height: 9 }} />
+                <ShieldCheck size={9} />
                 {getRoleDisplayName(userRole)}
               </span>
             )}
