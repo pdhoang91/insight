@@ -1,66 +1,68 @@
-OK, here's the full picture.
+Plan: Tags on Post Detail + Tag Page
+Current state
+Backend: Tags fully supported — GET /tags/:name/posts, GET /tags/popular, many-to-many via post_tags table. All good.
+Frontend services: tagService.js already has getPostsByTag(tagName, page, limit) — ready to use.
+Post detail page (/p/[slug]): Uses PostDetail.js which renders categories but not tags. The API response includes post.tags as [{id, name, ...}].
+ArticleReader.js: Has tag rendering but treats post.tags as strings (/tag/${tag}) — this is a bug since tags are objects {id, name}.
+No /tag/[name] route exists in the frontend.
+Tasks
+1. Show tags on PostDetail.js (small change)
+File: frontend/components/Post/PostDetail.js
 
-Tất cả border-b / borderBottom trong project
-1. Right Sidebar — Popular Posts (target chính)
+Add a tags section below the existing categories block (lines 93-117). Tags are already in post.tags from the API. Render them as <Link> to /tag/{tag.name}, styled similarly to categories but visually distinct (e.g. with a # prefix or different color).
 
-PersonalBlogSidebar.js
-Lines 70-70
-              <article key={post.id} className="py-2 border-b border-[var(--border)] last:border-0">
-Dùng border-b để ngăn cách giữa các popular post items. Đây là chỗ bạn muốn bỏ.
+Roughly:
 
-2. Right Sidebar — Author Bio
+{post.tags?.length > 0 && (
+  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '1rem' }}>
+    {post.tags.map((tag) => (
+      <Link key={tag.id} href={`/tag/${tag.name}`} ...>
+        #{tag.name}
+      </Link>
+    ))}
+  </div>
+)}
+2. Fix ArticleReader.js tag bug
+File: frontend/components/Post/ArticleReader.js (line 145)
 
-PersonalBlogSidebar.js
-Lines 38-38
-  <div style={{ marginBottom: '2rem', paddingBottom: '2rem', borderBottom: '1px solid var(--border)' }}>
-Inline style borderBottom ngăn cách author bio với phần dưới. Cũng nên xem xét bỏ nếu muốn sidebar clean.
+Change href={/tag/${tag}} → href={/tag/${tag.name}} and {tag} → {tag.name} since post.tags are objects, not strings.
 
-3. Right Sidebar — Category links
+3. Create /tag/[name] route (mirror category pattern)
+Three files, following the exact same pattern as [locale]/category/[name]/:
 
-PersonalBlogSidebar.js
-Lines 110-110
-                  borderBottom: '1px solid transparent',
-Cái này transparent nên không visible — chỉ là placeholder cho hover effect. Giữ lại OK.
+a. frontend/app/[locale]/tag/[name]/page.js (server component)
 
-4. SkeletonPost
+generateStaticParams → call fetchPopularTags to pre-render popular tag pages
+generateMetadata → title/description based on tag name
+Render <TagPostsClient name={name} />
+Add fetchPopularTags to frontend/app/lib/api.js if not already there
+b. frontend/app/[locale]/tag/[name]/TagPostsClient.js (client component)
 
-Skeleton.js
-Lines 108-108
-    <div className="p-card bg-medium-bg-card border-b border-medium-border pb-6 mb-6">
-Skeleton post card dùng border-b làm separator giữa các loading cards. Nên bỏ để consistent.
+Use a new hook useInfinitePostByTag(tagName) (similar to useInfinitePostByCategory)
+Layout: HomeLayout + PersonalBlogSidebar
+Render a TagPosts component (similar to CategoryPosts)
+4. Create useInfinitePostByTag hook
+File: frontend/hooks/useInfinitePostByTag.js
 
-5. AvatarUpdateModal
+Mirror useInfinitePostByCategory.js but call getPostsByTag(tagName, page, limit) from tagService.js.
 
-AvatarUpdateModal.js
-Lines 56-56
-          <div className="flex items-center justify-between p-5 border-b border-[#f2f2f2]">
-Modal header separator. Đây là pattern chuẩn cho modal — có thể giữ lại vì modal header cần visual separation.
+5. Create TagPosts component
+File: frontend/components/Tag/TagPosts.js
 
-6. Navbar
+Similar to CategoryPosts — shows tag name as header, post list with infinite scroll/load more. Can reuse existing PostCard or whatever CategoryPosts uses for rendering individual posts.
 
-themeClasses.js
-Lines 377-377
-    'border-b shadow-sm'
+6. (Optional) Tag listing page at /tag
+If you also want a /tag index page showing all/popular tags:
 
-Navbar.js
-Lines 77-77
-        borderBottom: scrolled ? '1px solid rgba(26, 20, 16, 0.11)' : '1px solid transparent',
-Navbar bottom border on scroll. Đây là functional — giúp user nhận biết navbar khi scroll. Giữ lại.
+File: frontend/app/[locale]/tag/page.js
 
-7. StickyCategoryBar, AddCommentForm, CategoryTagsPopup, PublishPanel
-Các chỗ này dùng borderBottom cho UI separation trong forms/panels — mostly functional borders cho interactive components.
+Grid of popular tags, each linking to /tag/{name} with post counts.
 
-Plan đề xuất
-#	File	Line	Pattern	Action	Lý do
-1	PersonalBlogSidebar.js	70	border-b border-[var(--border)] last:border-0	Remove	Sidebar items không cần divider, dùng spacing đủ rồi
-2	PersonalBlogSidebar.js	38	borderBottom: '1px solid var(--border)'	Remove	AuthorBio section — dùng spacing thay cho border
-3	Skeleton.js	108	border-b border-medium-border	Remove	Skeleton card — consistent với post card thật
-4	AvatarUpdateModal.js	56	border-b border-[#f2f2f2]	Keep	Modal header — standard pattern
-5	Navbar.js	77	borderBottom: scrolled ? ...	Keep	Functional — scroll indicator
-6	themeClasses.js	377	border-b shadow-sm	Keep	Navbar preset — functional
-7	StickyCategoryBar.js	34	borderBottom: isStuck...	Keep	Functional — sticky indicator
-8	AddCommentForm.js	109	borderBottom	Keep	Input field underline style
-9	CategoryTagsPopup.js	311	borderBottom	Keep	Section divider in popup
-10	PublishPanel.js	181, 403	borderBottom	Keep	Panel section dividers
-Tóm lại: Remove 3 chỗ — cả 3 đều ở sidebar/skeleton, dùng spacing (gap, padding, margin) thay cho border là đẹp hơn và modern hơn. Các chỗ còn lại là functional borders cho navbar, forms, modals — giữ lại hợp lý.
+Dependency order
 
+1. Fix ArticleReader.js bug (independent, quick)
+2. Add tags to PostDetail.js (independent, quick)
+3. Create useInfinitePostByTag hook
+4. Create TagPosts component
+5. Create /tag/[name] route (depends on 3, 4)
+6. (Optional) Create /tag index page

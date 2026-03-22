@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 import { useHomeData } from '../../hooks/useHomeData';
+import { useArchiveSummary } from '../../hooks/useArchiveSummary';
 import Archive from '../Archive/Archive';
 
 const containerVariants = {
@@ -38,7 +39,8 @@ const SectionLabel = ({ children }) => (
 
 const ExplorePanelContent = ({ onClose }) => {
   const t = useTranslations();
-  const { categories, popularPosts, latestPosts, isLoading } = useHomeData();
+  const { categories, popularPosts, isLoading } = useHomeData();
+  const { archiveList } = useArchiveSummary();
 
   return (
     <motion.div
@@ -179,7 +181,7 @@ const ExplorePanelContent = ({ onClose }) => {
             letterSpacing: '-0.01em',
           }}
         >
-          <Archive posts={latestPosts} limit={6} />
+          <Archive archiveList={archiveList} limit={6} />
         </div>
       </motion.div>
     </motion.div>

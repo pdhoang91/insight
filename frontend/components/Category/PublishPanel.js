@@ -55,6 +55,8 @@ const PublishPanel = ({
   );
   const [tagInput, setTagInput] = useState('');
   const [isUploadingCover, setIsUploadingCover] = useState(false);
+  const [coverUploadError, setCoverUploadError] = useState(null);
+  const [imgError, setImgError] = useState(false);
   const [newCategoryInput, setNewCategoryInput] = useState('');
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
   const [createError, setCreateError] = useState('');
@@ -72,20 +74,24 @@ const PublishPanel = ({
   const [excerpt, setExcerpt] = useState('');
   const displayExcerpt = excerpt || autoExcerpt;
 
+  React.useEffect(() => { setImgError(false); }, [imageTitle]);
+
   const handleCoverUpload = useCallback(() => {
     const input = document.createElement('input');
     input.setAttribute('type', 'file');
-    input.setAttribute('accept', 'image/*');
+    input.setAttribute('accept', 'image/jpeg,image/png,image/gif,image/webp,image/avif,image/svg+xml');
     input.click();
     input.onchange = async () => {
       const file = input.files[0];
       if (!file) return;
+      setCoverUploadError(null);
       setIsUploadingCover(true);
       try {
         const url = await uploadImage(file, 'title');
         setImageTitle(url);
       } catch (err) {
-        console.error('Cover upload failed', err);
+        const msg = err?.response?.data?.error || err?.message || 'Upload failed';
+        setCoverUploadError(msg);
       } finally {
         setIsUploadingCover(false);
       }
@@ -265,26 +271,27 @@ const PublishPanel = ({
                 <img
                   src={imageTitle}
                   alt="Cover"
+                  onError={() => setImgError(true)}
                   style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
                 />
                 <div
                   style={{
                     position: 'absolute',
                     inset: 0,
-                    background: 'rgba(0,0,0,0)',
+                    background: imgError ? 'rgba(0,0,0,0.5)' : 'rgba(0,0,0,0)',
                     transition: 'background 0.2s',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '0.75rem',
                   }}
-                  className="group hover:bg-[rgba(0,0,0,0.35)]"
+                  className={imgError ? undefined : 'group hover:bg-[rgba(0,0,0,0.35)]'}
                 >
                   <button
                     onClick={handleCoverUpload}
                     disabled={isUploadingCover}
                     style={{
-                      opacity: 0,
+                      opacity: imgError ? 1 : 0,
                       padding: '0.5rem 1rem',
                       fontFamily: 'var(--font-display)',
                       fontSize: '0.8rem',
@@ -301,7 +308,7 @@ const PublishPanel = ({
                       transition: 'opacity 0.2s',
                       backdropFilter: 'blur(4px)',
                     }}
-                    className="group-hover:opacity-100"
+                    className={imgError ? undefined : 'group-hover:opacity-100'}
                   >
                     <ArrowCircleUp size={15} weight="regular" />
                     Change
@@ -309,7 +316,7 @@ const PublishPanel = ({
                   <button
                     onClick={() => setImageTitle(null)}
                     style={{
-                      opacity: 0,
+                      opacity: imgError ? 1 : 0,
                       padding: '0.5rem 1rem',
                       fontFamily: 'var(--font-display)',
                       fontSize: '0.8rem',
@@ -326,7 +333,7 @@ const PublishPanel = ({
                       transition: 'opacity 0.2s',
                       backdropFilter: 'blur(4px)',
                     }}
-                    className="group-hover:opacity-100"
+                    className={imgError ? undefined : 'group-hover:opacity-100'}
                   >
                     <X size={14} weight="regular" />
                     Remove
@@ -374,6 +381,19 @@ const PublishPanel = ({
                   </>
                 )}
               </motion.button>
+            )}
+
+            {coverUploadError && (
+              <p style={{
+                fontFamily: 'var(--font-display)',
+                fontSize: '0.75rem',
+                color: 'var(--color-error, #c0392b)',
+                marginTop: '-0.75rem',
+                marginBottom: '1rem',
+                letterSpacing: '-0.01em',
+              }}>
+                {coverUploadError}
+              </p>
             )}
 
             <h3 style={{

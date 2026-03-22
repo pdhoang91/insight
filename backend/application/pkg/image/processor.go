@@ -120,14 +120,21 @@ func (p *ImageProcessor) ProcessImagesInContent(content string) ([]string, error
 // isValidImageType checks if the file type is a valid image type
 func (p *ImageProcessor) isValidImageType(filename string) bool {
 	ext := strings.ToLower(filepath.Ext(filename))
-	validTypes := []string{".jpg", ".jpeg", ".png", ".gif", ".webp"}
-
-	for _, validType := range validTypes {
-		if ext == validType {
-			return true
-		}
+	validTypes := map[string]bool{
+		".jpg":  true,
+		".jpeg": true,
+		".png":  true,
+		".gif":  true,
+		".webp": true,
+		".avif": true,
+		".bmp":  true,
+		".tiff": true,
+		".tif":  true,
+		".heic": true,
+		".heif": true,
+		".svg":  true,
 	}
-	return false
+	return validTypes[ext]
 }
 
 // getContentType returns the MIME type for the file extension
@@ -141,6 +148,18 @@ func (p *ImageProcessor) getContentType(ext string) string {
 		return "image/gif"
 	case ".webp":
 		return "image/webp"
+	case ".avif":
+		return "image/avif"
+	case ".bmp":
+		return "image/bmp"
+	case ".tiff", ".tif":
+		return "image/tiff"
+	case ".heic":
+		return "image/heic"
+	case ".heif":
+		return "image/heif"
+	case ".svg":
+		return "image/svg+xml"
 	default:
 		return "application/octet-stream"
 	}
@@ -163,13 +182,10 @@ func (p *ImageProcessor) extractKeyFromURL(imageURL string) (string, error) {
 	// Path-style (with or without region): https://s3[.region].amazonaws.com/bucket/key
 	if strings.Contains(imageURL, "s3.amazonaws.com/") || strings.Contains(imageURL, "s3."+p.region+".amazonaws.com/") {
 		// Split on amazonaws.com/ to get everything after the host
-		idx := strings.Index(imageURL, "amazonaws.com/")
-		if idx != -1 {
-			rest := imageURL[idx+len("amazonaws.com/"):]
+		if _, rest, ok := strings.Cut(imageURL, "amazonaws.com/"); ok {
 			// Remove bucket name prefix
-			pathParts := strings.SplitN(rest, "/", 2)
-			if len(pathParts) == 2 {
-				return pathParts[1], nil
+			if _, key, ok := strings.Cut(rest, "/"); ok {
+				return key, nil
 			}
 		}
 	}

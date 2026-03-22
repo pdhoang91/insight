@@ -5,6 +5,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -51,12 +53,91 @@ func (m *Manager) GetProvider(name string) (StorageProvider, error) {
 	return provider, nil
 }
 
+// allowedImageMIMETypes is the server-side allowlist of supported image MIME types for content uploads.
+var allowedImageMIMETypes = map[string]bool{
+	"image/jpeg":    true,
+	"image/png":     true,
+	"image/gif":     true,
+	"image/webp":    true,
+	"image/avif":    true,
+	"image/bmp":     true,
+	"image/tiff":    true,
+	"image/svg+xml": true,
+	"image/heic":    true,
+	"image/heif":    true,
+}
+
+// browserDisplayableMIMETypes are formats that browsers can natively render as images.
+// Used for title (cover) and avatar uploads where the image must be displayed directly.
+var browserDisplayableMIMETypes = map[string]bool{
+	"image/jpeg":    true,
+	"image/png":     true,
+	"image/gif":     true,
+	"image/webp":    true,
+	"image/avif":    true,
+	"image/svg+xml": true,
+}
+
+// detectMIMEType reads the first 512 bytes of the file to detect its MIME type.
+// Falls back to extension-based detection for formats not supported by net/http.
+func detectMIMEType(filename string, openFn func() (io.Reader, error)) (string, error) {
+	ext := strings.ToLower(filepath.Ext(filename))
+
+	// HEIC/HEIF are not detectable by net/http — use extension
+	switch ext {
+	case ".heic":
+		return "image/heic", nil
+	case ".heif":
+		return "image/heif", nil
+	}
+
+	r, err := openFn()
+	if err != nil {
+		return "", fmt.Errorf("failed to open file for MIME detection: %w", err)
+	}
+
+	buf := make([]byte, 512)
+	n, err := r.Read(buf)
+	if err != nil && err != io.EOF {
+		return "", fmt.Errorf("failed to read file header: %w", err)
+	}
+
+	return http.DetectContentType(buf[:n]), nil
+}
+
 // UploadImage uploads an image and creates database record
 func (m *Manager) UploadImage(ctx context.Context, req *UploadRequest) (*UploadResponse, error) {
 	provider, err := m.GetProvider("")
 	if err != nil {
 		return nil, err
 	}
+
+	// Detect and validate MIME type from file bytes
+	detectedType, err := detectMIMEType(req.File.Filename, func() (io.Reader, error) {
+		return req.File.Open()
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to detect image format: %w", err)
+	}
+	if !allowedImageMIMETypes[detectedType] {
+		return nil, fmt.Errorf(
+			"unsupported image format '%s'. Supported: JPEG, PNG, GIF, WebP, AVIF, BMP, TIFF, HEIC, SVG",
+			detectedType,
+		)
+	}
+
+	// title and avatar images must be browser-displayable
+	if req.Type == "title" || req.Type == "avatar" {
+		if !browserDisplayableMIMETypes[detectedType] {
+			return nil, fmt.Errorf(
+				"format '%s' cannot be displayed by browsers. For %s images, use: JPEG, PNG, GIF, WebP, AVIF, or SVG",
+				detectedType, req.Type,
+			)
+		}
+	}
+
+	// Override the browser-supplied Content-Type with the server-detected one
+	req.File.Header.Set("Content-Type", detectedType)
 
 	prefix := m.generatePrefix()
 	safeFilename := m.sanitizeFilename(req.File.Filename)
