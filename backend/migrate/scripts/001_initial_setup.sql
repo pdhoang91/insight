@@ -20,10 +20,11 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;
 -- =====================================================
 
 -- Immutable wrapper for unaccent (required for index expressions)
-CREATE OR REPLACE FUNCTION immutable_unaccent(text)
+-- Use public.unaccent to ensure schema-qualified call regardless of search_path
+CREATE OR REPLACE FUNCTION public.immutable_unaccent(text)
 RETURNS text AS $$
 BEGIN
-  RETURN unaccent($1);
+  RETURN public.unaccent($1);
 END;
 $$ LANGUAGE plpgsql IMMUTABLE;
 
