@@ -30,25 +30,3 @@ export const fetchStories = async (query, page = 1, limit = 10) => {
     };
   }
 };
-
-
-
-export const trackSearch = async (query, userId = null, resultsCount = 0) => {
-  if (!query?.trim()) return false;
-
-  try {
-    await axiosPublicInstance.post(`/search/track`, {
-      query,
-      user_id: userId,
-      results_count: resultsCount,
-    });
-    return true;
-  } catch (error) {
-    const status = error?.response?.status;
-    if (status === 404 || status === 405 || status === 501) {
-      return false;
-    }
-
-    return false;
-  }
-};

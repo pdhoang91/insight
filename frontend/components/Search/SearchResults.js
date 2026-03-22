@@ -1,8 +1,7 @@
 // components/Search/SearchResults.js
-import React, { useEffect } from 'react';
+import React from 'react';
 import BasePostItem from '../Post/BasePostItem';
 import { useSearch } from '../../hooks/useSearch';
-import { trackSearch } from '../../services/searchService';
 import ErrorState from '../Shared/ErrorState';
 import EmptyState from '../Shared/EmptyState';
 import PostSkeleton from '../Shared/PostSkeleton';
@@ -12,12 +11,6 @@ import { useTranslations } from 'next-intl';
 const SearchResults = ({ query }) => {
   const t = useTranslations();
   const { data, totalCount, isLoading, isValidating, isError, loadMore, hasMore } = useSearch(query);
-
-  useEffect(() => {
-    if (query && data && data.stories && Array.isArray(data.stories) && data.stories.length > 0) {
-      trackSearch(query, null, totalCount || 0);
-    }
-  }, [query, totalCount]);
 
   if (isError) {
     return <ErrorState title={t('search.failed')} message={t('search.failedMessage')} />;
