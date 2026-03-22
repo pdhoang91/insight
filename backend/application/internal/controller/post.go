@@ -11,9 +11,8 @@ import (
 )
 
 type PostController struct {
-	svc        service.PostService
-	engagement service.EngagementService
-	user       service.UserService
+	svc  service.PostService
+	user service.UserService
 }
 
 func (c *PostController) CreatePost(ctx *gin.Context) {
@@ -49,13 +48,8 @@ func (c *PostController) GetPost(ctx *gin.Context) {
 		return
 	}
 
-	var hasClapped bool
-	if userID, ok := optionalUserID(ctx); ok {
-		hasClapped, _ = c.engagement.HasUserClappedPost(userID, id)
-	}
-
 	ctx.JSON(http.StatusOK, gin.H{
-		"data": map[string]interface{}{"post": response, "has_clapped": hasClapped},
+		"data": gin.H{"post": response},
 	})
 }
 
@@ -211,15 +205,8 @@ func (c *PostController) GetPostByTitleName(ctx *gin.Context) {
 		return
 	}
 
-	var hasClapped bool
-	if userID, ok := optionalUserID(ctx); ok {
-		if postID, err := uuid.FromString(response.ID.String()); err == nil {
-			hasClapped, _ = c.engagement.HasUserClappedPost(userID, postID)
-		}
-	}
-
 	ctx.JSON(http.StatusOK, gin.H{
-		"data": gin.H{"post": response, "has_clapped": hasClapped},
+		"data": gin.H{"post": response},
 	})
 }
 

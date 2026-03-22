@@ -34,7 +34,6 @@ type SearchPostResult struct {
 	UserID        string     `json:"user_id"`
 	User          SearchUser `json:"user"`
 	CreatedAt     time.Time  `json:"created_at"`
-	ClapCount     uint64     `json:"claps"`
 	Views         uint64     `json:"views"`
 	CommentsCount uint64     `json:"comments_count"`
 }

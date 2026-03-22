@@ -157,7 +157,6 @@ func SearchPosts(query string, page int, limit int) ([]models.SearchPost, int, e
 		if err := fillPostMetadata(&posts[i]); err != nil {
 			log.Printf("Warning: Failed to fill metadata for post %s: %v", posts[i].ID, err)
 		}
-		posts[i].ClapCount = 0
 		posts[i].AverageRating = 0.0
 		posts[i].CommentsCount = 0
 	}

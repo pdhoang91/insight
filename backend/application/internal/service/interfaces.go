@@ -52,23 +52,18 @@ type PostService interface {
 }
 
 type CommentService interface {
-	GetPostComments(postID uuid.UUID, req *dto.PaginationRequest) ([]*dto.CommentResponse, int64, int64, error)
+	// GetPostComments returns comments for a post using cursor pagination.
+	// totalComments is the full count (for display). nextCursor is nil when there are no more pages.
+	GetPostComments(postID uuid.UUID, req *dto.CursorRequest) ([]*dto.CommentResponse, int64, *string, error)
 	CreateComment(userID uuid.UUID, req *dto.CreateCommentRequest) (*dto.CommentResponse, error)
 	UpdateComment(userID uuid.UUID, commentID uuid.UUID, req *dto.UpdateCommentRequest) (*dto.CommentResponse, error)
 	DeleteComment(userID uuid.UUID, commentID uuid.UUID) error
 	CreateReply(userID uuid.UUID, req *dto.CreateReplyRequest) (*dto.ReplyResponse, error)
 	DeleteReply(userID uuid.UUID, replyID uuid.UUID) error
-	GetCommentReplies(commentID uuid.UUID, req *dto.PaginationRequest) ([]*dto.ReplyResponse, int64, error)
+	// GetCommentReplies returns replies for a comment using cursor pagination.
+	// nextCursor is nil when there are no more pages.
+	GetCommentReplies(commentID uuid.UUID, req *dto.CursorRequest) ([]*dto.ReplyResponse, *string, error)
 	GetPostIDFromComment(commentID uuid.UUID) (*uuid.UUID, error)
-}
-
-type EngagementService interface {
-	ClapPost(userID, postID uuid.UUID) (bool, error)
-	ClapComment(userID, commentID uuid.UUID) (bool, error)
-	ClapReply(userID, replyID uuid.UUID) (bool, error)
-	GetClapsCount(itemType string, itemID uuid.UUID) (int64, error)
-	HasUserClappedPost(userID, postID uuid.UUID) (bool, error)
-	HasUserClapped(userID uuid.UUID, itemType string, itemID uuid.UUID) (bool, error)
 }
 
 type CategoryService interface {
@@ -109,7 +104,6 @@ type Service interface {
 	UserService
 	PostService
 	CommentService
-	EngagementService
 	CategoryService
 	TagService
 	ImageService

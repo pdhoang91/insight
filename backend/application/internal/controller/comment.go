@@ -67,13 +67,16 @@ func (c *CommentController) GetPostComments(ctx *gin.Context) {
 		return
 	}
 
-	req, pErr := parsePagination(ctx)
-	if pErr != nil {
+	var req dto.CursorRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
 		return
 	}
+	if req.Limit == 0 {
+		req.Limit = 10
+	}
 
-	responses, total, totalCommentReply, err := c.svc.GetPostComments(postID, req)
+	responses, total, nextCursor, err := c.svc.GetPostComments(postID, &req)
 	if err != nil {
 		respondError(ctx, err)
 		return
@@ -81,8 +84,7 @@ func (c *CommentController) GetPostComments(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"data": ensureNotNil(responses), "total_count": total,
-		"total_comment_reply": totalCommentReply,
-		"limit": req.Limit, "offset": req.Offset,
+		"next_cursor": nextCursor, "limit": req.Limit,
 	})
 }
 
@@ -177,20 +179,23 @@ func (c *CommentController) GetCommentReplies(ctx *gin.Context) {
 		return
 	}
 
-	req, pErr := parsePagination(ctx)
-	if pErr != nil {
+	var req dto.CursorRequest
+	if err := ctx.ShouldBindQuery(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
 		return
 	}
+	if req.Limit == 0 {
+		req.Limit = 10
+	}
 
-	responses, total, err := c.svc.GetCommentReplies(commentID, req)
+	responses, nextCursor, err := c.svc.GetCommentReplies(commentID, &req)
 	if err != nil {
 		respondError(ctx, err)
 		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"data": ensureNotNil(responses), "total_count": total,
-		"limit": req.Limit, "offset": req.Offset,
+		"data": ensureNotNil(responses),
+		"next_cursor": nextCursor, "limit": req.Limit,
 	})
 }

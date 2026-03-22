@@ -2,27 +2,20 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { FaComment, FaEllipsisH, FaFlag, FaCopy } from 'react-icons/fa';
-import { FaHandsClapping } from "react-icons/fa6";
-import { useUser } from '../../context/UserContext';
-import { useClapsCount } from '../../hooks/useClapsCount';
-import { clapPost } from '../../services/activityService';
 import { themeClasses, combineClasses } from '../../utils/themeClasses';
 import { useTranslations } from 'next-intl';
 
 const EngagementActions = ({
   post,
   commentsCount = 0,
-  layout = 'horizontal', // 'horizontal' | 'vertical'
-  size = 'md', // 'sm' | 'md' | 'lg'
+  layout = 'horizontal',
+  size = 'md',
   showLabels = false,
   className = ''
 }) => {
   const t = useTranslations();
-  const { user } = useUser();
-  const { clapsCount, loading: clapsLoading, mutate: mutateClaps } = useClapsCount('post', post.id);
   const [isMoreMenuOpen, setMoreMenuOpen] = useState(false);
   const moreMenuRef = useRef();
-
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -33,25 +26,6 @@ const EngagementActions = ({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  const handleClap = async () => {
-    if (!user) {
-      // TODO: Show login modal
-      alert(t('engagement.loginToClap'));
-      return;
-    }
-    try {
-      await clapPost(post.id);
-      mutateClaps();
-    } catch (error) {
-      console.error('Failed to clap:', error);
-      mutateClaps();
-    }
-  };
-
-  const handleMoreOptions = () => {
-    setMoreMenuOpen(!isMoreMenuOpen);
-  };
 
   const sizeClasses = {
     sm: themeClasses.typography.captionText,
@@ -76,33 +50,17 @@ const EngagementActions = ({
     'hover:bg-medium-hover'
   );
 
-  const layoutClasses = layout === 'vertical' 
+  const layoutClasses = layout === 'vertical'
     ? combineClasses('flex flex-col', themeClasses.spacing.stackSmall)
     : 'flex items-center justify-between';
 
   return (
     <div className={combineClasses(layoutClasses, className)}>
       {/* Left side actions */}
-      <div className={layout === 'vertical' 
-        ? themeClasses.spacing.stackSmall 
+      <div className={layout === 'vertical'
+        ? themeClasses.spacing.stackSmall
         : combineClasses('flex items-center', themeClasses.spacing.gapLarge)
       }>
-        {/* Clap Button */}
-        <button
-          onClick={handleClap}
-          className={combineClasses(buttonClasses, 'group/clap')}
-          aria-label={t('engagement.clap')}
-          disabled={clapsLoading}
-        >
-          <FaHandsClapping className={combineClasses(
-            iconSizes[size], 
-            'group-hover/clap:scale-110',
-            themeClasses.animations.smooth
-          )} />
-          <span className={sizeClasses[size]}>{clapsCount}</span>
-          {showLabels && <span className={sizeClasses[size]}>{t('engagement.clap')}</span>}
-        </button>
-
         {/* Comment Button */}
         <Link
           href={`/p/${post.slug}#comments`}
@@ -116,14 +74,14 @@ const EngagementActions = ({
       </div>
 
       {/* Right side actions */}
-      <div className={layout === 'vertical' 
-        ? themeClasses.spacing.stackSmall 
+      <div className={layout === 'vertical'
+        ? themeClasses.spacing.stackSmall
         : combineClasses('flex items-center', themeClasses.spacing.gap)
       }>
         {/* More Options */}
         <div ref={moreMenuRef} className={themeClasses.utils.relative}>
           <button
-            onClick={handleMoreOptions}
+            onClick={() => setMoreMenuOpen(!isMoreMenuOpen)}
             className={buttonClasses}
             aria-label={t('engagement.reportStory')}
           >
@@ -143,17 +101,14 @@ const EngagementActions = ({
   );
 };
 
-// More options dropdown menu
 const MoreOptionsMenu = ({ post, onClose, t }) => {
   const handleCopyLink = () => {
     const url = `${window.location.origin}/p/${post.slug}`;
     navigator.clipboard.writeText(url);
     onClose();
-    // TODO: Show toast notification
   };
 
   const handleReport = () => {
-    // TODO: Implement report functionality
     onClose();
   };
 
@@ -200,7 +155,6 @@ const MoreOptionsMenu = ({ post, onClose, t }) => {
   );
 };
 
-// Floating engagement actions for article pages
 export const FloatingEngagementActions = ({ post, commentsCount, className = '' }) => {
   return (
     <div className={combineClasses(

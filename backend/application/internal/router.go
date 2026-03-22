@@ -64,10 +64,6 @@ func DefineAPIRoutes(r *gin.Engine, ctrl *controller.Controller) {
 		public.GET("/images/v2/:id", ctrl.Image.ServeImageV2)
 		public.GET("/images/v2/:id/info", ctrl.Image.GetImageInfoV2)
 
-		// Claps (public read)
-		public.GET("/claps", ctrl.Engagement.GetClapsCount)
-		public.GET("/claps/status", ctrl.Engagement.CheckUserClapStatus)
-		public.GET("/claps/info", ctrl.Engagement.GetClapInfo)
 	}
 
 	// --- Protected routes (authentication required) ---
@@ -86,16 +82,12 @@ func DefineAPIRoutes(r *gin.Engine, ctrl *controller.Controller) {
 		protected.POST("/posts", ctrl.Post.CreatePost)
 		protected.PUT("/posts/:id", ctrl.Post.UpdatePost)
 		protected.DELETE("/posts/:id", ctrl.Post.DeletePost)
-		protected.POST("/posts/:id/clap", ctrl.Engagement.ClapPost)
-
 		// Comments
 		protected.POST("/comments", ctrl.Comment.CreateComment)
 		protected.POST("/posts/:id/comments", ctrl.Comment.CreateCommentForPost)
 		protected.PUT("/comments/:id", ctrl.Comment.UpdateComment)
 		protected.DELETE("/comments/:id", ctrl.Comment.DeleteComment)
 		protected.GET("/posts/:id/comments", ctrl.Comment.GetPostComments)
-		protected.POST("/comments/:id/clap", ctrl.Engagement.ClapComment)
-
 		// Tags
 		protected.POST("/tags", ctrl.Tag.CreateTag)
 		protected.PUT("/tags/:id", ctrl.Tag.UpdateTag)
@@ -106,8 +98,6 @@ func DefineAPIRoutes(r *gin.Engine, ctrl *controller.Controller) {
 		protected.POST("/comments/:id/replies", ctrl.Engagement.CreateReplyForComment)
 		protected.DELETE("/replies/:id", ctrl.Comment.DeleteReply)
 		protected.GET("/comments/:id/replies", ctrl.Comment.GetCommentReplies)
-		protected.POST("/replies/:id/clap", ctrl.Engagement.ClapReply)
-
 		// Images
 		protected.POST("/images/upload/v2/:type", ctrl.Image.UploadImageV2)
 		protected.DELETE("/images/v2/:id", ctrl.Image.DeleteImageV2)

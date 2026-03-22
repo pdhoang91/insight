@@ -517,10 +517,6 @@ func (s *InsightService) SearchPosts(query string, req *dto.PaginationRequest) (
 		return nil, 0, apperror.NewInternal("failed to search posts", err)
 	}
 
-	if err := s.PostRepo.CalculateCountsForPosts(posts); err != nil {
-		return nil, 0, apperror.NewInternal("failed to calculate post counts", err)
-	}
-
 	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
 		responses = append(responses, dto.NewPostResponse(post))
@@ -752,89 +748,6 @@ func (s *InsightService) GetPostsByTag(tagName string, req *dto.PaginationReques
 	return responses, total, nil
 }
 
-// HasUserClappedPost checks if a user has clapped a specific post
-func (s *InsightService) HasUserClappedPost(userID, postID uuid.UUID) (bool, error) {
-	return s.UserActivityRepo.HasUserClapped(userID, "post", postID)
-}
-
-// ClapPost adds a clap for a post
-func (s *InsightService) ClapPost(userID, postID uuid.UUID) (bool, error) {
-	existing, err := s.UserActivityRepo.FindByUserAndPost(userID, postID, "clap_post")
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return false, apperror.NewInternal("failed to check clap status", err)
-	}
-
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		activity := &entities.UserActivity{
-			ID: uuid.NewV4(), UserID: userID, PostID: &postID,
-			ActionType: "clap_post", Count: 1, CreatedAt: time.Now(),
-		}
-		if err := s.UserActivityRepo.Create(activity); err != nil {
-			return false, apperror.NewInternal("failed to create clap", err)
-		}
-	} else {
-		if err := s.UserActivityRepo.IncrementCount(existing); err != nil {
-			return false, apperror.NewInternal("failed to increment clap", err)
-		}
-	}
-	// Increment denormalized count (best-effort)
-	_ = s.PostRepo.IncrementClapCount(postID)
-	return true, nil
-}
-
-// ClapComment adds a clap for a comment
-func (s *InsightService) ClapComment(userID, commentID uuid.UUID) (bool, error) {
-	existing, err := s.UserActivityRepo.FindByUserAndComment(userID, commentID, "clap_comment")
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return false, apperror.NewInternal("failed to check clap status", err)
-	}
-
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		activity := &entities.UserActivity{
-			ID: uuid.NewV4(), UserID: userID, CommentID: &commentID,
-			ActionType: "clap_comment", Count: 1, CreatedAt: time.Now(),
-		}
-		if err := s.UserActivityRepo.Create(activity); err != nil {
-			return false, apperror.NewInternal("failed to create clap", err)
-		}
-		return true, nil
-	}
-
-	if err := s.UserActivityRepo.IncrementCount(existing); err != nil {
-		return false, apperror.NewInternal("failed to increment clap", err)
-	}
-	return true, nil
-}
-
-// ClapReply adds a clap for a reply
-func (s *InsightService) ClapReply(userID, replyID uuid.UUID) (bool, error) {
-	existing, err := s.UserActivityRepo.FindByUserAndReply(userID, replyID, "clap_reply")
-	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
-		return false, apperror.NewInternal("failed to check clap status", err)
-	}
-
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		activity := &entities.UserActivity{
-			ID: uuid.NewV4(), UserID: userID, ReplyID: &replyID,
-			ActionType: "clap_reply", Count: 1, CreatedAt: time.Now(),
-		}
-		if err := s.UserActivityRepo.Create(activity); err != nil {
-			return false, apperror.NewInternal("failed to create clap", err)
-		}
-		return true, nil
-	}
-
-	if err := s.UserActivityRepo.IncrementCount(existing); err != nil {
-		return false, apperror.NewInternal("failed to increment clap", err)
-	}
-	return true, nil
-}
-
-// GetClapsCount returns clap count for post/comment/reply
-func (s *InsightService) GetClapsCount(itemType string, itemID uuid.UUID) (int64, error) {
-	return s.UserActivityRepo.GetClapCount(itemType, itemID)
-}
-
 // GetPostIDFromComment gets post ID from comment ID
 func (s *InsightService) GetPostIDFromComment(commentID uuid.UUID) (*uuid.UUID, error) {
 	comment, err := s.CommentRepo.FindByID(commentID)
@@ -842,11 +755,6 @@ func (s *InsightService) GetPostIDFromComment(commentID uuid.UUID) (*uuid.UUID, 
 		return nil, apperror.NewNotFound("comment not found")
 	}
 	return &comment.PostID, nil
-}
-
-// HasUserClapped checks if user has clapped an item
-func (s *InsightService) HasUserClapped(userID uuid.UUID, itemType string, itemID uuid.UUID) (bool, error) {
-	return s.UserActivityRepo.HasUserClapped(userID, itemType, itemID)
 }
 
 func (s *InsightService) createImageReference(imageID string, postID uuid.UUID, refType string) error {

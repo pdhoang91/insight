@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/pdhoang91/blog/internal/entities"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
@@ -32,11 +34,23 @@ func (r *commentRepo) FindByID(id uuid.UUID) (*entities.Comment, error) {
 
 func (r *commentRepo) FindByPostID(postID uuid.UUID, limit, offset int) ([]*entities.Comment, error) {
 	var comments []*entities.Comment
-	err := r.db.Preload("User").Preload("Replies.User").
+	err := r.db.Preload("User").
 		Where("post_id = ?", postID).
 		Order("created_at DESC").
 		Limit(limit).Offset(offset).
 		Find(&comments).Error
+	return comments, err
+}
+
+// FindByPostIDCursor returns comments before (older than) cursor, newest-first.
+// Pass nil cursor to get the most recent page.
+func (r *commentRepo) FindByPostIDCursor(postID uuid.UUID, cursor *time.Time, limit int) ([]*entities.Comment, error) {
+	var comments []*entities.Comment
+	q := r.db.Preload("User").Where("post_id = ?", postID)
+	if cursor != nil {
+		q = q.Where("created_at < ?", *cursor)
+	}
+	err := q.Order("created_at DESC").Limit(limit).Find(&comments).Error
 	return comments, err
 }
 

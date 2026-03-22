@@ -36,7 +36,6 @@ type PostResponse struct {
 	CoverImage    string              `json:"cover_image"`
 	Content       json.RawMessage     `json:"content,omitempty"`
 	Views         uint64              `json:"views"`
-	ClapCount     uint64              `json:"clap_count"`
 	CommentsCount uint64              `json:"comments_count"`
 	CreatedAt     time.Time           `json:"created_at"`
 	UpdatedAt     time.Time           `json:"updated_at"`
@@ -54,7 +53,6 @@ func NewPostResponse(post *entities.Post) *PostResponse {
 		CoverImage:    post.CoverImage,
 		Content:       post.Content,
 		Views:         post.Views,
-		ClapCount:     post.ClapCount,
 		CommentsCount: post.CommentsCount,
 		CreatedAt:     post.CreatedAt,
 		UpdatedAt:     post.UpdatedAt,

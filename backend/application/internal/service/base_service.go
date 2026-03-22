@@ -28,7 +28,6 @@ type BaseService struct {
 	CategoryRepo     repository.CategoryRepository
 	TagRepo          repository.TagRepository
 	PostContentRepo  repository.PostContentRepository
-	UserActivityRepo repository.UserActivityRepository
 	ImageRepo        repository.ImageRepository
 
 	viewBuffer sync.Map // map[uuid.UUID]*int64
@@ -67,7 +66,6 @@ func NewBaseService(
 	categoryRepo repository.CategoryRepository,
 	tagRepo repository.TagRepository,
 	postContentRepo repository.PostContentRepository,
-	userActivityRepo repository.UserActivityRepository,
 	imageRepo repository.ImageRepository,
 ) *BaseService {
 	return &BaseService{
@@ -83,7 +81,6 @@ func NewBaseService(
 		CategoryRepo:      categoryRepo,
 		TagRepo:           tagRepo,
 		PostContentRepo:   postContentRepo,
-		UserActivityRepo:  userActivityRepo,
 		ImageRepo:         imageRepo,
 	}
 }

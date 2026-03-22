@@ -28,9 +28,7 @@
     "browseAll": "Browse all"
   },
   "engagement": {
-    "loginToClap": "Please sign in to clap.",
     "loginToBookmark": "Please sign in to bookmark.",
-    "clap": "Clap",
     "comment": "Comment",
     "save": "Save",
     "copyLink": "Copy link",

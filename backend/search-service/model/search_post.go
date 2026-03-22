@@ -17,7 +17,6 @@ type SearchPost struct {
 	UserID        uuid.UUID `json:"user_id"`
 	User          User      `json:"user" gorm:"-"`
 	CreatedAt     time.Time `json:"created_at"`
-	ClapCount     uint64    `json:"claps"`
 	Views         uint64    `json:"views"`
 	CommentsCount uint64    `json:"comments_count"`
 	AverageRating float64   `json:"average_rating"`

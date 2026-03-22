@@ -11,34 +11,59 @@ import (
 	"gorm.io/gorm"
 )
 
-// GetPostComments retrieves comments for a post with pagination
-func (s *InsightService) GetPostComments(postID uuid.UUID, req *dto.PaginationRequest) ([]*dto.CommentResponse, int64, int64, error) {
+// parseCursor parses an RFC3339 cursor string into *time.Time. Returns nil on empty/invalid input.
+func parseCursor(s string) *time.Time {
+	if s == "" {
+		return nil
+	}
+	t, err := time.Parse(time.RFC3339Nano, s)
+	if err != nil {
+		return nil
+	}
+	return &t
+}
+
+// nextCursorStr returns the RFC3339Nano created_at of the last item as the next cursor,
+// or nil if the page was smaller than limit (no more data).
+func nextCursorStr(createdAt time.Time, count, limit int) *string {
+	if count < limit {
+		return nil
+	}
+	s := createdAt.UTC().Format(time.RFC3339Nano)
+	return &s
+}
+
+// GetPostComments retrieves comments for a post using cursor (keyset) pagination.
+// Returns (comments, totalCount, nextCursor, error).
+// nextCursor is nil when there are no more pages.
+func (s *InsightService) GetPostComments(postID uuid.UUID, req *dto.CursorRequest) ([]*dto.CommentResponse, int64, *string, error) {
 	if req.Limit == 0 {
 		req.Limit = 10
 	}
 
 	totalComments, err := s.CommentRepo.CountByPostID(postID)
 	if err != nil {
-		return nil, 0, 0, apperror.NewInternal("failed to count comments", err)
+		return nil, 0, nil, apperror.NewInternal("failed to count comments", err)
 	}
 
-	comments, err := s.CommentRepo.FindByPostID(postID, req.Limit, req.Offset)
+	cursor := parseCursor(req.Cursor)
+	comments, err := s.CommentRepo.FindByPostIDCursor(postID, cursor, req.Limit)
 	if err != nil {
-		return nil, 0, 0, apperror.NewInternal("failed to get comments", err)
+		return nil, 0, nil, apperror.NewInternal("failed to get comments", err)
 	}
 
-	totalReplies, err := s.ReplyRepo.CountByPostID(postID)
-	if err != nil {
-		return nil, 0, 0, apperror.NewInternal("failed to count replies", err)
-	}
-
-	_ = s.UserActivityRepo.CalculateCommentsAndRepliesCounts(comments)
+	_ = s.ReplyRepo.CalculateReplyCounts(comments)
 
 	responses := make([]*dto.CommentResponse, 0, len(comments))
 	for _, comment := range comments {
 		responses = append(responses, dto.NewCommentResponse(comment))
 	}
-	return responses, totalComments, totalReplies, nil
+
+	var next *string
+	if len(comments) > 0 {
+		next = nextCursorStr(comments[len(comments)-1].CreatedAt, len(comments), req.Limit)
+	}
+	return responses, totalComments, next, nil
 }
 
 // CreateComment creates a new comment
@@ -69,7 +94,6 @@ func (s *InsightService) CreateComment(userID uuid.UUID, req *dto.CreateCommentR
 		return nil, apperror.NewInternal("failed to load comment user", err)
 	}
 
-	s.createUserActivity(userID, "comment", postID)
 	// Increment denormalized count (best-effort)
 	_ = s.PostRepo.IncrementCommentCount(postID)
 
@@ -164,8 +188,6 @@ func (s *InsightService) CreateReply(userID uuid.UUID, req *dto.CreateReplyReque
 		return nil, apperror.NewInternal("failed to load reply user", err)
 	}
 
-	s.createUserActivity(userID, "reply", postID)
-
 	return dto.NewReplyResponse(reply), nil
 }
 
@@ -188,27 +210,30 @@ func (s *InsightService) DeleteReply(userID uuid.UUID, replyID uuid.UUID) error 
 	return nil
 }
 
-// GetCommentReplies retrieves replies for a comment
-func (s *InsightService) GetCommentReplies(commentID uuid.UUID, req *dto.PaginationRequest) ([]*dto.ReplyResponse, int64, error) {
+// GetCommentReplies retrieves replies for a comment using cursor (keyset) pagination.
+// Returns (replies, nextCursor, error).
+// nextCursor is nil when there are no more pages.
+func (s *InsightService) GetCommentReplies(commentID uuid.UUID, req *dto.CursorRequest) ([]*dto.ReplyResponse, *string, error) {
 	if req.Limit == 0 {
 		req.Limit = 10
 	}
 
-	total, err := s.ReplyRepo.CountByCommentID(commentID)
+	cursor := parseCursor(req.Cursor)
+	replies, err := s.ReplyRepo.FindByCommentIDCursor(commentID, cursor, req.Limit)
 	if err != nil {
-		return nil, 0, apperror.NewInternal("failed to count replies", err)
-	}
-
-	replies, err := s.ReplyRepo.FindByCommentID(commentID, req.Limit, req.Offset)
-	if err != nil {
-		return nil, 0, apperror.NewInternal("failed to get replies", err)
+		return nil, nil, apperror.NewInternal("failed to get replies", err)
 	}
 
 	responses := make([]*dto.ReplyResponse, 0, len(replies))
 	for _, reply := range replies {
 		responses = append(responses, dto.NewReplyResponse(reply))
 	}
-	return responses, total, nil
+
+	var next *string
+	if len(replies) > 0 {
+		next = nextCursorStr(replies[len(replies)-1].CreatedAt, len(replies), req.Limit)
+	}
+	return responses, next, nil
 }
 
 // GetComment retrieves a comment by ID
@@ -223,11 +248,3 @@ func (s *InsightService) GetComment(id uuid.UUID) (*dto.CommentResponse, error) 
 	return dto.NewCommentResponse(comment), nil
 }
 
-// createUserActivity creates a user activity record (best-effort)
-func (s *InsightService) createUserActivity(userID uuid.UUID, actionType string, postID uuid.UUID) {
-	activity := &entities.UserActivity{
-		ID: uuid.NewV4(), UserID: userID, PostID: &postID,
-		ActionType: actionType, Count: 1, CreatedAt: time.Now(),
-	}
-	_ = s.UserActivityRepo.Create(activity)
-}

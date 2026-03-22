@@ -69,7 +69,6 @@ func main() {
 	categoryRepo := repository.NewCategoryRepository(db)
 	tagRepo := repository.NewTagRepository(db)
 	postContentRepo := repository.NewPostContentRepository(db)
-	userActivityRepo := repository.NewUserActivityRepository(db)
 	imageRepo := repository.NewImageRepository(db)
 
 	baseService := service.NewBaseService(
@@ -80,7 +79,7 @@ func main() {
 		storageManager,
 		userRepo, postRepo, commentRepo, replyRepo,
 		categoryRepo, tagRepo,
-		postContentRepo, userActivityRepo, imageRepo,
+		postContentRepo, imageRepo,
 	)
 
 	insightService := service.NewInsightService(baseService)

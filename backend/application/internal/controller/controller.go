@@ -29,9 +29,9 @@ func NewController(svc service.Service) *Controller {
 	return &Controller{
 		Auth:       &AuthController{svc: svc},
 		User:       &UserController{svc: svc},
-		Post:       &PostController{svc: svc, engagement: svc, user: svc},
+		Post:       &PostController{svc: svc, user: svc},
 		Comment:    &CommentController{svc: svc},
-		Engagement: &EngagementController{svc: svc, post: svc, comment: svc},
+		Engagement: &EngagementController{comment: svc},
 		Category:   &CategoryController{svc: svc},
 		Tag:        &TagController{svc: svc},
 		Image:      &ImageController{svc: svc},

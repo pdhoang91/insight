@@ -22,7 +22,6 @@ type Post struct {
 	Views           uint64          `json:"views"`
 	EngagementScore float64         `gorm:"default:0" json:"-"`
 	Content         json.RawMessage `gorm:"-" json:"content,omitempty"`
-	ClapCount     uint64 `gorm:"column:clap_count;default:0" json:"clap_count"`
 	CommentsCount uint64 `gorm:"column:comment_count;default:0" json:"comments_count"`
 
 	// Relationships

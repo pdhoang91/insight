@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/pdhoang91/blog/internal/entities"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
@@ -46,7 +48,6 @@ type PostRepository interface {
 	CountByYearMonth(year, month int) (int64, error)
 	GetArchiveSummary() ([]*ArchiveSummaryItem, error)
 	IncrementViews(post *entities.Post) error
-	IncrementClapCount(postID uuid.UUID) error
 	IncrementCommentCount(postID uuid.UUID) error
 	DecrementCommentCount(postID uuid.UUID) error
 	CalculateCounts(post *entities.Post) error
@@ -67,6 +68,7 @@ type CommentRepository interface {
 	Delete(comment *entities.Comment) error
 	FindByID(id uuid.UUID) (*entities.Comment, error)
 	FindByPostID(postID uuid.UUID, limit, offset int) ([]*entities.Comment, error)
+	FindByPostIDCursor(postID uuid.UUID, cursor *time.Time, limit int) ([]*entities.Comment, error)
 	CountByPostID(postID uuid.UUID) (int64, error)
 	DeleteByPostID(postID uuid.UUID) error
 	WithTx(tx *gorm.DB) CommentRepository
@@ -78,10 +80,12 @@ type ReplyRepository interface {
 	Delete(reply *entities.Reply) error
 	FindByID(id uuid.UUID) (*entities.Reply, error)
 	FindByCommentID(commentID uuid.UUID, limit, offset int) ([]*entities.Reply, error)
+	FindByCommentIDCursor(commentID uuid.UUID, cursor *time.Time, limit int) ([]*entities.Reply, error)
 	CountByCommentID(commentID uuid.UUID) (int64, error)
 	CountByPostID(postID uuid.UUID) (int64, error)
 	DeleteByCommentID(commentID uuid.UUID) error
 	DeleteByPostID(postID uuid.UUID) error
+	CalculateReplyCounts(comments []*entities.Comment) error
 	WithTx(tx *gorm.DB) ReplyRepository
 }
 
@@ -126,17 +130,6 @@ type PostContentRepository interface {
 	DeleteByPostID(postID uuid.UUID) error
 	// WithTx returns a new repository instance that uses the given transaction.
 	WithTx(tx *gorm.DB) PostContentRepository
-}
-
-type UserActivityRepository interface {
-	Create(activity *entities.UserActivity) error
-	FindByUserAndPost(userID, postID uuid.UUID, actionType string) (*entities.UserActivity, error)
-	FindByUserAndComment(userID, commentID uuid.UUID, actionType string) (*entities.UserActivity, error)
-	FindByUserAndReply(userID, replyID uuid.UUID, actionType string) (*entities.UserActivity, error)
-	IncrementCount(activity *entities.UserActivity) error
-	GetClapCount(itemType string, itemID uuid.UUID) (int64, error)
-	HasUserClapped(userID uuid.UUID, itemType string, itemID uuid.UUID) (bool, error)
-	CalculateCommentsAndRepliesCounts(comments []*entities.Comment) error
 }
 
 type ImageRepository interface {

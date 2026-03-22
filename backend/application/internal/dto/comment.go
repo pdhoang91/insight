@@ -29,7 +29,6 @@ type CommentResponse struct {
 	ID           uuid.UUID        `json:"id"`
 	PostID       uuid.UUID        `json:"post_id"`
 	Content      string           `json:"content"`
-	ClapCount    uint64           `json:"clap_count"`
 	RepliesCount uint64           `json:"replies_count"`
 	CreatedAt    time.Time        `json:"created_at"`
 	User         *UserResponse    `json:"user,omitempty"`
@@ -41,7 +40,6 @@ func NewCommentResponse(comment *entities.Comment) *CommentResponse {
 		ID:           comment.ID,
 		PostID:       comment.PostID,
 		Content:      comment.Content,
-		ClapCount:    comment.ClapCount,
 		RepliesCount: comment.RepliesCount,
 		CreatedAt:    comment.CreatedAt,
 	}
@@ -63,7 +61,6 @@ type ReplyResponse struct {
 	CommentID  uuid.UUID     `json:"comment_id"`
 	PostID     uuid.UUID     `json:"post_id"`
 	Content   string        `json:"content"`
-	ClapCount uint64        `json:"clap_count"`
 	CreatedAt  time.Time     `json:"created_at"`
 	User       *UserResponse `json:"user,omitempty"`
 }
@@ -74,7 +71,6 @@ func NewReplyResponse(reply *entities.Reply) *ReplyResponse {
 		CommentID:  reply.CommentID,
 		PostID:     reply.PostID,
 		Content:   reply.Content,
-		ClapCount: reply.ClapCount,
 		CreatedAt:  reply.CreatedAt,
 	}
 

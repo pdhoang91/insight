@@ -39,3 +39,11 @@ type PaginationRequest struct {
 	Limit  int `form:"limit" json:"limit,omitempty" validate:"omitempty,min=1,max=100"`
 	Offset int `json:"offset,omitempty" validate:"omitempty,min=0"`
 }
+
+// CursorRequest is used for keyset (cursor) pagination.
+// Cursor is an RFC3339-encoded created_at timestamp of the last seen item.
+// An empty Cursor means "fetch from the beginning".
+type CursorRequest struct {
+	Cursor string `form:"cursor" json:"cursor,omitempty"`
+	Limit  int    `form:"limit"  json:"limit,omitempty" validate:"omitempty,min=1,max=100"`
+}

@@ -71,7 +71,7 @@ func (r *postRepo) CountByUserID(userID uuid.UUID) (int64, error) {
 func (r *postRepo) CountSearch(query string) (int64, error) {
 	var count int64
 	err := r.db.Model(&entities.Post{}).
-		Where("title ILIKE ? OR excerpt ILIKE ?", "%"+query+"%", "%"+query+"%").
+		Where("document @@ plainto_tsquery('english', ?) OR document @@ plainto_tsquery('simple', ?)", query, query).
 		Count(&count).Error
 	return count, err
 }
@@ -87,7 +87,7 @@ func (r *postRepo) List(limit, offset int) ([]*entities.Post, error) {
 func (r *postRepo) Search(query string, limit, offset int) ([]*entities.Post, error) {
 	var posts []*entities.Post
 	err := r.db.Preload("User").Preload("Categories").Preload("Tags").
-		Where("title ILIKE ? OR excerpt ILIKE ?", "%"+query+"%", "%"+query+"%").
+		Where("document @@ plainto_tsquery('english', ?) OR document @@ plainto_tsquery('simple', ?)", query, query).
 		Limit(limit).Offset(offset).
 		Find(&posts).Error
 	return posts, err
@@ -197,10 +197,6 @@ func (r *postRepo) IncrementViews(post *entities.Post) error {
 	return r.db.Model(post).UpdateColumn("views", gorm.Expr("views + ?", 1)).Error
 }
 
-func (r *postRepo) IncrementClapCount(postID uuid.UUID) error {
-	return r.db.Exec("UPDATE posts SET clap_count = clap_count + 1 WHERE id = ?", postID).Error
-}
-
 func (r *postRepo) IncrementCommentCount(postID uuid.UUID) error {
 	return r.db.Exec("UPDATE posts SET comment_count = comment_count + 1 WHERE id = ?", postID).Error
 }
@@ -210,14 +206,6 @@ func (r *postRepo) DecrementCommentCount(postID uuid.UUID) error {
 }
 
 func (r *postRepo) CalculateCounts(post *entities.Post) error {
-	var clapCount int64
-	if err := r.db.Model(&entities.UserActivity{}).
-		Where("post_id = ? AND action_type = ?", post.ID, "clap_post").
-		Select("COALESCE(SUM(count), 0)").Row().Scan(&clapCount); err != nil {
-		return err
-	}
-	post.ClapCount = uint64(clapCount)
-
 	var commentCount int64
 	if err := r.db.Model(&entities.Comment{}).
 		Where("post_id = ?", post.ID).
@@ -258,25 +246,10 @@ func (r *postRepo) CalculateCountsForPosts(posts []*entities.Post) error {
 	if len(posts) == 0 {
 		return nil
 	}
-
 	postIDs := make([]uuid.UUID, len(posts))
 	for i, post := range posts {
 		postIDs[i] = post.ID
 	}
-
-	type ClapResult struct {
-		PostID    uuid.UUID
-		ClapCount int64
-	}
-	var clapCounts []ClapResult
-	if err := r.db.Model(&entities.UserActivity{}).
-		Select("post_id, COALESCE(SUM(count), 0) as clap_count").
-		Where("post_id IN ? AND action_type = ?", postIDs, "clap_post").
-		Group("post_id").
-		Scan(&clapCounts).Error; err != nil {
-		return err
-	}
-
 	type CommentResult struct {
 		PostID       uuid.UUID
 		CommentCount int64
@@ -289,18 +262,11 @@ func (r *postRepo) CalculateCountsForPosts(posts []*entities.Post) error {
 		Scan(&commentCounts).Error; err != nil {
 		return err
 	}
-
-	clapMap := make(map[uuid.UUID]int64)
-	for _, r := range clapCounts {
-		clapMap[r.PostID] = r.ClapCount
-	}
 	commentMap := make(map[uuid.UUID]int64)
 	for _, r := range commentCounts {
 		commentMap[r.PostID] = r.CommentCount
 	}
-
 	for _, post := range posts {
-		post.ClapCount = uint64(clapMap[post.ID])
 		post.CommentsCount = uint64(commentMap[post.ID])
 	}
 	return nil

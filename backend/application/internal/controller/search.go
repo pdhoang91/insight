@@ -50,7 +50,7 @@ func (c *SearchController) SearchPosts(ctx *gin.Context) {
 			ID: postID, Title: searchPost.Title, Slug: searchPost.Slug,
 			Excerpt: searchPost.Excerpt,
 			CreatedAt: searchPost.CreatedAt, UpdatedAt: searchPost.CreatedAt,
-			Views: searchPost.Views, ClapCount: searchPost.ClapCount,
+			Views: searchPost.Views,
 			CommentsCount: searchPost.CommentsCount,
 		}
 
