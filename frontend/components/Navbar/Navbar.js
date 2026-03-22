@@ -363,7 +363,7 @@ const Navbar = () => {
           )}
 
           <motion.div variants={panelItem} style={{ padding: '4px 0' }}>
-            <LanguageTogglePill />
+            <LanguageTogglePill variant="panel" />
           </motion.div>
 
           {user ? (

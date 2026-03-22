@@ -1,6 +1,10 @@
 import { getRequestConfig } from 'next-intl/server';
 
-export const locales = ['vi', 'en'];
+export const LANGUAGES = [
+  { code: 'vi', label: 'VI', name: 'Tiếng Việt' },
+  { code: 'en', label: 'EN', name: 'English' },
+];
+export const locales = LANGUAGES.map(l => l.code);
 export const defaultLocale = 'vi';
 
 export default getRequestConfig(async ({ requestLocale }) => {
