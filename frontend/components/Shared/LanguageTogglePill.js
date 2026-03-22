@@ -2,7 +2,7 @@
 import React, { useState, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useLocale } from 'next-intl';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { locales } from '../../i18n';
 
 const snappy = { type: 'spring', stiffness: 300, damping: 30, mass: 0.3 };
@@ -10,7 +10,6 @@ const snappy = { type: 'spring', stiffness: 300, damping: 30, mass: 0.3 };
 export default function LanguageTogglePill() {
   const locale = useLocale();
   const router = useRouter();
-  const pathname = usePathname();
   const [disabled, setDisabled] = useState(false);
 
   const switchLocale = useCallback((newLocale) => {
@@ -18,23 +17,10 @@ export default function LanguageTogglePill() {
     setDisabled(true);
     setTimeout(() => setDisabled(false), 500);
 
-    const segments = pathname.split('/');
-    if (locales.includes(segments[1])) {
-      if (newLocale === 'vi') {
-        segments.splice(1, 1);
-      } else {
-        segments[1] = newLocale;
-      }
-    } else {
-      if (newLocale !== 'vi') {
-        segments.splice(1, 0, newLocale);
-      }
-    }
-    const newPath = segments.join('/') || '/';
-    const search = typeof window !== 'undefined' ? window.location.search : '';
-    const hash = typeof window !== 'undefined' ? window.location.hash : '';
-    router.push(newPath + search + hash);
-  }, [disabled, locale, pathname, router]);
+    // Lưu vào cookie để middleware next-intl đọc (NEXT_LOCALE)
+    document.cookie = `NEXT_LOCALE=${newLocale};path=/;max-age=31536000;SameSite=Lax`;
+    router.refresh();
+  }, [disabled, locale, router]);
 
   return (
     <div
