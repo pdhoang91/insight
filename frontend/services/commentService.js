@@ -2,16 +2,28 @@
 import axiosPrivateInstance from '../utils/axiosPrivateInstance';
 import axiosPublicInstance from '../utils/axiosPublicInstance';
 
-export const getCommentsForPost = async (postId, page = 1, limit = 10) => {
-    const response = await axiosPublicInstance.get(`/posts/${postId}/comments?page=${page}&limit=${limit}`);
-    const { data, total_count, total_comment_reply } = response.data;
- 
-    return {
-      data: data,
-      totalCommentReply: total_comment_reply, 
-      totalCount: total_count,
-    };
+export const getCommentsForPost = async (postId, cursor = null, limit = 10) => {
+  const params = new URLSearchParams({ limit });
+  if (cursor) params.set('cursor', cursor);
+  const response = await axiosPublicInstance.get(`/posts/${postId}/comments?${params}`);
+  const { data, total_count, next_cursor } = response.data;
+  return {
+    data: data || [],
+    totalCount: total_count || 0,
+    nextCursor: next_cursor || null,
   };
+};
+
+export const getRepliesForComment = async (commentId, cursor = null, limit = 10) => {
+  const params = new URLSearchParams({ limit });
+  if (cursor) params.set('cursor', cursor);
+  const response = await axiosPublicInstance.get(`/comments/${commentId}/replies?${params}`);
+  const { data, next_cursor } = response.data;
+  return {
+    data: data || [],
+    nextCursor: next_cursor || null,
+  };
+};
 
 // Add comment - only needs postId and content (user is from auth token)
 export const addComment = async (postId, content) => {

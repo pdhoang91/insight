@@ -52,7 +52,10 @@
     "invalidData": "Invalid comment data.",
     "joinConversation": "Join the conversation",
     "beFirstToShare": "Be the first to share your thoughts",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "viewReplies": "View replies",
+    "hideReplies": "Hide replies",
+    "loadMoreReplies": "Load more replies"
   },
   "editor": {
     "titlePlaceholder": "Title",

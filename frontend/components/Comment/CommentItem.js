@@ -5,6 +5,7 @@ import { FaUser } from 'react-icons/fa';
 import { useTranslations } from 'next-intl';
 import { useUser } from '../../context/UserContext';
 import { addReply } from '../../services/commentService';
+import { useCommentReplies } from '../../hooks/useCommentReplies';
 import AddCommentForm from './AddCommentForm';
 import CommentContent from './CommentContent';
 import ReplyList from './ReplyList';
@@ -12,15 +13,20 @@ import TimeAgo from '../Utils/TimeAgo';
 
 const CommentItem = ({ comment, postId, mutate }) => {
   const [showReplyForm, setShowReplyForm] = useState(false);
+  const [showReplies, setShowReplies] = useState(false);
   const t = useTranslations();
   const { user } = useUser();
-  const repliesCount = comment.replies?.length || 0;
+  const repliesCount = comment.replies_count || 0;
+
+  const { replies, isLoading: repliesLoading, canLoadMore, loadMore, mutate: mutateReplies } =
+    useCommentReplies(comment.id, showReplies);
 
   const handleReply = async (content, commentID) => {
     if (!user) { alert(t('comment.loginToComment')); return; }
     if (!content.trim()) return;
     try {
       await addReply(commentID, content);
+      mutateReplies();
       mutate();
       setShowReplyForm(false);
     } catch (err) {
@@ -103,17 +109,55 @@ const CommentItem = ({ comment, postId, mutate }) => {
             >
               {t('comment.reply')}
             </motion.button>
+
+            {repliesCount > 0 && (
+              <motion.button
+                onClick={() => setShowReplies(prev => !prev)}
+                whileTap={{ scale: 0.96 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontSize: '0.75rem',
+                  letterSpacing: '-0.01em',
+                  color: showReplies ? 'var(--text-muted)' : 'var(--text-faint)',
+                  background: 'none', border: 'none', cursor: 'pointer', padding: 0,
+                  transition: 'color 0.2s',
+                }}
+                className="hover:text-[var(--text-muted)]"
+              >
+                {showReplies
+                  ? t('comment.hideReplies')
+                  : `${t('comment.viewReplies')} (${repliesCount})`}
+              </motion.button>
+            )}
           </div>
 
-          {comment.replies?.length > 0 && (
-            <div style={{
-              marginTop: '1.25rem',
-              paddingLeft: '1rem',
-              borderLeft: '2px solid var(--border)',
-            }}>
-              <ReplyList replies={comment.replies} commentId={comment.id} mutate={mutate} />
-            </div>
-          )}
+          <AnimatePresence>
+            {showReplies && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ type: 'spring', stiffness: 120, damping: 22 }}
+                style={{ overflow: 'hidden' }}
+              >
+                <div style={{
+                  marginTop: '1.25rem',
+                  paddingLeft: '1rem',
+                  borderLeft: '2px solid var(--border)',
+                }}>
+                  <ReplyList
+                    replies={replies}
+                    isLoading={repliesLoading}
+                    canLoadMore={canLoadMore}
+                    loadMore={loadMore}
+                    commentId={comment.id}
+                    mutate={mutateReplies}
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <AnimatePresence>
             {showReplyForm && (

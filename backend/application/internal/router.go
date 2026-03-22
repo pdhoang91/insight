@@ -58,6 +58,9 @@ func DefineAPIRoutes(r *gin.Engine, ctrl *controller.Controller) {
 		public.GET("/public/:username/posts", ctrl.Post.GetUserPostsByUsername)
 		public.GET("/public/:username/profile", ctrl.User.GetUserProfileByUsername)
 
+		// Replies (public read)
+		public.GET("/comments/:id/replies", ctrl.Comment.GetCommentReplies)
+
 		// Images (public viewing)
 		public.GET("/images/proxy/:userID/:date/:type/:filename", ctrl.Image.ProxyImage)
 		public.GET("/images/info/:userID/:date/:type/:filename", ctrl.Image.GetImageInfo)

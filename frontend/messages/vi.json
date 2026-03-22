@@ -52,7 +52,10 @@
     "invalidData": "Dữ liệu bình luận không hợp lệ.",
     "joinConversation": "Tham gia cuộc trò chuyện",
     "beFirstToShare": "Hãy là người đầu tiên chia sẻ suy nghĩ của bạn",
-    "loading": "Đang tải..."
+    "loading": "Đang tải...",
+    "viewReplies": "Xem trả lời",
+    "hideReplies": "Ẩn trả lời",
+    "loadMoreReplies": "Xem thêm trả lời"
   },
   "editor": {
     "titlePlaceholder": "Tiêu đề bài viết của bạn...",
