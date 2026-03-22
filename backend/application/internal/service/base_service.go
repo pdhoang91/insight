@@ -23,7 +23,6 @@ type BaseService struct {
 	ReplyRepo        repository.ReplyRepository
 	CategoryRepo     repository.CategoryRepository
 	TagRepo          repository.TagRepository
-	BookmarkRepo     repository.BookmarkRepository
 	PostContentRepo  repository.PostContentRepository
 	UserActivityRepo repository.UserActivityRepository
 	ImageRepo        repository.ImageRepository
@@ -41,7 +40,6 @@ func NewBaseService(
 	replyRepo repository.ReplyRepository,
 	categoryRepo repository.CategoryRepository,
 	tagRepo repository.TagRepository,
-	bookmarkRepo repository.BookmarkRepository,
 	postContentRepo repository.PostContentRepository,
 	userActivityRepo repository.UserActivityRepository,
 	imageRepo repository.ImageRepository,
@@ -58,7 +56,6 @@ func NewBaseService(
 		ReplyRepo:         replyRepo,
 		CategoryRepo:      categoryRepo,
 		TagRepo:           tagRepo,
-		BookmarkRepo:      bookmarkRepo,
 		PostContentRepo:   postContentRepo,
 		UserActivityRepo:  userActivityRepo,
 		ImageRepo:         imageRepo,

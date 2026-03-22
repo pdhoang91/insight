@@ -8,7 +8,6 @@ export { default as Navbar } from './Navbar/Navbar';
 export { default as PageLayout } from './Layout/PageLayout';
 
 // Content Components
-export { default as ArticleReader } from './Post/ArticleReader';
 export { default as BasePostItem } from './Post/BasePostItem';
 
 // Comment System

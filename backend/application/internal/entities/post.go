@@ -24,7 +24,6 @@ type Post struct {
 	Content         json.RawMessage `gorm:"-" json:"content,omitempty"`
 	ClapCount       uint64          `gorm:"-" json:"clap_count"`
 	CommentsCount   uint64          `gorm:"-" json:"comments_count"`
-	AverageRating   float64         `gorm:"-" json:"average_rating"`
 
 	// Relationships
 	User        User        `gorm:"foreignKey:UserID" json:"user"`

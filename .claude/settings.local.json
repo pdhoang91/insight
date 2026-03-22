@@ -33,7 +33,10 @@
       "Read(//Users/anhoaian/.claude/**)",
       "Read(//Users/anhoaian/**)",
       "Bash(find /Users/anhoaian/Documents/pdhoang91/insight/frontend/app/[locale] -type f \\\\\\( -name \"*.js\" -o -name \"*.jsx\" \\\\\\))",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(grep -r \"Rating\\\\|Notification\" /Users/anhoaian/Documents/pdhoang91/insight/backend/application/internal/repository --include=*.go)",
+      "Bash(grep -r \"bookmark\\\\|Bookmark\" /Users/anhoaian/Documents/pdhoang91/insight/frontend --include=\"*.js\" ! -path \"*/node_modules/*\" ! -path \"*/.next/*\")",
+      "Bash(go build:*)"
     ]
   }
 }

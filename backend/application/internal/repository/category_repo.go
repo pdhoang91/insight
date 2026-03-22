@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"strings"
+
 	"github.com/pdhoang91/blog/internal/entities"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
@@ -35,7 +37,7 @@ func (r *categoryRepo) FindByID(id uuid.UUID) (*entities.Category, error) {
 
 func (r *categoryRepo) FindByName(name string) (*entities.Category, error) {
 	var category entities.Category
-	err := r.db.Where("name = ?", name).First(&category).Error
+	err := r.db.Where("LOWER(name) = LOWER(?)", name).First(&category).Error
 	if err != nil {
 		return nil, err
 	}
@@ -55,20 +57,28 @@ func (r *categoryRepo) Count() (int64, error) {
 }
 
 func (r *categoryRepo) FindByNames(names []string, limit, offset int) ([]*entities.Category, error) {
+	lower := make([]string, len(names))
+	for i, n := range names {
+		lower[i] = strings.ToLower(n)
+	}
 	var categories []*entities.Category
-	err := r.db.Where("name IN ?", names).Order("created_at desc").Limit(limit).Offset(offset).Find(&categories).Error
+	err := r.db.Where("LOWER(name) IN ?", lower).Order("created_at desc").Limit(limit).Offset(offset).Find(&categories).Error
 	return categories, err
 }
 
 func (r *categoryRepo) CountByNames(names []string) (int64, error) {
+	lower := make([]string, len(names))
+	for i, n := range names {
+		lower[i] = strings.ToLower(n)
+	}
 	var count int64
-	err := r.db.Model(&entities.Category{}).Where("name IN ?", names).Count(&count).Error
+	err := r.db.Model(&entities.Category{}).Where("LOWER(name) IN ?", lower).Count(&count).Error
 	return count, err
 }
 
 func (r *categoryRepo) FindPopularByPostCount(limit, offset int) ([]CategoryPostCount, int64, error) {
 	var totalCount int64
-	countQuery := `SELECT COUNT(DISTINCT c.id) FROM categories c INNER JOIN post_categories pc ON c.id = pc.category_id`
+	countQuery := `SELECT COUNT(*) FROM categories`
 	if err := r.db.Raw(countQuery).Scan(&totalCount).Error; err != nil {
 		return nil, 0, err
 	}
@@ -79,10 +89,10 @@ func (r *categoryRepo) FindPopularByPostCount(limit, offset int) ([]CategoryPost
 	}
 	var results []rawResult
 	query := `SELECT c.id, c.name, c.description, c.created_at, c.updated_at, COUNT(pc.post_id) as post_count
-		FROM categories c 
-		INNER JOIN post_categories pc ON c.id = pc.category_id 
-		GROUP BY c.id, c.name, c.description, c.created_at, c.updated_at 
-		ORDER BY post_count DESC 
+		FROM categories c
+		LEFT JOIN post_categories pc ON c.id = pc.category_id
+		GROUP BY c.id, c.name, c.description, c.created_at, c.updated_at
+		ORDER BY post_count DESC, c.created_at DESC
 		LIMIT ? OFFSET ?`
 	if err := r.db.Raw(query, limit, offset).Scan(&results).Error; err != nil {
 		return nil, 0, err

@@ -95,7 +95,7 @@ export const PostDetail = ({ post, relatedPosts = [] }) => {
             {post.categories.map((cat) => (
               <Link
                 key={cat.id || cat.name}
-                href={`/category/${cat.name}`}
+                href={`/category/${cat.name.toLowerCase()}`}
                 style={{
                   fontFamily: 'var(--font-display)',
                   fontSize: '0.7rem',

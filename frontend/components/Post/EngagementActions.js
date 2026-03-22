@@ -1,7 +1,7 @@
 // components/Post/EngagementActions.js - Fully theme-based design
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { FaComment, FaBookmark, FaEllipsisH, FaFlag, FaCopy } from 'react-icons/fa';
+import { FaComment, FaEllipsisH, FaFlag, FaCopy } from 'react-icons/fa';
 import { FaHandsClapping } from "react-icons/fa6";
 import { useUser } from '../../context/UserContext';
 import { useClapsCount } from '../../hooks/useClapsCount';
@@ -21,7 +21,6 @@ const EngagementActions = ({
   const { user } = useUser();
   const { clapsCount, loading: clapsLoading, mutate: mutateClaps } = useClapsCount('post', post.id);
   const [isMoreMenuOpen, setMoreMenuOpen] = useState(false);
-  const [isBookmarked, setIsBookmarked] = useState(false);
   const moreMenuRef = useRef();
 
 
@@ -49,16 +48,6 @@ const EngagementActions = ({
       mutateClaps();
     }
   };
-
-  const handleBookmark = () => {
-    if (!user) {
-      alert(t('engagement.loginToBookmark'));
-      return;
-    }
-    setIsBookmarked(!isBookmarked);
-    // TODO: Implement bookmark API
-  };
-
 
   const handleMoreOptions = () => {
     setMoreMenuOpen(!isMoreMenuOpen);
@@ -131,19 +120,6 @@ const EngagementActions = ({
         ? themeClasses.spacing.stackSmall 
         : combineClasses('flex items-center', themeClasses.spacing.gap)
       }>
-        {/* Bookmark Button */}
-        <button
-          onClick={handleBookmark}
-          className={combineClasses(
-            buttonClasses,
-            isBookmarked ? themeClasses.text.accent : ''
-          )}
-          aria-label={t('engagement.save')}
-        >
-          <FaBookmark className={iconSizes[size]} />
-          {showLabels && <span className={sizeClasses[size]}>{t('engagement.save')}</span>}
-        </button>
-
         {/* More Options */}
         <div ref={moreMenuRef} className={themeClasses.utils.relative}>
           <button

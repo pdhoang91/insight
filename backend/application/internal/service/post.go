@@ -14,7 +14,6 @@ import (
 	"github.com/pdhoang91/blog/internal/dto"
 	"github.com/pdhoang91/blog/internal/entities"
 	"github.com/pdhoang91/blog/internal/repository"
-	"github.com/pdhoang91/blog/pkg/notification"
 	"github.com/pdhoang91/blog/pkg/revalidation"
 	"github.com/pdhoang91/blog/pkg/utils"
 	uuid "github.com/satori/go.uuid"
@@ -112,10 +111,6 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 			return nil, apperror.NewInternal("failed to associate tags", nil)
 		}
 	}
-
-	// Send notifications (best-effort)
-	eventProcessor := notification.GetDefaultProcessor(s.DB)
-	_ = eventProcessor.SendPostNotification(notification.EventTypePostCreated, userID, post.ID, "New post created")
 
 	if err := tx.Commit().Error; err != nil {
 		return nil, apperror.NewInternal("failed to commit transaction", err)
@@ -372,10 +367,6 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 		}
 	}
 
-	// Send notifications (best-effort)
-	eventProcessor := notification.GetDefaultProcessor(s.DB)
-	_ = eventProcessor.SendPostNotification(notification.EventTypePostUpdated, userID, post.ID, "Post updated")
-
 	if err := tx.Commit().Error; err != nil {
 		return nil, apperror.NewInternal("failed to commit transaction", err)
 	}
@@ -437,9 +428,6 @@ func (s *InsightService) DeletePost(userID uuid.UUID, id uuid.UUID) error {
 		tx.Rollback()
 		return apperror.NewInternal("failed to delete post content", err)
 	}
-
-	eventProcessor := notification.GetDefaultProcessor(s.DB)
-	_ = eventProcessor.SendPostNotification(notification.EventTypePostDeleted, userID, id, "Post deleted")
 
 	if err := tx.Commit().Error; err != nil {
 		return apperror.NewInternal("failed to commit transaction", err)

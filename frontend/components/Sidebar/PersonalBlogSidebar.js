@@ -95,7 +95,7 @@ const PersonalBlogSidebar = ({ initialHomeData }) => {
             {categories?.slice(0, 8).map((category) => (
               <Link
                 key={category.id}
-                href={`/category/${category.name}`}
+                href={`/category/${category.name.toLowerCase()}`}
                 style={{
                   display: 'flex',
                   alignItems: 'center',

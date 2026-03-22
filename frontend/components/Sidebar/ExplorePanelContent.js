@@ -132,7 +132,7 @@ const ExplorePanelContent = ({ onClose }) => {
               {categories.slice(0, 8).map((cat) => (
                 <Link
                   key={cat.id}
-                  href={`/category/${cat.name}`}
+                  href={`/category/${cat.name.toLowerCase()}`}
                   onClick={onClose}
                   style={{
                     display: 'flex',

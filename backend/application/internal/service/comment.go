@@ -7,7 +7,6 @@ import (
 	"github.com/pdhoang91/blog/internal/apperror"
 	"github.com/pdhoang91/blog/internal/dto"
 	"github.com/pdhoang91/blog/internal/entities"
-	"github.com/pdhoang91/blog/pkg/notification"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -71,10 +70,6 @@ func (s *InsightService) CreateComment(userID uuid.UUID, req *dto.CreateCommentR
 	}
 
 	s.createUserActivity(userID, "comment", postID)
-
-	// Send notification (best-effort)
-	eventProcessor := notification.GetDefaultProcessor(s.DB)
-	_ = eventProcessor.SendCommentNotification(userID, postID, comment.ID, "New comment on your post")
 
 	return dto.NewCommentResponse(comment), nil
 }
@@ -165,10 +160,6 @@ func (s *InsightService) CreateReply(userID uuid.UUID, req *dto.CreateReplyReque
 	}
 
 	s.createUserActivity(userID, "reply", postID)
-
-	// Send notification (best-effort)
-	eventProcessor := notification.GetDefaultProcessor(s.DB)
-	_ = eventProcessor.SendReplyNotification(userID, commentID, reply.ID, "New reply to your comment")
 
 	return dto.NewReplyResponse(reply), nil
 }

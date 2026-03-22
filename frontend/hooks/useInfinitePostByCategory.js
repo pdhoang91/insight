@@ -20,14 +20,14 @@ export const useInfinitePostByCategory = (name) => {
   const getKey = (pageIndex, previousPageData) => {
     // Nếu không còn dữ liệu để tải thêm, trả về null
     if (previousPageData && previousPageData.posts.length === 0) return null;
-    // Trả về một mảng chứa số trang và giới hạn
-    return [pageIndex + 1, PAGE_SIZE];
+    // Include name in key so different categories have separate SWR cache entries
+    return [name, pageIndex + 1, PAGE_SIZE];
   };
 
   // Sử dụng useSWRInfinite để lấy dữ liệu
   const { data, error, size, setSize } = useSWRInfinite(
     getKey,
-    ([page, limit]) => fetcher(page, limit)
+    ([, page, limit]) => fetcher(page, limit)
   );
 
   // Logging để kiểm tra dữ liệu

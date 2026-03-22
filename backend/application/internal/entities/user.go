@@ -23,11 +23,8 @@ type User struct {
 	Phone                  string    `json:"phone"`
 	Dob                    string    `json:"dob"`
 	Role                   UserRole  `json:"role" gorm:"default:'user'"`
-	EmailVerified          bool      `json:"email_verified" gorm:"default:false"`
-	VerificationToken      string    `json:"-"`
-	PasswordResetToken     string    `json:"-"`
-	PasswordResetExpiresAt time.Time `json:"-"`
-	CreatedAt              time.Time `json:"created_at"`
+	EmailVerified bool      `json:"email_verified" gorm:"default:false"`
+	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt              time.Time `json:"updated_at"`
 }
 

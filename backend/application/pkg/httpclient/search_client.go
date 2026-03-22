@@ -37,7 +37,6 @@ type SearchPostResult struct {
 	ClapCount     uint64     `json:"claps"`
 	Views         uint64     `json:"views"`
 	CommentsCount uint64     `json:"comments_count"`
-	AverageRating float64    `json:"average_rating"`
 }
 
 // SearchUser represents user info in search results

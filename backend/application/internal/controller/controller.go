@@ -18,7 +18,6 @@ type Controller struct {
 	Post       *PostController
 	Comment    *CommentController
 	Engagement *EngagementController
-	Bookmark   *BookmarkController
 	Category   *CategoryController
 	Tag        *TagController
 	Image      *ImageController
@@ -33,7 +32,6 @@ func NewController(svc service.Service) *Controller {
 		Post:       &PostController{svc: svc, engagement: svc, user: svc},
 		Comment:    &CommentController{svc: svc},
 		Engagement: &EngagementController{svc: svc, post: svc, comment: svc},
-		Bookmark:   &BookmarkController{svc: svc},
 		Category:   &CategoryController{svc: svc},
 		Tag:        &TagController{svc: svc},
 		Image:      &ImageController{svc: svc},

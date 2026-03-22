@@ -62,9 +62,8 @@ type ReplyResponse struct {
 	ID         uuid.UUID     `json:"id"`
 	CommentID  uuid.UUID     `json:"comment_id"`
 	PostID     uuid.UUID     `json:"post_id"`
-	Content    string        `json:"content"`
-	CountReply uint64        `json:"count_reply"`
-	ClapCount  uint64        `json:"clap_count"`
+	Content   string        `json:"content"`
+	ClapCount uint64        `json:"clap_count"`
 	CreatedAt  time.Time     `json:"created_at"`
 	User       *UserResponse `json:"user,omitempty"`
 }
@@ -74,9 +73,8 @@ func NewReplyResponse(reply *entities.Reply) *ReplyResponse {
 		ID:         reply.ID,
 		CommentID:  reply.CommentID,
 		PostID:     reply.PostID,
-		Content:    reply.Content,
-		CountReply: reply.CountReply,
-		ClapCount:  reply.ClapCount,
+		Content:   reply.Content,
+		ClapCount: reply.ClapCount,
 		CreatedAt:  reply.CreatedAt,
 	}
 

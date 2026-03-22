@@ -1,11 +1,11 @@
 // hooks/useCategories.js
 import useSWR from 'swr';
-import { getCategories, getPostsByCategory } from '../services/categoryService';
+import { getCategories, getPopularCategories, getPostsByCategory } from '../services/categoryService';
 
 export const useCategories = (page = 1, limit = 10) => {
   const { data, error, mutate } = useSWR(
-    `/categories?page=${page}&limit=${limit}`,
-    () => getCategories(page, limit),
+    `/categories/popular?page=${page}&limit=${limit}`,
+    () => getPopularCategories(page, limit),
     {
       revalidateOnMount: true,
       dedupingInterval: 300000,

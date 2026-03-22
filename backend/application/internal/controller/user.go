@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"log"
 	"mime/multipart"
 	"net/http"
 	"strings"
@@ -31,8 +30,6 @@ func (c *UserController) GetProfile(ctx *gin.Context) {
 		return
 	}
 
-	log.Printf("DEBUG /api/me response: ID=%s, Username='%s', Email='%s'",
-		response.ID, response.Username, response.Email)
 	ctx.JSON(http.StatusOK, gin.H{"data": response})
 }
 

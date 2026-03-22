@@ -108,12 +108,6 @@ func DefineAPIRoutes(r *gin.Engine, ctrl *controller.Controller) {
 		protected.GET("/comments/:id/replies", ctrl.Comment.GetCommentReplies)
 		protected.POST("/replies/:id/clap", ctrl.Engagement.ClapReply)
 
-		// Bookmarks
-		protected.POST("/bookmarks", ctrl.Bookmark.CreateBookmark)
-		protected.POST("/bookmarks/remove", ctrl.Bookmark.Unbookmark)
-		protected.GET("/bookmarks", ctrl.Bookmark.GetUserBookmarks)
-		protected.GET("/bookmarks/status/:post_id", ctrl.Bookmark.CheckBookmarkStatus)
-
 		// Images
 		protected.POST("/images/upload/v2/:type", ctrl.Image.UploadImageV2)
 		protected.DELETE("/images/v2/:id", ctrl.Image.DeleteImageV2)

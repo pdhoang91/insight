@@ -46,7 +46,6 @@ func main() {
 	replyRepo := repository.NewReplyRepository(db)
 	categoryRepo := repository.NewCategoryRepository(db)
 	tagRepo := repository.NewTagRepository(db)
-	bookmarkRepo := repository.NewBookmarkRepository(db)
 	postContentRepo := repository.NewPostContentRepository(db)
 	userActivityRepo := repository.NewUserActivityRepository(db)
 	imageRepo := repository.NewImageRepository(db)
@@ -58,7 +57,7 @@ func main() {
 		config.S3Client,
 		storageManager,
 		userRepo, postRepo, commentRepo, replyRepo,
-		categoryRepo, tagRepo, bookmarkRepo,
+		categoryRepo, tagRepo,
 		postContentRepo, userActivityRepo, imageRepo,
 	)
 

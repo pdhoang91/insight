@@ -112,17 +112,6 @@ type TagRepository interface {
 	WithTx(tx *gorm.DB) TagRepository
 }
 
-type BookmarkRepository interface {
-	Create(bookmark *entities.Bookmark) error
-	Delete(bookmark *entities.Bookmark) error
-	FindByUserAndPost(userID, postID uuid.UUID) (*entities.Bookmark, error)
-	FindByIDWithPost(id uuid.UUID) (*entities.Bookmark, error)
-	FindByUserID(userID uuid.UUID, limit, offset int) ([]*entities.Bookmark, error)
-	CheckIsBookmarked(userID, postID uuid.UUID) (bool, error)
-	CountByUser(userID uuid.UUID) (int64, error)
-	Save(bookmark *entities.Bookmark) error
-}
-
 type PostContentRepository interface {
 	Create(pc *entities.PostContent) error
 	Update(pc *entities.PostContent) error

@@ -38,7 +38,6 @@ type PostResponse struct {
 	Views         uint64              `json:"views"`
 	ClapCount     uint64              `json:"clap_count"`
 	CommentsCount uint64              `json:"comments_count"`
-	AverageRating float64             `json:"average_rating"`
 	CreatedAt     time.Time           `json:"created_at"`
 	UpdatedAt     time.Time           `json:"updated_at"`
 	User          *UserResponse       `json:"user,omitempty"`
@@ -57,7 +56,6 @@ func NewPostResponse(post *entities.Post) *PostResponse {
 		Views:         post.Views,
 		ClapCount:     post.ClapCount,
 		CommentsCount: post.CommentsCount,
-		AverageRating: post.AverageRating,
 		CreatedAt:     post.CreatedAt,
 		UpdatedAt:     post.UpdatedAt,
 	}

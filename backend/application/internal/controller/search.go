@@ -51,7 +51,7 @@ func (c *SearchController) SearchPosts(ctx *gin.Context) {
 			Excerpt: searchPost.Excerpt,
 			CreatedAt: searchPost.CreatedAt, UpdatedAt: searchPost.CreatedAt,
 			Views: searchPost.Views, ClapCount: searchPost.ClapCount,
-			CommentsCount: searchPost.CommentsCount, AverageRating: searchPost.AverageRating,
+			CommentsCount: searchPost.CommentsCount,
 		}
 
 		for _, tagName := range searchPost.Tags {

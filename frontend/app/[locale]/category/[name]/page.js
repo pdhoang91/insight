@@ -7,7 +7,7 @@ export const revalidate = 300; // ISR: revalidate every 5 minutes
 export async function generateStaticParams() {
   try {
     const categories = await fetchPopularCategories(10);
-    return categories.map((cat) => ({ name: cat.name || cat.slug }));
+    return categories.map((cat) => ({ name: (cat.name || cat.slug).toLowerCase() }));
   } catch {
     return [];
   }

@@ -71,13 +71,6 @@ type EngagementService interface {
 	HasUserClapped(userID uuid.UUID, itemType string, itemID uuid.UUID) (bool, error)
 }
 
-type BookmarkService interface {
-	CreateBookmark(userID uuid.UUID, req *dto.CreateBookmarkRequest) (*dto.BookmarkResponse, error)
-	Unbookmark(userID uuid.UUID, req *dto.CreateBookmarkRequest) error
-	GetUserBookmarks(userID uuid.UUID, req *dto.PaginationRequest) ([]*dto.PostResponse, string, int64, error)
-	CheckBookmarkStatus(userID uuid.UUID, postID uuid.UUID) (bool, error)
-}
-
 type CategoryService interface {
 	ListCategories(req *dto.PaginationRequest) ([]*dto.CategoryResponse, int64, error)
 	GetCategory(id uuid.UUID) (*dto.CategoryResponse, error)
@@ -117,7 +110,6 @@ type Service interface {
 	PostService
 	CommentService
 	EngagementService
-	BookmarkService
 	CategoryService
 	TagService
 	ImageService
