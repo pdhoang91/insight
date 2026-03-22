@@ -1,6 +1,7 @@
 // services/postService.js
 import axiosPublicInstance from '../utils/axiosPublicInstance';
 import axiosPrivateInstance from '../utils/axiosPrivateInstance';
+import { fetchPaginatedList } from '../utils/fetchPaginatedList';
 
 export const createPost = async (postData) => {
   const response = await axiosPrivateInstance.post('/api/posts', postData);
@@ -45,49 +46,8 @@ export const getPostsByYearMonth = async (year, month, page = 1, limit = 20) => 
   };
 };
 
-export const getPosts = async (page = 1, limit = 10) => {
-  try {
-    const response = await axiosPublicInstance.get('/posts', {
-      params: { page, limit },
-    });
-
-    const data = response.data;
-    
-    if (!data || !Array.isArray(data.data) || typeof data.total_count !== 'number') {
-      throw new Error('Invalid response format for getPosts');
-    }
-
-    return {
-      posts: data.data,
-      totalCount: data.total_count,
-    };
-  } catch (error) {
-    console.error('Error in getPosts:', error);
-    throw error;
-  }
-};
-
-export const getPostsByCategory = async (category, page = 1, limit = 10) => {
-  try {
-    const response = await axiosPublicInstance.get(`/posts/category/${encodeURIComponent(category)}`, {
-      params: { page, limit },
-    });
-
-    const data = response.data;
-    
-    if (!data || !Array.isArray(data.data) || typeof data.total_count !== 'number') {
-      throw new Error('Invalid response format for getPostsByCategory');
-    }
-
-    return {
-      posts: data.data,
-      totalCount: data.total_count,
-    };
-  } catch (error) {
-    console.error('Error in getPostsByCategory:', error);
-    throw error;
-  }
-};
+export const getPosts = (page = 1, limit = 10) =>
+  fetchPaginatedList(axiosPublicInstance, '/posts', { page, limit });
 
 export const getLatestPosts = async (limit = 5) => {
   try {

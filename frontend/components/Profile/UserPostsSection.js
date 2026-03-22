@@ -1,8 +1,9 @@
 // components/Profile/UserPostsSection.js
 import React from 'react';
-import InfiniteScrollWrapper from '../Utils/InfiniteScrollWrapper';
+import InfiniteScrollWrapper from '../UI/InfiniteScrollWrapper';
 import UserPostList from './UserPostList';
 import BasePostItem from '../Post/BasePostItem';
+import PostSkeleton from '../Post/PostSkeleton';
 import { useTranslations } from 'next-intl';
 
 const UserPostsSection = ({ posts, isLoading, isError, setSize, isReachingEnd, isOwner }) => {
@@ -28,19 +29,7 @@ const UserPostsSection = ({ posts, isLoading, isError, setSize, isReachingEnd, i
 
   if (isLoading && posts.length === 0) return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-      {[...Array(3)].map((_, i) => (
-        <div
-          key={i}
-          style={{ display: 'flex', gap: '1.25rem', paddingBottom: '2rem', marginBottom: '2rem' }}
-        >
-          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-            <div className="skeleton-warm" style={{ height: '1.1rem', width: '70%', borderRadius: '2px' }} />
-            <div className="skeleton-warm" style={{ height: '0.85rem', width: '90%', borderRadius: '2px' }} />
-            <div className="skeleton-warm" style={{ height: '0.85rem', width: '55%', borderRadius: '2px' }} />
-            <div className="skeleton-warm" style={{ height: '0.72rem', width: '4rem', borderRadius: '2px', marginTop: '0.2rem' }} />
-          </div>
-        </div>
-      ))}
+      {[...Array(3)].map((_, i) => <PostSkeleton key={i} />)}
     </div>
   );
 

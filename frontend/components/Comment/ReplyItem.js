@@ -1,6 +1,6 @@
 'use client';
 import React from 'react';
-import TimeAgo from '../Utils/TimeAgo';
+import TimeAgo from '../UI/TimeAgo';
 import Avatar from '../UI/Avatar';
 
 const ReplyItem = ({ reply, commentId, mutate }) => {

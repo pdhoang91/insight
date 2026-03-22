@@ -8,7 +8,7 @@ import { useCommentReplies } from '../../hooks/useCommentReplies';
 import AddCommentForm from './AddCommentForm';
 import CommentContent from './CommentContent';
 import ReplyList from './ReplyList';
-import TimeAgo from '../Utils/TimeAgo';
+import TimeAgo from '../UI/TimeAgo';
 import Avatar from '../UI/Avatar';
 
 const CommentItem = ({ comment, postId, mutate }) => {

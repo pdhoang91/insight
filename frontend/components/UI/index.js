@@ -50,8 +50,15 @@ export {
   FloatingActionButton
 } from './PremiumInteractions';
 
+// State components
+export { default as ErrorState } from './ErrorState';
+export { default as EmptyState } from './EmptyState';
+export { default as TimeAgo, timeAgo } from './TimeAgo';
+export { default as SafeImage } from './SafeImage';
+export { default as InfiniteScrollWrapper } from './InfiniteScrollWrapper';
+
 // Error Handling
-export { 
+export {
   default as ErrorBoundary,
   useErrorBoundary,
   withErrorBoundary

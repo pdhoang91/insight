@@ -7,7 +7,6 @@ import {
   USER_ROLES, 
   canWritePosts as canWritePostsHelper,
   canViewAllProfiles,
-  hasAdminAccess,
   isAdmin,
   getRoleDisplayName as getRoleDisplayNameHelper
 } from '../constants/roles';

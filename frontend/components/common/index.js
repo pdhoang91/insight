@@ -1,9 +1,9 @@
-// components/common/index.js - Common/shared components
-export { default as EmptyState } from '../Shared/EmptyState';
-export { default as ErrorState } from '../Shared/ErrorState';
+// components/common/index.js - Re-exports from canonical locations in UI/
+export { default as EmptyState } from '../UI/EmptyState';
+export { default as ErrorState } from '../UI/ErrorState';
 export { default as PostSkeleton } from '../Shared/PostSkeleton';
-export { default as SafeImage } from '../Utils/SafeImage';
-export { default as TimeAgo } from '../Utils/TimeAgo';
-export { default as ErrorBoundary } from '../Utils/ErrorBoundary';
-export { default as InfiniteScrollWrapper } from '../Utils/InfiniteScrollWrapper';
+export { default as SafeImage } from '../UI/SafeImage';
+export { default as TimeAgo } from '../UI/TimeAgo';
+export { default as ErrorBoundary } from '../UI/ErrorBoundary';
+export { default as InfiniteScrollWrapper } from '../UI/InfiniteScrollWrapper';
 export { Spinner } from '../UI/Loading';

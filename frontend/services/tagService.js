@@ -1,6 +1,7 @@
 // services/tagService.js
 import axiosPublicInstance from '../utils/axiosPublicInstance';
 import axiosPrivateInstance from '../utils/axiosPrivateInstance';
+import { fetchPaginatedList } from '../utils/fetchPaginatedList';
 
 // Get all tags with pagination
 export const getTags = async (page = 1, limit = 20) => {
@@ -126,27 +127,13 @@ export const searchTags = async (query, limit = 10) => {
 // Get posts by tag
 export const getPostsByTag = async (tagName, page = 1, limit = 10) => {
   try {
-    const response = await axiosPublicInstance.get(
-      `/tags/${encodeURIComponent(tagName)}/posts?page=${page}&limit=${limit}`
+    return await fetchPaginatedList(
+      axiosPublicInstance,
+      `/tags/${encodeURIComponent(tagName)}/posts`,
+      { page, limit }
     );
-    const data = response.data;
-
-    if (!data || !Array.isArray(data.data) || typeof data.total_count !== 'number') {
-      return {
-        posts: [],
-        totalCount: 0,
-      };
-    }
-
-    return {
-      posts: data.data,
-      totalCount: data.total_count,
-    };
   } catch (error) {
     console.error('Error in getPostsByTag:', error);
-    return {
-      posts: [],
-      totalCount: 0,
-    };
+    return { posts: [], totalCount: 0 };
   }
 }; 

@@ -84,8 +84,8 @@ export const effects = {
   roundedDynamic: 'rounded-lg hover:rounded-xl transition-all duration-300',
 
   blur: 'backdrop-blur-md',
-  glow: 'shadow-[0_0_20px_rgba(26,137,23,0.3)]',
-  glowSubtle: 'shadow-[0_0_10px_rgba(26,137,23,0.15)]',
+  glow: 'shadow-[0_0_20px_var(--accent-shadow,rgba(26,137,23,0.3))]',
+  glowSubtle: 'shadow-[0_0_10px_var(--accent-shadow,rgba(26,137,23,0.15))]',
 };
 
 export const animations = {
@@ -129,11 +129,11 @@ export const interactions = {
   cardPress: 'active:scale-[0.98] active:shadow-[0_2px_4px_rgba(0,0,0,0.12)] transition-all duration-100',
   cardFloat: 'hover:shadow-[0_15px_35px_rgba(0,0,0,0.1),0_5px_15px_rgba(0,0,0,0.07)] hover:-translate-y-2 hover:scale-[1.02] transition-all duration-400 cubic-bezier(0.34, 1.56, 0.64, 1)',
 
-  buttonHover: 'hover:shadow-[0_8px_25px_rgba(26,137,23,0.25)] hover:-translate-y-0.5 hover:scale-[1.02] transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1)',
+  buttonHover: 'hover:shadow-[0_8px_25px_var(--accent-shadow,rgba(26,137,23,0.25))] hover:-translate-y-0.5 hover:scale-[1.02] transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1)',
   buttonHoverSubtle: 'hover:shadow-[0_4px_12px_rgba(0,0,0,0.15)] hover:-translate-y-0.5 transition-all duration-200 ease-out',
   buttonPress: 'active:scale-95 active:shadow-[0_2px_4px_rgba(0,0,0,0.12)] transition-all duration-100',
-  buttonFocus: 'focus:ring-2 focus:ring-medium-accent-green focus:ring-opacity-50 focus:outline-none focus:shadow-[0_0_0_3px_rgba(26,137,23,0.1)]',
-  buttonMagnetic: 'hover:shadow-[0_10px_30px_rgba(26,137,23,0.3)] hover:-translate-y-1 hover:scale-105 transition-all duration-300 cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+  buttonFocus: 'focus:ring-2 focus:ring-medium-accent-green focus:ring-opacity-50 focus:outline-none focus:shadow-[0_0_0_3px_var(--accent-shadow,rgba(26,137,23,0.1))]',
+  buttonMagnetic: 'hover:shadow-[0_10px_30px_var(--accent-shadow,rgba(26,137,23,0.3))] hover:-translate-y-1 hover:scale-105 transition-all duration-300 cubic-bezier(0.68, -0.55, 0.265, 1.55)',
 
   linkHover: 'hover:text-medium-accent-green hover:scale-[1.02] transition-all duration-200 cubic-bezier(0.34, 1.56, 0.64, 1)',
   linkUnderline: 'hover:underline decoration-2 underline-offset-2 hover:decoration-medium-accent-green/80 transition-all duration-200',
@@ -142,9 +142,9 @@ export const interactions = {
   iconHover: 'hover:scale-110 hover:text-medium-accent-green hover:drop-shadow-sm transition-all duration-200 cubic-bezier(0.34, 1.56, 0.64, 1)',
   iconPress: 'active:scale-95 transition-transform duration-100',
   iconFloat: 'hover:scale-110 hover:text-medium-accent-green hover:-translate-y-0.5 hover:drop-shadow-md transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1)',
-  iconPulse: 'hover:scale-110 hover:text-medium-accent-green hover:shadow-[0_0_10px_rgba(26,137,23,0.3)] transition-all duration-200',
+  iconPulse: 'hover:scale-110 hover:text-medium-accent-green hover:shadow-[0_0_10px_var(--accent-shadow,rgba(26,137,23,0.3))] transition-all duration-200',
 
-  inputFocus: 'focus:ring-2 focus:ring-medium-accent-green focus:border-medium-accent-green focus:shadow-[0_0_0_3px_rgba(26,137,23,0.1)] transition-all duration-200',
+  inputFocus: 'focus:ring-2 focus:ring-medium-accent-green focus:border-medium-accent-green focus:shadow-[0_0_0_3px_var(--accent-shadow,rgba(26,137,23,0.1))] transition-all duration-200',
   inputHover: 'hover:border-medium-text-secondary hover:shadow-[0_2px_4px_rgba(0,0,0,0.05)] transition-all duration-200',
-  inputFloating: 'focus:shadow-[0_8px_25px_rgba(26,137,23,0.15)] focus:-translate-y-0.5 transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1)',
+  inputFloating: 'focus:shadow-[0_8px_25px_var(--accent-shadow,rgba(26,137,23,0.15))] focus:-translate-y-0.5 transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1)',
 };

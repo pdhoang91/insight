@@ -28,4 +28,4 @@ export { default as PersonalBlogSidebar } from './Sidebar/PersonalBlogSidebar';
 export { default as Archive } from './Archive/Archive';
 
 // Utils
-export { default as TextUtils } from './Utils/TextUtils';
+export { default as TextUtils } from '../utils/TextUtils';

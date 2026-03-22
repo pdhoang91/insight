@@ -1,6 +1,7 @@
 // services/userService.js
 import axiosPublicInstance from '../utils/axiosPublicInstance';
 import axiosPrivateInstance from '../utils/axiosPrivateInstance';
+import { fetchPaginatedList } from '../utils/fetchPaginatedList';
 
 
 // Remove auth service instance - use application service instead
@@ -28,24 +29,9 @@ export const getUserPosts = async (userId) => {
 // Fetches public posts for a user by username
 export const fetchUserPosts = async (username, page = 1, limit = 10) => {
   try {
-    const response = await axiosPublicInstance.get(`/public/${username}/posts`, {
-      params: { page, limit },
-    });
-
-    const data = response.data;
-    if (!data || !Array.isArray(data.data)) {
-      return {
-        posts: [],
-        totalCount: 0,
-      };
-    }
-
-    return {
-      posts: data.data,
-      totalCount: data.total_count || 0,
-    };
+    return await fetchPaginatedList(axiosPublicInstance, `/public/${username}/posts`, { page, limit });
   } catch (error) {
-    console.error(`Error fetching posts for ${username}":`, error);
+    console.error(`Error fetching posts for ${username}:`, error);
     throw error;
   }
 };

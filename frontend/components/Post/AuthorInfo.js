@@ -3,7 +3,7 @@ import React from 'react';
 import Link from 'next/link';
 import Avatar from '../UI/Avatar';
 import Button from '../UI/Button';
-import TimeAgo from '../Utils/TimeAgo';
+import TimeAgo from '../UI/TimeAgo';
 import { themeClasses, combineClasses } from '../../utils/themeClasses';
 import { useTranslations } from 'next-intl';
 

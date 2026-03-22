@@ -2,8 +2,8 @@
 import React from 'react';
 import BasePostItem from '../Post/BasePostItem';
 import { useSearch } from '../../hooks/useSearch';
-import ErrorState from '../Shared/ErrorState';
-import EmptyState from '../Shared/EmptyState';
+import ErrorState from '../UI/ErrorState';
+import EmptyState from '../UI/EmptyState';
 import PostSkeleton from '../Shared/PostSkeleton';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { useTranslations } from 'next-intl';

@@ -5,18 +5,8 @@ import { useTranslations } from 'next-intl';
 import { motion } from 'framer-motion';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import BasePostItem from './BasePostItem';
-
-/* ─── Skeleton ─── */
-const PostSkeleton = () => (
-  <div style={{ display: 'flex', gap: '1.25rem', paddingBottom: '2rem', marginBottom: '2rem' }}>
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-      <div className="skeleton-warm" style={{ height: '1.1rem', width: '75%', borderRadius: '2px' }} />
-      <div className="skeleton-warm" style={{ height: '0.85rem', width: '90%', borderRadius: '2px' }} />
-      <div className="skeleton-warm" style={{ height: '0.85rem', width: '55%', borderRadius: '2px' }} />
-      <div className="skeleton-warm" style={{ height: '0.72rem', width: '4rem', borderRadius: '2px', marginTop: '0.2rem' }} />
-    </div>
-  </div>
-);
+import PostSkeleton from './PostSkeleton';
+import ErrorState from '../UI/ErrorState';
 
 const newItemVariants = {
   hidden:  { opacity: 0, y: 14 },
@@ -63,26 +53,11 @@ const PostList = ({
   /* ─── Error ─── */
   if (isError) {
     return (
-      <div style={{ textAlign: 'center', padding: '3rem 0' }}>
-        <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.1rem', letterSpacing: '-0.02em', color: 'var(--text)', marginBottom: '0.5rem' }}>
-          {t('post.errorOccurred')}
-        </h3>
-        <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1.25rem' }}>
-          {t('post.loadFailed')}
-        </p>
-        <button
-          onClick={() => window.location.reload()}
-          style={{
-            fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '0.8rem',
-            letterSpacing: '-0.01em', color: 'var(--text-inverse)',
-            background: 'var(--accent)', border: 'none', borderRadius: '2px',
-            padding: '0.5rem 1.2rem', cursor: 'pointer', transition: 'opacity 0.2s',
-          }}
-          className="hover:opacity-85"
-        >
-          {t('common.retry')}
-        </button>
-      </div>
+      <ErrorState
+        title={t('post.errorOccurred')}
+        message={t('post.loadFailed')}
+        action={{ label: t('common.retry'), onClick: () => window.location.reload() }}
+      />
     );
   }
 

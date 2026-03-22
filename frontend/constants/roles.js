@@ -21,10 +21,6 @@ export const canViewAllProfiles = (userRole) => {
   return userRole === USER_ROLES.ADMIN;
 };
 
-export const hasAdminAccess = (userRole) => {
-  return userRole === USER_ROLES.ADMIN;
-};
-
 export const isAdmin = (userRole) => {
   return userRole === USER_ROLES.ADMIN;
 };

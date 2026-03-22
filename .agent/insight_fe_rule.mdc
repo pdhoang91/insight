@@ -1,0 +1,402 @@
+# Insight Blog — Frontend Architecture & Conventions
+
+## Tech Stack
+- **Framework:** Next.js 16 (App Router) with React 18
+- **Language:** JavaScript (with JSDoc for critical types)
+- **Styling:** Tailwind CSS 3.3 + CSS custom properties (`:root` vars)
+- **Data Fetching:** SWR / useSWRInfinite (client), native `fetch` (server)
+- **HTTP Client:** Axios (2 instances: public + private/auth)
+- **i18n:** next-intl (locales: `vi`, `en`)
+- **Rich Text:** TipTap (see `.cursor/rules/editor-rule.mdc`)
+- **Animations:** Framer Motion 11
+- **Icons:** @phosphor-icons/react (primary), react-icons (legacy — migrate away)
+- **Infinite Scroll:** react-infinite-scroll-component
+
+---
+
+## Project Structure
+
+```
+frontend/
+├── app/                          # Next.js App Router
+│   ├── api/                      # API routes (image-proxy, revalidate)
+│   ├── lib/api.js                # Server-side fetch helpers (SSR data prefetch)
+│   └── [locale]/                 # Locale-based routes
+│       ├── layout.js             # Locale layout (fonts, i18n provider, ClientProviders)
+│       ├── ClientProviders.js    # SWR config, UserContext, Navbar, LoginModal
+│       ├── page.js               # Home
+│       └── ...                   # Feature routes
+├── components/
+│   ├── UI/                       # Design system primitives (Avatar, Button, Card, Input, Skeleton, Loading, Icon, ErrorBoundary)
+│   ├── Shared/                   # Shared presentational components (EmptyState, ErrorState, LoadingSpinner)
+│   ├── Layout/                   # Layout shells (Layout.js with HomeLayout/ArticleLayout/ProfileLayout variants)
+│   ├── Navbar/                   # Navigation
+│   ├── Sidebar/                  # Sidebar components
+│   ├── Editor/                   # TipTap editor (see editor-rule.mdc)
+│   │   └── extensions/           # Custom TipTap extensions
+│   ├── Post/                     # Post feature components
+│   ├── Comment/                  # Comment feature components
+│   ├── Category/                 # Category feature components
+│   ├── Profile/                  # Profile feature components
+│   ├── Auth/                     # Auth components (LoginModal)
+│   ├── Search/                   # Search components
+│   ├── Archive/                  # Archive components
+│   └── Tag/                      # Tag components
+├── hooks/                        # Custom React hooks
+├── services/                     # API service functions (axios-based)
+├── utils/
+│   ├── theme/                    # Design tokens split into modules (tokens, typography, layout, interactive, components)
+│   ├── axiosPublicInstance.js    # Public axios instance (no auth)
+│   ├── axiosPrivateInstance.js   # Auth axios instance (token in headers)
+│   ├── tiptapBaseExtensions.js   # Shared TipTap extensions factory
+│   ├── tiptapExtensions.js       # Client-side extensions (adds ImageBlock)
+│   ├── renderContent.js          # Client-side content renderer
+│   └── renderContentServer.js    # Server-safe content renderer
+├── context/                      # React contexts (UserContext, PostContext)
+├── config/api.js                 # API URL constants
+├── constants/roles.js            # User role constants and permission helpers
+├── messages/                     # next-intl translation files (en.json, vi.json)
+└── styles/
+    ├── globals.css               # Design tokens, base styles, animations, editor styles
+    └── mobile.css                # Mobile-specific overrides
+```
+
+---
+
+## Hook Patterns
+
+### Infinite Scroll — ALWAYS use base hooks
+
+Two generic base hooks exist. NEVER write raw `useSWRInfinite` in feature hooks.
+
+**Offset-based pagination** → `useInfiniteList`:
+```js
+// hooks/useInfiniteList.js
+// Options: { key, fetcher, pageSize, enabled, dedupe, swrOptions }
+// fetcher signature: (page, limit) => { posts: [], totalCount: number }
+// Returns: { posts, totalCount, isLoading, isError, size, setSize, isReachingEnd, isEmpty, hasMore, isValidating }
+```
+
+**Cursor-based pagination** → `useInfiniteCursor`:
+```js
+// hooks/useInfiniteCursor.js
+// Options: { resourceUrl, fetcher, pageSize, enabled, itemsKey, dedupe, swrOptions }
+// fetcher signature: (cursor, limit) => { data: [], nextCursor, totalCount }
+// Returns: { items, totalCount, isLoading, isError, canLoadMore, loadMore, mutate }
+```
+
+**Creating a new paginated hook:**
+```js
+// CORRECT: thin wrapper over base hook
+import { useInfiniteList } from './useInfiniteList';
+import { getPostsByXxx } from '../services/xxxService';
+
+export const useInfinitePostByXxx = (param) =>
+  useInfiniteList({
+    key: ['posts-xxx', param],           // MUST include all deps in key
+    fetcher: (page, limit) => getPostsByXxx(param, page, limit),
+    enabled: !!param,
+    dedupe: true,                         // if API can return overlapping pages
+    swrOptions: { dedupingInterval: 5000 },
+  });
+
+// WRONG: copy-pasting useSWRInfinite boilerplate
+```
+
+**Key rules:**
+- ALWAYS include filter params in the SWR cache key array (tag name, category name, username, etc.)
+- Use `dedupe: true` when pages might overlap (category/tag filters)
+- Use `enabled: false` to skip fetching when params aren't ready
+- Deduplication uses O(n) Set — never use `findIndex` (O(n²))
+
+### Simple SWR hooks
+```js
+// Standard return shape for non-paginated SWR hooks:
+return {
+  data: data ?? null,
+  isLoading: !error && !data,
+  isError: error,
+  mutate,
+};
+```
+
+---
+
+## Service Layer
+
+### Axios instances
+- `axiosPublicInstance` — no auth, for public endpoints (`/posts`, `/categories`, `/tags`, etc.)
+- `axiosPrivateInstance` — includes Bearer token, for authenticated endpoints (`/api/*`)
+- ALWAYS use **default imports**: `import axiosPublicInstance from '../utils/axiosPublicInstance'`
+- NEVER use named imports: ~~`import { axiosPublicInstance } from ...`~~
+
+### Service function conventions
+- Services return **normalized objects** (camelCase), not raw API responses
+- Backend uses `snake_case` (`total_count`, `next_cursor`); services transform to `camelCase` (`totalCount`, `nextCursor`)
+- Paginated list functions return `{ posts: [], totalCount: number }` (or `{ categories: [], totalCount }`, etc.)
+- Cursor-based functions return `{ data: [], nextCursor, totalCount }`
+- Error handling: prefer **throw** over silent fallback. Let hooks/components handle errors via SWR's `error` state
+
+### File upload
+- Image uploads use `uploadImage(file, type)` from `services/imageService`
+- Always set `Content-Type: 'multipart/form-data'` for FormData requests
+
+---
+
+## Component Conventions
+
+### UI Primitives (components/UI/)
+These are the canonical shared components. ALWAYS prefer these over hand-rolling:
+
+| Component | Use for |
+|-----------|---------|
+| `Avatar` | User avatars with fallback initials. Sizes: `xs`, `sm`, `md`, `lg`, `xl`, `2xl` |
+| `Button` | All buttons |
+| `Card` | Card containers |
+| `Input` | Form inputs |
+| `Skeleton`, `SkeletonPost`, `SkeletonComment`, `SkeletonProfile` | Loading skeletons |
+| `Spinner` (from `Loading`) | Spinner indicators. Sizes: `sm`, `md`, `lg`, `xl` |
+| `LoadingScreen` | Full-page loading |
+| `ErrorBoundary` | Error boundaries |
+| `Icon`, `ActionIcon` | Icon wrappers |
+
+**Anti-patterns — do NOT:**
+- Hand-roll avatar circles with fallback icons — use `<Avatar>`
+- Create inline skeleton divs with `className="skeleton-warm"` — use `<SkeletonPost>` or `<Skeleton>`
+- Import `LoadingSpinner` from `Shared/` — use `Spinner` from `UI/Loading`
+
+### Shared Components (components/Shared/)
+| Component | Use for |
+|-----------|---------|
+| `EmptyState` | Empty data states |
+| `ErrorState` | Error states with retry |
+| `SimpleSearchBar` | Search inputs |
+
+**ALWAYS use `ErrorState` for error displays.** Do not hand-roll inline error divs.
+**ALWAYS use `EmptyState` for empty data.** Do not hand-roll inline empty messages.
+
+### Layout System
+Use layout variants from `components/Layout/Layout.js`:
+- `HomeLayout` — main content + sidebar
+- `ArticleLayout` — reading layout for posts
+- `ProfileLayout` — profile pages
+- `ReadingLayout` — focused reading
+- `WriteLayout` — editor layout
+
+```js
+import { HomeLayout } from '../../components/Layout/Layout';
+
+// Standard page pattern:
+<HomeLayout sidebar={<PersonalBlogSidebar />}>
+  <YourContent />
+</HomeLayout>
+```
+
+### Component file structure
+```
+components/FeatureName/
+├── MainComponent.js      # Primary exported component
+├── SubComponent.js        # Internal/child components
+└── index.js               # Barrel exports (optional)
+```
+
+- One component per file
+- Export default for the main component
+- Use named exports for sub-components in barrel files
+- Feature components live in their feature folder, not in `UI/` or `Shared/`
+
+---
+
+## Styling Rules
+
+### Three-layer system (in priority order)
+1. **CSS custom properties** — design tokens in `:root` (`var(--text)`, `var(--bg)`, `var(--accent)`, etc.)
+2. **Tailwind utility classes** — for layout, spacing, responsive
+3. **Theme classes** — `utils/theme/` for semantic token combos (`themeClasses.text.primary`, `themeClasses.interactive.buttonPrimary`)
+
+### Rules
+- Prefer **Tailwind classes** for new components
+- Use **CSS variables** for colors: `text-[var(--text)]`, `bg-[var(--bg)]`, `border-[var(--border)]`
+- Use **inline `style={{}}`** only when Tailwind can't express it (dynamic values, complex computed styles)
+- **Do NOT** mix 3 styling systems in a single component — pick the dominant approach
+- Use `combineClasses()` from `utils/theme/` to join class strings (replaces `clsx`)
+- **Do NOT** hardcode color values like `rgba(26,137,23,...)` — use CSS vars or Tailwind theme
+
+### Design tokens (CSS variables)
+```
+--bg, --bg-surface, --bg-elevated    # Background surfaces
+--text, --text-muted, --text-faint   # Text colors
+--accent                              # Primary accent (terracotta)
+--border, --border-subtle             # Borders
+--font-display, --font-body, --font-mono  # Font families
+--nav-height                          # Navbar height
+```
+
+---
+
+## i18n (next-intl)
+
+- **All user-facing text MUST use translations** — no hardcoded strings
+- Translation files: `messages/vi.json`, `messages/en.json`
+- Use `useTranslations()` hook in client components
+- Use `getTranslations()` in server components
+- Locale routing: `/vi/...`, `/en/...` via `app/[locale]/`
+- Default locale: `vi`
+
+```js
+const t = useTranslations();
+// CORRECT:
+<p>{t('post.noStories')}</p>
+// WRONG:
+<p>Không có bài viết nào</p>
+```
+
+---
+
+## Page Patterns
+
+### Server page (app/[locale]/.../page.js)
+```js
+import { setRequestLocale } from 'next-intl/server';
+
+export const revalidate = 300; // ISR interval in seconds
+
+export async function generateMetadata({ params }) {
+  const { locale, name } = await params;
+  setRequestLocale(locale);
+  // Return locale-aware metadata
+  return locale === 'vi'
+    ? { title: `Tiêu đề: ${name}`, description: `Mô tả cho ${name}` }
+    : { title: `Title: ${name}`, description: `Description for ${name}` };
+}
+
+export default async function Page({ params }) {
+  const { locale, ...rest } = await params;
+  setRequestLocale(locale);
+  // Optional: prefetch data for SSR
+  let initialData = null;
+  try { initialData = await fetchData(); } catch { /* fallback to client */ }
+  return <ClientComponent initialData={initialData} {...rest} />;
+}
+```
+
+### Client page component
+```js
+'use client';
+export default function SomeClient({ initialData, name }) {
+  const { posts, isLoading, isError, setSize, isReachingEnd } = useInfiniteXxx(name);
+  return (
+    <HomeLayout sidebar={<PersonalBlogSidebar />}>
+      <FeatureComponent posts={posts} isLoading={isLoading} ... />
+    </HomeLayout>
+  );
+}
+```
+
+### Metadata
+- ALL pages MUST have `generateMetadata` (or static `metadata` export)
+- ALL metadata MUST be locale-aware (`locale === 'vi'` branch)
+- Post pages MUST include OpenGraph tags
+
+---
+
+## TipTap Extension System
+
+- **Base extensions** defined in `utils/tiptapBaseExtensions.js` via `getBaseExtensions(imageExtension)` factory
+- **Client** uses `utils/tiptapExtensions.js` → `getExtensions()` = `getBaseExtensions(ImageBlock)` (with ReactNodeViewRenderer)
+- **Server** uses `utils/renderContentServer.js` → `getBaseExtensions(ImageBlockServer)` (no React dependency)
+- When adding a new extension: add it to `tiptapBaseExtensions.js` ONCE — both client and server get it automatically
+- See `.cursor/rules/editor-rule.mdc` for detailed editor conventions
+
+---
+
+## Context Patterns
+
+### UserContext
+- Provides `{ user, loading, mutate, setModalOpen }` via `useUser()` hook
+- Wraps the app in `ClientProviders.js`
+- `user` is `null` when not authenticated
+
+### PostContext
+- Provides `{ handlePublish, setHandlePublish, handleUpdate, setHandleUpdate }`
+- Used to communicate between editor pages and the publish panel
+- **CRITICAL:** When storing functions in state, always wrap: `setHandlePublish(() => fn)` — React interprets bare `setHandlePublish(fn)` as a functional updater
+
+---
+
+## Naming Conventions
+
+| Type | Convention | Example |
+|------|-----------|---------|
+| Components | PascalCase | `PostList`, `BasePostItem` |
+| Hooks | camelCase with `use` prefix | `useInfinitePosts`, `useAuth` |
+| Service functions | camelCase verb-first | `getPosts`, `createPost`, `fetchUserPosts` |
+| Utils | camelCase | `renderPostContent`, `combineClasses` |
+| Constants | UPPER_SNAKE_CASE | `USER_ROLES`, `PAGE_SIZE` |
+| CSS variables | kebab-case with `--` prefix | `--text-muted`, `--bg-surface` |
+| Files | PascalCase for components, camelCase for hooks/utils/services | `PostList.js`, `useAuth.js`, `postService.js` |
+
+### Service function naming
+- `get*` — fetch single/paginated public data
+- `fetch*` — fetch data (legacy, prefer `get*` for new code)
+- `create*` — POST new resource
+- `update*` — PUT/PATCH existing resource
+- `delete*` — DELETE resource
+
+---
+
+## Performance Guidelines
+
+- Use `dynamic(() => import(...), { ssr: false })` for heavy client components (editor, publish panel)
+- Limit Framer Motion animations on long lists — only animate newly loaded items (see `PostList.js` `prevCountRef` pattern)
+- Use `dedupingInterval` in SWR to prevent duplicate API calls
+- Avoid `will-change` on many elements
+- Use `React.memo()` only when profiling shows unnecessary re-renders — don't prememo everything
+
+---
+
+## Anti-Patterns to Avoid
+
+1. **Do NOT copy-paste `useSWRInfinite` boilerplate** — always use `useInfiniteList` or `useInfiniteCursor`
+2. **Do NOT hand-roll skeletons/error states/empty states** — use shared components
+3. **Do NOT use named imports for axios instances** — they are default exports
+4. **Do NOT hardcode Vietnamese/English strings in JSX** — use `next-intl` translations
+5. **Do NOT create duplicate service functions** for the same endpoint
+6. **Do NOT duplicate extension lists** — use `tiptapBaseExtensions.js` factory
+7. **Do NOT use `findIndex` for deduplication** — use `Set` for O(n) performance
+8. **Do NOT create 900-line utility files** — split into focused modules under a directory
+9. **Do NOT store functions in React state** without wrapping: `setState(() => fn)` not `setState(fn)`
+10. **Do NOT mix 3 styling approaches in one component** — be consistent
+
+---
+
+## Auth & Roles
+
+- Two roles: `USER_ROLES.USER` ('user'), `USER_ROLES.ADMIN` ('admin')
+- Auth token stored in `localStorage` as `'token'`
+- `axiosPrivateInstance` reads token from localStorage and sets `Authorization: Bearer {token}`
+- Permission checks: `isAdmin(role)`, `canWritePosts(role)`, `isSuperAdmin()` (from authService, checks JWT)
+- Protected pages check auth in `useEffect` and redirect or show login modal
+
+---
+
+## Backend API Response Format
+
+Backend (Go) returns responses in this format:
+```json
+{
+  "data": [...],          // Array of items (or single object)
+  "total_count": 100,     // Total items for pagination
+  "next_cursor": "abc"    // For cursor-based pagination (comments/replies)
+}
+```
+
+Single resource:
+```json
+{
+  "data": { "post": { ... } }
+}
+```
+
+- Backend uses `snake_case` field names
+- Frontend services transform to `camelCase` before returning
