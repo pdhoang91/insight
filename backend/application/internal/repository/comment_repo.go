@@ -10,6 +10,8 @@ type commentRepo struct{ db *gorm.DB }
 
 func NewCommentRepository(db *gorm.DB) CommentRepository { return &commentRepo{db: db} }
 
+func (r *commentRepo) WithTx(tx *gorm.DB) CommentRepository { return &commentRepo{db: tx} }
+
 func (r *commentRepo) Create(comment *entities.Comment) error {
 	return r.db.Create(comment).Error
 }

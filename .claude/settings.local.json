@@ -36,7 +36,11 @@
       "Bash(ls:*)",
       "Bash(grep -r \"Rating\\\\|Notification\" /Users/anhoaian/Documents/pdhoang91/insight/backend/application/internal/repository --include=*.go)",
       "Bash(grep -r \"bookmark\\\\|Bookmark\" /Users/anhoaian/Documents/pdhoang91/insight/frontend --include=\"*.js\" ! -path \"*/node_modules/*\" ! -path \"*/.next/*\")",
-      "Bash(go build:*)"
+      "Bash(go build:*)",
+      "Bash(grep -E \"\\\\.\\(go|yml\\)$\")",
+      "Bash(go get:*)",
+      "Bash(go vet:*)",
+      "Bash(GOTOOLCHAIN=local go mod download 2>&1)"
     ]
   }
 }

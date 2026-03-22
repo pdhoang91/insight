@@ -19,6 +19,9 @@ type Image struct {
 	Width            int       `json:"width,omitempty"`                               // Image width in pixels
 	Height           int       `json:"height,omitempty"`                              // Image height in pixels
 	Alt              string    `json:"alt,omitempty"`                                 // Alt text for accessibility
+	PublicURL        string    `gorm:"column:public_url" json:"public_url,omitempty"`  // Direct S3/CDN URL (original)
+	ThumbURL         string    `gorm:"column:thumb_url" json:"thumb_url,omitempty"`    // 400w variant
+	MediumURL        string    `gorm:"column:medium_url" json:"medium_url,omitempty"`  // 800w variant
 	CreatedAt        time.Time `json:"created_at"`
 	UpdatedAt        time.Time `json:"updated_at"`
 

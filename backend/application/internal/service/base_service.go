@@ -1,10 +1,14 @@
 package service
 
 import (
+	"sync"
+	"sync/atomic"
+
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/pdhoang91/blog/internal/repository"
 	"github.com/pdhoang91/blog/pkg/cache"
 	"github.com/pdhoang91/blog/pkg/storage"
+	uuid "github.com/satori/go.uuid"
 	"golang.org/x/oauth2"
 	"gorm.io/gorm"
 )
@@ -12,7 +16,7 @@ import (
 type BaseService struct {
 	DB *gorm.DB
 
-	Cache             *cache.MemoryCache
+	Cache             cache.Cache
 	GoogleOauthConfig *oauth2.Config
 	S3Client          *s3.Client
 	StorageManager    *storage.Manager
@@ -26,11 +30,32 @@ type BaseService struct {
 	PostContentRepo  repository.PostContentRepository
 	UserActivityRepo repository.UserActivityRepository
 	ImageRepo        repository.ImageRepository
+
+	viewBuffer sync.Map // map[uuid.UUID]*int64
+}
+
+// BufferViewIncrement increments the in-memory view counter for a post.
+func (s *BaseService) BufferViewIncrement(postID uuid.UUID) {
+	val, _ := s.viewBuffer.LoadOrStore(postID, new(int64))
+	atomic.AddInt64(val.(*int64), 1)
+}
+
+// FlushViewCounts writes buffered view counts to the database.
+func (s *BaseService) FlushViewCounts() {
+	s.viewBuffer.Range(func(k, v interface{}) bool {
+		postID := k.(uuid.UUID)
+		ptr := v.(*int64)
+		delta := atomic.SwapInt64(ptr, 0)
+		if delta > 0 {
+			s.DB.Exec("UPDATE posts SET views = views + ? WHERE id = ?", delta, postID)
+		}
+		return true
+	})
 }
 
 func NewBaseService(
 	db *gorm.DB,
-	appCache *cache.MemoryCache,
+	appCache cache.Cache,
 	googleOauthConfig *oauth2.Config,
 	s3Client *s3.Client,
 	storageManager *storage.Manager,

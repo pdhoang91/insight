@@ -44,6 +44,9 @@ type PostRepository interface {
 	CountByYearMonth(year, month int) (int64, error)
 	GetArchiveSummary() ([]*ArchiveSummaryItem, error)
 	IncrementViews(post *entities.Post) error
+	IncrementClapCount(postID uuid.UUID) error
+	IncrementCommentCount(postID uuid.UUID) error
+	DecrementCommentCount(postID uuid.UUID) error
 	CalculateCounts(post *entities.Post) error
 	CalculateCountsForPosts(posts []*entities.Post) error
 	AppendCategories(post *entities.Post, categories []entities.Category) error
@@ -64,6 +67,7 @@ type CommentRepository interface {
 	FindByPostID(postID uuid.UUID, limit, offset int) ([]*entities.Comment, error)
 	CountByPostID(postID uuid.UUID) (int64, error)
 	DeleteByPostID(postID uuid.UUID) error
+	WithTx(tx *gorm.DB) CommentRepository
 }
 
 type ReplyRepository interface {
@@ -76,6 +80,7 @@ type ReplyRepository interface {
 	CountByPostID(postID uuid.UUID) (int64, error)
 	DeleteByCommentID(commentID uuid.UUID) error
 	DeleteByPostID(postID uuid.UUID) error
+	WithTx(tx *gorm.DB) ReplyRepository
 }
 
 type CategoryPostCount struct {

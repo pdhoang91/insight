@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/pdhoang91/blog/internal/entities"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
@@ -141,9 +143,11 @@ func (r *postRepo) CountByTag(tagID uuid.UUID) (int64, error) {
 }
 
 func (r *postRepo) FindByYearMonth(year, month int, limit, offset int) ([]*entities.Post, error) {
+	start := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
+	end := start.AddDate(0, 1, 0)
 	var posts []*entities.Post
 	err := r.db.Preload("User").Preload("Categories").Preload("Tags").
-		Where("EXTRACT(YEAR FROM created_at) = ? AND EXTRACT(MONTH FROM created_at) = ?", year, month).
+		Where("created_at >= ? AND created_at < ?", start, end).
 		Order("created_at DESC").
 		Limit(limit).Offset(offset).
 		Find(&posts).Error
@@ -151,9 +155,11 @@ func (r *postRepo) FindByYearMonth(year, month int, limit, offset int) ([]*entit
 }
 
 func (r *postRepo) CountByYearMonth(year, month int) (int64, error) {
+	start := time.Date(year, time.Month(month), 1, 0, 0, 0, 0, time.UTC)
+	end := start.AddDate(0, 1, 0)
 	var count int64
 	err := r.db.Model(&entities.Post{}).
-		Where("EXTRACT(YEAR FROM created_at) = ? AND EXTRACT(MONTH FROM created_at) = ?", year, month).
+		Where("created_at >= ? AND created_at < ?", start, end).
 		Count(&count).Error
 	return count, err
 }
@@ -181,6 +187,18 @@ func (r *postRepo) GetArchiveSummary() ([]*ArchiveSummaryItem, error) {
 
 func (r *postRepo) IncrementViews(post *entities.Post) error {
 	return r.db.Model(post).UpdateColumn("views", gorm.Expr("views + ?", 1)).Error
+}
+
+func (r *postRepo) IncrementClapCount(postID uuid.UUID) error {
+	return r.db.Exec("UPDATE posts SET clap_count = clap_count + 1 WHERE id = ?", postID).Error
+}
+
+func (r *postRepo) IncrementCommentCount(postID uuid.UUID) error {
+	return r.db.Exec("UPDATE posts SET comment_count = comment_count + 1 WHERE id = ?", postID).Error
+}
+
+func (r *postRepo) DecrementCommentCount(postID uuid.UUID) error {
+	return r.db.Exec("UPDATE posts SET comment_count = GREATEST(0, comment_count - 1) WHERE id = ?", postID).Error
 }
 
 func (r *postRepo) CalculateCounts(post *entities.Post) error {

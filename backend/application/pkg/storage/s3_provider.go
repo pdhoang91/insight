@@ -4,6 +4,7 @@ package storage
 import (
 	"context"
 	"fmt"
+	"io"
 	"mime/multipart"
 	"path/filepath"
 	"time"
@@ -65,6 +66,29 @@ func (s *S3Provider) Upload(ctx context.Context, file *multipart.FileHeader, pat
 		StorageType: "s3",
 		ContentType: file.Header.Get("Content-Type"),
 		Size:        file.Size,
+		UploadedAt:  time.Now(),
+	}, nil
+}
+
+// UploadRaw uploads bytes from an io.Reader directly to S3.
+func (s *S3Provider) UploadRaw(ctx context.Context, r io.Reader, path, contentType string, size int64) (*StorageResult, error) {
+	s3Key := filepath.Join(s.basePath, path)
+	_, err := s.client.PutObject(ctx, &s3.PutObjectInput{
+		Bucket:        aws.String(s.bucket),
+		Key:           aws.String(s3Key),
+		Body:          r,
+		ContentType:   aws.String(contentType),
+		ContentLength: aws.Int64(size),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("failed to upload raw to S3: %w", err)
+	}
+	return &StorageResult{
+		Key:         s3Key,
+		PublicURL:   s.generatePublicURL(s3Key),
+		StorageType: "s3",
+		ContentType: contentType,
+		Size:        size,
 		UploadedAt:  time.Now(),
 	}, nil
 }

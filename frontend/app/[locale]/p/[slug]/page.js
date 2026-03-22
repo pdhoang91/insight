@@ -1,6 +1,9 @@
+import { cache } from 'react';
 import { fetchAllPostSlugs, fetchPostBySlug } from '../../../lib/api';
 import { setRequestLocale } from 'next-intl/server';
 import PostPageClient from './PostPageClient';
+
+const getCachedPost = cache(fetchPostBySlug);
 
 export const revalidate = 60; // ISR: revalidate every 60 seconds
 
@@ -17,7 +20,7 @@ export async function generateMetadata({ params }) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
   try {
-    const post = await fetchPostBySlug(slug);
+    const post = await getCachedPost(slug);
     if (!post) return { title: 'Post Not Found' };
     return {
       title: post.title,
@@ -39,7 +42,7 @@ export default async function PostPage({ params }) {
   let post = null;
 
   try {
-    post = await fetchPostBySlug(slug);
+    post = await getCachedPost(slug);
   } catch {
     // Fallback to client-side fetching
   }

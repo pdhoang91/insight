@@ -70,6 +70,8 @@ func (s *InsightService) CreateComment(userID uuid.UUID, req *dto.CreateCommentR
 	}
 
 	s.createUserActivity(userID, "comment", postID)
+	// Increment denormalized count (best-effort)
+	_ = s.PostRepo.IncrementCommentCount(postID)
 
 	return dto.NewCommentResponse(comment), nil
 }
@@ -122,6 +124,9 @@ func (s *InsightService) DeleteComment(userID uuid.UUID, commentID uuid.UUID) er
 	if err := s.CommentRepo.Delete(comment); err != nil {
 		return apperror.NewInternal("failed to delete comment", err)
 	}
+
+	// Decrement denormalized count (best-effort)
+	_ = s.PostRepo.DecrementCommentCount(comment.PostID)
 
 	return nil
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/gob"
 	"fmt"
 	"log"
 	"os"
@@ -12,11 +13,22 @@ import (
 	"github.com/pdhoang91/blog/config"
 	"github.com/pdhoang91/blog/internal"
 	"github.com/pdhoang91/blog/internal/controller"
+	"github.com/pdhoang91/blog/internal/dto"
 	"github.com/pdhoang91/blog/internal/repository"
 	"github.com/pdhoang91/blog/internal/service"
 	"github.com/pdhoang91/blog/pkg/cache"
 	"github.com/pdhoang91/blog/pkg/storage"
 )
+
+func init() {
+	// Register all types that may be stored in the Redis cache via gob encoding.
+	gob.Register([]*dto.PostResponse{})
+	gob.Register(&dto.PostResponse{})
+	gob.Register(&dto.HomeResponse{})
+	gob.Register([]*repository.ArchiveSummaryItem{})
+	gob.Register(int64(0))
+	gob.Register("")
+}
 
 func main() {
 	cfg := config.NewConfig()
@@ -38,7 +50,17 @@ func main() {
 	s3Provider := storage.NewS3Provider(config.S3Client, bucket, region, "uploads", cdnDomain)
 	storageManager.RegisterProvider("s3", s3Provider)
 
-	appCache := cache.New()
+	memCache := cache.New()
+	var appCache cache.Cache = memCache
+	if redisURL := os.Getenv("REDIS_URL"); redisURL != "" {
+		redisCache := cache.NewRedisCache(redisURL, "insight")
+		if err := redisCache.Ping(); err != nil {
+			log.Printf("Redis unavailable (%v) — falling back to in-memory cache", err)
+		} else {
+			log.Printf("Redis connected at %s — using two-tier cache", redisURL)
+			appCache = cache.NewTwoTierCache(memCache, redisCache)
+		}
+	}
 
 	userRepo := repository.NewUserRepository(db)
 	postRepo := repository.NewPostRepository(db)
@@ -68,6 +90,14 @@ func main() {
 		defer ticker.Stop()
 		for range ticker.C {
 			insightService.RecalculateEngagementScores()
+		}
+	}()
+
+	go func() {
+		ticker := time.NewTicker(30 * time.Second)
+		defer ticker.Stop()
+		for range ticker.C {
+			insightService.FlushViewCounts()
 		}
 	}()
 

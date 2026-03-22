@@ -3,6 +3,7 @@ package storage
 
 import (
 	"context"
+	"io"
 	"mime/multipart"
 	"time"
 
@@ -11,8 +12,11 @@ import (
 
 // StorageProvider defines the interface for different storage backends
 type StorageProvider interface {
-	// Upload uploads a file and returns storage metadata
+	// Upload uploads a multipart file and returns storage metadata
 	Upload(ctx context.Context, file *multipart.FileHeader, path string) (*StorageResult, error)
+
+	// UploadRaw uploads raw bytes from an io.Reader and returns storage metadata
+	UploadRaw(ctx context.Context, r io.Reader, path, contentType string, size int64) (*StorageResult, error)
 
 	// GetURL returns the public URL for accessing the file
 	GetURL(ctx context.Context, key string) (string, error)
@@ -79,7 +83,9 @@ type UploadRequest struct {
 // UploadResponse contains upload result with image metadata
 type UploadResponse struct {
 	ImageID     uuid.UUID `json:"image_id"`
-	URL         string    `json:"url"`
+	URL         string    `json:"url"`       // Direct S3/CDN URL (or fallback redirect)
+	ThumbURL    string    `json:"thumb_url,omitempty"`  // 400w variant
+	MediumURL   string    `json:"medium_url,omitempty"` // 800w variant
 	StorageKey  string    `json:"storage_key"`
 	ContentType string    `json:"content_type"`
 	Size        int64     `json:"size"`

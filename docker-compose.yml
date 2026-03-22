@@ -1,5 +1,14 @@
 
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: always
+    command: redis-server --maxmemory 64mb --maxmemory-policy allkeys-lru
+    networks:
+      - app-network
+    mem_limit: 80m
+
   nginx:
    image: nginx:latest
    container_name: nginx_proxy
@@ -106,7 +115,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      #- fluentd
+      redis:
+        condition: service_started
     environment:
       - DB_HOST=db
       - DB_PORT=5432
@@ -125,7 +135,8 @@ services:
       - BASE_FE_URL=${BASE_FE_URL}
       - BASE_API_URL=${BASE_API_URL}
       - LOG_LEVEL=DEBUG
-      
+      - REDIS_URL=redis:6379
+
       # AWS S3 Configuration (migrated from image-service)
       - AWS_REGION=${AWS_REGION}
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}

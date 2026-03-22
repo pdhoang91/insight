@@ -164,8 +164,27 @@ func (m *Manager) UploadImage(ctx context.Context, req *UploadRequest) (*UploadR
 		FileSize:         result.Size,
 		ImageType:        req.Type,
 		UserID:           req.UserID,
+		PublicURL:        result.PublicURL,
 		CreatedAt:        time.Now(),
 		UpdatedAt:        time.Now(),
+	}
+
+	// C8: Generate and upload image variants (best-effort, non-blocking)
+	if src, openErr := req.File.Open(); openErr == nil {
+		if variants, vErr := GenerateVariants(src, detectedType); vErr == nil {
+			for _, v := range variants {
+				variantPath := storagePath + v.Suffix
+				if vResult, vUpErr := provider.UploadRaw(ctx, v.Reader, variantPath, v.ContentType, v.Size); vUpErr == nil {
+					switch v.Suffix {
+					case "_thumb":
+						image.ThumbURL = vResult.PublicURL
+					case "_800":
+						image.MediumURL = vResult.PublicURL
+					}
+				}
+			}
+		}
+		_ = src.Close()
 	}
 
 	if err := m.db.Create(image).Error; err != nil {
@@ -173,9 +192,17 @@ func (m *Manager) UploadImage(ctx context.Context, req *UploadRequest) (*UploadR
 		return nil, fmt.Errorf("failed to save image record: %w", err)
 	}
 
+	// Use direct URL if available; fallback to redirect
+	displayURL := result.PublicURL
+	if displayURL == "" {
+		displayURL = m.GetImageURL(image.ID.String())
+	}
+
 	return &UploadResponse{
 		ImageID:     image.ID,
-		URL:         m.GetImageURL(image.ID.String()),
+		URL:         displayURL,
+		ThumbURL:    image.ThumbURL,
+		MediumURL:   image.MediumURL,
 		StorageKey:  result.Key,
 		ContentType: result.ContentType,
 		Size:        result.Size,
@@ -274,8 +301,42 @@ func (m *Manager) ProcessJSONContent(doc json.RawMessage) json.RawMessage {
 	})
 }
 
-// ProcessJSONContentForDisplay replaces data-image-id with actual URLs in a JSON document tree
+// ProcessJSONContentForDisplay replaces data-image-id with actual URLs in a JSON document tree.
+// It performs a single batch DB lookup for all image IDs and uses the stored direct S3/CDN URL
+// when available, falling back to the redirect endpoint for legacy images.
 func (m *Manager) ProcessJSONContentForDisplay(doc json.RawMessage) json.RawMessage {
+	ids := m.ExtractImageIDsFromJSON(doc)
+	urlMap := m.GetDirectImageURLBatch(ids)
+	return m.ProcessJSONContentForDisplayWithURLs(doc, urlMap)
+}
+
+// GetDirectImageURLBatch fetches direct S3/CDN URLs for a batch of image IDs in a single query.
+// Falls back to the redirect endpoint for images without a stored direct URL.
+func (m *Manager) GetDirectImageURLBatch(imageIDs []string) map[string]string {
+	result := make(map[string]string, len(imageIDs))
+	if len(imageIDs) == 0 {
+		return result
+	}
+	var images []entities.Image
+	m.db.Where("id IN ?", imageIDs).Select("id, public_url").Find(&images)
+	for _, img := range images {
+		if img.PublicURL != "" {
+			result[img.ID.String()] = img.PublicURL
+		} else {
+			result[img.ID.String()] = m.GetImageURL(img.ID.String())
+		}
+	}
+	// Ensure every requested ID has a fallback
+	for _, id := range imageIDs {
+		if _, ok := result[id]; !ok {
+			result[id] = m.GetImageURL(id)
+		}
+	}
+	return result
+}
+
+// ProcessJSONContentForDisplayWithURLs replaces data-image-id with URLs from the provided map.
+func (m *Manager) ProcessJSONContentForDisplayWithURLs(doc json.RawMessage, urlMap map[string]string) json.RawMessage {
 	return m.walkJSONTree(doc, func(node map[string]interface{}) {
 		nodeType, _ := node["type"].(string)
 		if nodeType != "image" && nodeType != "imageBlock" {
@@ -289,7 +350,11 @@ func (m *Manager) ProcessJSONContentForDisplay(doc json.RawMessage) json.RawMess
 		if !ok || imageID == "" {
 			return
 		}
-		attrs["src"] = m.GetImageURL(imageID)
+		if url, exists := urlMap[imageID]; exists {
+			attrs["src"] = url
+		} else {
+			attrs["src"] = m.GetImageURL(imageID)
+		}
 	})
 }
 

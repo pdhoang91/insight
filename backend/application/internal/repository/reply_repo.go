@@ -10,6 +10,8 @@ type replyRepo struct{ db *gorm.DB }
 
 func NewReplyRepository(db *gorm.DB) ReplyRepository { return &replyRepo{db: db} }
 
+func (r *replyRepo) WithTx(tx *gorm.DB) ReplyRepository { return &replyRepo{db: tx} }
+
 func (r *replyRepo) Create(reply *entities.Reply) error {
 	return r.db.Create(reply).Error
 }
