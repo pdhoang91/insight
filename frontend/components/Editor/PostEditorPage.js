@@ -195,6 +195,7 @@ export default function PostEditorPage({
       {showPopup && (
         <PublishPanel
           title={title}
+          setTitle={setTitle}
           content={content}
           imageTitle={imageTitle}
           setImageTitle={setImageTitle}

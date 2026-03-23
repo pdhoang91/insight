@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X } from '@phosphor-icons/react';
+import { X, PencilSimple, Check } from '@phosphor-icons/react';
 import { getContentPlainText } from '../../utils/renderContent';
 import CoverImageUploader from './CoverImageUploader';
 import CategorySelector from './CategorySelector';
@@ -26,6 +26,7 @@ const SectionLabel = ({ children }) => (
 
 const PublishPanel = ({
   title,
+  setTitle,
   content,
   imageTitle,
   setImageTitle,
@@ -39,6 +40,28 @@ const PublishPanel = ({
     initialTags.map(t => (typeof t === 'string' ? t : t.name))
   );
   const [excerpt, setExcerpt] = useState('');
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [draftTitle, setDraftTitle] = useState('');
+  const titleInputRef = useRef(null);
+
+  useEffect(() => {
+    if (isEditingTitle) {
+      setDraftTitle(title || '');
+      titleInputRef.current?.focus();
+      titleInputRef.current?.select();
+    }
+  }, [isEditingTitle]);
+
+  const commitTitle = () => {
+    const trimmed = draftTitle.trim();
+    if (trimmed && setTitle) setTitle(trimmed);
+    setIsEditingTitle(false);
+  };
+
+  const handleTitleKeyDown = (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); commitTitle(); }
+    if (e.key === 'Escape') setIsEditingTitle(false);
+  };
 
   const autoExcerpt = useMemo(() => {
     const plain = getContentPlainText(content);
@@ -146,16 +169,80 @@ const PublishPanel = ({
 
             <CoverImageUploader imageTitle={imageTitle} setImageTitle={setImageTitle} />
 
-            <h3 style={{
-              fontFamily: 'var(--font-body)',
-              fontSize: '1.375rem',
-              fontWeight: 700,
-              color: 'var(--text)',
-              marginBottom: '0.5rem',
-              lineHeight: 1.3,
-            }}>
-              {title || 'Untitled'}
-            </h3>
+            <div style={{ position: 'relative', marginBottom: '0.5rem' }} className="group">
+              {isEditingTitle ? (
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
+                  <input
+                    ref={titleInputRef}
+                    value={draftTitle}
+                    onChange={(e) => setDraftTitle(e.target.value)}
+                    onBlur={commitTitle}
+                    onKeyDown={handleTitleKeyDown}
+                    style={{
+                      flex: 1,
+                      fontFamily: 'var(--font-body)',
+                      fontSize: '1.375rem',
+                      fontWeight: 700,
+                      color: 'var(--text)',
+                      lineHeight: 1.3,
+                      background: 'transparent',
+                      border: 0,
+                      borderBottom: '2px solid var(--accent)',
+                      outline: 'none',
+                      padding: '0 0 2px',
+                    }}
+                  />
+                  <button
+                    onMouseDown={(e) => { e.preventDefault(); commitTitle(); }}
+                    style={{
+                      padding: '0.25rem',
+                      color: 'var(--accent)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      flexShrink: 0,
+                      marginTop: '4px',
+                    }}
+                  >
+                    <Check size={16} weight="bold" />
+                  </button>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem' }}>
+                  <h3 style={{
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '1.375rem',
+                    fontWeight: 700,
+                    color: 'var(--text)',
+                    lineHeight: 1.3,
+                    margin: 0,
+                    flex: 1,
+                  }}>
+                    {title || 'Untitled'}
+                  </h3>
+                  {setTitle && (
+                    <button
+                      onClick={() => setIsEditingTitle(true)}
+                      title="Edit title"
+                      style={{
+                        padding: '0.25rem',
+                        color: 'var(--text-faint)',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        flexShrink: 0,
+                        marginTop: '4px',
+                        opacity: 0,
+                        transition: 'opacity 0.15s',
+                      }}
+                      className="group-hover:opacity-100 hover:!text-[var(--text-muted)]"
+                    >
+                      <PencilSimple size={15} weight="regular" />
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
 
             <div style={{ marginTop: '1rem' }}>
               <textarea
