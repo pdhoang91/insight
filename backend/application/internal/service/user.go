@@ -113,8 +113,9 @@ func (s *InsightService) GoogleCallback(code string) (*dto.LoginResponse, error)
 	defer resp.Body.Close()
 
 	var userInfo struct {
-		Email string `json:"email"`
-		Name  string `json:"name"`
+		Email   string `json:"email"`
+		Name    string `json:"name"`
+		Picture string `json:"picture"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&userInfo); err != nil {
 		return nil, apperror.NewInternal("failed to decode user info", err)
@@ -126,16 +127,30 @@ func (s *InsightService) GoogleCallback(code string) (*dto.LoginResponse, error)
 	}
 
 	if errors.Is(err, gorm.ErrRecordNotFound) {
+		avatarURL := userInfo.Picture
+		if avatarURL == "" {
+			avatarURL = "https://www.w3schools.com/w3images/avatar2.png"
+		}
 		user = &entities.User{
-			ID: uuid.NewV4(), Email: userInfo.Email,
-			Username:  "@" + strings.Split(userInfo.Email, "@")[0],
-			Name:      userInfo.Name,
-			AvatarURL: "https://www.w3schools.com/w3images/avatar2.png",
-			Role:      constants.RoleUser, EmailVerified: true,
-			CreatedAt: time.Now(), UpdatedAt: time.Now(),
+			ID:               uuid.NewV4(),
+			Email:            userInfo.Email,
+			Username:         "@" + strings.Split(userInfo.Email, "@")[0],
+			Name:             userInfo.Name,
+			AvatarURL:        avatarURL,
+			GooglePictureURL: userInfo.Picture,
+			Role:             constants.RoleUser,
+			EmailVerified:    true,
+			CreatedAt:        time.Now(),
+			UpdatedAt:        time.Now(),
 		}
 		if err := s.userRepo.Create(user); err != nil {
 			return nil, apperror.NewInternal("failed to create user", err)
+		}
+	} else if userInfo.Picture != "" && user.GooglePictureURL != userInfo.Picture {
+		// Keep Google picture URL up to date for existing users
+		user.GooglePictureURL = userInfo.Picture
+		if err := s.userRepo.Update(user); err != nil {
+			return nil, apperror.NewInternal("failed to update user", err)
 		}
 	}
 

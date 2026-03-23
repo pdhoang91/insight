@@ -125,9 +125,11 @@ export default function UserProfilePage() {
   const { user: loggedUser, loading: loadingUser, mutate } = useUser();
   const [showPopup, setShowPopup] = useState(false);
 
+  const normalizeUsername = (u) => u?.replace(/^@/, '') ?? '';
+
   useEffect(() => {
     if (!loadingUser && loggedUser && username) {
-      const isOwner = loggedUser.username === username;
+      const isOwner = normalizeUsername(loggedUser.username) === username;
       const isAdmin = isSuperAdmin();
       if (!isOwner && !isAdmin) {
         router.push('/');
@@ -157,7 +159,7 @@ export default function UserProfilePage() {
 
   if (loadingUser || loadingOwner) return <WarmPageLoader />;
 
-  const isOwner = loggedUser?.username === username;
+  const isOwner = normalizeUsername(loggedUser?.username) === username;
   const isAdmin = isSuperAdmin();
 
   if (!loggedUser || (!isOwner && !isAdmin)) return <WarmPageLoader />;

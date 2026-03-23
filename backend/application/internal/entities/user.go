@@ -18,6 +18,7 @@ type User struct {
 	Username               string    `json:"username"`
 	Password               string    `json:"-"`
 	GoogleID               string    `json:"google_id"`
+	GooglePictureURL       string    `json:"google_picture_url"`
 	AvatarURL              string    `json:"avatar_url"`
 	Bio                    string    `json:"bio"`
 	Phone                  string    `json:"phone"`

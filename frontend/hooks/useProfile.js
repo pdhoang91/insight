@@ -19,7 +19,8 @@ const useProfile = (username = null) => {
         setLoadingProfile(true);
         setError(null);
 
-        if (!username || (user && user.username === username)) {
+        const normalizeUsername = (u) => u?.replace(/^@/, '') ?? '';
+        if (!username || (user && normalizeUsername(user.username) === username)) {
           // Fetching own profile
           if (user) {
             setProfile(user);

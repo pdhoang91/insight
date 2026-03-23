@@ -44,7 +44,9 @@
       "Bash(echo \"Exit code: $?\")",
       "Bash(find /Users/anhoaian/Documents/pdhoang91/insight/frontend/hooks -type f -name *.js)",
       "Bash(grep -r import.*LoadingSpinner /Users/anhoaian/Documents/pdhoang91/insight/frontend --include=*.js --include=*.jsx --include=*.ts --include=*.tsx)",
-      "Bash(grep -r import.*PageLayout /Users/anhoaian/Documents/pdhoang91/insight/frontend --include=*.js --include=*.jsx --include=*.ts --include=*.tsx)"
+      "Bash(grep -r import.*PageLayout /Users/anhoaian/Documents/pdhoang91/insight/frontend --include=*.js --include=*.jsx --include=*.ts --include=*.tsx)",
+      "Bash(find:*)",
+      "Bash(cd:*)"
     ]
   }
 }
