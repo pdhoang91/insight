@@ -3,9 +3,16 @@ package repository
 import (
 	"time"
 
+	"github.com/pdhoang91/blog/internal/dto"
 	"github.com/pdhoang91/blog/internal/entities"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
+)
+
+// Engagement score formula weights
+const (
+	engagementViewWeight    = 0.7
+	engagementCommentWeight = 0.3
 )
 
 type postRepo struct{ db *gorm.DB }
@@ -76,14 +83,6 @@ func (r *postRepo) CountSearch(query string) (int64, error) {
 	return count, err
 }
 
-func (r *postRepo) List(limit, offset int) ([]*entities.Post, error) {
-	var posts []*entities.Post
-	err := r.db.Preload("User").Preload("Categories").Preload("Tags").
-		Limit(limit).Offset(offset).
-		Find(&posts).Error
-	return posts, err
-}
-
 func (r *postRepo) Search(query string, limit, offset int) ([]*entities.Post, error) {
 	var posts []*entities.Post
 	err := r.db.Preload("User").Preload("Categories").Preload("Tags").
@@ -105,9 +104,9 @@ func (r *postRepo) GetPopular(limit int) ([]*entities.Post, error) {
 func (r *postRepo) RecalculateAllEngagementScores() error {
 	return r.db.Exec(`
 		UPDATE posts
-		SET engagement_score = views * 0.7 + comment_count * 0.3
+		SET engagement_score = views * ? + comment_count * ?
 		WHERE deleted_at IS NULL
-	`).Error
+	`, engagementViewWeight, engagementCommentWeight).Error
 }
 
 func (r *postRepo) FindByCategory(categoryID uuid.UUID, limit, offset int) ([]*entities.Post, error) {
@@ -172,8 +171,8 @@ func (r *postRepo) CountByYearMonth(year, month int) (int64, error) {
 	return count, err
 }
 
-func (r *postRepo) GetArchiveSummary() ([]*ArchiveSummaryItem, error) {
-	var items []*ArchiveSummaryItem
+func (r *postRepo) GetArchiveSummary() ([]*dto.ArchiveSummaryItem, error) {
+	var items []*dto.ArchiveSummaryItem
 	err := r.db.Raw(`
 		SELECT
 			EXTRACT(YEAR FROM created_at)::int  AS year,
@@ -188,7 +187,7 @@ func (r *postRepo) GetArchiveSummary() ([]*ArchiveSummaryItem, error) {
 		return nil, err
 	}
 	if items == nil {
-		items = []*ArchiveSummaryItem{}
+		items = []*dto.ArchiveSummaryItem{}
 	}
 	return items, nil
 }

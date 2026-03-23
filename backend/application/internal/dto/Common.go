@@ -1,5 +1,20 @@
 package dto
 
+import "github.com/pdhoang91/blog/internal/entities"
+
+// ArchiveSummaryItem represents one month-bucket in the archive sidebar.
+type ArchiveSummaryItem struct {
+	Year  int   `json:"year"`
+	Month int   `json:"month"`
+	Count int64 `json:"count"`
+}
+
+// CategoryPostCount represents a category with its post count.
+type CategoryPostCount struct {
+	Category  *entities.Category
+	PostCount int64
+}
+
 // Standard API responses
 type SuccessResponse struct {
 	Status string      `json:"status"`

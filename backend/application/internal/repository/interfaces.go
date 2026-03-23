@@ -3,6 +3,7 @@ package repository
 import (
 	"time"
 
+	"github.com/pdhoang91/blog/internal/dto"
 	"github.com/pdhoang91/blog/internal/entities"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
@@ -19,13 +20,6 @@ type UserRepository interface {
 	List(limit, offset int) ([]*entities.User, error)
 }
 
-// ArchiveSummaryItem represents one month-bucket in the archive sidebar.
-type ArchiveSummaryItem struct {
-	Year  int   `json:"year"`
-	Month int   `json:"month"`
-	Count int64 `json:"count"`
-}
-
 type PostRepository interface {
 	Create(post *entities.Post) error
 	Update(post *entities.Post) error
@@ -34,7 +28,6 @@ type PostRepository interface {
 	FindBySlug(slug string) (*entities.Post, error)
 	FindByUserID(userID uuid.UUID, limit, offset int) ([]*entities.Post, error)
 	FindAll(limit, offset int) ([]*entities.Post, error)
-	List(limit, offset int) ([]*entities.Post, error)
 	Count() (int64, error)
 	CountByUserID(userID uuid.UUID) (int64, error)
 	CountSearch(query string) (int64, error)
@@ -46,7 +39,7 @@ type PostRepository interface {
 	CountByTag(tagID uuid.UUID) (int64, error)
 	FindByYearMonth(year, month int, limit, offset int) ([]*entities.Post, error)
 	CountByYearMonth(year, month int) (int64, error)
-	GetArchiveSummary() ([]*ArchiveSummaryItem, error)
+	GetArchiveSummary() ([]*dto.ArchiveSummaryItem, error)
 	IncrementViews(post *entities.Post) error
 	IncrementCommentCount(postID uuid.UUID) error
 	DecrementCommentCount(postID uuid.UUID) error
@@ -89,11 +82,6 @@ type ReplyRepository interface {
 	WithTx(tx *gorm.DB) ReplyRepository
 }
 
-type CategoryPostCount struct {
-	Category  *entities.Category
-	PostCount int64
-}
-
 type CategoryRepository interface {
 	Create(category *entities.Category) error
 	Update(category *entities.Category) error
@@ -104,7 +92,7 @@ type CategoryRepository interface {
 	Count() (int64, error)
 	FindByNames(names []string, limit, offset int) ([]*entities.Category, error)
 	CountByNames(names []string) (int64, error)
-	FindPopularByPostCount(limit, offset int) ([]CategoryPostCount, int64, error)
+	FindPopularByPostCount(limit, offset int) ([]dto.CategoryPostCount, int64, error)
 	CountPostsByCategory(categoryID uuid.UUID) (int64, error)
 	WithTx(tx *gorm.DB) CategoryRepository
 }

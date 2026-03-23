@@ -25,7 +25,7 @@ func init() {
 	gob.Register([]*dto.PostResponse{})
 	gob.Register(&dto.PostResponse{})
 	gob.Register(&dto.HomeResponse{})
-	gob.Register([]*repository.ArchiveSummaryItem{})
+	gob.Register([]*dto.ArchiveSummaryItem{})
 	gob.Register(int64(0))
 	gob.Register("")
 }

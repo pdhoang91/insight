@@ -3,6 +3,7 @@ package repository
 import (
 	"strings"
 
+	"github.com/pdhoang91/blog/internal/dto"
 	"github.com/pdhoang91/blog/internal/entities"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
@@ -76,7 +77,7 @@ func (r *categoryRepo) CountByNames(names []string) (int64, error) {
 	return count, err
 }
 
-func (r *categoryRepo) FindPopularByPostCount(limit, offset int) ([]CategoryPostCount, int64, error) {
+func (r *categoryRepo) FindPopularByPostCount(limit, offset int) ([]dto.CategoryPostCount, int64, error) {
 	var totalCount int64
 	countQuery := `SELECT COUNT(*) FROM categories`
 	if err := r.db.Raw(countQuery).Scan(&totalCount).Error; err != nil {
@@ -98,10 +99,10 @@ func (r *categoryRepo) FindPopularByPostCount(limit, offset int) ([]CategoryPost
 		return nil, 0, err
 	}
 
-	out := make([]CategoryPostCount, len(results))
+	out := make([]dto.CategoryPostCount, len(results))
 	for i, r := range results {
 		cat := r.Category
-		out[i] = CategoryPostCount{Category: &cat, PostCount: r.PostCount}
+		out[i] = dto.CategoryPostCount{Category: &cat, PostCount: r.PostCount}
 	}
 	return out, totalCount, nil
 }

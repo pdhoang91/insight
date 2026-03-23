@@ -19,18 +19,18 @@ func (s *InsightService) ListTags(req *dto.PaginationRequest) ([]*dto.TagRespons
 	}
 
 	cacheKey := fmt.Sprintf("tags:%d:%d", req.Limit, req.Offset)
-	if cachedTags, ok1 := s.Cache.Get(cacheKey); ok1 {
-		if cachedTotal, ok2 := s.Cache.Get(cacheKey + ":total"); ok2 {
+	if cachedTags, ok1 := s.cache.Get(cacheKey); ok1 {
+		if cachedTotal, ok2 := s.cache.Get(cacheKey + ":total"); ok2 {
 			return cachedTags.([]*dto.TagResponse), cachedTotal.(int64), nil
 		}
 	}
 
-	tags, err := s.TagRepo.List(req.Limit, req.Offset)
+	tags, err := s.tagRepo.List(req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to list tags", err)
 	}
 
-	total, err := s.TagRepo.Count()
+	total, err := s.tagRepo.Count()
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to count tags", err)
 	}
@@ -40,8 +40,8 @@ func (s *InsightService) ListTags(req *dto.PaginationRequest) ([]*dto.TagRespons
 		responses = append(responses, dto.NewTagResponse(tag))
 	}
 
-	s.Cache.Set(cacheKey, responses, 10*time.Minute)
-	s.Cache.Set(cacheKey+":total", total, 10*time.Minute)
+	s.cache.Set(cacheKey, responses, 10*time.Minute)
+	s.cache.Set(cacheKey+":total", total, 10*time.Minute)
 	return responses, total, nil
 }
 
@@ -52,11 +52,11 @@ func (s *InsightService) GetPopularTags(limit int) ([]*dto.TagResponse, error) {
 	}
 
 	cacheKey := fmt.Sprintf("popular_tags:%d", limit)
-	if cached, ok := s.Cache.Get(cacheKey); ok {
+	if cached, ok := s.cache.Get(cacheKey); ok {
 		return cached.([]*dto.TagResponse), nil
 	}
 
-	tags, err := s.TagRepo.GetPopular(limit)
+	tags, err := s.tagRepo.GetPopular(limit)
 	if err != nil {
 		return nil, apperror.NewInternal("failed to get popular tags", err)
 	}
@@ -66,17 +66,17 @@ func (s *InsightService) GetPopularTags(limit int) ([]*dto.TagResponse, error) {
 		responses = append(responses, dto.NewTagResponse(tag))
 	}
 
-	s.Cache.Set(cacheKey, responses, 5*time.Minute)
+	s.cache.Set(cacheKey, responses, 5*time.Minute)
 	return responses, nil
 }
 
 func (s *InsightService) invalidateTagCache() {
-	s.Cache.DeletePrefix("tags:")
-	s.Cache.DeletePrefix("popular_tags:")
+	s.cache.DeletePrefix("tags:")
+	s.cache.DeletePrefix("popular_tags:")
 }
 
 func (s *InsightService) CreateTag(req *dto.CreateTagRequest) (*dto.TagResponse, error) {
-	existing, err := s.TagRepo.FindByName(req.Name)
+	existing, err := s.tagRepo.FindByName(req.Name)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, apperror.NewInternal("failed to check tag existence", err)
 	}
@@ -88,7 +88,7 @@ func (s *InsightService) CreateTag(req *dto.CreateTagRequest) (*dto.TagResponse,
 		ID: uuid.NewV4(), Name: req.Name,
 		CreatedAt: time.Now(), UpdatedAt: time.Now(),
 	}
-	if err := s.TagRepo.Create(tag); err != nil {
+	if err := s.tagRepo.Create(tag); err != nil {
 		return nil, apperror.NewInternal("failed to create tag", err)
 	}
 	s.invalidateTagCache()
@@ -97,7 +97,7 @@ func (s *InsightService) CreateTag(req *dto.CreateTagRequest) (*dto.TagResponse,
 
 // UpdateTag updates a tag
 func (s *InsightService) UpdateTag(id uuid.UUID, req *dto.UpdateTagRequest) (*dto.TagResponse, error) {
-	tag, err := s.TagRepo.FindByID(id)
+	tag, err := s.tagRepo.FindByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewNotFound("tag not found")
@@ -108,7 +108,7 @@ func (s *InsightService) UpdateTag(id uuid.UUID, req *dto.UpdateTagRequest) (*dt
 	if req.Name != "" {
 		tag.Name = req.Name
 	}
-	if err := s.TagRepo.Update(tag); err != nil {
+	if err := s.tagRepo.Update(tag); err != nil {
 		return nil, apperror.NewInternal("failed to update tag", err)
 	}
 	s.invalidateTagCache()
@@ -117,14 +117,14 @@ func (s *InsightService) UpdateTag(id uuid.UUID, req *dto.UpdateTagRequest) (*dt
 
 // DeleteTag deletes a tag
 func (s *InsightService) DeleteTag(id uuid.UUID) error {
-	if _, err := s.TagRepo.FindByID(id); err != nil {
+	if _, err := s.tagRepo.FindByID(id); err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return apperror.NewNotFound("tag not found")
 		}
 		return apperror.NewInternal("failed to find tag", err)
 	}
 
-	postCount, err := s.TagRepo.CountPostsByTag(id)
+	postCount, err := s.tagRepo.CountPostsByTag(id)
 	if err != nil {
 		return apperror.NewInternal("failed to check tag usage", err)
 	}
@@ -132,7 +132,7 @@ func (s *InsightService) DeleteTag(id uuid.UUID) error {
 		return apperror.NewBadRequest("tag is in use by posts")
 	}
 
-	if err := s.TagRepo.Delete(id); err != nil {
+	if err := s.tagRepo.Delete(id); err != nil {
 		return apperror.NewInternal("failed to delete tag", err)
 	}
 	s.invalidateTagCache()

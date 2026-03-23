@@ -9,8 +9,8 @@ import (
 	"github.com/pdhoang91/blog/constants"
 	"github.com/pdhoang91/blog/internal/dto"
 	"github.com/pdhoang91/blog/internal/entities"
-	"github.com/pdhoang91/blog/internal/middleware"
 	"github.com/pdhoang91/blog/internal/service"
+	pkgjwt "github.com/pdhoang91/blog/pkg/jwt"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -124,7 +124,7 @@ func (c *UserController) DebugJWT(ctx *gin.Context) {
 		}
 	}
 
-	token, err := middleware.GenerateJWT(user)
+	token, err := pkgjwt.GenerateJWT(user)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "JWT generation failed"})
 		return

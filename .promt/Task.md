@@ -1,360 +1,377 @@
-# **RE-REVIEW SAU REFACTORING — INSIGHT BLOG FRONTEND**
+A. Tóm tắt điều hành
+Đánh giá tổng thể: Đây là một monolith Golang khá tốt cho một blog platform. Layer boundaries rõ ràng hơn phần lớn codebase cùng quy mô. Có ý thức về Clean Architecture, ISP, và error handling. Tuy nhiên tồn tại một số vấn đề thiết kế ở service layer và infrastructure leaking cần xử lý.
+
+Điểm mạnh lớn nhất:
+
+apperror package clean, nhất quán
+Controller handlers rất mỏng — chỉ parse, delegate, respond
+Repository interfaces tốt, WithTx pattern đúng hướng
+Two-tier cache design thực tế
+respondError / parsePagination / requireUserID shared helpers tốt
+Điểm yếu lớn nhất:
+
+InsightService là God Service — implement tất cả domain interfaces trên 1 concrete type
+BaseService leak *gorm.DB và toàn bộ repos qua public exported fields — phá vỡ encapsulation
+Transaction management verbose, error-prone, không consistent
+Duplicate JWT generation code giữa middleware/ và pkg/jwt/
+Response format không nhất quán giữa các controllers
+Top 5 ưu tiên refactor:
+
+Ẩn BaseService fields (private), bỏ direct DB access từ service
+Extract transaction helper để giảm boilerplate
+Xóa duplicate GenerateJWT trong middleware/auth.go
+Di chuyển ArchiveSummaryItem / CategoryPostCount ra khỏi repository package
+Chuẩn hóa response format
+B. Các vấn đề kiến trúc chính
+1. BaseService với public exported fields
+
+Nằm ở: internal/service/base_service.go
+Vấn đề: DB, Cache, S3Client, StorageManager, UserRepo, PostRepo... tất cả là public. Code bên ngoài package có thể access baseService.DB trực tiếp, bypass toàn bộ abstraction.
+Ảnh hưởng: cao
+2. *gorm.DB leak vào service layer
+
+Nằm ở: service/base_service.go field DB *gorm.DB, và usage trong service/post.go — tx := s.DB.Begin()
+Vấn đề: Service layer biết rõ đang dùng GORM. Nếu sau này muốn đổi ORM hay dùng raw sql, phải sửa toàn bộ service. Đây là infra detail không nên exposed lên service.
+Ảnh hưởng: trung bình (đủ thực tế để chấp nhận tạm thời, nhưng nên refactor)
+3. God Service — InsightService implements 8 interfaces
+
+Nằm ở: service/interfaces.go — var _ Service = (*InsightService)(nil)
+Vấn đề: Toàn bộ business logic nằm trên 1 struct 1000+ dòng. File service/user.go, service/post.go, service/comment.go tất cả đều method của cùng 1 type. Đây là structural ISP, không phải real ISP — interface tách nhưng implementation vẫn là monolith.
+Ảnh hưởng: trung bình (chấp nhận cho quy mô hiện tại, nhưng sẽ đau khi scale)
+4. config.Get() sẽ panic nếu OAuth chưa init
+
+Nằm ở: config/config.go dòng 184-188, gọi trong service/user.go — cfg := config.Get()
+Vấn đề: Global mutable state, panic thay vì error return. Nếu OAuth không được config (chạy dev không có credentials), server crash ngay khi hit /auth/google.
+Ảnh hưởng: cao
+5. Duplicate JWT generation
 
----
+Nằm ở: middleware/auth.go có GenerateJWT() + pkg/jwt/jwt.go cũng có GenerateJWT()
+Vấn đề: Hai implementations tồn tại song song. Service/user.go gọi jwtUtil.GenerateJWT (đúng), nhưng middleware/auth.go expose một bản khác — nếu ai đó gọi nhầm middleware.GenerateJWT thì secret/claim behavior có thể khác.
+Ảnh hưởng: trung bình
+C. Các vấn đề theo từng layer
+Handler/Controller
+Tốt:
 
-## **A. Executive Summary**
+Handlers thực sự mỏng — parse → delegate → respond
+Shared helpers respondError, parsePagination, requireUserID, ensureNotNil rất tốt
+Mỗi sub-controller chỉ nhận interface mình cần
+Vấn đề:
 
-**Đánh giá: 5.5/10 → 7/10** (cải thiện đáng kể)
+Response format không nhất quán. So sánh:
 
-### **Những gì đã làm tốt**
+GetPost → gin.H{"data": gin.H{"post": response}}
+ListPosts → gin.H{"data": responses, "total_count": total, ...}
+CreatePost → gin.H{"data": response}
+Register → ctx.JSON(http.StatusCreated, response) (không wrap)
+Frontend sẽ cần handle 3-4 kiểu response struct khác nhau.
 
+Route trùng lặp. Trong router.go:
 
-| **#** | **Item**                                              | **Chất lượng**                      |
-| ----- | ----------------------------------------------------- | ----------------------------------- |
-| 1     | `useInfiniteList` generic hook                        | Rất tốt — API rõ ràng, JSDoc đầy đủ |
-| 2     | `useInfiniteCursor` generic hook                      | Rất tốt — cùng pattern              |
-| 3     | 8 hooks refactored thành thin wrappers                | Xuất sắc — mỗi hook giờ 10-17 dòng  |
-| 4     | `useInfinitePostByTag` cache key fix                  | Bug đã fix đúng                     |
-| 5     | Dedup chuẩn hóa O(n) Set                              | Đúng                                |
-| 6     | `themeClasses.js` 901 → 10 dòng shim + `utils/theme/` | Tách đúng cách                      |
-| 7     | PostContext `setHandlePublish(() => fn)`              | Bug đã fix                          |
-| 8     | `tiptapBaseExtensions.js` factory                     | Loại bỏ ~70 dòng duplicate          |
-| 9     | `renderContentServer.js` dùng shared factory          | Clean                               |
-| 10    | `CommentItem` + `ReplyItem` dùng `UI/Avatar`          | Đúng hướng                          |
+public.GET("/users/:id/posts", ...)   // dòng 57
+protected.GET("/users/:id/posts", ...) // dòng 82
+Gin sẽ ưu tiên route đầu tiên — protected route này vô nghĩa.
 
+GetPostsByYearMonth validate req.Limit == 0 ở cả controller lẫn service — duplicate guard.
 
-### **Những gì chưa làm**
+/debug-jwt route là public endpoint trong production code — nguy cơ thông tin leak.
 
-Khoảng **60% recommendation từ review trước vẫn chưa được thực hiện**. Dưới đây là phân tích chi tiết.
+Usecase/Service
+Tốt:
 
----
+Business logic đúng chỗ, không rò vào handler hay repo
+invalidatePostListCaches() / invalidatePostDetailCaches() tách riêng gọn
+Vấn đề:
 
-## **B. Checklist: Đã làm vs Chưa làm**
-
-### **BUGS — 2/3 đã fix**
-
-
-| **Bug**                                                           | **Status**    | **Chi tiết**                  |
-| ----------------------------------------------------------------- | ------------- | ----------------------------- |
-| PostContext `setHandlePublish(fn)` → `setHandlePublish(() => fn)` | ✅ Fixed       | Line 18 đúng rồi              |
-| `useInfinitePostByTag` thiếu `tagName` trong cache key            | ✅ Fixed       | `key: ['posts-tag', tagName]` |
-| `imageService.js` named imports vs default exports                | ❌ **Vẫn lỗi** | Xem bên dưới                  |
-
-
-**Bug** `imageService.js` **còn sót:**
-
-imageService.jsLines 2-3
-
-import {axiosPublicInstance} from '../utils/axiosPublicInstance';
-
-import {axiosPrivateInstance} from '../utils/axiosPrivateInstance';
-
-Cả 2 axios files export **default**, nhưng `imageService.js` dùng **named import** `{axiosPrivateInstance}`. Kết quả: `axiosPrivateInstance` sẽ là `undefined` → `uploadImage` và `updateProfileWithAvatar` sẽ crash khi gọi `.post()` trên `undefined`. Tất cả service khác đều import đúng bằng default import.
-
----
-
-### **Green Shadow Colors — Một phần fix**
-
-`effects.shadowAccent` đã dùng `var(--accent-shadow,...)` nhưng module `interactions` vẫn hardcode `rgba(26,137,23,...)` ở **7 chỗ**:
-
-interactive.jsLines 132-132
-
-  buttonHover: 'hover:shadow-[0_8px_25px_rgba(26,137,23,0.25)] ...',
-
-interactive.jsLines 135-136
-
-  buttonFocus: '... focus:shadow-[0_0_0_3px_rgba(26,137,23,0.1)]',
-
-  buttonMagnetic: 'hover:shadow-[0_10px_30px_rgba(26,137,23,0.3)] ...',
-
-interactive.jsLines 145-145
-
-  iconPulse: '... hover:shadow-[0_0_10px_rgba(26,137,23,0.3)] ...',
-
-interactive.jsLines 147-149
-
-  inputFocus: '... focus:shadow-[0_0_0_3px_rgba(26,137,23,0.1)] ...',
-
-  inputHover: '...',
-
-  inputFloating: '... focus:shadow-[0_8px_25px_rgba(26,137,23,0.15)] ...',
-
-Và trong `effects`:
-
-interactive.jsLines 87-88
-
-  glow: 'shadow-[0_0_20px_rgba(26,137,23,0.3)]',
-
-  glowSubtle: 'shadow-[0_0_10px_rgba(26,137,23,0.15)]',
-
-Tổng cộng ~9 hardcoded green values còn sót. Nên thống nhất dùng CSS variable `var(--accent-shadow)` hoặc nếu Tailwind không support, define shadow colors trong `tailwind.config.ts`.
-
----
-
-### **Files nên xóa — 0/4 đã xóa**
-
-
-| **File**                                   | **Reason**                                 | **Status**    |
-| ------------------------------------------ | ------------------------------------------ | ------------- |
-| `components/Category/CategoryTagsPopup.js` | Thay thế bởi `PublishPanel.js`             | ❌ Vẫn tồn tại |
-| `components/Profile/ProfileSection.js`     | Duplicate ProfileHeader + UserPostsSection | ❌ Vẫn tồn tại |
-| `components/Layout/PageLayout.js`          | Thay thế bởi `Layout.js`                   | ❌ Vẫn tồn tại |
-| `constants/roles.js` — `hasAdminAccess`    | Identical với `isAdmin`                    | ❌ Vẫn tồn tại |
-
-
-`Profile/index.js` đã cập nhật không export `ProfileSection` nữa — tốt, nhưng file vẫn nằm đó gây confusion.
-
----
-
-### **Skeleton Consolidation — Chưa làm**
-
-Vẫn có **inline skeleton duplicate** trong:
-
-`PostList.js` (lines 10-19):
-
-PostList.jsLines 10-19
-
-const PostSkeleton = () => (
-
-<div style={{ display: 'flex', gap: '1.25rem', paddingBottom: '2rem', marginBottom: '2rem' }}>
-
-<div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-
-<div className="skeleton-warm" style={{ height: '1.1rem', width: '75%', borderRadius: '2px' }} />
-
-      // ...
-
-</div>
-
-</div>
-
-);
-
-`UserPostsSection.js` (lines 30-45) — **gần y hệt**, chỉ khác `width: '70%'` vs `'75%'`:
-
-UserPostsSection.jsLines 30-45
-
-if (isLoading && posts.length === 0) return (
-
-<div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-
-{[...Array(3)].map((_, i) => (
-
-<div key={i} style={{ display: 'flex', gap: '1.25rem', paddingBottom: '2rem', marginBottom: '2rem' }}>
-
-<div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-
-<div className="skeleton-warm" style={{ height: '1.1rem', width: '70%', borderRadius: '2px' }} />
-
-            // ...
-
-Đồng thời `Shared/PostSkeleton.js` (216 dòng) và `UI/Skeleton.js` (212 dòng) vẫn song song tồn tại.
-
----
-
-### **ErrorState/EmptyState — Chưa replace**
-
-`PostList.js` lines 64-87 vẫn hand-roll error state inline. `Shared/ErrorState.js` vẫn 0 consumer.
-
----
-
-### **Service Layer — 0/6 items đã làm**
-
-
-| **Item**                         | **Status**                                  |
-| -------------------------------- | ------------------------------------------- |
-| `fetchPaginatedList` utility     | ❌ Không tạo                                 |
-| `withFallback` HOF               | ❌ Không tạo                                 |
-| Standardize error handling       | ❌ Vẫn 4 pattern khác nhau                   |
-| camelCase axios interceptor      | ❌ Không thêm                                |
-| Deduplicate `getCurrentUser`     | ❌ Vẫn duplicate ở authService + userService |
-| Deduplicate `getPostsByCategory` | ❌ Vẫn ở cả postService + categoryService    |
-
-
----
-
-### **Write/Edit Pages — Chưa gộp**
-
-`write/page.js` (175 dòng) và `edit/[id]/page.js` (241 dòng) vẫn **~80% duplicate**:
-
-- Cùng state declarations (lines 26-30 vs 36-41)
-- Cùng keyboard shortcut handler (lines 42-58 vs 67-84 — character-for-character)
-- Cùng fullscreen button + styling (lines 127-150 vs 191-214)
-- Cùng loading state JSX pattern (line 103-111 vs 124-132, 137-147, 154-165, 169-177)
-- `edit/page.js` có 4 copies của centered loading/error JSX
-
----
-
-### **Folder cleanup — Chưa làm**
-
-
-| **Vấn đề**                                         | **Status**                       |
-| -------------------------------------------------- | -------------------------------- |
-| `components/Shared/` → consolidate vào `UI/`       | ❌                                |
-| `components/Utils/` → move vào `utils/` hoặc `UI/` | ❌                                |
-| `components/common/index.js` barrel shim           | ❌ Vẫn tồn tại                    |
-| `styles/mobile.css` dọn dẹp                        | ❌ 202 dòng, vẫn overlap Tailwind |
-
-
----
-
-## **C. Review Chất Lượng Code Mới**
-
-### `useInfiniteList` **— Đánh giá: 9/10**
-
-useInfiniteList.jsLines 1-75
-
-*// hooks/useInfiniteList.js*
-
-*// Generic hook for offset-based infinite scroll pagination.*
-
-*// ... (75 lines total)*
-
-**Tốt:**
-
-- JSDoc rõ ràng, parameter types documented
-- `key` support cả string và array — flexible
-- `dedupe` optional, dùng Set O(n) — đúng
-- `enabled` flag cho conditional fetching — pattern chuẩn SWR
-- Return shape đầy đủ: `posts`, `totalCount`, `isLoading`, `isError`, `size`, `setSize`, `isReachingEnd`, `isEmpty`, `hasMore`, `isValidating`
-
-**Nhỏ — có thể cải thiện:**
-
-- Line 25: `previousPageData.posts?.length` — hardcoded `posts` key. Nếu consumer return `{ items: [...] }` thay vì `{ posts: [...] }` thì break. Nên thêm `itemsKey` option giống `useInfiniteCursor` để consistent, hoặc document rõ ràng rằng fetcher PHẢI return `{ posts, totalCount }`.
-- Line 50: cùng vấn đề — `page.posts || []` hardcoded.
-
-### `useInfiniteCursor` **— Đánh giá: 9/10**
-
-**Tốt:**
-
-- `itemsKey` configurable — flexible hơn `useInfiniteList`
-- URL parsing pattern clean
-- `loadMore` method encapsulated — consumer không cần tự handle
-
-**Nhỏ:**
-
-- Line 35: `new URL(key, 'http://localhost')` — cần comment giải thích tại sao dùng localhost (vì key là path-only, cần full URL cho URL constructor)
-
-### **Consumer hooks — Đánh giá: 10/10**
-
-`useInfinitePosts`, `useInfinitePostByCategory`, `useInfinitePostByTag`, `useInfiniteUserPosts`, `useSearch`, `useArchivePosts`, `useInfiniteComments`, `useCommentReplies` — tất cả đều clean, ngắn gọn (10-35 dòng), interface rõ ràng.
-
-`useInfiniteUserPosts` xử lý edge case tốt:
-
-useInfiniteUserPosts.jsLines 7-17
-
-    fetcher: async (page, limit) => {
-
-const data = await fetchUserPosts(username, page, limit);
-
-return {
-
-posts: data.posts || data.data || [],
-
-totalCount: data.totalCount || data.total_count || 0,
-
-};
-
-},
-
-    enabled: !!username && username.trim() !== '',
-
-Adapter pattern ở đây là đúng — service trả về format không chuẩn, hook normalize trước khi pass vào base hook. Tuy nhiên, lý tưởng hơn là fix ở service layer để không cần `data.data ||` fallback.
-
-### **Theme split — Đánh giá: 8/10**
-
-`utils/theme/` split hợp lý: `tokens.js` (29 dòng), `typography.js` (69), `layout.js` (59), `interactive.js` (150), `components.js` (283), `index.js` (34). Shim `themeClasses.js` backward-compatible.
-
-**Vấn đề:** `components.js` vẫn 283 dòng — có thể tách thêm `forms.js`, `modals.js`. Nhưng acceptable ở mức hiện tại.
-
-### **TipTap extension refactor — Đánh giá: 10/10**
-
-tiptapBaseExtensions.jsLines 1-59
-
-*// Factory pattern: getBaseExtensions(imageExtension)*
-
-tiptapExtensions.jsLines 1-8
-
-*// Client wrapper: getExtensions() = getBaseExtensions(ImageBlock)*
-
-renderContentServer.jsLines 55-59
-
-*// Server: renderPostContent → getBaseExtensions(ImageBlockServer)*
-
-Clean factory pattern. Thêm/sửa extension giờ chỉ 1 chỗ.
-
-### **PostContext fix — Đánh giá: 10/10**
-
-PostContext.jsLines 4-9
-
-const PostContext = createContext({
-
-handlePublish: null,
-
-setHandlePublish: () => {},
-
-handleUpdate: null,
-
-setHandleUpdate: () => {},
-
-});
-
-Default values đầy đủ — không còn trả `undefined` khi thiếu Provider. `useMemo` cho value object. Bug fixed đúng.
-
-### **Avatar reuse — Đánh giá: 9/10**
-
-`CommentItem` và `ReplyItem` giờ đều dùng `<Avatar>` từ `UI/Avatar.js`. Clean.
-
----
-
-## **D. Remaining Refactor Priorities (cập nhật)**
-
-### **Priority 1 — Quick Wins (< 1 ngày)**
-
-
-| **#** | **Việc**                                                                                                                      | **Impact**             |
-| ----- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
-| 1     | **Fix** `imageService.js` **imports**: `{axiosPrivateInstance}` → `axiosPrivateInstance`                                      | Fix runtime crash      |
-| 2     | **Fix remaining green shadows** trong `interactive.js` (9 chỗ)                                                                | Đúng màu               |
-| 3     | **Xóa** `CategoryTagsPopup.js`                                                                                                | -549 dòng dead code    |
-| 4     | **Xóa** `ProfileSection.js`                                                                                                   | -280 dòng dead code    |
-| 5     | **Xóa** `PageLayout.js`                                                                                                       | -67 dòng dead code     |
-| 6     | **Xóa** `hasAdminAccess` trong `roles.js` — alias `isAdmin`                                                                   | Dead code              |
-| 7     | **Replace** `PostList.js` **inline skeleton** bằng import từ `UI/Skeleton` hoặc extract `PostSkeleton` thành shared component | -10 dòng + consistency |
-| 8     | **Replace** `UserPostsSection.js` **inline skeleton** — import cùng skeleton                                                  | -15 dòng               |
-
-
-### **Priority 2 — Medium (2-3 ngày)**
-
-
-| **#** | **Việc**                                                                                                                         | **Impact**                |
-| ----- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------- |
-| 1     | **Gộp write/edit pages** thành shared `PostEditorPage`                                                                           | -100+ dòng                |
-| 2     | **Tạo** `fetchPaginatedList` trong services                                                                                      | -150 dòng ở service layer |
-| 3     | **Replace inline error states** bằng `Shared/ErrorState.js` (PostList, CategoryList, CategoryPosts, UserPostsSection)            | Consistency               |
-| 4     | **Consolidate Shared/ vào UI/** — move `EmptyState`, `ErrorState`, `LoadingSpinner`                                              | 1 import path             |
-| 5     | **Xóa** `components/Utils/` — move `SafeImage`, `TimeAgo` vào `UI/`, `TextUtils` vào `utils/`, `InfiniteScrollWrapper` vào `UI/` | Clean structure           |
-| 6     | **Resolve duplicate services**: pick 1 `getCurrentUser`, pick 1 `getPostsByCategory`                                             | Remove confusion          |
-
-
-### **Priority 3 — Larger (1 tuần+)**
-
-
-| **#** | **Việc**                                                                  | **Impact**        |
-| ----- | ------------------------------------------------------------------------- | ----------------- |
-| 1     | **Standardize styling** — phase out inline styles                         | Consistency       |
-| 2     | **Dọn** `mobile.css`                                                      | -200 dòng overlap |
-| 3     | **Standardize error handling** trong services                             | Predictability    |
-| 4     | **Standardize icon library**                                              | Bundle size       |
-| 5     | **Thêm** `useInfiniteList` ****`itemsKey` **option** hoặc rename contract | API consistency   |
-
-
----
-
-## **E. Tóm tắt**
-
-**Điểm cộng lớn nhất của đợt refactor này:** Hook layer giờ rất clean. Từ ~450 dòng duplicate code trong 8 hooks → 2 generic hooks (146 dòng) + 8 thin wrappers (~100 dòng). Giảm ~200 dòng và quan trọng hơn: fix bugs, chuẩn hóa behavior, và mỗi hook giờ chỉ express **cái gì khác biệt** thay vì copy-paste cả đống boilerplate.
-
-**Phần chưa chạm tới:** Service layer, component consolidation (skeleton/error/empty states), dead file cleanup, và write/edit page merge. Đây là phần sẽ mang lại giá trị cao nhất tiếp theo.
-
-**1 bug cần fix ngay:** `imageService.js` named imports — đây là runtime error sẽ crash khi user upload ảnh.
+Transaction pattern verbose và error-prone. CreatePost, UpdatePost, DeletePost đều có pattern:
+
+tx := s.DB.Begin()
+defer func() { if r := recover(); r != nil { tx.Rollback() } }()
+// ...
+if err != nil {
+    tx.Rollback()   // manual rollback tại từng điểm lỗi
+    return nil, err
+}
+Vừa dài vừa dễ quên Rollback(). Pattern chuẩn nên là:
+
+tx := s.DB.Begin()
+defer tx.Rollback() // chỉ rollback nếu chưa commit
+// ... nếu OK thì tx.Commit()
+defer tx.Rollback() sau tx.Commit() là no-op, không gây hại.
+
+FlushViewCounts trực tiếp gọi s.DB.Exec() trong service — bypass hoàn toàn repository layer. IncrementViews đã có trong PostRepository nhưng không được dùng (dùng buffer riêng là hợp lý), tuy nhiên flush nên đi qua repo.
+
+loadPostRelationsParallel bỏ qua error:
+
+var relErr error
+// ...
+go func() { relErr = s.PostRepo.LoadRelationships(post) }()
+wg.Wait()
+_ = relErr  // lỗi bị bỏ qua hoàn toàn
+Nếu relationship load fail, response sẽ trả về post thiếu categories/tags mà không báo lỗi.
+
+UpdateUserAvatarV2 có logic bug tiềm ẩn:
+
+user.AvatarURL = uploadResponse.URL  // set new URL
+s.UserRepo.Update(user)
+// Sau đó check:
+if user.AvatarURL != "" && user.AvatarURL != uploadResponse.URL {
+    // Condition này LUÔN false vì vừa set = uploadResponse.URL
+Old avatar sẽ không bao giờ bị xóa.
+
+GetHomeData tạo cache stacking: Nó gọi GetLatestPosts() và GetPopularPosts() — vốn đã có cache riêng — sau đó cache lại toàn bộ HomeResponse. Khi invalidate, phải nhớ xóa cả 3 levels cache. Hiện tại RecalculateEngagementScores xóa popular_posts: nhưng không xóa home_data cùng lúc (thực ra có, nhưng các goroutine background interval lệch nhau có thể gây stale window).
+
+DeleteComment không dùng transaction. Delete replies và delete comment là 2 operations riêng — nếu delete replies thành công nhưng delete comment fail, data sẽ inconsistent.
+
+Hầu hết service methods không nhận context.Context — không có cách để cancel/timeout DB queries từ HTTP request. Chỉ image methods mới có context. Về dài hạn đây là thiếu sót lớn.
+
+SearchPosts không nằm trong PostService interface nhưng lại được expose. Nó được route qua SearchController sử dụng SearchService → GetSearchClient(). Thực tế search logic trong service/post.go vẫn gọi PostRepo.Search trực tiếp — hai luồng search tồn tại song song không rõ ràng.
+
+Repository/Data Access
+Tốt:
+
+Repository interfaces clean, không biết về business rules
+WithTx pattern tốt — không inject DB mới, wrap existing connection
+Cursor pagination cho comments/replies: tốt
+Vấn đề:
+
+Duplicate method FindAll và List trong PostRepository:
+
+FindAll(limit, offset int) — có order created_at DESC, Preload User/Categories/Tags
+List(limit, offset int) — không có order, Preload User/Categories/Tags
+Hai method khác nhau ở ORDER BY, nhưng naming không thể hiện điều đó. GetLatestPosts trong service gọi FindAll (đúng), List dường như không được dùng.
+
+ArchiveSummaryItem và CategoryPostCount khai báo trong repository package. Đây là response/DTO types, không phải repository internals. Khi service return chúng, và gob-encode chúng (main.go), ta đã couple service/transport layer với repository naming.
+
+PostRepository interface quá fat. Nhiều methods như AppendCategories, ReplaceCategories, AppendTags, ReplaceTags, LoadRelationships, RecalculateAllEngagementScores thuộc về GORM association logic, không phải pure data access. Đặc biệt RecalculateAllEngagementScores chứa business formula.
+
+PostRepo.FindByID luôn Preload User/Categories/Tags kể cả khi chỉ cần check existence (e.g., CreateComment gọi PostRepo.FindByID chỉ để verify post tồn tại). N+1 không có, nhưng over-fetching có.
+
+Magic number trong RecalculateAllEngagementScores:
+
+SET engagement_score = views * 0.7 + comment_count * 0.3
+Business formula này hardcode trong SQL trong repository layer — nên là constant hoặc config.
+
+Domain/Model
+Tốt:
+
+Entities clean, mapping GORM tags rõ ràng
+Soft delete dùng gorm.DeletedAt đúng cách
+Content json.RawMessage với gorm:"-" tách content storage logic sạch
+Vấn đề:
+
+Post entity có cả Comments []Comment và PostContent PostContent trong struct nhưng không bao giờ được populate qua GORM Preload trong bất kỳ repo query nào. Dễ gây nhầm lẫn — những field này chỉ được populate thủ công trong service. Nên dùng comment hoặc xóa khỏi struct.
+Infrastructure
+Tốt:
+
+pkg/cache với interface + memory + redis + two-tier clean
+pkg/storage với provider pattern tốt
+Vấn đề:
+
+config/config.go dùng logger.Default.LogMode(logger.Info) — log toàn bộ SQL queries trong production, gây noise và performance overhead.
+Global package-level vars GoogleOauthConfig và S3Client trong config/ được mark deprecated nhưng vẫn được sử dụng trong main.go — inconsistent migration.
+config.Get() panic thay vì return error — nên inject oauth config vào service, không dùng global accessor.
+Dependency Direction
+Nhìn chung dependency direction đúng: controller → service → repository → entities. Tuy nhiên:
+
+service/user.go import config package — service biết về infra config. Nên inject *oauth2.Config qua constructor.
+repository/interfaces.go expose ArchiveSummaryItem, CategoryPostCount — repository types leak vào service/transport layer.
+main.go import repository trực tiếp (để gob register) — coupling main với internal types.
+D. Các cơ hội refactor và tái sử dụng
+1. Transaction helper
+
+Vấn đề: CreatePost, UpdatePost, DeletePost đều lặp pattern begin/defer-recover/multi-rollback ~15 dòng
+Hướng: Extract func withTx(db *gorm.DB, fn func(*gorm.DB) error) error
+Lợi ích: Loại bỏ ~45 dòng boilerplate, không quên rollback
+Độ phức tạp: thấp
+func withTx(db *gorm.DB, fn func(tx *gorm.DB) error) error {
+    tx := db.Begin()
+    if tx.Error != nil {
+        return tx.Error
+    }
+    defer func() {
+        if r := recover(); r != nil {
+            tx.Rollback()
+        }
+    }()
+    if err := fn(tx); err != nil {
+        tx.Rollback()
+        return err
+    }
+    return tx.Commit().Error
+}
+2. Response wrapper chuẩn hóa
+
+Vấn đề: 4 kiểu response format trong codebase
+Hướng: Tạo helper respondOK(ctx, data), respondList(ctx, data, total, limit, offset), respondCreated(ctx, data)
+Lợi ích: Frontend nhất quán, ít code trong controller
+Độ phức tạp: thấp
+3. Di chuyển DTO types ra khỏi repository
+
+Vấn đề: ArchiveSummaryItem, CategoryPostCount trong repository/interfaces.go
+Hướng: Move vào dto/ package
+Lợi ích: Bỏ coupling repo → dto trong service, bỏ gob registration của repo types trong main.go
+Độ phức tạp: thấp
+4. Private BaseService fields
+
+Vấn đề: Tất cả deps là public exported
+Hướng: Lowercase tất cả fields, thêm getter methods hoặc chỉ access trong package
+Lợi ích: Enforce encapsulation, không code ngoài package có thể touch DB trực tiếp
+Độ phức tạp: thấp (chỉ rename)
+5. Tách findOrCreateCategories / findOrCreateTags thành CategoryService/TagService
+
+Vấn đề: Logic này nằm trong post.go service nhưng thuộc về category/tag domain
+Hướng: Move vào respective service
+Lợi ích: Single responsibility, tái sử dụng nếu có flow khác cần find-or-create
+Độ phức tạp: thấp
+E. Đề xuất cấu trúc thư mục/module
+Cấu trúc hiện tại về cơ bản đã hợp lý. Chỉ một vài điều chỉnh nhỏ:
+
+backend/application/
+├── cmd/                        # (đổi từ main.go trực tiếp)
+│   └── server/main.go
+├── config/
+├── constants/
+├── internal/
+│   ├── apperror/
+│   ├── controller/
+│   ├── dto/                    # thêm ArchiveSummaryItem, CategoryPostCount vào đây
+│   ├── entities/
+│   ├── middleware/             # chỉ giữ middleware, bỏ GenerateJWT
+│   ├── repository/
+│   ├── service/
+│   └── router.go
+└── pkg/
+    ├── cache/
+    ├── httpclient/
+    ├── image/
+    ├── jwt/                    # single source of JWT logic
+    ├── revalidation/
+    ├── storage/
+    └── utils/
+Không cần tổ chức lại theo feature (e.g., internal/post/, internal/user/) ở quy mô hiện tại — hybrid hiện tại là practical.
+
+F. Đề xuất cải thiện Clean Architecture
+Đang đúng:
+
+Controller → Service → Repository dependency direction
+Interface-driven service layer
+apperror tách error types khỏi HTTP concerns
+Repository pattern với entity types
+Đang sai/chưa rõ:
+
+Service layer biết về *gorm.DB (transaction management) — đây là infrastructure concern
+config.Get() global accessor trong service — service không nên biết về config package
+Repository types (ArchiveSummaryItem) leak lên transport layer
+Nên sửa thế nào:
+
+Inject *oauth2.Config vào constructor thay vì gọi config.Get() trong service method
+Transaction management: hoặc dùng helper function như trên, hoặc về dài hạn có thể dùng Unit of Work pattern — nhưng chưa cần ở quy mô hiện tại
+Move DTO types về dto/ package
+Chỗ không nên áp dụng Clean Architecture quá cứng:
+
+InsightService là God Service — điều này thực ra chấp nhận được cho blog monolith. Ép split thành nhiều service độc lập với injection riêng sẽ tăng complexity không cần thiết. Chỉ cần đảm bảo mỗi method đặt đúng file là đủ.
+Repository không nhất thiết phải pure CRUD — AppendCategories, ReplaceCategories là GORM association ops, giữ trong repo là hợp lý.
+G. Roadmap Refactor
+Quick wins (1-2 ngày)
+
+Fix
+UpdateUserAvatarV2
+bug — old avatar không bị xóa
+
+Fix
+loadPostRelationsParallel
+— không bỏ qua
+relErr
+
+Xóa
+GenerateJWT
+duplicate trong
+middleware/auth.go
+
+Fix route trùng
+/users/:id/posts
+(public vs protected)
+
+Remove/protect
+/debug-jwt
+endpoint
+
+defer tx.Rollback()
+pattern thay vì manual rollback tại từng error point
+
+Private
+BaseService
+fields
+
+logger.Default.LogMode(logger.Silent)
+hoặc
+logger.Warn
+trong production
+Refactor trung hạn (1-2 tuần)
+
+Move
+ArchiveSummaryItem
+,
+CategoryPostCount
+→
+dto/
+
+Chuẩn hóa response format —
+respondOK
+,
+respondList
+,
+respondCreated
+helpers
+
+withTx
+helper function để giảm boilerplate transaction
+
+Inject
+*oauth2.Config
+vào service constructor thay vì
+config.Get()
+
+DeleteComment
+wrap trong transaction
+
+Xóa duplicate
+FindAll
+/
+List
+trong PostRepository, rename rõ ràng
+
+Di chuyển engagement formula vào constants
+Cải tổ cấu trúc lớn hơn (tùy chọn, không bắt buộc)
+
+Context propagation cho toàn bộ service methods — cần nếu muốn proper timeout/cancellation
+
+Tách
+FlushViewCounts
+/
+RecalculateEngagementScores
+thành background worker package riêng thay vì goroutine trong
+main.go
+
+cmd/server/
+entrypoint structure nếu cần thêm multiple binary
+H. Nhận xét bắt buộc
+Layer boundaries: Tốt nhìn chung, nhưng bị phá vỡ ở hai điểm: service biết *gorm.DB, và service gọi config.Get().
+
+Dependency direction: Đúng chiều, ngoại trừ repository/ package export DTO types lên trên.
+
+Duplicated business logic: findOrCreateCategories / findOrCreateTags lặp hoàn toàn. Validate post ID trong CreateComment service có thể là redundant nếu DB đã có FK constraint.
+
+Duplicated DB logic: GenerateJWT duplicate giữa middleware/ và pkg/jwt/.
+
+Interface overuse/underuse: Interface service và repository đúng mức. Service composite interface là backward compat, hợp lý. Không có interface pollution.
+
+Error handling: apperror package rất tốt. Nhất quán. Duy nhất vấn đề là config.Get() panic thay vì error, và _ = relErr bỏ qua lỗi.
+
+Testability: Khá tốt — controllers nhận interfaces, repos nhận interfaces. Vấn đề duy nhất là BaseService.DB public làm khó mock transaction. config.Get() global state khó test.
+
+Maintainability: Tốt. Codebase nhỏ gọn, không over-engineered. Naming rõ ràng. Risks chính: transaction boilerplate dễ copy-paste sai, response format inconsistency sẽ đau khi scale API.
+
+Performance trade-offs: loadPostRelationsParallel tốt. Buffer view counts tốt. Cache stacking GetHomeData → GetLatestPosts → cache lại là acceptable nhưng phức tạp khi debug stale. FindByID always preload toàn bộ relations ngay cả khi chỉ cần check existence — over-fetching nhỏ nhưng accumulated.
+
+Không nên trừu tượng hóa thêm: InsightService monolith hiện tại ổn — không cần split. Repository GORM associations không cần wrapping thêm. Two-tier cache không cần thêm layer.

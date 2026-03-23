@@ -14,21 +14,21 @@ import (
 )
 
 type BaseService struct {
-	DB *gorm.DB
+	db *gorm.DB
 
-	Cache             cache.Cache
-	GoogleOauthConfig *oauth2.Config
-	S3Client          *s3.Client
-	StorageManager    *storage.Manager
+	cache             cache.Cache
+	googleOauthConfig *oauth2.Config
+	s3Client          *s3.Client
+	storageManager    *storage.Manager
 
-	UserRepo         repository.UserRepository
-	PostRepo         repository.PostRepository
-	CommentRepo      repository.CommentRepository
-	ReplyRepo        repository.ReplyRepository
-	CategoryRepo     repository.CategoryRepository
-	TagRepo          repository.TagRepository
-	PostContentRepo  repository.PostContentRepository
-	ImageRepo        repository.ImageRepository
+	userRepo        repository.UserRepository
+	postRepo        repository.PostRepository
+	commentRepo     repository.CommentRepository
+	replyRepo       repository.ReplyRepository
+	categoryRepo    repository.CategoryRepository
+	tagRepo         repository.TagRepository
+	postContentRepo repository.PostContentRepository
+	imageRepo       repository.ImageRepository
 
 	viewBuffer sync.Map // map[uuid.UUID]*int64
 }
@@ -46,7 +46,7 @@ func (s *BaseService) FlushViewCounts() {
 		ptr := v.(*int64)
 		delta := atomic.SwapInt64(ptr, 0)
 		if delta > 0 {
-			s.DB.Exec("UPDATE posts SET views = views + ? WHERE id = ?", delta, postID)
+			s.db.Exec("UPDATE posts SET views = views + ? WHERE id = ?", delta, postID)
 		}
 		s.viewBuffer.Delete(postID)
 		return true
@@ -69,18 +69,32 @@ func NewBaseService(
 	imageRepo repository.ImageRepository,
 ) *BaseService {
 	return &BaseService{
-		DB:                db,
-		Cache:             appCache,
-		GoogleOauthConfig: googleOauthConfig,
-		S3Client:          s3Client,
-		StorageManager:    storageManager,
-		UserRepo:          userRepo,
-		PostRepo:          postRepo,
-		CommentRepo:       commentRepo,
-		ReplyRepo:         replyRepo,
-		CategoryRepo:      categoryRepo,
-		TagRepo:           tagRepo,
-		PostContentRepo:   postContentRepo,
-		ImageRepo:         imageRepo,
+		db:                db,
+		cache:             appCache,
+		googleOauthConfig: googleOauthConfig,
+		s3Client:          s3Client,
+		storageManager:    storageManager,
+		userRepo:          userRepo,
+		postRepo:          postRepo,
+		commentRepo:       commentRepo,
+		replyRepo:         replyRepo,
+		categoryRepo:      categoryRepo,
+		tagRepo:           tagRepo,
+		postContentRepo:   postContentRepo,
+		imageRepo:         imageRepo,
 	}
+}
+
+// withTx executes fn within a database transaction.
+// It automatically rolls back on error or panic, and commits on success.
+func withTx(db *gorm.DB, fn func(tx *gorm.DB) error) error {
+	tx := db.Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+	defer tx.Rollback() //nolint:errcheck // no-op after commit
+	if err := fn(tx); err != nil {
+		return err
+	}
+	return tx.Commit().Error
 }

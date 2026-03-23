@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pdhoang91/blog/config"
 	"github.com/pdhoang91/blog/constants"
 	"github.com/pdhoang91/blog/internal/apperror"
 	"github.com/pdhoang91/blog/internal/dto"
@@ -25,7 +24,7 @@ import (
 
 // Register creates a new user account
 func (s *InsightService) Register(req *dto.CreateUserRequest) (*dto.LoginResponse, error) {
-	existing, err := s.UserRepo.FindByEmail(req.Email)
+	existing, err := s.userRepo.FindByEmail(req.Email)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, apperror.NewInternal("failed to check email", err)
 	}
@@ -33,7 +32,7 @@ func (s *InsightService) Register(req *dto.CreateUserRequest) (*dto.LoginRespons
 		return nil, apperror.NewConflict("email already registered")
 	}
 
-	existing, err = s.UserRepo.FindByUsername(req.Username)
+	existing, err = s.userRepo.FindByUsername(req.Username)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, apperror.NewInternal("failed to check username", err)
 	}
@@ -53,7 +52,7 @@ func (s *InsightService) Register(req *dto.CreateUserRequest) (*dto.LoginRespons
 		CreatedAt: time.Now(), UpdatedAt: time.Now(),
 	}
 
-	if err := s.UserRepo.Create(user); err != nil {
+	if err := s.userRepo.Create(user); err != nil {
 		return nil, apperror.NewInternal("failed to create user", err)
 	}
 
@@ -67,7 +66,7 @@ func (s *InsightService) Register(req *dto.CreateUserRequest) (*dto.LoginRespons
 
 // Login authenticates a user
 func (s *InsightService) Login(req *dto.LoginRequest) (*dto.LoginResponse, error) {
-	user, err := s.UserRepo.FindByEmail(req.Email)
+	user, err := s.userRepo.FindByEmail(req.Email)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewUnauthorized("invalid credentials")
@@ -89,26 +88,24 @@ func (s *InsightService) Login(req *dto.LoginRequest) (*dto.LoginResponse, error
 
 // GoogleLogin initiates Google OAuth login
 func (s *InsightService) GoogleLogin() (string, error) {
-	cfg := config.Get()
-	if cfg == nil {
+	if s.googleOauthConfig == nil {
 		return "", apperror.NewInternal("OAuth configuration not available", nil)
 	}
-	return cfg.AuthCodeURL("state", oauth2.AccessTypeOffline), nil
+	return s.googleOauthConfig.AuthCodeURL("state", oauth2.AccessTypeOffline), nil
 }
 
 // GoogleCallback handles Google OAuth callback
 func (s *InsightService) GoogleCallback(code string) (*dto.LoginResponse, error) {
-	cfg := config.Get()
-	if cfg == nil {
+	if s.googleOauthConfig == nil {
 		return nil, apperror.NewInternal("OAuth configuration not available", nil)
 	}
 
-	token, err := cfg.Exchange(context.Background(), code)
+	token, err := s.googleOauthConfig.Exchange(context.Background(), code)
 	if err != nil {
 		return nil, apperror.NewInternal("failed to exchange token", err)
 	}
 
-	client := cfg.Client(context.Background(), token)
+	client := s.googleOauthConfig.Client(context.Background(), token)
 	resp, err := client.Get("https://www.googleapis.com/oauth2/v3/userinfo")
 	if err != nil {
 		return nil, apperror.NewInternal("failed to fetch user info", err)
@@ -123,7 +120,7 @@ func (s *InsightService) GoogleCallback(code string) (*dto.LoginResponse, error)
 		return nil, apperror.NewInternal("failed to decode user info", err)
 	}
 
-	user, err := s.UserRepo.FindByEmail(userInfo.Email)
+	user, err := s.userRepo.FindByEmail(userInfo.Email)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, apperror.NewInternal("failed to find user", err)
 	}
@@ -137,7 +134,7 @@ func (s *InsightService) GoogleCallback(code string) (*dto.LoginResponse, error)
 			Role:      constants.RoleUser, EmailVerified: true,
 			CreatedAt: time.Now(), UpdatedAt: time.Now(),
 		}
-		if err := s.UserRepo.Create(user); err != nil {
+		if err := s.userRepo.Create(user); err != nil {
 			return nil, apperror.NewInternal("failed to create user", err)
 		}
 	}
@@ -152,7 +149,7 @@ func (s *InsightService) GoogleCallback(code string) (*dto.LoginResponse, error)
 
 // GetUserByUsername gets a user by username
 func (s *InsightService) GetUserByUsername(username string) (*entities.User, error) {
-	user, err := s.UserRepo.FindByUsername(username)
+	user, err := s.userRepo.FindByUsername(username)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewNotFound("user not found")
@@ -172,7 +169,7 @@ func (s *InsightService) RefreshToken() error {
 
 // GetUser retrieves a user by ID
 func (s *InsightService) GetUser(id uuid.UUID) (*dto.UserResponse, error) {
-	user, err := s.UserRepo.FindByID(id)
+	user, err := s.userRepo.FindByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewNotFound("user not found")
@@ -184,7 +181,7 @@ func (s *InsightService) GetUser(id uuid.UUID) (*dto.UserResponse, error) {
 
 // GetUserByID retrieves a user entity by ID (for internal use)
 func (s *InsightService) GetUserByID(id uuid.UUID) (*entities.User, error) {
-	user, err := s.UserRepo.FindByID(id)
+	user, err := s.userRepo.FindByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewNotFound("user not found")
@@ -201,7 +198,7 @@ func (s *InsightService) GetProfile(userID uuid.UUID) (*dto.UserResponse, error)
 
 // UpdateProfile updates the current user's profile
 func (s *InsightService) UpdateProfile(userID uuid.UUID, req *dto.UpdateUserRequest) (*dto.UserResponse, error) {
-	user, err := s.UserRepo.FindByID(userID)
+	user, err := s.userRepo.FindByID(userID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewNotFound("user not found")
@@ -226,7 +223,7 @@ func (s *InsightService) UpdateProfile(userID uuid.UUID, req *dto.UpdateUserRequ
 	}
 
 	user.UpdatedAt = time.Now()
-	if err := s.UserRepo.Update(user); err != nil {
+	if err := s.userRepo.Update(user); err != nil {
 		return nil, apperror.NewInternal("failed to update user", err)
 	}
 	return dto.NewUserResponse(user), nil
@@ -234,7 +231,7 @@ func (s *InsightService) UpdateProfile(userID uuid.UUID, req *dto.UpdateUserRequ
 
 // UpdateProfileWithAvatar updates user profile with optional avatar upload
 func (s *InsightService) UpdateProfileWithAvatar(ctx context.Context, userID uuid.UUID, req *dto.UpdateUserRequest, avatarFile *multipart.FileHeader) (*dto.UserResponse, error) {
-	user, err := s.UserRepo.FindByID(userID)
+	user, err := s.userRepo.FindByID(userID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewNotFound("user not found")
@@ -261,7 +258,7 @@ func (s *InsightService) UpdateProfileWithAvatar(ctx context.Context, userID uui
 	}
 
 	user.UpdatedAt = time.Now()
-	if err := s.UserRepo.Update(user); err != nil {
+	if err := s.userRepo.Update(user); err != nil {
 		return nil, apperror.NewInternal("failed to update user", err)
 	}
 	return dto.NewUserResponse(user), nil
@@ -269,7 +266,7 @@ func (s *InsightService) UpdateProfileWithAvatar(ctx context.Context, userID uui
 
 // DeleteProfile deletes the current user's account
 func (s *InsightService) DeleteProfile(userID uuid.UUID) error {
-	user, err := s.UserRepo.FindByID(userID)
+	user, err := s.userRepo.FindByID(userID)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return apperror.NewNotFound("user not found")
@@ -285,7 +282,7 @@ func (s *InsightService) DeleteProfile(userID uuid.UUID) error {
 
 	_ = s.CleanupUserImages(context.Background(), userID)
 
-	if err := s.UserRepo.Delete(userID); err != nil {
+	if err := s.userRepo.Delete(userID); err != nil {
 		return apperror.NewInternal("failed to delete user", err)
 	}
 	return nil
@@ -296,12 +293,14 @@ func (s *InsightService) UploadAvatarV2(ctx context.Context, file *multipart.Fil
 	return s.UploadImageV2(ctx, file, userID, "avatar")
 }
 
-// UpdateUserAvatarV2 updates user avatar using V2 system with cleanup
+// UpdateUserAvatarV2 updates user avatar using V2 system with cleanup of old avatar.
 func (s *InsightService) UpdateUserAvatarV2(ctx context.Context, file *multipart.FileHeader, userID uuid.UUID) (*storage.UploadResponse, error) {
-	user, err := s.UserRepo.FindByID(userID)
+	user, err := s.userRepo.FindByID(userID)
 	if err != nil {
 		return nil, apperror.NewNotFound("user not found")
 	}
+
+	oldAvatarURL := user.AvatarURL
 
 	uploadResponse, err := s.UploadAvatarV2(ctx, file, userID)
 	if err != nil {
@@ -309,13 +308,14 @@ func (s *InsightService) UpdateUserAvatarV2(ctx context.Context, file *multipart
 	}
 
 	user.AvatarURL = uploadResponse.URL
-	if err := s.UserRepo.Update(user); err != nil {
+	if err := s.userRepo.Update(user); err != nil {
 		_ = s.DeleteImageV2(ctx, uploadResponse.ImageID.String(), userID)
 		return nil, apperror.NewInternal("failed to update user profile", err)
 	}
 
-	if user.AvatarURL != "" && user.AvatarURL != uploadResponse.URL {
-		if oldImageID := s.extractImageIDFromURL(user.AvatarURL); oldImageID != "" {
+	// Delete old avatar if it was a V2 image
+	if oldAvatarURL != "" && oldAvatarURL != uploadResponse.URL {
+		if oldImageID := s.extractImageIDFromURL(oldAvatarURL); oldImageID != "" {
 			_ = s.DeleteImageV2(ctx, oldImageID, userID)
 		}
 	}

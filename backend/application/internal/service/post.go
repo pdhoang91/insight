@@ -22,20 +22,16 @@ import (
 
 // CreatePost creates a new post
 func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest) (*dto.PostResponse, error) {
-	tx := s.DB.Begin()
+	tx := s.db.Begin()
 	if tx.Error != nil {
 		return nil, apperror.NewInternal("failed to start transaction", tx.Error)
 	}
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
+	defer tx.Rollback() //nolint:errcheck
 
-	txPostRepo := s.PostRepo.WithTx(tx)
-	txPostContentRepo := s.PostContentRepo.WithTx(tx)
-	txCategoryRepo := s.CategoryRepo.WithTx(tx)
-	txTagRepo := s.TagRepo.WithTx(tx)
+	txPostRepo := s.postRepo.WithTx(tx)
+	txPostContentRepo := s.postContentRepo.WithTx(tx)
+	txCategoryRepo := s.categoryRepo.WithTx(tx)
+	txTagRepo := s.tagRepo.WithTx(tx)
 
 	coverImage := req.CoverImage
 	if coverImage == "" {
@@ -47,7 +43,7 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 	}
 
 	slug := utils.CreateSlug(req.Title)
-	if _, err := s.PostRepo.FindBySlug(slug); err == nil {
+	if _, err := s.postRepo.FindBySlug(slug); err == nil {
 		slug = fmt.Sprintf("%s-%s", slug, utils.GetUniquePrefix())
 	}
 
@@ -68,13 +64,12 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 	}
 
 	if err := txPostRepo.Create(post); err != nil {
-		tx.Rollback()
 		return nil, apperror.NewInternal("failed to create post", err)
 	}
 
 	var processedJSON json.RawMessage
 	if len(req.Content) > 0 {
-		processedJSON = s.StorageManager.ProcessJSONContent(req.Content)
+		processedJSON = s.storageManager.ProcessJSONContent(req.Content)
 		postContent := &entities.PostContent{
 			ID:        uuid.NewV4(),
 			PostID:    post.ID,
@@ -83,7 +78,6 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 			UpdatedAt: time.Now(),
 		}
 		if err := txPostContentRepo.Create(postContent); err != nil {
-			tx.Rollback()
 			return nil, apperror.NewInternal("failed to create post content", err)
 		}
 	}
@@ -91,11 +85,9 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 	if len(req.CategoryNames) > 0 {
 		categories, err := s.findOrCreateCategories(req.CategoryNames, txCategoryRepo)
 		if err != nil {
-			tx.Rollback()
 			return nil, err
 		}
 		if err := txPostRepo.AppendCategories(post, categories); err != nil {
-			tx.Rollback()
 			return nil, apperror.NewInternal("failed to associate categories", nil)
 		}
 	}
@@ -103,11 +95,9 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 	if len(req.TagNames) > 0 {
 		tags, err := s.findOrCreateTags(req.TagNames, txTagRepo)
 		if err != nil {
-			tx.Rollback()
 			return nil, err
 		}
 		if err := txPostRepo.AppendTags(post, tags); err != nil {
-			tx.Rollback()
 			return nil, apperror.NewInternal("failed to associate tags", nil)
 		}
 	}
@@ -118,13 +108,13 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 
 	// Create image references after commit (best-effort)
 	if len(processedJSON) > 0 {
-		imageIDs := s.StorageManager.ExtractImageIDsFromJSON(processedJSON)
+		imageIDs := s.storageManager.ExtractImageIDsFromJSON(processedJSON)
 		for _, imgID := range imageIDs {
 			_ = s.createImageReference(imgID, post.ID, "content")
 		}
 	}
 
-	if err := s.PostRepo.LoadRelationships(post); err != nil {
+	if err := s.postRepo.LoadRelationships(post); err != nil {
 		return nil, apperror.NewInternal("failed to load post relationships", err)
 	}
 
@@ -135,15 +125,15 @@ func (s *InsightService) CreatePost(userID uuid.UUID, req *dto.CreatePostRequest
 }
 
 func (s *InsightService) invalidatePostListCaches() {
-	s.Cache.DeletePrefix("list_posts:")
-	s.Cache.DeletePrefix("latest_posts:")
-	s.Cache.DeletePrefix("popular_posts:")
-	s.Cache.Delete("home_data")
+	s.cache.DeletePrefix("list_posts:")
+	s.cache.DeletePrefix("latest_posts:")
+	s.cache.DeletePrefix("popular_posts:")
+	s.cache.Delete("home_data")
 }
 
 func (s *InsightService) invalidatePostDetailCaches(slug string, id uuid.UUID) {
-	s.Cache.Delete("post_slug:" + slug)
-	s.Cache.Delete(fmt.Sprintf("post_id:%s", id.String()))
+	s.cache.Delete("post_slug:" + slug)
+	s.cache.Delete(fmt.Sprintf("post_id:%s", id.String()))
 }
 
 func (s *InsightService) ListPosts(req *dto.PaginationRequest) ([]*dto.PostResponse, int64, error) {
@@ -152,44 +142,43 @@ func (s *InsightService) ListPosts(req *dto.PaginationRequest) ([]*dto.PostRespo
 	}
 
 	cacheKey := fmt.Sprintf("list_posts:%d:%d", req.Limit, req.Offset)
-	if cachedPosts, ok1 := s.Cache.Get(cacheKey); ok1 {
-		if cachedTotal, ok2 := s.Cache.Get(cacheKey + ":total"); ok2 {
+	if cachedPosts, ok1 := s.cache.Get(cacheKey); ok1 {
+		if cachedTotal, ok2 := s.cache.Get(cacheKey + ":total"); ok2 {
 			return cachedPosts.([]*dto.PostResponse), cachedTotal.(int64), nil
 		}
 	}
 
-	posts, err := s.PostRepo.FindAll(req.Limit, req.Offset)
+	posts, err := s.postRepo.FindAll(req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to list posts", err)
 	}
 
-	total, err := s.PostRepo.Count()
+	total, err := s.postRepo.Count()
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to count posts", err)
 	}
-
 
 	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
 		responses = append(responses, dto.NewPostResponse(post))
 	}
 
-	s.Cache.Set(cacheKey, responses, 2*time.Minute)
-	s.Cache.Set(cacheKey+":total", total, 2*time.Minute)
+	s.cache.Set(cacheKey, responses, 2*time.Minute)
+	s.cache.Set(cacheKey+":total", total, 2*time.Minute)
 	return responses, total, nil
 }
 
 // GetPost retrieves a post by ID
 func (s *InsightService) GetPost(id uuid.UUID) (*dto.PostResponse, error) {
 	cacheKey := fmt.Sprintf("post_id:%s", id.String())
-	if cached, ok := s.Cache.Get(cacheKey); ok {
+	if cached, ok := s.cache.Get(cacheKey); ok {
 		if resp, ok := cached.(*dto.PostResponse); ok {
 			s.BufferViewIncrement(id)
 			return resp, nil
 		}
 	}
 
-	post, err := s.PostRepo.FindByID(id)
+	post, err := s.postRepo.FindByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewNotFound("post not found")
@@ -198,25 +187,26 @@ func (s *InsightService) GetPost(id uuid.UUID) (*dto.PostResponse, error) {
 	}
 
 	s.BufferViewIncrement(post.ID)
-	s.loadPostRelationsParallel(post)
+	if err := s.loadPostRelationsParallel(post); err != nil {
+		return nil, apperror.NewInternal("failed to load post relations", err)
+	}
 
 	resp := dto.NewPostResponse(post)
-	s.Cache.Set(cacheKey, resp, 60*time.Second)
+	s.cache.Set(cacheKey, resp, 60*time.Second)
 	return resp, nil
 }
 
 // GetPostBySlug retrieves a post by slug
 func (s *InsightService) GetPostBySlug(slug string) (*dto.PostResponse, error) {
 	cacheKey := "post_slug:" + slug
-	if cached, ok := s.Cache.Get(cacheKey); ok {
+	if cached, ok := s.cache.Get(cacheKey); ok {
 		if resp, ok := cached.(*dto.PostResponse); ok {
-			// Count view against the cached post ID
 			s.BufferViewIncrement(resp.ID)
 			return resp, nil
 		}
 	}
 
-	post, err := s.PostRepo.FindBySlug(slug)
+	post, err := s.postRepo.FindBySlug(slug)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewNotFound("post not found")
@@ -225,15 +215,17 @@ func (s *InsightService) GetPostBySlug(slug string) (*dto.PostResponse, error) {
 	}
 
 	s.BufferViewIncrement(post.ID)
-	s.loadPostRelationsParallel(post)
+	if err := s.loadPostRelationsParallel(post); err != nil {
+		return nil, apperror.NewInternal("failed to load post relations", err)
+	}
 
 	resp := dto.NewPostResponse(post)
-	s.Cache.Set(cacheKey, resp, 60*time.Second)
+	s.cache.Set(cacheKey, resp, 60*time.Second)
 	return resp, nil
 }
 
 // loadPostRelationsParallel loads post content and relationships concurrently.
-func (s *InsightService) loadPostRelationsParallel(post *entities.Post) {
+func (s *InsightService) loadPostRelationsParallel(post *entities.Post) error {
 	var relErr error
 	var wg sync.WaitGroup
 	wg.Add(2)
@@ -243,24 +235,24 @@ func (s *InsightService) loadPostRelationsParallel(post *entities.Post) {
 	}()
 	go func() {
 		defer wg.Done()
-		relErr = s.PostRepo.LoadRelationships(post)
+		relErr = s.postRepo.LoadRelationships(post)
 	}()
 	wg.Wait()
-	_ = relErr
+	return relErr
 }
 
 // loadPostContent loads and processes post content for display
 func (s *InsightService) loadPostContent(post *entities.Post) {
-	postContent, err := s.PostContentRepo.FindByPostID(post.ID)
+	postContent, err := s.postContentRepo.FindByPostID(post.ID)
 	if err != nil || postContent == nil {
 		return
 	}
-	post.Content = s.StorageManager.ProcessJSONContentForDisplay(postContent.Content)
+	post.Content = s.storageManager.ProcessJSONContentForDisplay(postContent.Content)
 }
 
 // GetPostEntity returns the raw post entity (for internal use)
 func (s *InsightService) GetPostEntity(id uuid.UUID) (*entities.Post, error) {
-	post, err := s.PostRepo.FindByID(id)
+	post, err := s.postRepo.FindByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewNotFound("post not found")
@@ -272,24 +264,19 @@ func (s *InsightService) GetPostEntity(id uuid.UUID) (*entities.Post, error) {
 
 // UpdatePost updates a post by ID
 func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.UpdatePostRequest) (*dto.PostResponse, error) {
-	tx := s.DB.Begin()
+	tx := s.db.Begin()
 	if tx.Error != nil {
 		return nil, apperror.NewInternal("failed to start transaction", tx.Error)
 	}
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
+	defer tx.Rollback() //nolint:errcheck
 
-	txPostRepo := s.PostRepo.WithTx(tx)
-	txPostContentRepo := s.PostContentRepo.WithTx(tx)
-	txCategoryRepo := s.CategoryRepo.WithTx(tx)
-	txTagRepo := s.TagRepo.WithTx(tx)
+	txPostRepo := s.postRepo.WithTx(tx)
+	txPostContentRepo := s.postContentRepo.WithTx(tx)
+	txCategoryRepo := s.categoryRepo.WithTx(tx)
+	txTagRepo := s.tagRepo.WithTx(tx)
 
 	post, err := txPostRepo.FindByID(id)
 	if err != nil {
-		tx.Rollback()
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, apperror.NewNotFound("post not found")
 		}
@@ -297,7 +284,6 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 	}
 
 	if post.UserID != userID {
-		tx.Rollback()
 		return nil, apperror.NewForbidden("you do not own this post")
 	}
 
@@ -323,7 +309,6 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 
 	post.UpdatedAt = time.Now()
 	if err := txPostRepo.Update(post); err != nil {
-		tx.Rollback()
 		return nil, apperror.NewInternal("failed to update post", err)
 	}
 
@@ -337,31 +322,28 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 					CreatedAt: time.Now(),
 				}
 			} else {
-				tx.Rollback()
 				return nil, apperror.NewInternal("failed to find post content", err)
 			}
 		}
 
 		oldContent := postContent.Content
-		processedJSON := s.StorageManager.ProcessJSONContent(req.Content)
+		processedJSON := s.storageManager.ProcessJSONContent(req.Content)
 		postContent.Content = processedJSON
 		postContent.UpdatedAt = time.Now()
 
 		if postContent.ID == uuid.Nil {
 			postContent.ID = uuid.NewV4()
 			if err := txPostContentRepo.Create(postContent); err != nil {
-				tx.Rollback()
 				return nil, apperror.NewInternal("failed to create post content", err)
 			}
 		} else {
 			if err := txPostContentRepo.Update(postContent); err != nil {
-				tx.Rollback()
 				return nil, apperror.NewInternal("failed to update post content", err)
 			}
 		}
 
 		// Update image references (best-effort)
-		_ = s.StorageManager.UpdateJSONImageReferences(context.Background(), post.ID, oldContent, postContent.Content)
+		_ = s.storageManager.UpdateJSONImageReferences(context.Background(), post.ID, oldContent, postContent.Content)
 	}
 
 	if req.CategoryNames != nil {
@@ -370,12 +352,10 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 			var err error
 			categories, err = s.findOrCreateCategories(*req.CategoryNames, txCategoryRepo)
 			if err != nil {
-				tx.Rollback()
 				return nil, err
 			}
 		}
 		if err := txPostRepo.ReplaceCategories(post, categories); err != nil {
-			tx.Rollback()
 			return nil, apperror.NewInternal("failed to update categories", nil)
 		}
 	}
@@ -386,12 +366,10 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 			var err error
 			tags, err = s.findOrCreateTags(*req.TagNames, txTagRepo)
 			if err != nil {
-				tx.Rollback()
 				return nil, err
 			}
 		}
 		if err := txPostRepo.ReplaceTags(post, tags); err != nil {
-			tx.Rollback()
 			return nil, apperror.NewInternal("failed to update tags", nil)
 		}
 	}
@@ -400,7 +378,7 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 		return nil, apperror.NewInternal("failed to commit transaction", err)
 	}
 
-	if err := s.PostRepo.LoadRelationships(post); err != nil {
+	if err := s.postRepo.LoadRelationships(post); err != nil {
 		return nil, apperror.NewInternal("failed to load post relationships", err)
 	}
 
@@ -412,24 +390,19 @@ func (s *InsightService) UpdatePost(userID uuid.UUID, id uuid.UUID, req *dto.Upd
 }
 
 func (s *InsightService) DeletePost(userID uuid.UUID, id uuid.UUID) error {
-	tx := s.DB.Begin()
+	tx := s.db.Begin()
 	if tx.Error != nil {
 		return apperror.NewInternal("failed to start transaction", tx.Error)
 	}
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
+	defer tx.Rollback() //nolint:errcheck
 
-	txPostRepo := s.PostRepo.WithTx(tx)
-	txPostContentRepo := s.PostContentRepo.WithTx(tx)
-	txCommentRepo := s.CommentRepo.WithTx(tx)
-	txReplyRepo := s.ReplyRepo.WithTx(tx)
+	txPostRepo := s.postRepo.WithTx(tx)
+	txPostContentRepo := s.postContentRepo.WithTx(tx)
+	txCommentRepo := s.commentRepo.WithTx(tx)
+	txReplyRepo := s.replyRepo.WithTx(tx)
 
 	post, err := txPostRepo.FindByID(id)
 	if err != nil {
-		tx.Rollback()
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return apperror.NewNotFound("post not found")
 		}
@@ -437,27 +410,22 @@ func (s *InsightService) DeletePost(userID uuid.UUID, id uuid.UUID) error {
 	}
 
 	if post.UserID != userID {
-		tx.Rollback()
 		return apperror.NewForbidden("you do not own this post")
 	}
 
 	if err := txPostRepo.Delete(post); err != nil {
-		tx.Rollback()
 		return apperror.NewInternal("failed to delete post", err)
 	}
 
 	if err := txCommentRepo.DeleteByPostID(id); err != nil {
-		tx.Rollback()
 		return apperror.NewInternal("failed to delete comments", err)
 	}
 
 	if err := txReplyRepo.DeleteByPostID(id); err != nil {
-		tx.Rollback()
 		return apperror.NewInternal("failed to delete replies", err)
 	}
 
 	if err := txPostContentRepo.DeleteByPostID(id); err != nil {
-		tx.Rollback()
 		return apperror.NewInternal("failed to delete post content", err)
 	}
 
@@ -473,7 +441,7 @@ func (s *InsightService) DeletePost(userID uuid.UUID, id uuid.UUID) error {
 }
 
 func (s *InsightService) DeletePostImages(ctx context.Context, postID uuid.UUID, userID uuid.UUID) error {
-	imageRefs, err := s.ImageRepo.FindReferencesByPostID(postID)
+	imageRefs, err := s.imageRepo.FindReferencesByPostID(postID)
 	if err != nil {
 		return fmt.Errorf("FindReferencesByPostID: %w", err)
 	}
@@ -489,17 +457,16 @@ func (s *InsightService) GetUserPosts(userID uuid.UUID, req *dto.PaginationReque
 		req.Limit = 20
 	}
 
-	posts, err := s.PostRepo.FindByUserID(userID, req.Limit, req.Offset)
+	posts, err := s.postRepo.FindByUserID(userID, req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to get user posts", err)
 	}
-
 
 	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
 		responses = append(responses, dto.NewPostResponse(post))
 	}
-	total, err := s.PostRepo.CountByUserID(userID)
+	total, err := s.postRepo.CountByUserID(userID)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to count user posts", err)
 	}
@@ -512,7 +479,7 @@ func (s *InsightService) SearchPosts(query string, req *dto.PaginationRequest) (
 		req.Limit = 20
 	}
 
-	posts, err := s.PostRepo.Search(query, req.Limit, req.Offset)
+	posts, err := s.postRepo.Search(query, req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to search posts", err)
 	}
@@ -521,7 +488,7 @@ func (s *InsightService) SearchPosts(query string, req *dto.PaginationRequest) (
 	for _, post := range posts {
 		responses = append(responses, dto.NewPostResponse(post))
 	}
-	total, err := s.PostRepo.CountSearch(query)
+	total, err := s.postRepo.CountSearch(query)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to count search results", err)
 	}
@@ -534,22 +501,21 @@ func (s *InsightService) GetLatestPosts(limit int) ([]*dto.PostResponse, error) 
 	}
 
 	cacheKey := fmt.Sprintf("latest_posts:%d", limit)
-	if cached, ok := s.Cache.Get(cacheKey); ok {
+	if cached, ok := s.cache.Get(cacheKey); ok {
 		return cached.([]*dto.PostResponse), nil
 	}
 
-	posts, err := s.PostRepo.FindAll(limit, 0)
+	posts, err := s.postRepo.FindAll(limit, 0)
 	if err != nil {
 		return nil, apperror.NewInternal("failed to get latest posts", err)
 	}
-
 
 	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
 		responses = append(responses, dto.NewPostResponse(post))
 	}
 
-	s.Cache.Set(cacheKey, responses, 2*time.Minute)
+	s.cache.Set(cacheKey, responses, 2*time.Minute)
 	return responses, nil
 }
 
@@ -559,27 +525,26 @@ func (s *InsightService) GetPopularPosts(limit int) ([]*dto.PostResponse, error)
 	}
 
 	cacheKey := fmt.Sprintf("popular_posts:%d", limit)
-	if cached, ok := s.Cache.Get(cacheKey); ok {
+	if cached, ok := s.cache.Get(cacheKey); ok {
 		return cached.([]*dto.PostResponse), nil
 	}
 
-	posts, err := s.PostRepo.GetPopular(limit)
+	posts, err := s.postRepo.GetPopular(limit)
 	if err != nil {
 		return nil, apperror.NewInternal("failed to get popular posts", err)
 	}
-
 
 	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
 		responses = append(responses, dto.NewPostResponse(post))
 	}
 
-	s.Cache.Set(cacheKey, responses, 5*time.Minute)
+	s.cache.Set(cacheKey, responses, 5*time.Minute)
 	return responses, nil
 }
 
 func (s *InsightService) GetHomeData() (*dto.HomeResponse, error) {
-	if cached, ok := s.Cache.Get("home_data"); ok {
+	if cached, ok := s.cache.Get("home_data"); ok {
 		return cached.(*dto.HomeResponse), nil
 	}
 
@@ -611,7 +576,7 @@ func (s *InsightService) GetHomeData() (*dto.HomeResponse, error) {
 	}()
 	go func() {
 		defer wg.Done()
-		totalPosts, countErr = s.PostRepo.Count()
+		totalPosts, countErr = s.postRepo.Count()
 	}()
 	wg.Wait()
 
@@ -635,28 +600,28 @@ func (s *InsightService) GetHomeData() (*dto.HomeResponse, error) {
 		TotalPosts:   totalPosts,
 	}
 
-	s.Cache.Set("home_data", resp, 2*time.Minute)
+	s.cache.Set("home_data", resp, 2*time.Minute)
 	return resp, nil
 }
 
 func (s *InsightService) RecalculateEngagementScores() {
-	_ = s.PostRepo.RecalculateAllEngagementScores()
-	s.Cache.DeletePrefix("popular_posts:")
-	s.Cache.Delete("home_data")
+	_ = s.postRepo.RecalculateAllEngagementScores()
+	s.cache.DeletePrefix("popular_posts:")
+	s.cache.Delete("home_data")
 }
 
-func (s *InsightService) GetArchiveSummary() ([]*repository.ArchiveSummaryItem, error) {
+func (s *InsightService) GetArchiveSummary() ([]*dto.ArchiveSummaryItem, error) {
 	const cacheKey = "archive_summary"
-	if cached, ok := s.Cache.Get(cacheKey); ok {
-		return cached.([]*repository.ArchiveSummaryItem), nil
+	if cached, ok := s.cache.Get(cacheKey); ok {
+		return cached.([]*dto.ArchiveSummaryItem), nil
 	}
 
-	items, err := s.PostRepo.GetArchiveSummary()
+	items, err := s.postRepo.GetArchiveSummary()
 	if err != nil {
 		return nil, apperror.NewInternal("failed to get archive summary", err)
 	}
 
-	s.Cache.Set(cacheKey, items, 10*time.Minute)
+	s.cache.Set(cacheKey, items, 10*time.Minute)
 	return items, nil
 }
 
@@ -666,16 +631,15 @@ func (s *InsightService) GetPostsByYearMonth(year, month int, req *dto.Paginatio
 		req.Limit = 20
 	}
 
-	posts, err := s.PostRepo.FindByYearMonth(year, month, req.Limit, req.Offset)
+	posts, err := s.postRepo.FindByYearMonth(year, month, req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to get posts by year/month", err)
 	}
 
-	total, err := s.PostRepo.CountByYearMonth(year, month)
+	total, err := s.postRepo.CountByYearMonth(year, month)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to count posts by year/month", err)
 	}
-
 
 	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
@@ -690,7 +654,7 @@ func (s *InsightService) GetPostsByCategory(categoryName string, req *dto.Pagina
 		req.Limit = 10
 	}
 
-	category, err := s.CategoryRepo.FindByName(categoryName)
+	category, err := s.categoryRepo.FindByName(categoryName)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, 0, apperror.NewNotFound("category not found")
@@ -698,16 +662,15 @@ func (s *InsightService) GetPostsByCategory(categoryName string, req *dto.Pagina
 		return nil, 0, apperror.NewInternal("failed to find category", err)
 	}
 
-	posts, err := s.PostRepo.FindByCategory(category.ID, req.Limit, req.Offset)
+	posts, err := s.postRepo.FindByCategory(category.ID, req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to get posts by category", err)
 	}
 
-	total, err := s.PostRepo.CountByCategory(category.ID)
+	total, err := s.postRepo.CountByCategory(category.ID)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to count posts by category", err)
 	}
-
 
 	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
@@ -722,7 +685,7 @@ func (s *InsightService) GetPostsByTag(tagName string, req *dto.PaginationReques
 		req.Limit = 10
 	}
 
-	tag, err := s.TagRepo.FindByName(tagName)
+	tag, err := s.tagRepo.FindByName(tagName)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, 0, apperror.NewNotFound("tag not found")
@@ -730,16 +693,15 @@ func (s *InsightService) GetPostsByTag(tagName string, req *dto.PaginationReques
 		return nil, 0, apperror.NewInternal("failed to find tag", err)
 	}
 
-	posts, err := s.PostRepo.FindByTag(tag.ID, req.Limit, req.Offset)
+	posts, err := s.postRepo.FindByTag(tag.ID, req.Limit, req.Offset)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to get posts by tag", err)
 	}
 
-	total, err := s.PostRepo.CountByTag(tag.ID)
+	total, err := s.postRepo.CountByTag(tag.ID)
 	if err != nil {
 		return nil, 0, apperror.NewInternal("failed to count posts by tag", err)
 	}
-
 
 	responses := make([]*dto.PostResponse, 0, len(posts))
 	for _, post := range posts {
@@ -750,7 +712,7 @@ func (s *InsightService) GetPostsByTag(tagName string, req *dto.PaginationReques
 
 // GetPostIDFromComment gets post ID from comment ID
 func (s *InsightService) GetPostIDFromComment(commentID uuid.UUID) (*uuid.UUID, error) {
-	comment, err := s.CommentRepo.FindByID(commentID)
+	comment, err := s.commentRepo.FindByID(commentID)
 	if err != nil {
 		return nil, apperror.NewNotFound("comment not found")
 	}
@@ -763,7 +725,7 @@ func (s *InsightService) createImageReference(imageID string, postID uuid.UUID, 
 		return err
 	}
 
-	if _, err := s.ImageRepo.FindReference(id, postID, refType); err == nil {
+	if _, err := s.imageRepo.FindReference(id, postID, refType); err == nil {
 		return nil // Already exists
 	}
 
@@ -771,7 +733,7 @@ func (s *InsightService) createImageReference(imageID string, postID uuid.UUID, 
 		ID: uuid.NewV4(), ImageID: id, PostID: postID,
 		RefType: refType, CreatedAt: time.Now(),
 	}
-	return s.ImageRepo.CreateReference(ref)
+	return s.imageRepo.CreateReference(ref)
 }
 
 // findOrCreateCategories finds or creates categories by name within a transaction
@@ -822,7 +784,7 @@ func (s *InsightService) findOrCreateTags(names []string, txTagRepo repository.T
 
 // extractExcerpt extracts preview text from JSON content
 func (s *InsightService) extractExcerpt(content json.RawMessage) string {
-	plainText := s.StorageManager.ExtractPlainTextFromJSON(content)
+	plainText := s.storageManager.ExtractPlainTextFromJSON(content)
 	words := strings.Fields(plainText)
 	if len(words) > 55 {
 		return strings.Join(words[:55], " ") + "..."

@@ -21,9 +21,6 @@ func DefineAPIRoutes(r *gin.Engine, ctrl *controller.Controller) {
 		public.POST("/auth/logout", ctrl.Auth.Logout)
 		public.POST("/auth/refresh", ctrl.Auth.RefreshToken)
 
-		// Debug
-		public.GET("/debug-jwt", ctrl.User.DebugJWT)
-
 		public.GET("/home", ctrl.Home.GetHomeData)
 
 		// Posts
@@ -79,7 +76,6 @@ func DefineAPIRoutes(r *gin.Engine, ctrl *controller.Controller) {
 		protected.PUT("/users/:id", ctrl.User.UpdateProfile)
 		protected.PUT("/profile", ctrl.User.UpdateProfile)
 		protected.DELETE("/profile", ctrl.User.DeleteProfile)
-		protected.GET("/users/:id/posts", ctrl.Post.GetUserPosts)
 
 		// Posts
 		protected.POST("/posts", ctrl.Post.CreatePost)

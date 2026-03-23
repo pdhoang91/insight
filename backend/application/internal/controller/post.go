@@ -48,9 +48,7 @@ func (c *PostController) GetPost(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"data": gin.H{"post": response},
-	})
+	ctx.JSON(http.StatusOK, gin.H{"data": gin.H{"post": response}})
 }
 
 func (c *PostController) ListPosts(ctx *gin.Context) {

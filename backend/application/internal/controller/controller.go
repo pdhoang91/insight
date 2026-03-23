@@ -46,6 +46,26 @@ func respondError(ctx *gin.Context, err error) {
 	ctx.JSON(apperror.HTTPCode(err), gin.H{"error": apperror.UserMessage(err)})
 }
 
+// respondOK returns a 200 response with `{"data": data}`.
+func respondOK(ctx *gin.Context, data interface{}) {
+	ctx.JSON(http.StatusOK, gin.H{"data": data})
+}
+
+// respondCreated returns a 201 response with `{"data": data}`.
+func respondCreated(ctx *gin.Context, data interface{}) {
+	ctx.JSON(http.StatusCreated, gin.H{"data": data})
+}
+
+// respondList returns a 200 response with `{"data": items, "total_count": total, "limit": limit, "offset": offset}`.
+func respondList(ctx *gin.Context, data interface{}, total int64, limit, offset int) {
+	ctx.JSON(http.StatusOK, gin.H{
+		"data":        data,
+		"total_count": total,
+		"limit":       limit,
+		"offset":      offset,
+	})
+}
+
 func parsePagination(ctx *gin.Context) (*dto.PaginationRequest, error) {
 	var req dto.PaginationRequest
 	if err := ctx.ShouldBindQuery(&req); err != nil {

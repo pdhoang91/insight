@@ -110,7 +110,7 @@ func InitDBConnection(cfg *Config) (*gorm.DB, error) {
 
 	for retry := 1; retry <= maxRetries; retry++ {
 		db, err := gorm.Open(postgres.Open(cfg.PGURL), &gorm.Config{
-			Logger: logger.Default.LogMode(logger.Info),
+			Logger: logger.Default.LogMode(logger.Warn),
 		})
 		if err == nil {
 			sqlDB, err := db.DB()
@@ -180,11 +180,8 @@ func (cfg *Config) initS3Client() {
 	S3Client = s3.NewFromConfig(awsCfg)
 }
 
-// Get returns the OAuth configuration
+// Get returns the OAuth configuration. Returns nil if OAuth was not configured.
 func Get() *oauth2.Config {
-	if GoogleOauthConfig == nil {
-		panic("OAuth config was not initialized")
-	}
 	return GoogleOauthConfig
 }
 
