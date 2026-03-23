@@ -118,49 +118,38 @@ const ExplorePanelContent = ({ onClose }) => {
         >
           <SectionLabel>{t('sidebar.categories')}</SectionLabel>
           {isLoading ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
               {[...Array(5)].map((_, i) => (
                 <div
                   key={i}
                   className="skeleton-warm"
-                  style={{ height: '0.8rem', width: `${55 + (i % 3) * 20}%`, borderRadius: '2px' }}
+                  style={{ height: '1.75rem', width: `${60 + (i % 3) * 20}px`, borderRadius: '9999px' }}
                 />
               ))}
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
               {categories.slice(0, 8).map((cat) => (
                 <Link
                   key={cat.id}
                   href={`/category/${cat.name.toLowerCase()}`}
                   onClick={onClose}
                   style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    fontFamily: 'var(--font-display)',
-                    fontSize: '0.875rem',
-                    fontWeight: 500,
-                    letterSpacing: '-0.01em',
+                    display: 'inline-block',
+                    padding: '0.3rem 0.85rem',
+                    border: '1px solid var(--border)',
+                    borderRadius: '9999px',
+                    fontFamily: 'var(--font-body)',
+                    fontSize: '0.8rem',
                     color: 'var(--text-muted)',
-                    padding: '0.45rem 0',
-                    transition: 'color 0.2s',
+                    textDecoration: 'none',
+                    background: 'var(--bg)',
+                    transition: 'border-color 0.2s, color 0.2s',
+                    whiteSpace: 'nowrap',
                   }}
-                  className="hover:text-[var(--text)]"
+                  className="hover:border-[var(--accent)] hover:text-[var(--accent)]"
                 >
-                  <span>{cat.name}</span>
-                  {cat.post_count > 0 && (
-                    <span
-                      style={{
-                        fontFamily: 'var(--font-display)',
-                        fontSize: '0.68rem',
-                        color: 'var(--text-faint)',
-                        letterSpacing: '0.02em',
-                      }}
-                    >
-                      {cat.post_count}
-                    </span>
-                  )}
+                  {cat.name}
                 </Link>
               ))}
             </div>

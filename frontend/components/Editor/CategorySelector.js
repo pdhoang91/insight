@@ -16,7 +16,7 @@ const SkeletonChip = ({ width = '5rem' }) => (
     style={{
       height: '2rem',
       width,
-      borderRadius: '3px',
+      borderRadius: '9999px',
       background: 'var(--bg-elevated)',
       position: 'relative',
       overflow: 'hidden',
@@ -247,13 +247,13 @@ const CategorySelector = ({ selected, onChange }) => {
                 whileTap={!isDisabled ? { scale: 0.96, y: 1 } : {}}
                 transition={spring}
                 style={{
-                  padding: '0.375rem 0.75rem',
-                  fontFamily: 'var(--font-display)',
+                  padding: '0.375rem 0.85rem',
+                  fontFamily: 'var(--font-body)',
                   fontSize: '0.8125rem',
                   fontWeight: 500,
-                  borderRadius: '3px',
-                  border: `1px solid ${isSelected ? 'var(--accent)' : isDisabled ? 'var(--border)' : 'var(--border-mid)'}`,
-                  background: isSelected ? 'var(--accent)' : 'transparent',
+                  borderRadius: '9999px',
+                  border: `1px solid ${isSelected ? 'var(--accent)' : isDisabled ? 'var(--border)' : 'var(--border)'}`,
+                  background: isSelected ? 'var(--accent)' : 'var(--bg)',
                   color: isSelected ? 'var(--text-inverse)' : isDisabled ? 'var(--text-faint)' : 'var(--text-muted)',
                   cursor: isDisabled ? 'not-allowed' : 'pointer',
                   letterSpacing: '-0.01em',

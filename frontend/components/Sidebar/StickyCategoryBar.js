@@ -39,29 +39,29 @@ const StickyCategoryBar = ({ categories = [] }) => {
         }}
       >
         <div
-          className="flex gap-6 overflow-x-auto scrollbar-hide"
+          className="flex gap-2 overflow-x-auto scrollbar-hide"
           style={{ padding: '0.65rem 0', WebkitOverflowScrolling: 'touch' }}
         >
           {categories.slice(0, 8).map((cat) => (
             <Link
               key={cat.id}
               href={`/category/${cat.name.toLowerCase()}`}
-              className="flex-shrink-0 group"
+              className="flex-shrink-0 hover:border-[var(--accent)] hover:text-[var(--accent)]"
               style={{
-                fontFamily: 'var(--font-display)',
-                fontSize: '0.78rem',
-                fontWeight: 500,
-                letterSpacing: '0.015em',
+                display: 'inline-block',
+                padding: '0.3rem 0.85rem',
+                border: '1px solid var(--border)',
+                borderRadius: '9999px',
+                fontFamily: 'var(--font-body)',
+                fontSize: '0.8rem',
                 color: 'var(--text-muted)',
+                textDecoration: 'none',
+                background: 'var(--bg)',
                 whiteSpace: 'nowrap',
+                transition: 'border-color 0.2s, color 0.2s',
               }}
             >
-              <span
-                className="group-hover:text-[var(--text)] group-active:scale-[0.97] inline-block"
-                style={{ transition: 'color 0.2s, transform 0.12s' }}
-              >
-                {cat.name}
-              </span>
+              {cat.name}
             </Link>
           ))}
         </div>

@@ -81,42 +81,37 @@ const PersonalBlogSidebar = ({ initialHomeData }) => {
 
       <SidebarSection title={t('sidebar.categories')}>
         {categoriesLoading ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
             {[...Array(5)].map((_, i) => (
               <div
                 key={i}
                 className="skeleton-warm"
-                style={{ height: '0.875rem', width: `${55 + (i % 3) * 20}%`, borderRadius: '2px' }}
+                style={{ height: '1.75rem', width: `${60 + (i % 3) * 20}px`, borderRadius: '9999px' }}
               />
             ))}
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
             {categories?.slice(0, 8).map((category) => (
               <Link
                 key={category.id}
                 href={`/category/${category.name.toLowerCase()}`}
                 style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  fontFamily: 'var(--font-display)',
-                  fontSize: '0.875rem',
-                  fontWeight: 500,
-                  letterSpacing: '-0.01em',
+                  display: 'inline-block',
+                  padding: '0.3rem 0.85rem',
+                  border: '1px solid var(--border)',
+                  borderRadius: '9999px',
+                  fontFamily: 'var(--font-body)',
+                  fontSize: '0.8rem',
                   color: 'var(--text-muted)',
-                  padding: '0.3rem 0',
-                  transition: 'color 0.2s',
-                  borderBottom: '1px solid transparent',
+                  textDecoration: 'none',
+                  background: 'var(--bg)',
+                  transition: 'border-color 0.2s, color 0.2s',
+                  whiteSpace: 'nowrap',
                 }}
-                className="hover:text-[var(--text)]"
+                className="hover:border-[var(--accent)] hover:text-[var(--accent)]"
               >
-                <span>{category.name}</span>
-                {category.post_count > 0 && (
-                  <span style={{ fontFamily: 'var(--font-display)', fontSize: '0.7rem', color: 'var(--text-faint)', letterSpacing: '0.02em' }}>
-                    {category.post_count}
-                  </span>
-                )}
+                {category.name}
               </Link>
             ))}
           </div>

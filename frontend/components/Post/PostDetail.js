@@ -33,22 +33,23 @@ const AuthorByline = ({ user: postUser, date }) => {
 };
 
 /** Renders a single category or tag chip link */
-const TaxonomyChip = ({ href, label, fontWeight = 600 }) => (
+const TaxonomyChip = ({ href, label }) => (
   <Link
     href={href}
     style={{
-      fontFamily: 'var(--font-display)',
-      fontSize: '0.7rem',
-      fontWeight,
-      letterSpacing: '0.08em',
-      textTransform: 'uppercase',
-      color: 'var(--text-faint)',
-      padding: '0.25rem 0.65rem',
-      background: 'var(--bg-surface)',
-      borderRadius: '2px',
-      transition: 'color 0.2s, background 0.2s',
+      display: 'inline-block',
+      padding: '0.3rem 0.85rem',
+      border: '1px solid var(--border)',
+      borderRadius: '9999px',
+      fontFamily: 'var(--font-body)',
+      fontSize: '0.8rem',
+      color: 'var(--text-muted)',
+      textDecoration: 'none',
+      background: 'var(--bg)',
+      transition: 'border-color 0.2s, color 0.2s',
+      whiteSpace: 'nowrap',
     }}
-    className="hover:text-[var(--accent)] hover:bg-[var(--accent-light)]"
+    className="hover:border-[var(--accent)] hover:text-[var(--accent)]"
   >
     {label}
   </Link>
@@ -125,7 +126,6 @@ export const PostDetail = ({ post, htmlContent, relatedPosts = [] }) => {
                 key={cat.id || cat.name}
                 href={`/category/${cat.name.toLowerCase()}`}
                 label={cat.name}
-                fontWeight={600}
               />
             ))}
           </div>
@@ -138,7 +138,6 @@ export const PostDetail = ({ post, htmlContent, relatedPosts = [] }) => {
                 key={tag.id || tag.name}
                 href={`/tag/${tag.name}`}
                 label={`#${tag.name}`}
-                fontWeight={500}
               />
             ))}
           </div>
