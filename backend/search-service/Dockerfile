@@ -2,7 +2,7 @@
 FROM golang:1.23-alpine AS builder
 
 # Cài đặt các dependencies cần thiết cho build
-RUN apk add --no-cache git ca-certificates tzdata build-base
+RUN apk add --no-cache git ca-certificates tzdata
 
 # Thiết lập thư mục làm việc
 WORKDIR /app

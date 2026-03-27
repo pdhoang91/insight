@@ -19,6 +19,7 @@ A modern, production-ready blog platform with rich text editing, multi-language 
 - [Internationalization](#internationalization)
 - [Image & Storage](#image--storage)
 - [Infrastructure & Deployment](#infrastructure--deployment)
+- [Resource Optimization](#resource-optimization)
 - [Local Development](#local-development)
 - [Environment Variables](#environment-variables)
 
@@ -386,16 +387,43 @@ Each data hook (posts, profile, categories, etc.) uses SWR, so data is shared an
 ## Infrastructure & Deployment
 
 ### Docker Compose Services
-| Service | Image | Port | Purpose |
-|---------|-------|------|---------|
-| `postgres` | postgres:13 | 5433 (ext) | Primary database |
-| `redis` | redis:7-alpine | 6379 (int) | Cache & session |
-| `nginx` | nginx:latest | 80, 443 | Reverse proxy, SSL |
-| `certbot` | certbot/certbot | — | Let's Encrypt renewal |
-| `frontend` | custom (Node 22) | 3456 (int) | Next.js app |
-| `application` | custom (Go) | 81 (int) | Main API |
-| `search-service` | custom (Go) | 83 (int) | Search microservice |
-| `db-migrate` | custom (Go) | — | Runs SQL migrations on startup |
+| Service | Image | Port | mem_limit | Purpose |
+|---------|-------|------|-----------|---------|
+| `db` | postgres:13 | 5433 (ext) | 256m | Primary database |
+| `redis` | redis:7-alpine | 6379 (int) | 80m | Cache & session (maxmemory 64m) |
+| `nginx` | nginx:1.27-alpine | 80, 443 | 64m | Reverse proxy, SSL |
+| `certbot` | certbot/certbot | — | 32m | Let's Encrypt renewal (on-demand, profile `ssl`) |
+| `frontend` | custom (Node 22) | 3456 (int) | 256m | Next.js app |
+| `application` | custom (Go) | 81 (int) | 192m | Main API |
+| `search-service` | custom (Go) | 83 (int) | 128m | Search microservice |
+| `db-migrate` | custom (Go) | — | 128m | Runs SQL migrations on startup |
+
+> Total container mem_limits: **~1.1 GB**. Actual measured usage at idle: **~194 MB**.
+
+### Resource Optimization
+
+#### Docker Desktop VM (macOS)
+The host process `com.docker.virtualization` consumes the full VM allocation regardless of container usage. Reduce it:
+
+> Docker Desktop → Settings → Resources → Memory → **3 GB** → Apply & Restart
+
+3 GB is sufficient since total container usage at idle is ~194 MB.
+
+#### SSL Certificate Renewal (Certbot)
+Certbot no longer runs continuously. Use the `ssl` profile on-demand:
+```bash
+# Renew certificates
+docker compose --profile ssl run --rm certbot renew
+
+# Issue new certificate
+docker compose --profile ssl run --rm certbot certonly --webroot \
+  -w /var/www/certbot -d yourdomain.com --email you@email.com --agree-tos
+```
+
+#### L1 In-Memory Cache
+The in-memory cache (L1) is now bounded at **500 entries** using an LRU eviction strategy (`container/list` — no external dependencies). When the cache is full, expired entries are evicted first; if still at capacity, the least-recently-used entry is removed.
+
+---
 
 ### CI/CD Pipeline
 Push to `main` branch triggers GitHub Actions:
