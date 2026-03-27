@@ -18,6 +18,7 @@ services:
    volumes:
      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
      - ./nginx/certs:/etc/nginx/certs:ro                  # SSL certificates (optional)
+     - ./certbot/conf:/etc/letsencrypt:ro                 # Let's Encrypt certificates
      - ./certbot/www:/var/www/certbot:ro                  # Let's Encrypt ACME challenge
    depends_on:
      - frontend
@@ -106,7 +107,7 @@ services:
         - alpine:3.19
       target: runner
     expose:                           # Internal port only, accessed via nginx
-      - "81:81"
+      - "81"
     ports:                           # Internal port only, accessed via nginx
       - "81:81"
     volumes:
@@ -161,7 +162,7 @@ services:
         - alpine:3.19
       target: runner
     expose:                           # Internal port only, accessed via nginx
-      - "83:83"
+      - "83"
     ports:                           # Internal port only, accessed via nginx
       - "83:83"
     # volumes:
@@ -204,7 +205,7 @@ services:
         - NEXT_PUBLIC_BASE_API_URL=${NEXT_PUBLIC_BASE_API_URL}
         - NEXT_PUBLIC_BASE_FE_URL=${NEXT_PUBLIC_BASE_FE_URL}
     expose:                           # Internal port only, accessed via nginx
-      - "3456:3456"
+      - "3456"
     ports:
        - "3456:3456"                     # Disabled - access via nginx only
     environment:
