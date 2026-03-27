@@ -48,7 +48,7 @@ if docker-compose exec nginx nginx -s reload 2>/dev/null; then
     log "Nginx reloaded successfully"
 else
     echo "   Nginx reload failed, restarting..."
-    docker-compose restart nginx
+    docker compose restart nginx
     sleep 3
     log "Nginx restarted"
 fi
