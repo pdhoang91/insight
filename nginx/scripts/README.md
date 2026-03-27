@@ -1,76 +1,45 @@
 # SSL Scripts cho insight.io.vn
 
-3 scripts đơn giản để quản lý SSL certificates.
+## Scripts
 
-## 📋 Scripts
+### `init-ssl.sh` — Bootstrap SSL lần đầu
 
-### 1. `create-ssl.sh` - Tạo SSL
 ```bash
-./nginx/scripts/create-ssl.sh
+./nginx/scripts/init-ssl.sh
 ```
-**Chức năng:**
-- Tạo SSL certificates từ Let's Encrypt
-- Tự động fallback về temporary SSL nếu domain chưa accessible
-- Copy certificates vào nginx
-- Test HTTPS
 
-### 2. `renew-ssl.sh` - Gia hạn SSL  
+Dùng cho lần đầu setup, khi cert chưa tồn tại. Không cần sửa `nginx.conf` thủ công.
+
+Cách hoạt động:
+1. Tạo dummy self-signed cert tại `./certbot/conf/live/insight.io.vn/`
+2. Start nginx (HTTPS block load được vì cert file đã tồn tại)
+3. Chạy certbot lấy cert thật từ Let's Encrypt (nginx đang serve port 80)
+4. Restart nginx dùng cert thật
+
+---
+
+### `renew-ssl.sh` — Gia hạn SSL
+
 ```bash
 ./nginx/scripts/renew-ssl.sh
 ```
-**Chức năng:**
-- Gia hạn SSL certificates
-- Copy certificates mới
-- Reload nginx
-- Test HTTPS
 
-### 3. `check-ssl.sh` - Kiểm tra SSL
-```bash
-./nginx/scripts/check-ssl.sh
-```
-**Chức năng:**
-- Kiểm tra certificate files
-- Kiểm tra nginx status
-- Test HTTP/HTTPS access
-- Kiểm tra certificate expiry
-- Show summary
+Gia hạn cert khi sắp hết hạn (cert hết hạn sau 90 ngày). Nginx đọc cert trực tiếp từ `./certbot/conf` nên chỉ cần reload sau khi renew.
 
-## 🚀 Hướng dẫn sử dụng
+---
 
-### Lần đầu setup SSL:
+## Hướng dẫn sử dụng
+
+### Lần đầu setup:
 ```bash
 cd /root/workspace/insight
-./nginx/scripts/create-ssl.sh
+./nginx/scripts/init-ssl.sh
 ```
 
-### Kiểm tra SSL:
+### Gia hạn cert (cron job):
 ```bash
-./nginx/scripts/check-ssl.sh
-```
-
-### Gia hạn SSL (cron job):
-```bash
-# Thêm vào crontab
+# Thêm vào crontab — chạy lúc 2:00 sáng ngày 1 hàng tháng
 0 2 1 * * /root/workspace/insight/nginx/scripts/renew-ssl.sh
-```
-
-## ⚠️ Yêu cầu
-
-1. **Domain DNS**: `insight.io.vn` và `www.insight.io.vn` trỏ về VPS IP
-2. **Firewall**: Mở ports 80, 443
-3. **Docker**: `docker-compose up -d`
-4. **Email**: Scripts dùng `pdhoang91@gmail.com`
-
-## 🔧 Troubleshooting
-
-### SSL không work:
-```bash
-./nginx/scripts/check-ssl.sh
-```
-
-### Tạo lại SSL:
-```bash
-./nginx/scripts/create-ssl.sh
 ```
 
 ### Kiểm tra logs:
@@ -80,5 +49,15 @@ cat nginx/logs/ssl-renewal.log
 ```
 
 ---
+
+## Yêu cầu
+
+- DNS: `insight.io.vn` và `www.insight.io.vn` trỏ về VPS IP
+- Firewall: mở ports 80 và 443
+- Docker đã được cài đặt
+
+---
+
 **Domain:** insight.io.vn  
-**Email:** pdhoang91@gmail.com
+**Email:** pdhoang91@gmail.com  
+**Cert path:** `./certbot/conf/live/insight.io.vn/`
