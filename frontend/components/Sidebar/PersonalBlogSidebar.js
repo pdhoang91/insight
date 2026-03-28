@@ -1,3 +1,4 @@
+'use client';
 // components/Sidebar/PersonalBlogSidebar.js — Warm Dispatch
 import React from 'react';
 import Link from 'next/link';

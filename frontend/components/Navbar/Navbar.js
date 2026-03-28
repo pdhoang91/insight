@@ -13,7 +13,6 @@ import { canWritePosts } from '../../services/authService';
 import { useTranslations } from 'next-intl';
 import MobileSlidePanel from './MobileSlidePanel';
 import LanguageTogglePill from '../Shared/LanguageTogglePill';
-import ExplorePanelContent from '../Sidebar/ExplorePanelContent';
 import Avatar from '../UI/Avatar';
 
 const panelContainer = {
@@ -107,7 +106,6 @@ const Navbar = () => {
 
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isExploreOpen, setIsExploreOpen] = useState(false);
 
   const scrolled = useScrollEffect(20);
   const userMenuRef = useRef();
@@ -117,7 +115,6 @@ const Navbar = () => {
 
   React.useEffect(() => {
     setIsMobileMenuOpen(false);
-    setIsExploreOpen(false);
   }, [pathname]);
 
   const handleLogout = () => {
@@ -139,7 +136,7 @@ const Navbar = () => {
       }}
       className="fixed top-0 left-0 right-0 z-50"
     >
-      <div className="max-w-[1192px] mx-auto px-5 md:px-8">
+      <div className="max-w-[1192px] mx-auto px-4 md:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
 
           {/* Logo */}
@@ -264,14 +261,14 @@ const Navbar = () => {
             {user && canWritePosts(user) && (
               <NavWriteAction isWritePage={isWritePage} onPublish={handlePublish} compact />
             )}
-            <button
-              onClick={() => setIsExploreOpen(true)}
-              style={{ padding: '6px', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s' }}
+            <Link
+              href="/explore"
+              style={{ padding: '6px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', transition: 'color 0.2s' }}
               className="hover:text-[var(--text)]"
               aria-label="Explore"
             >
               <Compass size={20} weight="regular" />
-            </button>
+            </Link>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               style={{ padding: '6px', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s' }}
@@ -287,13 +284,6 @@ const Navbar = () => {
     </nav>
 
       {/* Panels rendered outside <nav> to avoid backdrop-filter containing block */}
-      <MobileSlidePanel
-        isOpen={isExploreOpen}
-        onClose={() => setIsExploreOpen(false)}
-      >
-        <ExplorePanelContent onClose={() => setIsExploreOpen(false)} />
-      </MobileSlidePanel>
-
       <MobileSlidePanel
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
