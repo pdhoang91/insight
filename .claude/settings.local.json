@@ -48,7 +48,9 @@
       "Bash(find:*)",
       "Bash(cd:*)",
       "Bash(docker compose:*)",
-      "Bash(docker run:*)"
+      "Bash(docker run:*)",
+      "Bash(git push:*)",
+      "Bash(ssh-keyscan github.com)"
     ]
   }
 }
