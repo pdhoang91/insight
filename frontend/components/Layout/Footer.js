@@ -55,15 +55,7 @@ const Footer = () => {
         Insight
       </div>
 
-      <div
-        style={{
-          maxWidth: '1600px',
-          margin: '0 auto',
-          padding: '3.5rem 1rem 2.5rem',
-          position: 'relative',
-          zIndex: 1,
-        }}
-      >
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-16 pt-14 pb-10 relative z-[1]">
         {/* Top row: logo + nav */}
         <div
           style={{
