@@ -22,26 +22,26 @@ body {
    new palette with zero edits.
    ───────────────────────────────────────── */
 :root {
-  /* Core palette */
-  --bg:              #FFFFFF;  /* white */
-  --bg-surface:      #F5F5F5;  /* slightly deeper surface */
-  --bg-card:         #F5F5F5;
-  --bg-elevated:     #EEEEEE;
-  --bg-dark:         #2A1F1A;  /* footer / dark sections */
-  --bg-dark-surface: #362520;
+  /* Core palette — Dark Tech */
+  --bg:              #0D1117;  /* GitHub-dark near-black */
+  --bg-surface:      #161B22;  /* raised surface */
+  --bg-card:         #161B22;
+  --bg-elevated:     #21262D;  /* elevated panels */
+  --bg-dark:         #010409;  /* footer / code blocks */
+  --bg-dark-surface: #161B22;
 
-  --text:         #1A1410;    /* warm ink-black */
-  --text-muted:   #7A6E65;    /* warm muted gray */
-  --text-faint:   #A89E97;    /* barely visible */
-  --text-inverse: #FFFFFF;    /* on dark surfaces */
+  --text:         #E6EDF3;    /* off-white */
+  --text-muted:   #8B949E;    /* medium gray */
+  --text-faint:   #6E7681;    /* faint gray */
+  --text-inverse: #0D1117;    /* on light surfaces */
 
-  --accent:       #C4541D;    /* terracotta / rust — single accent */
-  --accent-light: rgba(196, 84, 29, 0.11);
-  --accent-dark:  #A3430F;
+  --accent:       #3FB950;    /* GitHub green */
+  --accent-light: rgba(63, 185, 80, 0.12);
+  --accent-dark:  #2EA043;
 
-  --border:       rgba(26, 20, 16, 0.11);
-  --border-mid:   rgba(26, 20, 16, 0.18);
-  --border-strong:rgba(26, 20, 16, 0.28);
+  --border:        rgba(240, 246, 252, 0.10);
+  --border-mid:    rgba(240, 246, 252, 0.16);
+  --border-strong: rgba(240, 246, 252, 0.24);
 
   /* Fonts — --font-body-gf and --font-mono-gf injected by next/font on <html> */
   --font-display: 'Cabinet Grotesk', system-ui, sans-serif;
@@ -54,31 +54,31 @@ body {
   --nav-height:          64px;
 
   /* ─── Backward-compat: remap medium-* tokens ─── */
-  --medium-bg-primary:    #F2EDE4;
-  --medium-bg-secondary:  #EAE4D8;
-  --medium-bg-card:       #EAE4D8;
-  --medium-bg-elevated:   #E6DFD4;
-  --medium-bg-overlay:    rgba(242, 237, 228, 0.97);
+  --medium-bg-primary:    #0D1117;
+  --medium-bg-secondary:  #161B22;
+  --medium-bg-card:       #161B22;
+  --medium-bg-elevated:   #21262D;
+  --medium-bg-overlay:    rgba(13, 17, 23, 0.97);
 
-  --medium-text-primary:   #1A1410;
-  --medium-text-secondary: #7A6E65;
-  --medium-text-muted:     #A89E97;
-  --medium-text-accent:    #C4541D;
-  --medium-text-inverse:   #F2EDE4;
+  --medium-text-primary:   #E6EDF3;
+  --medium-text-secondary: #8B949E;
+  --medium-text-muted:     #6E7681;
+  --medium-text-accent:    #3FB950;
+  --medium-text-inverse:   #0D1117;
 
-  --medium-accent-green:       #C4541D;
-  --medium-accent-green-hover: #A3430F;
-  --medium-accent-green-light: rgba(196, 84, 29, 0.1);
-  --medium-accent-gray:        #7A6E65;
-  --medium-accent-blue:        #C4541D;
+  --medium-accent-green:       #3FB950;
+  --medium-accent-green-hover: #2EA043;
+  --medium-accent-green-light: rgba(63, 185, 80, 0.12);
+  --medium-accent-gray:        #8B949E;
+  --medium-accent-blue:        #58A6FF;
 
-  --medium-border:       rgba(26, 20, 16, 0.11);
-  --medium-border-light: rgba(26, 20, 16, 0.06);
-  --medium-divider:      rgba(26, 20, 16, 0.11);
+  --medium-border:       rgba(240, 246, 252, 0.10);
+  --medium-border-light: rgba(240, 246, 252, 0.06);
+  --medium-divider:      rgba(240, 246, 252, 0.10);
 
-  --medium-hover:  rgba(26, 20, 16, 0.04);
-  --medium-active: rgba(26, 20, 16, 0.07);
-  --medium-focus:  rgba(196, 84, 29, 0.2);
+  --medium-hover:  rgba(240, 246, 252, 0.05);
+  --medium-active: rgba(240, 246, 252, 0.08);
+  --medium-focus:  rgba(63, 185, 80, 0.25);
 
   --medium-success: #10B981;
   --medium-warning: #D97706;
@@ -100,16 +100,16 @@ body {
   --spacing-gap:     var(--spacing-xl);
   --reading-spacing: 1.5rem;
 
-  /* Shadows — warm-tinted */
-  --shadow-sm: 0 1px 3px rgba(26, 20, 16, 0.07);
-  --shadow-md: 0 4px 12px rgba(26, 20, 16, 0.08);
-  --shadow-lg: 0 8px 24px rgba(26, 20, 16, 0.1);
-  --shadow-xl: 0 20px 40px rgba(26, 20, 16, 0.12);
-  
+  /* Shadows — dark */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.6);
+
   /* Bento 2.0 Diffusion Shadows */
-  --shadow-bento-sm: 0 10px 20px -10px rgba(26, 20, 16, 0.05);
-  --shadow-bento-md: 0 20px 40px -15px rgba(26, 20, 16, 0.05);
-  --shadow-bento-lg: 0 25px 50px -12px rgba(26, 20, 16, 0.08);
+  --shadow-bento-sm: 0 10px 20px -10px rgba(0, 0, 0, 0.25);
+  --shadow-bento-md: 0 20px 40px -15px rgba(0, 0, 0, 0.3);
+  --shadow-bento-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
   
   /* Spring Animation Configs */
   --spring-stiff: 100;
@@ -202,13 +202,13 @@ body {
 /* Enhanced focus states for accessibility */
 .focus-ring {
   outline: none;
-  box-shadow: 0 0 0 2px var(--accent-light), 0 0 0 4px rgba(196, 84, 29, 0.2);
+  box-shadow: 0 0 0 2px var(--accent-light), 0 0 0 4px rgba(63, 185, 80, 0.25);
   transition: box-shadow 0.2s ease-out;
 }
 
 /* Smooth text selection */
 ::selection {
-  background: var(--accent-light);
+  background: rgba(63, 185, 80, 0.25);
   color: var(--text);
 }
 
@@ -416,9 +416,9 @@ a {
 .skeleton-warm {
   background: linear-gradient(
     90deg,
-    #EAE4D8 25%,
-    #F0EBE2 50%,
-    #EAE4D8 75%
+    #161B22 25%,
+    #21262D 50%,
+    #161B22 75%
   );
   background-size: 500px 100%;
   animation: shimmer-warm 1.5s ease-in-out infinite;
