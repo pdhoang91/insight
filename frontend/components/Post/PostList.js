@@ -99,21 +99,7 @@ const PostList = ({
         }
         endMessage={
           flatPosts.length > 0 && (
-            <p
-              style={{
-                textAlign: 'center',
-                fontFamily: 'var(--font-display)',
-                fontSize: '0.72rem',
-                fontWeight: 500,
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                color: 'var(--text-faint)',
-                padding: '2.5rem 0',
-                marginTop: '1rem',
-              }}
-            >
-              {t('post.reachedEnd')}
-            </p>
+            <p className="end-message">{t('post.reachedEnd')}</p>
           )
         }
       >
@@ -122,12 +108,13 @@ const PostList = ({
             <React.Fragment key={`${post.id}-${index}`}>
               {index < prevCount ? (
                 // Already-visible items: plain div — no animation overhead
-                <div>
+                <div className="pb-20">
                   <BasePostItem post={post} variant={variant} />
                 </div>
               ) : (
                 // New batch: animate in with stagger
                 <motion.div
+                  className="pb-20"
                   variants={newItemVariants}
                   initial="hidden"
                   animate="visible"

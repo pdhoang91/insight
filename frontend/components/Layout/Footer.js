@@ -11,10 +11,10 @@ const FooterLink = ({ href, children }) => (
       fontSize: '0.8rem',
       fontWeight: 500,
       letterSpacing: '-0.01em',
-      color: 'rgba(242, 237, 228, 0.45)',
+      color: 'var(--text-muted)',
       transition: 'color 0.2s',
     }}
-    className="hover:text-[var(--text-inverse)]"
+    className="hover:text-[var(--text)]"
   >
     {children}
   </Link>
@@ -27,13 +27,14 @@ const Footer = () => {
   return (
     <footer
       style={{
-        background: 'var(--bg-dark)',
+        background: 'var(--bg)',
+        borderTop: '1px solid var(--border)',
         marginTop: '6rem',
         position: 'relative',
         overflow: 'hidden',
       }}
     >
-      {/* Large background wordmark — decorative, aria-hidden */}
+      {/* Large background wordmark — decorative */}
       <div
         aria-hidden="true"
         style={{
@@ -46,7 +47,7 @@ const Footer = () => {
           fontSize: 'clamp(5rem, 18vw, 14rem)',
           letterSpacing: '-0.04em',
           lineHeight: 1,
-          color: 'rgba(242, 237, 228, 0.05)',
+          color: 'rgba(0, 0, 0, 0.04)',
           whiteSpace: 'nowrap',
           userSelect: 'none',
           pointerEvents: 'none',
@@ -83,7 +84,7 @@ const Footer = () => {
               fontWeight: 800,
               fontSize: '1.5rem',
               letterSpacing: '-0.03em',
-              color: 'var(--text-inverse)',
+              color: 'var(--text)',
               lineHeight: 1,
             }}
             className="hover:opacity-75 transition-opacity"
@@ -92,46 +93,16 @@ const Footer = () => {
           </Link>
 
           {/* Nav columns */}
-          <div
-            style={{
-              display: 'flex',
-              gap: '3rem',
-              flexWrap: 'wrap',
-            }}
-          >
+          <div style={{ display: 'flex', gap: '3rem', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <p
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: '0.65rem',
-                  fontWeight: 600,
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  color: 'rgba(242, 237, 228, 0.3)',
-                  margin: '0 0 0.25rem 0',
-                }}
-              >
-                {t('footer.navigate')}
-              </p>
+              <p className="ui-section-header mb-1">{t('footer.navigate')}</p>
               <FooterLink href="/">{t('footer.writing')}</FooterLink>
               <FooterLink href="/category">{t('footer.topics')}</FooterLink>
               <FooterLink href="/archive">{t('sidebar.archive')}</FooterLink>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <p
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: '0.65rem',
-                  fontWeight: 600,
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  color: 'rgba(242, 237, 228, 0.3)',
-                  margin: '0 0 0.25rem 0',
-                }}
-              >
-                {t('footer.more')}
-              </p>
+              <p className="ui-section-header mb-1">{t('footer.more')}</p>
               <FooterLink href="/search">{t('footer.search')}</FooterLink>
               <FooterLink href="/write">{t('footer.write')}</FooterLink>
             </div>
@@ -146,29 +117,14 @@ const Footer = () => {
             justifyContent: 'space-between',
             flexWrap: 'wrap',
             gap: '0.75rem',
+            borderTop: '1px solid var(--border)',
+            paddingTop: '1.25rem',
           }}
         >
-          <p
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: '0.75rem',
-              color: 'rgba(242, 237, 228, 0.3)',
-              margin: 0,
-              letterSpacing: '-0.01em',
-            }}
-          >
+          <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.75rem', color: 'var(--text-faint)', margin: 0, letterSpacing: '-0.01em' }}>
             {t('footer.copyright', { year })}
           </p>
-
-          <span
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: '0.7rem',
-              color: 'rgba(242, 237, 228, 0.2)',
-              letterSpacing: '0.04em',
-              textTransform: 'uppercase',
-            }}
-          >
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: '0.7rem', color: 'var(--text-faint)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
             {t('footer.builtWith')}
           </span>
         </div>

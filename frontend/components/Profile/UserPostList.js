@@ -10,9 +10,11 @@ const UserPostList = ({ posts, isOwner }) => {
   }
 
   return (
-    <div className="space-y-4">
+    <div>
       {posts.map((post) => (
-        <BasePostItem key={post.id} post={post} variant="profile" showOwnerActions={isOwner} />
+        <div key={post.id} className="pb-20">
+          <BasePostItem post={post} showOwnerActions />
+        </div>
       ))}
     </div>
   );

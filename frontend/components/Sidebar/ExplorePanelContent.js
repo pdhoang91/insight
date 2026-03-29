@@ -3,8 +3,10 @@ import React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
+import useSWR from 'swr';
 import { useHomeData } from '../../hooks/useHomeData';
 import { useArchiveSummary } from '../../hooks/useArchiveSummary';
+import { fetchPopularTags } from '../../app/lib/api';
 import Archive from '../Archive/Archive';
 
 const containerVariants = {
@@ -41,6 +43,11 @@ const ExplorePanelContent = ({ onClose }) => {
   const t = useTranslations();
   const { categories, popularPosts, isLoading } = useHomeData();
   const { archiveList } = useArchiveSummary();
+  const { data: popularTags, isLoading: tagsLoading } = useSWR(
+    '/tags/popular',
+    () => fetchPopularTags(20),
+    { revalidateOnFocus: false, dedupingInterval: 300000 }
+  );
 
   return (
     <motion.div
@@ -152,6 +159,62 @@ const ExplorePanelContent = ({ onClose }) => {
                   {cat.name}
                 </Link>
               ))}
+            </div>
+          )}
+        </motion.div>
+      )}
+
+      {/* ─ Tags ─ */}
+      {(tagsLoading || (popularTags && popularTags.length > 0)) && (
+        <motion.div
+          variants={itemVariant}
+          style={{
+            paddingBottom: '1.5rem',
+            marginBottom: '1.5rem',
+          }}
+        >
+          <SectionLabel>{t('sidebar.tags')}</SectionLabel>
+          {tagsLoading ? (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {[...Array(12)].map((_, i) => (
+                <div
+                  key={i}
+                  className="skeleton-warm"
+                  style={{ height: `${14 + (i % 4) * 4}px`, width: `${45 + (i % 5) * 18}px`, borderRadius: '2px' }}
+                />
+              ))}
+            </div>
+          ) : (
+            <div style={{ lineHeight: 1.8 }}>
+              {(popularTags || []).slice(0, 40).map((tag, i) => {
+                const total = Math.min((popularTags || []).length, 40);
+                const rank = i / total;
+                const fontSize =
+                  rank < 0.1 ? '1.4rem' :
+                  rank < 0.2 ? '1.15rem' :
+                  rank < 0.4 ? '0.95rem' :
+                  rank < 0.65 ? '0.82rem' :
+                  '0.72rem';
+                const fontWeight = rank < 0.2 ? 700 : rank < 0.4 ? 600 : 400;
+                return (
+                  <Link
+                    key={tag.id || tag.name}
+                    href={`/tag/${tag.name}`}
+                    onClick={onClose}
+                    style={{
+                      display: 'inline-block',
+                      marginRight: '0.5rem',
+                      fontSize,
+                      fontWeight,
+                      color: 'var(--accent)',
+                      textDecoration: 'none',
+                    }}
+                    className="hover:underline"
+                  >
+                    {tag.name}
+                  </Link>
+                );
+              })}
             </div>
           )}
         </motion.div>

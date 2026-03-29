@@ -31,8 +31,8 @@ const CategorySkeletonLoader = () => {
               delay: index * 0.1
             }}
           >
-            <div className="h-full bg-white/60 backdrop-blur-sm rounded-[2.5rem] 
-                           border border-slate-200/50 
+            <div className="h-full bg-[var(--bg-elevated)]/60 backdrop-blur-sm rounded-[2.5rem] 
+                           border border-[var(--border)] 
                            shadow-[0_20px_40px_-15px_rgba(26,20,16,0.05)]
                            p-8 animate-pulse">
               
@@ -40,7 +40,7 @@ const CategorySkeletonLoader = () => {
               <div className="space-y-4">
                 {/* Title skeleton */}
                 <motion.div 
-                  className={`bg-slate-200 rounded-full ${
+                  className={`bg-[var(--bg-elevated)] rounded-full ${
                     item.size === 'large' ? 'h-8 w-3/4' : 
                     item.size === 'medium' ? 'h-6 w-2/3' : 'h-5 w-1/2'
                   }`}
@@ -57,7 +57,7 @@ const CategorySkeletonLoader = () => {
                 {/* Description skeleton */}
                 <div className="space-y-2">
                   <motion.div 
-                    className="bg-slate-200 rounded-full h-4 w-full"
+                    className="bg-[var(--bg-elevated)] rounded-full h-4 w-full"
                     animate={{
                       opacity: [0.3, 0.6, 0.3]
                     }}
@@ -68,7 +68,7 @@ const CategorySkeletonLoader = () => {
                     }}
                   />
                   <motion.div 
-                    className="bg-slate-200 rounded-full h-4 w-4/5"
+                    className="bg-[var(--bg-elevated)] rounded-full h-4 w-4/5"
                     animate={{
                       opacity: [0.3, 0.6, 0.3]
                     }}
@@ -80,7 +80,7 @@ const CategorySkeletonLoader = () => {
                   />
                   {item.size === 'large' && (
                     <motion.div 
-                      className="bg-slate-200 rounded-full h-4 w-3/5"
+                      className="bg-[var(--bg-elevated)] rounded-full h-4 w-3/5"
                       animate={{
                         opacity: [0.3, 0.6, 0.3]
                       }}
@@ -97,7 +97,7 @@ const CategorySkeletonLoader = () => {
               {/* Bottom row skeleton */}
               <div className="flex items-center justify-between mt-8">
                 <motion.div 
-                  className="bg-slate-200 rounded-full h-3 w-20"
+                  className="bg-[var(--bg-elevated)] rounded-full h-3 w-20"
                   animate={{
                     opacity: [0.4, 0.7, 0.4]
                   }}
@@ -108,7 +108,7 @@ const CategorySkeletonLoader = () => {
                   }}
                 />
                 <motion.div 
-                  className="bg-slate-200 rounded-full h-6 w-6"
+                  className="bg-[var(--bg-elevated)] rounded-full h-6 w-6"
                   animate={{
                     opacity: [0.4, 0.7, 0.4]
                   }}
@@ -123,7 +123,7 @@ const CategorySkeletonLoader = () => {
               {/* Floating indicator for large card */}
               {item.size === 'large' && (
                 <motion.div 
-                  className="absolute top-6 right-6 w-3 h-3 bg-slate-200 rounded-full"
+                  className="absolute top-6 right-6 w-3 h-3 bg-[var(--bg-elevated)] rounded-full"
                   animate={{
                     opacity: [0.3, 0.6, 0.3],
                     scale: [1, 1.1, 1]
@@ -145,7 +145,7 @@ const CategorySkeletonLoader = () => {
         {[...Array(5)].map((_, index) => (
           <motion.div
             key={index}
-            className="w-2 h-2 rounded-full bg-slate-300"
+            className="w-2 h-2 rounded-full bg-[var(--border-mid)]"
             animate={{
               scale: [1, 1.2, 1],
               opacity: [0.5, 1, 0.5]

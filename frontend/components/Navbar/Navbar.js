@@ -128,7 +128,7 @@ const Navbar = () => {
     <>
     <nav
       style={{
-        background: scrolled ? 'rgba(242, 237, 228, 0.96)' : 'transparent',
+        background: scrolled ? 'var(--bg)' : 'transparent',
         borderBottom: scrolled ? '1px solid rgba(26, 20, 16, 0.11)' : '1px solid transparent',
         backdropFilter: scrolled ? 'blur(12px)' : 'none',
         WebkitBackdropFilter: scrolled ? 'blur(12px)' : 'none',

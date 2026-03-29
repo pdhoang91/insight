@@ -62,7 +62,7 @@ export default function ArchivePageClient({ year, month }) {
           isError={isError}
           setSize={setSize}
           isReachingEnd={!hasMore}
-          variant="archive"
+          variant="default"
         />
       </div>
     </HomeLayout>

@@ -2,71 +2,22 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import SEOHead from '../SEO/SEOHead';
-import Avatar from '../UI/Avatar';
 import RelatedPosts from './RelatedPosts';
 import { formatDate } from '../../utils/formatDate';
 import { useTranslations, useLocale } from 'next-intl';
-
-const AuthorByline = ({ user: postUser, date }) => {
-  const t = useTranslations();
-  const locale = useLocale();
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '2rem' }}>
-      <Avatar
-        src={postUser?.avatar_url}
-        name={postUser?.name}
-        size="md"
-        style={{ flexShrink: 0 }}
-      />
-      <div>
-        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '0.9rem', letterSpacing: '-0.01em', color: 'var(--text)' }}>
-          {postUser?.name || t('article.anonymous')}
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginTop: '0.1rem' }}>
-          <time dateTime={date} style={{ fontFamily: 'var(--font-display)', fontSize: '0.775rem', color: 'var(--text-faint)', letterSpacing: '0.01em' }}>
-            {formatDate(date, locale)}
-          </time>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-/** Renders a single category or tag chip link */
-const TaxonomyChip = ({ href, label }) => (
-  <Link
-    href={href}
-    style={{
-      display: 'inline-block',
-      padding: '0.3rem 0.85rem',
-      border: '1px solid var(--border)',
-      borderRadius: '9999px',
-      fontFamily: 'var(--font-body)',
-      fontSize: '0.8rem',
-      color: 'var(--text-muted)',
-      textDecoration: 'none',
-      background: 'var(--bg)',
-      transition: 'border-color 0.2s, color 0.2s',
-      whiteSpace: 'nowrap',
-    }}
-    className="hover:border-[var(--accent)] hover:text-[var(--accent)]"
-  >
-    {label}
-  </Link>
-);
+import { Clock, User, ChatCircle } from '@phosphor-icons/react';
 
 // htmlContent: pre-rendered HTML from server (avoids shipping TipTap to client).
 // Falls back to lazy client-side rendering only when htmlContent is not provided.
 export const PostDetail = ({ post, htmlContent, relatedPosts = [] }) => {
   const t = useTranslations();
+  const locale = useLocale();
   const [renderedHTML, setRenderedHTML] = useState(htmlContent || '');
 
   useEffect(() => {
-    // Server pre-rendered HTML is available — no need to load TipTap on client
     if (htmlContent) return;
     if (!post?.content) return;
 
-    // Lazy-load TipTap only for client-side navigation where server HTML is absent
     import('../../utils/renderContent').then(({ renderPostContent }) => {
       const html = renderPostContent(post.content);
       if (html) setRenderedHTML(html);
@@ -98,47 +49,70 @@ export const PostDetail = ({ post, htmlContent, relatedPosts = [] }) => {
       />
 
       <article className="animate-fade-up">
-        <h1 style={{
-          fontFamily: 'var(--font-display)',
-          fontWeight: 800,
-          fontSize: 'clamp(1.875rem, 4vw, 2.75rem)',
-          lineHeight: 1.12,
-          letterSpacing: '-0.028em',
-          color: 'var(--text)',
-          marginBottom: '1.5rem',
-          marginTop: 0,
-        }}>
-          {post.title}
-        </h1>
 
-        <AuthorByline user={post.user} date={post.created_at} />
-
-        <div
-          className="post-content reading-content"
-          dangerouslySetInnerHTML={{ __html: renderedHTML }}
-          style={{ marginTop: '2rem' }}
-        />
-
+        {/* Categories */}
         {post.categories?.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '2.5rem' }}>
-            {post.categories.map((cat) => (
-              <TaxonomyChip
-                key={cat.id || cat.name}
-                href={`/category/${cat.name.toLowerCase()}`}
-                label={cat.name}
-              />
+          <div className="mb-3">
+            {post.categories.map((cat, i) => (
+              <React.Fragment key={`${cat.id || ''}-${cat.name}-${i}`}>
+                {i > 0 && <span className="ui-label mx-[0.25rem]">,</span>}
+                <Link href={`/category/${cat.name.toLowerCase()}`} className="category-overline">
+                  {cat.name}
+                </Link>
+              </React.Fragment>
             ))}
           </div>
         )}
 
+        {/* Title */}
+        <h1 className="post-detail-title">{post.title}</h1>
+
+        {/* Meta row */}
+        <div className="post-detail-meta">
+          <span className="flex items-center gap-[0.35rem]">
+            <Clock size={13} weight="regular" />
+            {formatDate(post.created_at, locale)}
+          </span>
+          {post.user?.name && (
+            <span className="flex items-center gap-[0.35rem]">
+              <User size={13} weight="regular" />
+              {post.user.name}
+            </span>
+          )}
+          <Link href="#comments" className="flex items-center gap-[0.35rem] hover:text-[var(--accent)] transition-colors">
+            <ChatCircle size={13} weight="regular" />
+            {t('post.leaveComment')}
+          </Link>
+        </div>
+
+        {/* Body */}
+        <div
+          className="post-content reading-content"
+          dangerouslySetInnerHTML={{ __html: renderedHTML }}
+        />
+
+        {/* Tags */}
         {post.tags?.length > 0 && (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.75rem' }}>
-            {post.tags.map((tag) => (
-              <TaxonomyChip
-                key={tag.id || tag.name}
-                href={`/tag/${tag.name}`}
-                label={`#${tag.name}`}
-              />
+          <div className="flex flex-wrap gap-[0.4rem] mt-8">
+            {post.tags.map((tag, i) => (
+              <Link key={`${tag.id || ''}-${tag.name}-${i}`} href={`/tag/${tag.name}`} className="tag-chip">
+                • {tag.name}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {/* Categories (bottom) */}
+        {post.categories?.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-3">
+            {post.categories.map((cat, i) => (
+              <Link
+                key={`bottom-${cat.id || ''}-${cat.name}-${i}`}
+                href={`/category/${cat.name.toLowerCase()}`}
+                className="taxonomy-pill hover:border-[var(--accent)] hover:text-[var(--accent)]"
+              >
+                {cat.name}
+              </Link>
             ))}
           </div>
         )}

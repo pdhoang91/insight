@@ -3,8 +3,9 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { PencilSimple, Trash } from '@phosphor-icons/react';
+import { PencilSimple, Trash, Clock, ChatCircle } from '@phosphor-icons/react';
 import { useRouter } from 'next/navigation';
+import DOMPurify from 'isomorphic-dompurify';
 import TextUtils from '../../utils/TextUtils';
 import TimeAgo from '../UI/TimeAgo';
 import { useUser } from '../../context/UserContext';
@@ -23,9 +24,7 @@ const BasePostItem = ({
   const { user } = useUser();
   const t = useTranslations();
 
-  const isPostOwner =
-    showOwnerActions ||
-    (variant === 'profile' && user?.id != null && user.id === post.user?.id);
+  const isPostOwner = showOwnerActions;
 
   const handleDelete = async () => {
     if (!window.confirm(t('common.confirmDelete'))) return;
@@ -37,46 +36,31 @@ const BasePostItem = ({
     }
   };
 
+  const isLocalImage = (src) => src?.includes('localhost');
+
   /* ─── Compact: sidebar popular posts ─── */
   if (variant === 'compact') {
     return (
-      <article style={{ paddingBottom: '0.875rem', marginBottom: '0.875rem' }} className="last:pb-0 last:mb-0">
+      <article className="pb-[0.875rem] mb-[0.875rem] last:pb-0 last:mb-0">
         <Link href={`/p/${post.slug}`} className="block group">
-          <h4
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 600,
-              fontSize: '0.875rem',
-              letterSpacing: '-0.012em',
-              color: 'var(--text)',
-              lineHeight: 1.4,
-              marginBottom: '0.3rem',
-              position: 'relative',
-              display: 'inline',
-            }}
-            className="post-title-hover"
-          >
+          <h4 className="post-card-title-sm post-title-hover">
             {post.title}
           </h4>
-          <div style={{ marginTop: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ fontFamily: 'var(--font-display)', fontSize: '0.72rem', color: 'var(--text-faint)', letterSpacing: '0.01em' }}>
-              <TimeAgo timestamp={post.created_at} />
-            </span>
-          </div>
+          <span className="ui-label block mt-1">
+            <TimeAgo timestamp={post.created_at} />
+          </span>
         </Link>
       </article>
     );
   }
 
-  const isLocalImage = (src) => src?.includes('localhost');
-
   /* ─── Horizontal: related posts / search ─── */
   if (variant === 'horizontal') {
     return (
-      <article className="group" style={{ paddingBottom: '1rem', marginBottom: '1rem' }} >
-        <Link href={`/p/${post.slug}`} style={{ display: 'flex', gap: '1rem', paddingTop: '0.5rem' }}>
+      <article className="group pb-4 mb-4">
+        <Link href={`/p/${post.slug}`} className="flex gap-4 pt-2">
           {post.cover_image && (
-            <div style={{ flexShrink: 0, width: 72, height: 72, overflow: 'hidden', background: 'var(--bg-surface)', position: 'relative' }}>
+            <div className="flex-shrink-0 w-[72px] h-[72px] overflow-hidden bg-[var(--bg-surface)] relative">
               <Image
                 src={post.cover_image}
                 alt={post.title}
@@ -87,21 +71,14 @@ const BasePostItem = ({
               />
             </div>
           )}
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <h4
-              style={{
-                fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '0.9rem',
-                letterSpacing: '-0.015em', color: 'var(--text)', lineHeight: 1.35,
-                marginBottom: '0.3rem', display: 'inline', position: 'relative',
-              }}
-              className="post-title-hover"
-            >
+          <div className="flex-1 min-w-0">
+            <h4 className="post-card-title-md post-title-hover">
               {post.title}
             </h4>
-            <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', lineHeight: 1.4, marginTop: '0.3rem', fontFamily: 'var(--font-body)' }} className="line-clamp-2">
+            <p className="post-excerpt-sm mt-[0.3rem] line-clamp-2">
               <TextUtils html={post.excerpt} maxLength={80} />
             </p>
-            <span style={{ fontFamily: 'var(--font-display)', fontSize: '0.72rem', color: 'var(--text-faint)', display: 'block', marginTop: '0.35rem' }}>
+            <span className="ui-label block mt-[0.35rem]">
               <TimeAgo timestamp={post.created_at} />
             </span>
           </div>
@@ -110,108 +87,104 @@ const BasePostItem = ({
     );
   }
 
-  /* ─── Default + Profile variant ─── */
+  /* ─── Default variant: layered card (image 1/3 top + floating content panel) ─── */
   return (
-    <article
-      style={{ paddingBottom: '2rem', marginBottom: '2rem' }}
-      className="last:pb-0 last:mb-0"
-    >
-      <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
-        {/* Content */}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <Link href={`/p/${post.slug}`} style={{ display: 'block' }}>
-            <h2
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontWeight: 800,
-                fontSize: '1.1rem',
-                letterSpacing: '-0.022em',
-                lineHeight: 1.3,
-                color: 'var(--text)',
-                marginBottom: '0.5rem',
-                display: 'inline',
-                position: 'relative',
-              }}
-              className="post-title-hover"
-            >
-              {post.title}
-            </h2>
-          </Link>
+    <article className="group bg-[var(--bg)]">
 
-          {post.excerpt && (
-            <p
-              style={{
-                fontFamily: 'var(--font-body)',
-                fontSize: '0.92rem',
-                lineHeight: 1.6,
-                color: 'var(--text-muted)',
-                marginTop: '0.4rem',
-                marginBottom: 0,
-              }}
-              className="line-clamp-2"
-            >
-              <TextUtils html={post.excerpt} maxLength={180} />
-            </p>
-          )}
-
-          {/* Metadata row */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '0.6rem' }}>
-            <span style={{ fontFamily: 'var(--font-display)', fontSize: '0.72rem', color: 'var(--text-faint)', letterSpacing: '0.01em' }}>
-              <TimeAgo timestamp={post.created_at} />
-            </span>
-
-            {isPostOwner && (
-              <>
-                <Link
-                  href={`/edit/${post.slug}`}
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
-                    fontFamily: 'var(--font-display)', fontSize: '0.72rem', fontWeight: 600,
-                    letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--text-faint)',
-                    padding: '0.25rem 0.6rem', border: '1px solid var(--border)', borderRadius: '2px',
-                    transition: 'color 0.2s, border-color 0.2s',
-                  }}
-                  className="hover:text-[var(--text)] hover:border-[var(--border-mid)]"
-                >
-                  <PencilSimple style={{ width: 10, height: 10 }} />
-                  {t('common.edit')}
-                </Link>
-                <button
-                  onClick={handleDelete}
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
-                    fontFamily: 'var(--font-display)', fontSize: '0.72rem', fontWeight: 600,
-                    letterSpacing: '0.04em', textTransform: 'uppercase', color: 'var(--text-faint)',
-                    padding: '0.25rem 0.6rem', border: '1px solid var(--border)', borderRadius: '2px',
-                    background: 'none', cursor: 'pointer', transition: 'color 0.2s, border-color 0.2s',
-                  }}
-                  className="hover:text-[#DC2626] hover:border-[#DC2626]/30"
-                >
-                  <Trash style={{ width: 10, height: 10 }} />
-                  {t('common.delete')}
-                </button>
-              </>
-            )}
+      {/* ── Layer 1: image strip (top ~1/3 of card) ── */}
+      {post.cover_image ? (
+        <Link href={`/p/${post.slug}`} className="block">
+          <div className="post-card-img">
+            <Image
+              src={post.cover_image}
+              alt={post.title}
+              fill
+              sizes="(max-width: 768px) 100vw, 680px"
+              style={{ objectFit: 'cover', transition: 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)' }}
+              className="group-hover:scale-[1.03]"
+              unoptimized={isLocalImage(post.cover_image)}
+            />
           </div>
+        </Link>
+      ) : (
+        /* No image — thin accent bar so panel still has something to overlap */
+        <div style={{ height: '0.5rem', background: 'var(--accent)', opacity: 0.15 }} />
+      )}
+
+      {/* ── Layer 2: floating content panel (overlaps image) ── */}
+      <div className="post-card-panel">
+
+        {/* Categories */}
+        {post.categories?.length > 0 && (
+          <div className="mb-2">
+            {post.categories.map((cat, i) => (
+              <React.Fragment key={`${cat.id || ''}-${cat.name}-${i}`}>
+                {i > 0 && <span className="ui-label mx-[0.25rem]">,</span>}
+                <Link href={`/category/${cat.name.toLowerCase()}`} className="category-overline">
+                  {cat.name}
+                </Link>
+              </React.Fragment>
+            ))}
+          </div>
+        )}
+
+        {/* Title */}
+        <Link href={`/p/${post.slug}`} className="block">
+          <h2 className="post-card-title post-title-hover">{post.title}</h2>
+        </Link>
+
+        {/* Meta row */}
+        <div className="flex items-center gap-5 mb-6">
+          <span className="flex items-center gap-[0.35rem] ui-label">
+            <Clock weight="regular" style={{ width: 13, height: 13 }} />
+            <TimeAgo timestamp={post.created_at} />
+          </span>
+          <Link
+            href={`/p/${post.slug}#comments`}
+            className="flex items-center gap-[0.35rem] ui-label-caps hover:text-[var(--accent)]"
+          >
+            <ChatCircle weight="regular" style={{ width: 13, height: 13 }} />
+            {t('post.leaveComment')}
+          </Link>
         </div>
 
-        {/* Thumbnail — next/image: WebP/AVIF, correct sizing, no CLS */}
-        {post.cover_image && (
-          <Link href={`/p/${post.slug}`} style={{ flexShrink: 0 }} className="hidden md:block">
-            <div style={{ width: 112, height: 112, overflow: 'hidden', background: 'var(--bg-surface)', position: 'relative' }}>
-              <Image
-                src={post.cover_image}
-                alt=""
-                fill
-                sizes="112px"
-                style={{ objectFit: 'cover', transition: 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)' }}
-                className="group-hover:scale-105"
-                unoptimized={isLocalImage(post.cover_image)}
-              />
-            </div>
-          </Link>
+        {/* Excerpt */}
+        {post.excerpt && (
+          <div
+            className="post-excerpt-content"
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.excerpt) }}
+          />
+        )}
+
+        {/* Continue reading */}
+        <Link href={`/p/${post.slug}`} className="continue-reading">
+          {t('post.continueReading')}
+        </Link>
+
+        {/* Tags */}
+        {post.tags?.length > 0 && (
+          <div className="flex flex-wrap gap-[0.4rem] mt-3">
+            {post.tags.map((tag) => (
+              <Link key={tag.id || tag.name} href={`/tag/${tag.name}`} className="tag-chip">
+                • {tag.name}
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {/* Owner actions */}
+        {isPostOwner && (
+          <div className="flex gap-2 mt-4">
+            <Link href={`/edit/${post.slug}`} className="action-btn hover:text-[var(--text)] hover:border-[var(--border-mid)]">
+              <PencilSimple style={{ width: 10, height: 10 }} />{t('common.edit')}
+            </Link>
+            <button onClick={handleDelete} className="action-btn hover:text-[#DC2626] hover:border-[#DC2626]/30">
+              <Trash style={{ width: 10, height: 10 }} />{t('common.delete')}
+            </button>
+          </div>
         )}
       </div>
+
     </article>
   );
 };

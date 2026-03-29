@@ -16,7 +16,11 @@ const UserPostsSection = ({ posts, isLoading, isError, setSize, isReachingEnd, i
 
   const renderItem = (post) => {
     if (!post || !post.id) return null;
-    return <BasePostItem key={post.id} post={post} variant="profile" showOwnerActions={isOwner} />;
+    return (
+      <div key={post.id} className="pb-20">
+        <BasePostItem post={post} showOwnerActions />
+      </div>
+    );
   };
 
   if (isError) return (
@@ -41,7 +45,7 @@ const UserPostsSection = ({ posts, isLoading, isError, setSize, isReachingEnd, i
       hasMore={!isReachingEnd}
       loader={<div className="text-center my-4">{t('profile.loadingMore')}</div>}
       endMessage={<p className="text-center mt-4">{t('profile.allPostsLoaded')}</p>}
-      className="space-y-0"
+      className=""
     />
   );
 };

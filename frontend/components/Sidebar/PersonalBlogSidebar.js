@@ -2,42 +2,28 @@
 // components/Sidebar/PersonalBlogSidebar.js — Warm Dispatch
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+import useSWR from 'swr';
 import { useHomeData } from '../../hooks/useHomeData';
 import { useArchiveSummary } from '../../hooks/useArchiveSummary';
+import { fetchPopularTags } from '../../app/lib/api';
 import Archive from '../Archive/Archive';
+
+const isLocalImage = (src) => src?.includes('localhost');
 
 /* ─── Section header ─── */
 const SidebarSection = ({ title, children }) => (
-  <div
-    style={{
-      paddingBottom: '1.75rem',
-      marginBottom: '1.75rem',
-    }}
-    className="last:pb-0 last:mb-0"
-  >
-    <p
-      style={{
-        fontFamily: 'var(--font-display)',
-        fontSize: '0.66rem',
-        fontWeight: 600,
-        letterSpacing: '0.12em',
-        textTransform: 'uppercase',
-        color: 'var(--text-faint)',
-        marginBottom: '1.1rem',
-        margin: '0 0 1.1rem 0',
-      }}
-    >
-      {title}
-    </p>
+  <div className="pb-[1.75rem] mb-[1.75rem] border-b border-[var(--border)] last:border-0 last:pb-0 last:mb-0">
+    <p className="ui-section-header mb-[1.1rem]">{title}</p>
     {children}
   </div>
 );
 
 /* ─── Author bio card ─── */
 const AuthorBio = () => (
-  <div style={{ marginBottom: '2rem' }}>
-    <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.85rem', lineHeight: 1.6, color: 'var(--text-muted)', margin: 0 }}>
+  <div className="mb-8">
+    <p className="author-bio">
       Writing about software — how it's built, how it breaks, and what it teaches.
     </p>
   </div>
@@ -47,6 +33,11 @@ const PersonalBlogSidebar = ({ initialHomeData }) => {
   const t = useTranslations();
   const { categories, popularPosts, isLoading: homeLoading } = useHomeData(initialHomeData);
   const { archiveList } = useArchiveSummary();
+  const { data: popularTags, isLoading: tagsLoading } = useSWR(
+    '/tags/popular',
+    () => fetchPopularTags(20),
+    { revalidateOnFocus: false, dedupingInterval: 300000 }
+  );
 
   const categoriesLoading = homeLoading && !initialHomeData;
   const postsLoading = homeLoading && !initialHomeData;
@@ -58,19 +49,43 @@ const PersonalBlogSidebar = ({ initialHomeData }) => {
       <SidebarSection title={t('sidebar.popularPosts')}>
         {postsLoading ? (
           <div className="space-y-3">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="space-y-1.5">
-                <div className="h-4 w-3/4 bg-[var(--bg-surface)] rounded animate-pulse" />
-                <div className="h-3 w-16 bg-[var(--bg-surface)] rounded animate-pulse" />
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex gap-3 py-2">
+                <div className="flex-shrink-0 w-[64px] h-[64px] bg-[var(--bg-surface)] rounded animate-pulse" />
+                <div className="flex-1 space-y-2 pt-1">
+                  <div className="h-3 bg-[var(--bg-surface)] rounded animate-pulse w-full" />
+                  <div className="h-3 bg-[var(--bg-surface)] rounded animate-pulse w-4/5" />
+                  <div className="h-3 bg-[var(--bg-surface)] rounded animate-pulse w-2/3" />
+                </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="space-y-0">
-            {popularPosts.slice(0, 5).map((post) => (
-              <article key={post.id} className="py-2">
-                <Link href={`/p/${post.slug}`} className="block group">
-                  <h4 className="text-[13px] font-medium text-[var(--text)] group-hover:underline line-clamp-2 leading-snug">
+          <div className="divide-y divide-[var(--border)]">
+            {popularPosts.slice(0, 10).map((post) => (
+              <article key={post.id}>
+                <Link href={`/p/${post.slug}`} className="flex gap-3 py-3 group">
+                  {/* Thumbnail */}
+                  <div className="flex-shrink-0 w-[64px] h-[64px] overflow-hidden bg-[var(--bg-surface)] relative">
+                    {post.cover_image ? (
+                      <Image
+                        src={post.cover_image}
+                        alt={post.title}
+                        fill
+                        sizes="64px"
+                        style={{ objectFit: 'cover' }}
+                        unoptimized={isLocalImage(post.cover_image)}
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-[var(--bg-surface)] flex items-center justify-center">
+                        <span className="text-[var(--text-faint)] text-xs font-bold uppercase tracking-wider">
+                          {post.title?.charAt(0)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  {/* Title */}
+                  <h4 className="flex-1 text-[13px] font-medium leading-snug text-[var(--accent)] group-hover:underline line-clamp-3 pt-0.5">
                     {post.title}
                   </h4>
                 </Link>
@@ -82,7 +97,7 @@ const PersonalBlogSidebar = ({ initialHomeData }) => {
 
       <SidebarSection title={t('sidebar.categories')}>
         {categoriesLoading ? (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div className="flex flex-wrap gap-2">
             {[...Array(5)].map((_, i) => (
               <div
                 key={i}
@@ -92,29 +107,55 @@ const PersonalBlogSidebar = ({ initialHomeData }) => {
             ))}
           </div>
         ) : (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div className="flex flex-wrap gap-2">
             {categories?.slice(0, 8).map((category) => (
               <Link
                 key={category.id}
                 href={`/category/${category.name.toLowerCase()}`}
-                style={{
-                  display: 'inline-block',
-                  padding: '0.3rem 0.85rem',
-                  border: '1px solid var(--border)',
-                  borderRadius: '9999px',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: '0.8rem',
-                  color: 'var(--text-muted)',
-                  textDecoration: 'none',
-                  background: 'var(--bg)',
-                  transition: 'border-color 0.2s, color 0.2s',
-                  whiteSpace: 'nowrap',
-                }}
-                className="hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                className="taxonomy-pill"
               >
                 {category.name}
               </Link>
             ))}
+          </div>
+        )}
+      </SidebarSection>
+
+      <SidebarSection title={t('sidebar.tags')}>
+        {tagsLoading ? (
+          <div className="flex flex-wrap gap-x-3 gap-y-2">
+            {[...Array(12)].map((_, i) => (
+              <div
+                key={i}
+                className="skeleton-warm"
+                style={{ height: `${14 + (i % 4) * 4}px`, width: `${45 + (i % 5) * 18}px`, borderRadius: '2px' }}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="leading-loose">
+            {(popularTags || []).slice(0, 40).map((tag, i) => {
+              const total = Math.min((popularTags || []).length, 40);
+              const rank = i / total; // 0 = most popular, 1 = least
+              // 5 size tiers: largest for top tags, smallest for tail
+              const fontSize =
+                rank < 0.1 ? '1.6rem' :
+                rank < 0.2 ? '1.25rem' :
+                rank < 0.4 ? '1rem' :
+                rank < 0.65 ? '0.85rem' :
+                '0.75rem';
+              const fontWeight = rank < 0.2 ? 700 : rank < 0.4 ? 600 : 400;
+              return (
+                <Link
+                  key={tag.id || tag.name}
+                  href={`/tag/${tag.name}`}
+                  style={{ fontSize, fontWeight, lineHeight: 1.6 }}
+                  className="inline-block mr-2 text-[var(--accent)] hover:underline"
+                >
+                  {tag.name}
+                </Link>
+              );
+            })}
           </div>
         )}
       </SidebarSection>

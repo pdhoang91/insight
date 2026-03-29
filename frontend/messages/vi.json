@@ -25,7 +25,9 @@
     "writtenBy": "Viết bởi",
     "moreFrom": "Thêm từ",
     "relatedReading": "Đọc thêm",
-    "browseAll": "Xem tất cả"
+    "browseAll": "Xem tất cả",
+    "continueReading": "Đọc tiếp →",
+    "leaveComment": "ĐỂ LẠI BÌNH LUẬN"
   },
   "engagement": {
     "loginToBookmark": "Vui lòng đăng nhập để lưu.",
@@ -85,6 +87,7 @@
   "sidebar": {
     "popularPosts": "Bài viết phổ biến",
     "categories": "Danh mục",
+    "tags": "Thẻ",
     "archive": "Lưu trữ",
     "readingElsewhere": "Đọc ở nơi khác"
   },
