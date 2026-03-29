@@ -55,7 +55,8 @@
       "Bash(lsof -ti:3456)",
       "Bash(xargs kill:*)",
       "Bash(grep -r explore /Users/anhoaian/Documents/pdhoang91/insight/frontend/app --include=*.js --include=*.tsx)",
-      "Bash(grep -r \"sidebar\\\\|Sidebar\" /Users/anhoaian/Documents/pdhoang91/insight/frontend/messages --include=*.json)"
+      "Bash(grep -r \"sidebar\\\\|Sidebar\" /Users/anhoaian/Documents/pdhoang91/insight/frontend/messages --include=*.json)",
+      "Bash(grep -n \"normalizeUsername\" /Users/anhoaian/Documents/pdhoang91/insight/frontend/app/[locale]/[username]/page.js)"
     ]
   }
 }
