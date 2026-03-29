@@ -26,6 +26,10 @@ func init() {
 	gob.Register(&dto.PostResponse{})
 	gob.Register(&dto.HomeResponse{})
 	gob.Register([]*dto.ArchiveSummaryItem{})
+	gob.Register([]*dto.TagResponse{})
+	gob.Register(&dto.TagResponse{})
+	gob.Register([]*dto.CategoryResponse{})
+	gob.Register(&dto.CategoryResponse{})
 	gob.Register(int64(0))
 	gob.Register("")
 }
