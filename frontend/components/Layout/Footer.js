@@ -57,9 +57,9 @@ const Footer = () => {
 
       <div
         style={{
-          maxWidth: '1192px',
+          maxWidth: '1600px',
           margin: '0 auto',
-          padding: '3.5rem 2rem 2.5rem',
+          padding: '3.5rem 1rem 2.5rem',
           position: 'relative',
           zIndex: 1,
         }}

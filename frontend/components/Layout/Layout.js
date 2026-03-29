@@ -76,12 +76,12 @@ const Layout = ({
   ...props
 }) => {
   const containerVariants = {
-    container: 'max-w-[1280px] mx-auto px-3 md:px-5 lg:px-6',
-    article: 'max-w-[680px] mx-auto px-3 md:px-5',
-    reading: 'max-w-[800px] mx-auto px-3 md:px-5',
-    wide: 'max-w-[1440px] mx-auto px-3 md:px-5 lg:px-6',
-    compact: 'max-w-[600px] mx-auto px-3 md:px-5',
-    full: 'w-full px-3 md:px-5 lg:px-6',
+    container: 'max-w-[1600px] mx-auto px-2 sm:px-3 lg:px-4',
+    article: 'max-w-[720px] mx-auto px-2 sm:px-3',
+    reading: 'max-w-[860px] mx-auto px-2 sm:px-3',
+    wide: 'w-full px-2 sm:px-3 lg:px-4',
+    compact: 'max-w-[640px] mx-auto px-2 sm:px-3',
+    full: 'w-full px-2 sm:px-3 lg:px-4',
   };
 
   const containerClass = containerVariants[variant] || containerVariants.container;
@@ -91,7 +91,7 @@ const Layout = ({
       <main className="pt-16 relative flex-1" role="main" {...props}>
         <div className={containerClass}>
           {showSidebar && sidebar ? (
-            <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 py-8">
+            <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 py-6">
               <div className={`flex-1 min-w-0 ${className}`}>
                 {children}
               </div>
