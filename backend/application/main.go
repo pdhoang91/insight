@@ -70,6 +70,7 @@ func main() {
 	tagRepo := repository.NewTagRepository(db)
 	postContentRepo := repository.NewPostContentRepository(db)
 	imageRepo := repository.NewImageRepository(db)
+	searchRepo := repository.NewSearchRepository(db)
 
 	baseService := service.NewBaseService(
 		db,
@@ -82,7 +83,10 @@ func main() {
 		postContentRepo, imageRepo,
 	)
 
-	insightService := service.NewInsightService(baseService)
+	insightService := service.NewInsightService(baseService, searchRepo)
+	if err := insightService.InitializeIndexes(); err != nil {
+		log.Printf("Warning: search index initialisation: %v", err)
+	}
 
 	go func() {
 		ticker := time.NewTicker(5 * time.Minute)

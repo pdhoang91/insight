@@ -36,6 +36,9 @@ func DefineAPIRoutes(r *gin.Engine, ctrl *controller.Controller) {
 
 		// Search
 		public.GET("/search/posts", ctrl.Search.SearchPosts)
+		public.GET("/search/suggestions", ctrl.Search.GetSearchSuggestions)
+		public.GET("/search/popular", ctrl.Search.GetPopularSearches)
+		public.POST("/search/track", ctrl.Search.TrackSearch)
 
 		// Categories
 		public.GET("/categories", ctrl.Category.ListCategories)

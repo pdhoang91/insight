@@ -74,7 +74,12 @@
       "Bash(cat /root/pdhoang91/insight/docker-compose*.yml)",
       "Bash(grep -rn \"POSTGRES_USER\\\\|DB_USER\\\\|postgres\" /root/pdhoang91/insight/backend --include=*.go -l)",
       "Bash(openssl rand:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(/usr/local/go/bin/go build:*)",
+      "Bash(go version:*)",
+      "Bash(/opt/homebrew/bin/go build:*)",
+      "Bash(/opt/homebrew/bin/go vet:*)",
+      "Bash(/opt/homebrew/bin/go mod:*)"
     ]
   }
 }

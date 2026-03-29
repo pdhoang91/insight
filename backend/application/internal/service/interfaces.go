@@ -6,7 +6,6 @@ import (
 
 	"github.com/pdhoang91/blog/internal/dto"
 	"github.com/pdhoang91/blog/internal/entities"
-	"github.com/pdhoang91/blog/pkg/httpclient"
 	"github.com/pdhoang91/blog/pkg/storage"
 	uuid "github.com/satori/go.uuid"
 )
@@ -93,7 +92,11 @@ type ImageService interface {
 }
 
 type SearchService interface {
-	GetSearchClient() *httpclient.SearchClient
+	InitializeIndexes() error
+	SearchPosts(query string, page, limit int) ([]*dto.PostResponse, int64, error)
+	GetSearchSuggestions(query string, limit int) ([]dto.SearchSuggestion, error)
+	GetPopularSearches(limit int) ([]dto.PopularSearch, error)
+	TrackSearch(query, userID string, resultsCount int) error
 }
 
 // Service is the composite interface embedding all domain interfaces.

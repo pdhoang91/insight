@@ -127,3 +127,5 @@ type ImageRepository interface {
 	FindReferencesByPostID(postID uuid.UUID) ([]entities.ImageReference, error)
 	FindReference(imageID, postID uuid.UUID, refType string) (*entities.ImageReference, error)
 }
+
+// SearchRepository is defined in search_repo.go.

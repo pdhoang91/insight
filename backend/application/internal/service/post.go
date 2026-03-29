@@ -473,27 +473,6 @@ func (s *InsightService) GetUserPosts(userID uuid.UUID, req *dto.PaginationReque
 	return responses, total, nil
 }
 
-// SearchPosts searches for posts
-func (s *InsightService) SearchPosts(query string, req *dto.PaginationRequest) ([]*dto.PostResponse, int64, error) {
-	if req.Limit == 0 {
-		req.Limit = 20
-	}
-
-	posts, err := s.postRepo.Search(query, req.Limit, req.Offset)
-	if err != nil {
-		return nil, 0, apperror.NewInternal("failed to search posts", err)
-	}
-
-	responses := make([]*dto.PostResponse, 0, len(posts))
-	for _, post := range posts {
-		responses = append(responses, dto.NewPostResponse(post))
-	}
-	total, err := s.postRepo.CountSearch(query)
-	if err != nil {
-		return nil, 0, apperror.NewInternal("failed to count search results", err)
-	}
-	return responses, total, nil
-}
 
 func (s *InsightService) GetLatestPosts(limit int) ([]*dto.PostResponse, error) {
 	if limit == 0 {

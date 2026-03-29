@@ -1,26 +1,22 @@
 package service
 
 import (
-	"github.com/pdhoang91/blog/pkg/httpclient"
+	"github.com/pdhoang91/blog/internal/repository"
 )
 
-// InsightService contains all dependencies and business logic
+// InsightService is the single concrete implementation of Service.
+// It embeds BaseService (which holds all infrastructure deps) and adds
+// the searchRepo needed exclusively by the search feature.
 type InsightService struct {
 	*BaseService
-
-	// External clients
-	SearchClient *httpclient.SearchClient
+	searchRepo repository.SearchRepository
 }
 
-// NewInsightService creates a new insight service with all dependencies
-func NewInsightService(baseService *BaseService) *InsightService {
+// NewInsightService wires all dependencies into InsightService.
+// searchRepo is required; pass repository.NewSearchRepository(db) from main.
+func NewInsightService(baseService *BaseService, searchRepo repository.SearchRepository) *InsightService {
 	return &InsightService{
-		BaseService:  baseService,
-		SearchClient: httpclient.NewSearchClient(),
+		BaseService: baseService,
+		searchRepo:  searchRepo,
 	}
-}
-
-// GetSearchClient returns the search client instance
-func (s *InsightService) GetSearchClient() *httpclient.SearchClient {
-	return s.SearchClient
 }

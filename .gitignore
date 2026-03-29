@@ -65,3 +65,5 @@ backend/news-fast/static/mp3/*
 insight_bk/
 certbot/
 .claude/settings.local.json
+.claude/*
+.claude
