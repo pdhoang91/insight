@@ -197,7 +197,7 @@ function PanelVariant() {
               gap: '2px',
               padding: '4px 0 4px 24px',
             }}>
-              {LANGUAGES.map((lang, i) => {
+              {LANGUAGES.filter(lang => lang.code !== locale).map((lang, i) => {
                 const isActive = locale === lang.code;
                 return (
                   <motion.button

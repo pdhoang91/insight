@@ -64,7 +64,8 @@
       "Bash(docker ps:*)",
       "Bash(docker exec:*)",
       "Bash(dmesg -T)",
-      "Bash(docker top:*)"
+      "Bash(docker top:*)",
+      "Bash(echo \"exit: $?\")"
     ]
   }
 }
