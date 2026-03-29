@@ -55,7 +55,16 @@
       "Bash(lsof -ti:3456)",
       "Bash(xargs kill:*)",
       "Bash(grep -r explore /Users/anhoaian/Documents/pdhoang91/insight/frontend/app --include=*.js --include=*.tsx)",
-      "Bash(grep -r \"sidebar\\\\|Sidebar\" /Users/anhoaian/Documents/pdhoang91/insight/frontend/messages --include=*.json)"
+      "Bash(grep -r \"sidebar\\\\|Sidebar\" /Users/anhoaian/Documents/pdhoang91/insight/frontend/messages --include=*.json)",
+      "Bash(docker stats:*)",
+      "Bash(crontab -l)",
+      "Read(//etc/**)",
+      "Bash(docker volume:*)",
+      "Bash(grep -i \"password\\\\|ALTER USER\\\\|ALTER ROLE\" /root/pdhoang91/insight/backend/migrate/scripts/*.sql)",
+      "Bash(docker ps:*)",
+      "Bash(docker exec:*)",
+      "Bash(dmesg -T)",
+      "Bash(docker top:*)"
     ]
   }
 }

@@ -4,10 +4,9 @@ services:
     image: redis:7-alpine
     container_name: redis
     restart: always
-    command: redis-server --maxmemory 64mb --maxmemory-policy allkeys-lru
+    command: redis-server --maxmemory-policy allkeys-lru
     networks:
       - app-network
-    mem_limit: 80m
 
   nginx:
    image: nginx:1.27-alpine
@@ -26,7 +25,6 @@ services:
      - search-service
    networks:
      - app-network
-   mem_limit: 64m
 
   # Certbot service for SSL certificate management
   # Run on-demand: docker compose --profile ssl run certbot renew
@@ -39,7 +37,6 @@ services:
      - ./certbot/www:/var/www/certbot
    networks:
      - app-network
-   mem_limit: 32m
   db:
     image: postgres:13
     container_name: database
@@ -52,17 +49,16 @@ services:
       POSTGRES_DB: postgres
     command: >
       postgres
-      -c shared_buffers=64MB
-      -c work_mem=4MB
+      -c shared_buffers=128MB
+      -c work_mem=8MB
       -c max_connections=30
-      -c effective_cache_size=128MB
+      -c effective_cache_size=512MB
     ports:
       - "5433:5432" # Cổng này chỉ để truy cập từ host, không cần thiết cho kết nối giữa các container
     volumes:
       - db-data:/var/lib/postgresql/data
     networks:
       - app-network
-    mem_limit: 256m
     healthcheck:
       test: ["CMD", "pg_isready", "-q", "-d", "postgres", "-U", "postgres"]
       interval: 5s
@@ -95,7 +91,6 @@ services:
       - ./backend/migrate:/migrations:ro  # Read-only mount
     networks:
       - app-network
-    mem_limit: 128m
     restart: "no"  # Run once and exit
 
   application:
@@ -145,7 +140,6 @@ services:
       - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN:-}
     networks:
       - app-network
-    mem_limit: 192m
     # logging:
     #   driver: "fluentd"
     #   options:
@@ -186,7 +180,6 @@ services:
       - LOG_LEVEL=DEBUG
     networks:
       - app-network
-    mem_limit: 128m
     # logging:
     #   driver: "fluentd"
     #   options:
@@ -211,12 +204,11 @@ services:
     environment:
       - NEXT_PUBLIC_BASE_API_URL=${NEXT_PUBLIC_BASE_API_URL}
       - NEXT_PUBLIC_BASE_FE_URL=${NEXT_PUBLIC_BASE_FE_URL}
-      - NODE_OPTIONS=--max-old-space-size=128
+      - NODE_OPTIONS=--max-old-space-size=384
     # depends_on:
     #   - fluentd
     networks:
       - app-network
-    mem_limit: 256m
 
 networks:
   app-network:
