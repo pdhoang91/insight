@@ -25,7 +25,9 @@
     "writtenBy": "Written by",
     "moreFrom": "More from",
     "relatedReading": "Related reading",
-    "browseAll": "Browse all"
+    "browseAll": "Browse all",
+    "continueReading": "Continue reading →",
+    "leaveComment": "LEAVE A COMMENT"
   },
   "engagement": {
     "loginToBookmark": "Please sign in to bookmark.",

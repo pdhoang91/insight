@@ -31,32 +31,21 @@ const DiscoveryBreak = ({ posts = [] }) => {
   return (
     <div
       ref={containerRef}
-      className="lg:hidden"
-      style={{
-        padding: '2rem 0 2.5rem',
-        margin: '0.5rem 0 1.5rem',
-      }}
+      className="lg:hidden py-8 pb-10 my-2 mb-6"
     >
-      {/* Section label — left-aligned, editorial uppercase */}
+      {/* Section label — static styles via class, dynamic visibility via inline */}
       <p
+        className="ui-section-header mb-[1.2rem]"
         style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: '0.6rem',
-          fontWeight: 600,
-          letterSpacing: '0.14em',
-          textTransform: 'uppercase',
-          color: 'var(--text-faint)',
-          margin: '0 0 1.2rem 0',
           opacity: isVisible ? 1 : 0,
           transform: isVisible ? 'translateY(0)' : 'translateY(8px)',
-          transition:
-            'opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+          transition: 'opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1), transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
       >
         {t('sidebar.readingElsewhere')}
       </p>
 
-      {/* Horizontal scroll strip — editorial accent borders, no cards */}
+      {/* Horizontal scroll strip */}
       <div
         className="flex gap-4 overflow-x-auto scrollbar-hide -mx-4 md:-mx-6 px-4 md:px-6 pb-1"
         style={{ WebkitOverflowScrolling: 'touch' }}
@@ -73,29 +62,8 @@ const DiscoveryBreak = ({ posts = [] }) => {
               transition: `opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) ${i * 70}ms, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) ${i * 70}ms`,
             }}
           >
-            <div
-              style={{
-                borderLeft: '2px solid var(--accent)',
-                paddingLeft: '0.75rem',
-              }}
-            >
-              <p
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  fontSize: '0.82rem',
-                  fontWeight: 600,
-                  lineHeight: 1.35,
-                  letterSpacing: '-0.01em',
-                  color: 'var(--text)',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 2,
-                  WebkitBoxOrient: 'vertical',
-                  overflow: 'hidden',
-                  margin: 0,
-                  transition: 'color 0.2s',
-                }}
-                className="group-hover:text-[var(--accent)]"
-              >
+            <div className="border-l-2 border-[var(--accent)] pl-3">
+              <p className="discovery-title group-hover:text-[var(--accent)]">
                 {post.title}
               </p>
             </div>

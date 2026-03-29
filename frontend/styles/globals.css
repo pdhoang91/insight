@@ -23,17 +23,17 @@ body {
    ───────────────────────────────────────── */
 :root {
   /* Core palette */
-  --bg:              #F2EDE4;  /* uncoated paper */
-  --bg-surface:      #EAE4D8;  /* slightly deeper surface */
-  --bg-card:         #EAE4D8;
-  --bg-elevated:     #E6DFD4;
+  --bg:              #FFFFFF;  /* white */
+  --bg-surface:      #F5F5F5;  /* slightly deeper surface */
+  --bg-card:         #F5F5F5;
+  --bg-elevated:     #EEEEEE;
   --bg-dark:         #2A1F1A;  /* footer / dark sections */
   --bg-dark-surface: #362520;
 
   --text:         #1A1410;    /* warm ink-black */
   --text-muted:   #7A6E65;    /* warm muted gray */
   --text-faint:   #A89E97;    /* barely visible */
-  --text-inverse: #F2EDE4;    /* on dark surfaces */
+  --text-inverse: #FFFFFF;    /* on dark surfaces */
 
   --accent:       #C4541D;    /* terracotta / rust — single accent */
   --accent-light: rgba(196, 84, 29, 0.11);
@@ -686,6 +686,357 @@ a {
 .category-card:hover {
   border-color: var(--border-mid);
   transform: translateY(-2px);
+}
+
+/* ─────────────────────────────────────────
+   COMPONENT UTILITY CLASSES
+   Semantic classes to replace repeated inline styles.
+   To restyle a pattern globally, change it here —
+   every component using the class updates automatically.
+   ───────────────────────────────────────── */
+
+/* ── Small meta text: dates, time, faint labels ── */
+.ui-label {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  color: var(--text-faint);
+  letter-spacing: 0.01em;
+}
+
+/* ── Uppercase meta: actions, comment links, end messages ── */
+.ui-label-caps {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-faint);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ── Sidebar / section header label ── */
+.ui-section-header {
+  font-family: var(--font-display);
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin: 0;
+}
+
+/* ── Category overline: above post title in feed ── */
+.category-overline {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.category-overline:hover { color: var(--accent); }
+
+/* ── Category badge: accent-colored label (masonry card) ── */
+.category-badge {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.625rem;
+}
+
+/* ── Post card title — default feed (large) ── */
+.post-card-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.6rem, 3.5vw, 2rem);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--text);
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+/* ── Post card title — compact sidebar variant ── */
+.post-card-title-sm {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: -0.012em;
+  line-height: 1.4;
+  color: var(--text);
+  margin-bottom: 0.3rem;
+  display: inline;
+  position: relative;
+}
+
+/* ── Post card title — horizontal / related posts variant ── */
+.post-card-title-md {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: -0.015em;
+  line-height: 1.35;
+  color: var(--text);
+  margin-bottom: 0.3rem;
+  display: inline;
+  position: relative;
+}
+
+/* ── Masonry category card title ── */
+.masonry-card-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+  color: var(--text);
+  margin-bottom: 0.625rem;
+  transition: color 0.15s;
+}
+
+/* ── Post excerpt — full length in feed ── */
+.post-excerpt {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+
+/* ── Post excerpt — compact (horizontal card, masonry) ── */
+.post-excerpt-sm {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+}
+
+/* ── Sidebar author bio ── */
+.author-bio {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ── DiscoveryBreak card title ── */
+.discovery-title {
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
+  transition: color 0.2s;
+}
+
+/* ── End of list message ── */
+.end-message {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  text-align: center;
+  padding: 2.5rem 0;
+  margin-top: 1rem;
+}
+
+/* ── Loading text (category grid) ── */
+.loading-text {
+  font-family: var(--font-display);
+  font-size: 0.78rem;
+  color: var(--text-faint);
+  letter-spacing: -0.01em;
+}
+
+/* ── HTML excerpt rendered in post cards (supports embedded images, links, bold) ── */
+.post-excerpt-content {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.85;
+  color: var(--text-muted);
+  margin-bottom: 1.75rem;
+}
+.post-excerpt-content p {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.85;
+  color: var(--text-muted);
+  margin: 0 0 1.5em 0;
+}
+.post-excerpt-content p:last-child { margin-bottom: 0; }
+.post-excerpt-content ul,
+.post-excerpt-content ol {
+  padding-left: 1.5rem;
+  margin: 0 0 1.5em 0;
+}
+.post-excerpt-content li {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.85;
+  color: var(--text-muted);
+  margin-bottom: 0.4em;
+}
+.post-excerpt-content img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1.5em 0;
+}
+.post-excerpt-content a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+.post-excerpt-content strong { color: var(--text); }
+
+/* ── "Continue reading" link ── */
+.continue-reading {
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: underline;
+  display: inline-block;
+  margin-bottom: 1.25rem;
+}
+
+/* ── Cover image: base container (profile / compact variants) ── */
+.cover-image-wrap {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  background: var(--bg-surface);
+  overflow: hidden;
+}
+@media (min-width: 640px) {
+  .cover-image-wrap { height: 300px; }
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   Post card: layered layout
+   · .post-card-outer  — the full card wrapper (white bg)
+   · .post-card-img    — image strip, top ~1/3 of visible area
+   · .post-card-panel  — floating content layer, overlaps the image
+   ───────────────────────────────────────────────────────────────── */
+
+/* Image strip — fixed height (+30% taller) */
+.post-card-img {
+  position: relative;
+  width: 100%;
+  height: 260px;
+  background: var(--bg-surface);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+@media (min-width: 640px) {
+  .post-card-img { height: 340px; }
+}
+@media (min-width: 1024px) {
+  .post-card-img { height: 365px; }
+}
+
+/* Content panel — negative margin pulls it up over the image */
+.post-card-panel {
+  position: relative;
+  z-index: 10;
+  background: var(--bg);
+  box-shadow: 0 -1px 0 var(--border), var(--shadow-lg);
+  margin: -3rem 1rem 0;
+  padding: 1.75rem 1.25rem 2.25rem;
+}
+@media (min-width: 640px) {
+  .post-card-panel {
+    margin: -3.5rem 1.75rem 0;
+    padding: 2rem 1.75rem 2.75rem;
+  }
+}
+@media (min-width: 1024px) {
+  .post-card-panel {
+    margin: -4rem 2.5rem 0;
+    padding: 2.25rem 2rem 3rem;
+  }
+}
+
+/* ── Tag chip: bordered rectangular pill ── */
+.tag-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  border: 1px solid var(--border);
+  padding: 0.2rem 0.55rem;
+  border-radius: 2px;
+  text-decoration: none;
+  transition: color 0.2s, border-color 0.2s;
+}
+.tag-chip:hover {
+  color: var(--text);
+  border-color: var(--border-mid);
+}
+
+/* ── Taxonomy pill: rounded category chip (sidebar) ── */
+.taxonomy-pill {
+  display: inline-block;
+  padding: 0.3rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  background: var(--bg);
+  transition: border-color 0.2s, color 0.2s;
+  white-space: nowrap;
+}
+.taxonomy-pill:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ── Ghost action button: edit / delete ── */
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  padding: 0.25rem 0.6rem;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  background: none;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  text-decoration: none;
+}
+
+/* ── Separator line (between end-message elements) ── */
+.separator-line {
+  display: block;
+  width: 2rem;
+  height: 1px;
+  background: var(--border);
 }
 
 /* ─────────────────────────────────────────

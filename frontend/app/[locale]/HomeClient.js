@@ -18,95 +18,36 @@ import { useTranslations } from 'next-intl';
 const HomeHero = () => {
   const t = useTranslations();
   return (
-  <div
-    className="animate-fade-up delay-0"
-    style={{
-      display: 'grid',
-      gridTemplateColumns: '1fr auto',
-      alignItems: 'end',
-      gap: '2rem',
-      paddingBottom: '3rem',
-      marginBottom: '3rem',
-    }}
-  >
-    {/* Left: identity */}
-    <div>
-      <p
-        style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: '0.7rem',
-          fontWeight: 600,
-          letterSpacing: '0.12em',
-          textTransform: 'uppercase',
-          color: 'var(--accent)',
-          marginBottom: '0.75rem',
-          margin: '0 0 0.75rem 0',
-        }}
-      >
-        {t('home.personalWriting')}
-      </p>
-      <h1
-        style={{
-          fontFamily: 'var(--font-display)',
-          fontWeight: 800,
-          fontSize: 'clamp(2.25rem, 5vw, 3.5rem)',
-          lineHeight: 1.08,
-          letterSpacing: '-0.035em',
-          color: 'var(--text)',
-          margin: '0 0 1rem 0',
-        }}
-      >
-        Insight
-      </h1>
-      <p
-        style={{
-          fontFamily: 'var(--font-body)',
-          fontSize: '1.05rem',
-          lineHeight: 1.65,
-          color: 'var(--text-muted)',
-          maxWidth: '42ch',
-          margin: 0,
-        }}
-      >
-        {t('home.tagline')}
-      </p>
-    </div>
-
-    {/* Right: large decorative year — grid-breaking offset element */}
-    <div
-      aria-hidden="true"
-      style={{
-        fontFamily: 'var(--font-display)',
-        fontWeight: 800,
-        fontSize: 'clamp(3rem, 6vw, 5rem)',
-        lineHeight: 1,
-        letterSpacing: '-0.04em',
-        color: 'var(--accent)',
-        opacity: 0.15,
-        userSelect: 'none',
-        paddingBottom: '0.1em',
-      }}
+    <div className="animate-fade-up delay-0 grid pb-12 mb-12 border-b border-[var(--border)]"
+      style={{ gridTemplateColumns: '1fr auto', alignItems: 'end', gap: '2rem' }}
     >
-      {new Date().getFullYear()}
+      {/* Left: identity */}
+      <div>
+        <p className="ui-section-header mb-3" style={{ color: 'var(--accent)', letterSpacing: '0.12em' }}>
+          {t('home.personalWriting')}
+        </p>
+        <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'clamp(2.25rem, 5vw, 3.5rem)', lineHeight: 1.08, letterSpacing: '-0.035em', color: 'var(--text)', margin: '0 0 1rem 0' }}>
+          Insight
+        </h1>
+        <p className="author-bio" style={{ fontSize: '1.05rem', lineHeight: 1.65, maxWidth: '42ch' }}>
+          {t('home.tagline')}
+        </p>
+      </div>
+
+      {/* Right: decorative year */}
+      <div
+        aria-hidden="true"
+        style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 'clamp(3rem, 6vw, 5rem)', lineHeight: 1, letterSpacing: '-0.04em', color: 'var(--accent)', opacity: 0.15, userSelect: 'none', paddingBottom: '0.1em' }}
+      >
+        {new Date().getFullYear()}
+      </div>
     </div>
-  </div>
   );
 };
 
 /* ─── Section label ─── */
 const SectionLabel = ({ children }) => (
-  <p
-    style={{
-      fontFamily: 'var(--font-display)',
-      fontSize: '0.68rem',
-      fontWeight: 600,
-      letterSpacing: '0.1em',
-      textTransform: 'uppercase',
-      color: 'var(--text-faint)',
-      marginBottom: '1.75rem',
-      margin: '0 0 1.75rem 0',
-    }}
-  >
+  <p className="ui-section-header mb-[1.75rem]" style={{ fontSize: '0.68rem', letterSpacing: '0.1em' }}>
     {children}
   </p>
 );

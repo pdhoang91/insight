@@ -9,35 +9,16 @@ import Archive from '../Archive/Archive';
 
 /* ─── Section header ─── */
 const SidebarSection = ({ title, children }) => (
-  <div
-    style={{
-      paddingBottom: '1.75rem',
-      marginBottom: '1.75rem',
-    }}
-    className="last:pb-0 last:mb-0"
-  >
-    <p
-      style={{
-        fontFamily: 'var(--font-display)',
-        fontSize: '0.66rem',
-        fontWeight: 600,
-        letterSpacing: '0.12em',
-        textTransform: 'uppercase',
-        color: 'var(--text-faint)',
-        marginBottom: '1.1rem',
-        margin: '0 0 1.1rem 0',
-      }}
-    >
-      {title}
-    </p>
+  <div className="pb-[1.75rem] mb-[1.75rem] last:pb-0 last:mb-0">
+    <p className="ui-section-header mb-[1.1rem]">{title}</p>
     {children}
   </div>
 );
 
 /* ─── Author bio card ─── */
 const AuthorBio = () => (
-  <div style={{ marginBottom: '2rem' }}>
-    <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.85rem', lineHeight: 1.6, color: 'var(--text-muted)', margin: 0 }}>
+  <div className="mb-8">
+    <p className="author-bio">
       Writing about software — how it's built, how it breaks, and what it teaches.
     </p>
   </div>
@@ -82,7 +63,7 @@ const PersonalBlogSidebar = ({ initialHomeData }) => {
 
       <SidebarSection title={t('sidebar.categories')}>
         {categoriesLoading ? (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div className="flex flex-wrap gap-2">
             {[...Array(5)].map((_, i) => (
               <div
                 key={i}
@@ -92,25 +73,12 @@ const PersonalBlogSidebar = ({ initialHomeData }) => {
             ))}
           </div>
         ) : (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div className="flex flex-wrap gap-2">
             {categories?.slice(0, 8).map((category) => (
               <Link
                 key={category.id}
                 href={`/category/${category.name.toLowerCase()}`}
-                style={{
-                  display: 'inline-block',
-                  padding: '0.3rem 0.85rem',
-                  border: '1px solid var(--border)',
-                  borderRadius: '9999px',
-                  fontFamily: 'var(--font-body)',
-                  fontSize: '0.8rem',
-                  color: 'var(--text-muted)',
-                  textDecoration: 'none',
-                  background: 'var(--bg)',
-                  transition: 'border-color 0.2s, color 0.2s',
-                  whiteSpace: 'nowrap',
-                }}
-                className="hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                className="taxonomy-pill"
               >
                 {category.name}
               </Link>
