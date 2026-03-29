@@ -87,6 +87,7 @@
   "sidebar": {
     "popularPosts": "Popular Posts",
     "categories": "Categories",
+    "tags": "Tags",
     "archive": "Archive",
     "readingElsewhere": "Reading elsewhere"
   },
