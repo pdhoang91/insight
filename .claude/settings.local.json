@@ -65,7 +65,12 @@
       "Bash(docker exec:*)",
       "Bash(dmesg -T)",
       "Bash(docker top:*)",
-      "Bash(echo \"exit: $?\")"
+      "Bash(echo \"exit: $?\")",
+      "Bash(wc -l /Users/anhoaian/Documents/pdhoang91/insight/frontend/components/**/*.js)",
+      "Bash(grep -rn \"border-b\\\\|border-bottom\\\\|borderBottom\" /Users/anhoaian/Documents/pdhoang91/insight/frontend --include=*.js --include=*.css --include=*.ts --exclude-dir=node_modules --exclude-dir=.next)",
+      "Bash(grep -rn \"border-t\\\\b\\\\|border-top\\\\|borderTop\" /Users/anhoaian/Documents/pdhoang91/insight/frontend --include=*.js --include=*.css --include=*.ts --exclude-dir=node_modules --exclude-dir=.next)",
+      "Bash(grep -rn \"border-l\\\\|border-r\\\\|borderLeft\\\\|borderRight\\\\|divide-y\\\\|divide-x\\\\|border\\\\|''''border''''\" /Users/anhoaian/Documents/pdhoang91/insight/frontend --include=*.js --include=*.css --exclude-dir=node_modules --exclude-dir=.next)",
+      "Bash(grep -rn \"border-l\\\\|border-r\\\\|borderLeft\\\\|borderRight\\\\|divide-y\\\\|divide-x\" /Users/anhoaian/Documents/pdhoang91/insight/frontend --include=*.js --include=*.css --exclude-dir=node_modules --exclude-dir=.next)"
     ]
   }
 }

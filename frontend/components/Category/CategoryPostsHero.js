@@ -14,7 +14,7 @@ const CategoryPostsHero = ({ categoryName, totalCount }) => {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: 'spring', stiffness: 100, damping: 20 }}
-      style={{ paddingBottom: '2rem', borderBottom: '1px solid var(--border)' }}
+      style={{ paddingBottom: '2rem' }}
     >
       {/* Breadcrumb */}
       <nav style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState, useCallback } from 'react';
-import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
+import { motion, useMotionValue, useTransform, useSpring, AnimatePresence } from 'framer-motion';
 
 // Magnetic Button with advanced cursor tracking
 export const MagneticButton = ({ 
@@ -159,23 +159,17 @@ export const ShimmerCard = ({
   aspectRatio = 'aspect-[4/3]'
 }) => {
   return (
-    <div className={`bg-white/60 backdrop-blur-sm rounded-[1.5rem] 
-                    border border-slate-200/50 overflow-hidden
-                    shadow-[0_10px_30px_-10px_rgba(26,20,16,0.03)] ${className}`}>
-      
+    <div className={`bg-[var(--bg-surface)] rounded-[var(--border-radius-xl)]
+                    border border-[var(--border)] overflow-hidden
+                    shadow-[var(--shadow-md)] ${className}`}>
+
       {/* Image placeholder with shimmer */}
-      <div className={`${aspectRatio} bg-slate-200 relative overflow-hidden`}>
+      <div className={`${aspectRatio} bg-[var(--bg-elevated)] relative overflow-hidden`}>
         <motion.div
-          className="absolute inset-0 bg-gradient-to-r from-transparent 
-                     via-white/60 to-transparent w-full"
-          animate={{
-            x: ["-100%", "100%"]
-          }}
-          transition={{
-            duration: 1.5,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
+          className="absolute inset-0 bg-gradient-to-r from-transparent
+                     via-[var(--bg-elevated)]/60 to-transparent w-full"
+          animate={{ x: ["-100%", "100%"] }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
         />
       </div>
 
@@ -183,14 +177,14 @@ export const ShimmerCard = ({
       <div className="p-6 space-y-4">
         {/* Title */}
         <div className="space-y-2">
-          <motion.div 
-            className="h-4 bg-slate-200 rounded-full w-3/4 relative overflow-hidden"
+          <motion.div
+            className="h-4 bg-[var(--bg-elevated)] rounded-full w-3/4 relative overflow-hidden"
             animate={{ opacity: [0.5, 0.8, 0.5] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
             <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-transparent 
-                         via-white/60 to-transparent w-full"
+              className="absolute inset-0 bg-gradient-to-r from-transparent
+                         via-[var(--border-mid)] to-transparent w-full"
               animate={{ x: ["-100%", "100%"] }}
               transition={{ duration: 1.2, repeat: Infinity, delay: 0.2 }}
             />
@@ -200,77 +194,63 @@ export const ShimmerCard = ({
         {/* Description lines */}
         <div className="space-y-2">
           {[...Array(lines)].map((_, i) => (
-            <motion.div 
+            <motion.div
               key={i}
-              className={`h-3 bg-slate-200 rounded-full relative overflow-hidden ${
+              className={`h-3 bg-[var(--bg-elevated)] rounded-full relative overflow-hidden ${
                 i === lines - 1 ? 'w-2/3' : 'w-full'
               }`}
               animate={{ opacity: [0.3, 0.6, 0.3] }}
-              transition={{ 
-                duration: 2, 
-                repeat: Infinity, 
-                delay: i * 0.1 
-              }}
+              transition={{ duration: 2, repeat: Infinity, delay: i * 0.1 }}
             >
               <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-transparent 
-                           via-white/60 to-transparent w-full"
+                className="absolute inset-0 bg-gradient-to-r from-transparent
+                           via-[var(--border-mid)] to-transparent w-full"
                 animate={{ x: ["-100%", "100%"] }}
-                transition={{ 
-                  duration: 1.2, 
-                  repeat: Infinity, 
-                  delay: 0.3 + i * 0.1 
-                }}
+                transition={{ duration: 1.2, repeat: Infinity, delay: 0.3 + i * 0.1 }}
               />
             </motion.div>
           ))}
         </div>
 
         {/* Footer with avatar if needed */}
-        <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+        <div className="flex items-center justify-between pt-4">
           <div className="flex items-center space-x-3">
             {showAvatar && (
-              <motion.div 
-                className="w-8 h-8 bg-slate-200 rounded-full relative overflow-hidden"
+              <motion.div
+                className="w-8 h-8 bg-[var(--bg-elevated)] rounded-full relative overflow-hidden"
                 animate={{ opacity: [0.4, 0.7, 0.4] }}
                 transition={{ duration: 1.5, repeat: Infinity }}
               >
                 <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent 
-                             via-white/60 to-transparent w-full"
+                  className="absolute inset-0 bg-gradient-to-r from-transparent
+                             via-[var(--border-mid)] to-transparent w-full"
                   animate={{ x: ["-100%", "100%"] }}
                   transition={{ duration: 1, repeat: Infinity, delay: 0.5 }}
                 />
               </motion.div>
             )}
-            <motion.div 
-              className="h-2 w-16 bg-slate-200 rounded-full relative overflow-hidden"
+            <motion.div
+              className="h-2 w-16 bg-[var(--bg-elevated)] rounded-full relative overflow-hidden"
               animate={{ opacity: [0.4, 0.7, 0.4] }}
               transition={{ duration: 1.8, repeat: Infinity }}
             >
               <motion.div
-                className="absolute inset-0 bg-gradient-to-r from-transparent 
-                           via-white/60 to-transparent w-full"
+                className="absolute inset-0 bg-gradient-to-r from-transparent
+                           via-[var(--border-mid)] to-transparent w-full"
                 animate={{ x: ["-100%", "100%"] }}
                 transition={{ duration: 1.1, repeat: Infinity, delay: 0.6 }}
               />
             </motion.div>
           </div>
-          
-          <motion.div 
-            className="w-6 h-6 bg-slate-200 rounded-full relative overflow-hidden"
-            animate={{ 
-              opacity: [0.4, 0.7, 0.4],
-              rotate: [0, 180, 360]
-            }}
-            transition={{ 
-              opacity: { duration: 1.5, repeat: Infinity },
-              rotate: { duration: 3, repeat: Infinity, ease: "linear" }
-            }}
+
+          <motion.div
+            className="w-6 h-6 bg-[var(--bg-elevated)] rounded-full relative overflow-hidden"
+            animate={{ opacity: [0.4, 0.7, 0.4] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
           >
             <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-transparent 
-                         via-white/60 to-transparent w-full"
+              className="absolute inset-0 bg-gradient-to-r from-transparent
+                         via-[var(--border-mid)] to-transparent w-full"
               animate={{ x: ["-100%", "100%"] }}
               transition={{ duration: 0.8, repeat: Infinity, delay: 0.7 }}
             />

@@ -18,7 +18,7 @@ import { useTranslations } from 'next-intl';
 const HomeHero = () => {
   const t = useTranslations();
   return (
-    <div className="animate-fade-up delay-0 grid pb-12 mb-12 border-b border-[var(--border)]"
+    <div className="animate-fade-up delay-0 grid pb-12 mb-12"
       style={{ gridTemplateColumns: '1fr auto', alignItems: 'end', gap: '2rem' }}
     >
       {/* Left: identity */}

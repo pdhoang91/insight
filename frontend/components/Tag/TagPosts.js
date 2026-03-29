@@ -12,7 +12,7 @@ const TagHeader = ({ tagName, totalCount }) => {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: 'spring', stiffness: 100, damping: 20 }}
-      style={{ paddingBottom: '2rem', borderBottom: '1px solid var(--border)' }}
+      style={{ paddingBottom: '2rem' }}
     >
       <p style={{
         fontFamily: 'var(--font-display)',

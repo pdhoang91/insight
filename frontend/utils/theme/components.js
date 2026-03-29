@@ -18,8 +18,7 @@ export const componentClasses = {
     'fixed top-0 left-0 right-0 z-50 transition-all duration-300',
     bg.primary + '/95',
     effects.blur,
-    border.primary,
-    'border-b shadow-sm'
+    'shadow-sm'
   ),
 
   postCard: combineClasses(
@@ -164,9 +163,9 @@ export const enhancedThemeClasses = {
   },
 
   utils: {
-    divider: combineClasses('border-t', border.primary, 'my-4'),
-    dividerVertical: combineClasses('border-l', border.primary, 'mx-4'),
-    dividerDashed: combineClasses('border-t border-dashed', border.primary, 'my-4'),
+    divider: 'my-4',
+    dividerVertical: 'mx-4',
+    dividerDashed: 'my-4',
 
     section: 'mb-6 sm:mb-8',
     sectionLarge: 'mb-8 sm:mb-12 lg:mb-16',
@@ -203,8 +202,8 @@ export const enhancedThemeClasses = {
     overlay: combineClasses('fixed inset-0 z-50 flex items-center justify-center', bg.primary + '/80', effects.blur),
     content: combineClasses('relative w-full max-w-md mx-4 p-6', bg.elevated, effects.rounded, effects.shadowLayeredLg, border.primary, 'border'),
     contentLarge: combineClasses('relative w-full max-w-2xl mx-4 p-8', bg.elevated, effects.rounded, effects.shadowLayeredLg, border.primary, 'border'),
-    header: combineClasses('pb-4 border-b', border.primary),
-    footer: combineClasses('pt-4 border-t', border.primary, 'flex justify-end space-x-3'),
+    header: 'pb-4',
+    footer: 'pt-4 flex justify-end space-x-3',
     closeButton: combineClasses('absolute top-4 right-4 p-1 rounded-full', text.muted, 'hover:text-medium-text-primary hover:bg-medium-hover', animations.smooth),
   },
 
@@ -271,7 +270,7 @@ export const enhancedThemeClasses = {
     container: combineClasses(bg.elevated, border.primary, effects.shadowLayeredMd, 'border rounded-lg py-2 min-w-[12rem]', animations.smooth),
     item: combineClasses('px-4 py-2 text-sm cursor-pointer flex items-center gap-3', text.primary, 'hover:bg-medium-hover', animations.smooth),
     itemDanger: combineClasses('px-4 py-2 text-sm cursor-pointer flex items-center gap-3', 'text-red-600 hover:bg-red-50 hover:text-red-700', animations.smooth),
-    divider: combineClasses('my-2 border-t', border.primary),
+    divider: 'my-2',
   },
 
   search: {

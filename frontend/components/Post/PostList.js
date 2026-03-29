@@ -73,11 +73,11 @@ const PostList = ({
   /* ─── Empty ─── */
   if (!posts || posts.length === 0) {
     return (
-      <div style={{ textAlign: 'center', padding: '4rem 0' }}>
-        <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: '1.25rem', letterSpacing: '-0.022em', color: 'var(--text)', marginBottom: '0.5rem' }}>
+      <div className="text-center py-16">
+        <h3 className="font-display text-xl font-extrabold tracking-tight text-[var(--text)] mb-2">
           {t('post.noStories')}
         </h3>
-        <p style={{ fontFamily: 'var(--font-body)', fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+        <p className="font-body text-sm text-[var(--text-muted)]">
           {t('post.beFirst')}
         </p>
       </div>
@@ -93,7 +93,7 @@ const PostList = ({
         next={fetchMore}
         hasMore={!isReachingEnd}
         loader={
-          <div style={{ marginTop: '2rem' }}>
+          <div className="mt-8">
             {[...Array(2)].map((_, i) => <PostItemSkeleton key={`l-${i}`} />)}
           </div>
         }

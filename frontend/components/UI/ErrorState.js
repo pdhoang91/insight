@@ -21,11 +21,11 @@ const ErrorState = ({
 
       {action && (
         action.href ? (
-          <Link href={action.href} className="inline-flex items-center px-4 py-2 text-[var(--text-inverse)] bg-[var(--accent)] hover:opacity-90 active:-translate-y-[1px] transition-all" style={{ borderRadius: '3px' }}>
+          <Link href={action.href} className="inline-flex items-center px-4 py-2 rounded-[3px] text-[var(--text-inverse)] bg-[var(--accent)] hover:opacity-90 active:-translate-y-[1px] transition-all">
             {action.label}
           </Link>
         ) : (
-          <button onClick={action.onClick} className="inline-flex items-center px-4 py-2 text-[var(--text-inverse)] bg-[var(--accent)] hover:opacity-90 active:-translate-y-[1px] transition-all" style={{ borderRadius: '3px' }}>
+          <button onClick={action.onClick} className="inline-flex items-center px-4 py-2 rounded-[3px] text-[var(--text-inverse)] bg-[var(--accent)] hover:opacity-90 active:-translate-y-[1px] transition-all">
             {action.label}
           </button>
         )

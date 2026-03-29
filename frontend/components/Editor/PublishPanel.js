@@ -93,11 +93,10 @@ const PublishPanel = ({
           position: 'sticky',
           top: 0,
           zIndex: 10,
-          background: 'rgba(242, 237, 228, 0.85)',
+          background: 'var(--bg)',
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
-          borderBottom: '1px solid var(--border)',
-          boxShadow: 'inset 0 -1px 0 rgba(255,255,255,0.1)',
+          boxShadow: 'var(--shadow-sm)',
         }}
       >
         <div
@@ -185,11 +184,12 @@ const PublishPanel = ({
                       fontWeight: 700,
                       color: 'var(--text)',
                       lineHeight: 1.3,
-                      background: 'transparent',
+                      background: 'var(--bg-surface)',
                       border: 0,
-                      borderBottom: '2px solid var(--accent)',
-                      outline: 'none',
-                      padding: '0 0 2px',
+                      outline: '2px solid var(--accent)',
+                      outlineOffset: '2px',
+                      borderRadius: '2px',
+                      padding: '0 4px',
                     }}
                   />
                   <button
@@ -257,12 +257,12 @@ const PublishPanel = ({
                   lineHeight: 1.6,
                   resize: 'none',
                   border: 0,
-                  borderBottom: '1px solid var(--border)',
                   outline: 'none',
-                  padding: '0.5rem 0',
+                  padding: '0.5rem 0.25rem',
                   background: 'transparent',
+                  borderRadius: '2px',
                 }}
-                className="focus:border-[var(--border-mid)] placeholder:text-[var(--text-faint)]"
+                className="focus:bg-[var(--bg-surface)] placeholder:text-[var(--text-faint)] transition-colors duration-200"
                 rows={2}
                 maxLength={280}
               />

@@ -24,11 +24,11 @@ const EmptyState = ({
 
       {action && (
         action.href ? (
-          <Link href={action.href} className="inline-flex items-center px-6 py-3 text-[var(--text-inverse)] bg-[var(--accent)] hover:opacity-90 active:-translate-y-[1px] transition-all" style={{ borderRadius: '3px' }}>
+          <Link href={action.href} className="inline-flex items-center px-6 py-3 rounded-[3px] text-[var(--text-inverse)] bg-[var(--accent)] hover:opacity-90 active:-translate-y-[1px] transition-all">
             {action.label}
           </Link>
         ) : (
-          <button onClick={action.onClick} className="inline-flex items-center px-6 py-3 text-[var(--text-inverse)] bg-[var(--accent)] hover:opacity-90 active:-translate-y-[1px] transition-all" style={{ borderRadius: '3px' }}>
+          <button onClick={action.onClick} className="inline-flex items-center px-6 py-3 rounded-[3px] text-[var(--text-inverse)] bg-[var(--accent)] hover:opacity-90 active:-translate-y-[1px] transition-all">
             {action.label}
           </button>
         )

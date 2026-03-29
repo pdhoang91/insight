@@ -38,20 +38,11 @@ const NavWriteAction = ({ isWritePage, onPublish, compact = false }) => {
     return (
       <button
         onClick={() => onPublish?.()}
-        style={{
-          fontFamily: 'var(--font-display)',
-          fontWeight: 600,
-          fontSize: compact ? '0.8rem' : '0.875rem',
-          letterSpacing: '-0.01em',
-          background: 'var(--accent)',
-          color: 'var(--text-inverse)',
-          padding: compact ? '0.4rem 0.85rem' : '0.45rem 1.1rem',
-          borderRadius: '3px',
-          border: 'none',
-          cursor: 'pointer',
-          transition: 'opacity 0.2s',
-        }}
-        className="hover:opacity-85"
+        className={[
+          'font-display font-semibold tracking-tight rounded-[3px] border-none cursor-pointer',
+          'bg-[var(--accent)] text-[var(--text-inverse)] transition-opacity duration-200 hover:opacity-85',
+          compact ? 'text-[0.8rem] px-[0.85rem] py-[0.4rem]' : 'text-[0.875rem] px-[1.1rem] py-[0.45rem]',
+        ].join(' ')}
       >
         {t('nav.publish')}
       </button>
@@ -62,8 +53,7 @@ const NavWriteAction = ({ isWritePage, onPublish, compact = false }) => {
     return (
       <button
         onClick={() => router.push('/write')}
-        style={{ padding: '6px', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s' }}
-        className="hover:text-[var(--text)]"
+        className="p-[6px] text-[var(--text-muted)] bg-transparent border-none cursor-pointer transition-colors duration-200 hover:text-[var(--text)]"
         aria-label="Write"
       >
         <PencilSimple size={20} weight="regular" />
@@ -74,21 +64,7 @@ const NavWriteAction = ({ isWritePage, onPublish, compact = false }) => {
   return (
     <button
       onClick={() => router.push('/write')}
-      style={{
-        fontFamily: 'var(--font-display)',
-        fontWeight: 500,
-        fontSize: '0.875rem',
-        color: 'var(--text-muted)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '6px',
-        background: 'none',
-        border: 'none',
-        cursor: 'pointer',
-        transition: 'color 0.2s',
-        letterSpacing: '-0.01em',
-      }}
-      className="hover:text-[var(--text)]"
+      className="flex items-center gap-[6px] font-display font-medium text-[0.875rem] tracking-tight text-[var(--text-muted)] bg-transparent border-none cursor-pointer transition-colors duration-200 hover:text-[var(--text)]"
     >
       <PencilSimple size={16} weight="regular" />
       {t('nav.write')}
@@ -129,10 +105,9 @@ const Navbar = () => {
     <nav
       style={{
         background: scrolled ? 'var(--bg)' : 'transparent',
-        borderBottom: scrolled ? '1px solid rgba(26, 20, 16, 0.11)' : '1px solid transparent',
         backdropFilter: scrolled ? 'blur(12px)' : 'none',
         WebkitBackdropFilter: scrolled ? 'blur(12px)' : 'none',
-        transition: 'background 0.3s ease, border-color 0.3s ease, backdrop-filter 0.3s ease',
+        transition: 'background 0.3s ease, backdrop-filter 0.3s ease',
       }}
       className="fixed top-0 left-0 right-0 z-50"
     >
@@ -142,15 +117,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link
             href="/"
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 800,
-              fontSize: '1.35rem',
-              letterSpacing: '-0.03em',
-              color: 'var(--text)',
-              lineHeight: 1,
-            }}
-            className="hover:opacity-70 transition-opacity duration-200"
+            className="font-display font-extrabold text-[1.35rem] tracking-[-0.03em] leading-none text-[var(--text)] hover:opacity-70 transition-opacity duration-200"
           >
             Insight
           </Link>
@@ -171,8 +138,7 @@ const Navbar = () => {
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center"
-                  style={{ padding: '2px', transition: 'opacity 0.2s' }}
+                  className="flex items-center p-[2px] transition-opacity duration-200"
                 >
                   <Avatar src={user.avatar_url} name={user.name} size="sm" />
                 </button>
@@ -184,42 +150,23 @@ const Navbar = () => {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -6, scale: 0.97 }}
                       transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                      style={{
-                        position: 'absolute',
-                        right: 0,
-                        marginTop: '10px',
-                        width: 220,
-                        background: 'var(--bg)',
-                        border: '1px solid var(--border-mid)',
-                        borderRadius: '4px',
-                        boxShadow: 'var(--shadow-lg)',
-                        overflow: 'hidden',
-                        zIndex: 50,
-                      }}
+                      className="absolute right-0 mt-[10px] w-[220px] bg-[var(--bg)] border border-[var(--border-mid)] rounded-[4px] shadow-[var(--shadow-lg)] overflow-hidden z-50"
                     >
                       <Link
                         href={`/${user.username}`}
-                        style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px' }}
+                        className="flex items-center gap-[10px] px-4 py-3"
                         onClick={() => setIsUserMenuOpen(false)}
                       >
                         <Avatar src={user.avatar_url} name={user.name} size="md" />
-                        <div style={{ minWidth: 0 }}>
-                          <div style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '0.875rem', color: 'var(--text)', letterSpacing: '-0.01em' }} className="truncate">{user.name}</div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-faint)' }} className="truncate">{user.email}</div>
+                        <div className="min-w-0">
+                          <div className="font-display font-semibold text-sm tracking-tight text-[var(--text)] truncate">{user.name}</div>
+                          <div className="text-xs text-[var(--text-faint)] truncate">{user.email}</div>
                         </div>
                       </Link>
 
                       <button
                         onClick={handleLogout}
-                        style={{
-                          width: '100%', display: 'flex', alignItems: 'center', gap: 8,
-                          padding: '10px 16px', background: 'none', border: 'none', cursor: 'pointer',
-                          fontFamily: 'var(--font-display)', fontSize: '0.875rem',
-                          color: 'var(--text-muted)', letterSpacing: '-0.01em',
-                          transition: 'color 0.15s',
-                          textAlign: 'left',
-                        }}
-                        className="hover:text-[var(--text)]"
+                        className="w-full flex items-center gap-2 px-4 py-[10px] bg-transparent border-none cursor-pointer font-display text-sm tracking-tight text-[var(--text-muted)] text-left transition-colors duration-150 hover:text-[var(--text)]"
                       >
                         <SignOut size={16} weight="regular" />
                         {t('nav.logout')}
@@ -232,20 +179,7 @@ const Navbar = () => {
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => setModalOpen(true)}
-                  style={{
-                    fontFamily: 'var(--font-display)',
-                    fontWeight: 500,
-                    fontSize: '0.875rem',
-                    letterSpacing: '-0.01em',
-                    color: 'var(--text-muted)',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    paddingBottom: '1px',
-                    borderBottom: '1px solid var(--border-mid)',
-                    transition: 'color 0.2s, border-color 0.2s',
-                  }}
-                  className="hover:text-[var(--text)] hover:border-[var(--accent)]"
+                  className="font-display font-medium text-sm tracking-tight text-[var(--text-muted)] bg-transparent border-none cursor-pointer transition-colors duration-200 hover:text-[var(--text)]"
                 >
                   {t('nav.login')}
                 </button>
@@ -263,16 +197,14 @@ const Navbar = () => {
             )}
             <Link
               href="/explore"
-              style={{ padding: '6px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', transition: 'color 0.2s' }}
-              className="hover:text-[var(--text)]"
+              className="p-[6px] flex items-center text-[var(--text-muted)] transition-colors duration-200 hover:text-[var(--text)]"
               aria-label="Explore"
             >
               <Compass size={20} weight="regular" />
             </Link>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              style={{ padding: '6px', color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer', transition: 'color 0.2s' }}
-              className="hover:text-[var(--text)]"
+              className="p-[6px] text-[var(--text-muted)] bg-transparent border-none cursor-pointer transition-colors duration-200 hover:text-[var(--text)]"
               aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
             >
               <List size={20} weight="regular" />
@@ -292,24 +224,24 @@ const Navbar = () => {
           variants={panelContainer}
           initial="hidden"
           animate="visible"
-          style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
+          className="flex flex-col gap-2"
         >
           {user && (
             <motion.div variants={panelItem}>
               <Link
                 href={`/${user.username}`}
-                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0' }}
+                className="flex items-center gap-[10px] py-2"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <Avatar src={user.avatar_url} name={user.name} size="sm" />
-                <span style={{ fontFamily: 'var(--font-display)', fontWeight: 600, fontSize: '0.9rem', color: 'var(--text)', letterSpacing: '-0.01em' }}>
+                <span className="font-display font-semibold text-[0.9rem] tracking-tight text-[var(--text)]">
                   {user.name}
                 </span>
               </Link>
             </motion.div>
           )}
 
-          <motion.div variants={panelItem} style={{ padding: '4px 0' }}>
+          <motion.div variants={panelItem} className="py-1">
             <LanguageTogglePill variant="panel" />
           </motion.div>
 
@@ -317,12 +249,7 @@ const Navbar = () => {
             <motion.div variants={panelItem}>
               <button
                 onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 8, width: '100%',
-                  fontFamily: 'var(--font-display)', fontSize: '0.875rem',
-                  color: 'var(--text-muted)', background: 'none', border: 'none', cursor: 'pointer',
-                  letterSpacing: '-0.01em', padding: '8px 0', textAlign: 'left',
-                }}
+                className="flex items-center gap-2 w-full font-display text-sm tracking-tight text-[var(--text-muted)] bg-transparent border-none cursor-pointer py-2 text-left"
               >
                 <SignOut size={16} weight="regular" />
                 {t('nav.logout')}
@@ -332,13 +259,7 @@ const Navbar = () => {
             <motion.div variants={panelItem}>
               <button
                 onClick={() => { setIsMobileMenuOpen(false); setModalOpen(true); }}
-                style={{
-                  fontFamily: 'var(--font-display)', fontWeight: 500, fontSize: '0.875rem',
-                  letterSpacing: '-0.01em', color: 'var(--text)',
-                  background: 'none', border: '1px solid var(--border-mid)',
-                  borderRadius: '3px', padding: '8px 16px', cursor: 'pointer',
-                  alignSelf: 'flex-start',
-                }}
+                className="font-display font-medium text-sm tracking-tight text-[var(--text)] bg-transparent border border-[var(--border-mid)] rounded-[3px] px-4 py-2 cursor-pointer self-start"
               >
                 {t('nav.login')}
               </button>

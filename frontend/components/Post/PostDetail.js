@@ -26,7 +26,7 @@ export const PostDetail = ({ post, htmlContent, relatedPosts = [] }) => {
 
   if (!post) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 240, color: 'var(--text-muted)', fontFamily: 'var(--font-display)' }}>
+      <div className="flex items-center justify-center h-60 font-display text-[var(--text-muted)]">
         {t('common.loading')}
       </div>
     );
@@ -109,7 +109,7 @@ export const PostDetail = ({ post, htmlContent, relatedPosts = [] }) => {
               <Link
                 key={`bottom-${cat.id || ''}-${cat.name}-${i}`}
                 href={`/category/${cat.name.toLowerCase()}`}
-                className="taxonomy-pill hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                className="taxonomy-pill"
               >
                 {cat.name}
               </Link>
@@ -118,7 +118,7 @@ export const PostDetail = ({ post, htmlContent, relatedPosts = [] }) => {
         )}
 
         {relatedPosts.length > 0 && (
-          <div style={{ marginTop: '3rem' }}>
+          <div className="mt-12">
             <RelatedPosts posts={relatedPosts} currentPostId={post.id} />
           </div>
         )}

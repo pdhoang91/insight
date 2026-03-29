@@ -32,8 +32,6 @@ const SkeletonAvatar = ({ size = 'md' }) => {
 const PostSkeleton = ({ variant = 'card' }) => {
   const containerClasses = combineClasses(
     themeClasses.bg.card,
-    'border-b',
-    themeClasses.border.primary,
     'pb-8 mb-8 overflow-hidden animate-pulse'
   );
 

@@ -133,8 +133,7 @@ const CommentItem = ({ comment, postId, mutate }) => {
               >
                 <div style={{
                   marginTop: '1.25rem',
-                  paddingLeft: '1rem',
-                  borderLeft: '2px solid var(--border)',
+                  paddingLeft: '1.25rem',
                 }}>
                   <ReplyList
                     replies={replies}

@@ -85,7 +85,6 @@ const TextHighlighter = ({ children, className = '' }) => {
 
   const handleComment = () => {
     // TODO: Open comment modal with selected text
-    console.log('Comment on:', selectedText);
     setShowToolbar(false);
   };
 

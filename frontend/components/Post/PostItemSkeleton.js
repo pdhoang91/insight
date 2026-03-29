@@ -1,6 +1,6 @@
 // components/Post/PostItemSkeleton.js — matches BasePostItem default layout
 const PostItemSkeleton = () => (
-  <div className="border-b border-[var(--border)] mb-5">
+  <div className="mb-5">
     {/* Cover image placeholder — full width, 16:9 */}
     <div className="skeleton-warm w-full" style={{ paddingTop: '56.25%' }} />
 

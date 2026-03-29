@@ -43,7 +43,7 @@ const PostFeed = ({
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '2.5rem' }}>
+    <div className="flex flex-col gap-10">
       {header}
       <MasonryPostGrid
         posts={posts}

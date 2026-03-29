@@ -28,7 +28,6 @@ const Footer = () => {
     <footer
       style={{
         background: 'var(--bg)',
-        borderTop: '1px solid var(--border)',
         marginTop: '6rem',
         position: 'relative',
         overflow: 'hidden',
@@ -117,7 +116,6 @@ const Footer = () => {
             justifyContent: 'space-between',
             flexWrap: 'wrap',
             gap: '0.75rem',
-            borderTop: '1px solid var(--border)',
             paddingTop: '1.25rem',
           }}
         >

@@ -14,7 +14,7 @@ const isLocalImage = (src) => src?.includes('localhost');
 
 /* ─── Section header ─── */
 const SidebarSection = ({ title, children }) => (
-  <div className="pb-[1.75rem] mb-[1.75rem] border-b border-[var(--border)] last:border-0 last:pb-0 last:mb-0">
+  <div className="pb-[1.75rem] mb-[1.75rem] last:pb-0 last:mb-0">
     <p className="ui-section-header mb-[1.1rem]">{title}</p>
     {children}
   </div>
@@ -61,7 +61,7 @@ const PersonalBlogSidebar = ({ initialHomeData }) => {
             ))}
           </div>
         ) : (
-          <div className="divide-y divide-[var(--border)]">
+          <div className="space-y-1">
             {popularPosts.slice(0, 10).map((post) => (
               <article key={post.id}>
                 <Link href={`/p/${post.slug}`} className="flex gap-3 py-3 group">

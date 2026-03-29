@@ -88,16 +88,16 @@ const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId =
             style={{
               width: '100%',
               resize: 'none',
-              background: 'transparent',
+              background: isFocused ? 'var(--bg-surface)' : 'transparent',
               fontFamily: 'var(--font-body)',
               fontSize: '0.9rem',
               lineHeight: 1.65,
               color: 'var(--text)',
               outline: 'none',
               border: 'none',
-              borderBottom: `1px solid ${isFocused ? 'var(--border-mid)' : 'var(--border)'}`,
-              paddingBottom: '0.5rem',
-              transition: 'border-color 0.2s',
+              borderRadius: '2px',
+              padding: '0.35rem 0.5rem 0.5rem',
+              transition: 'background 0.2s',
             }}
           />
 

@@ -100,7 +100,7 @@ const PostCard = ({ post, index, locale, t }) => {
         visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100, damping: 20 } },
       }}
       exit={{ opacity: 0, transition: { duration: 0.15 } }}
-      className="group bg-[var(--bg-surface)] border-r border-[var(--border)]"
+      className="group bg-[var(--bg-surface)]"
     >
       <Link href={`/p/${post.slug}`} className="block p-7 no-underline">
         {/* Cover image */}
@@ -131,7 +131,7 @@ const PostCard = ({ post, index, locale, t }) => {
         )}
 
         {/* Meta */}
-        <div className="flex items-center justify-between pt-4 border-t border-[var(--border)]">
+        <div className="flex items-center justify-between pt-4">
           <div className="flex items-center gap-2">
             <span className="ui-label tracking-[-0.01em]">{dateStr}</span>
             {post.reading_time && (

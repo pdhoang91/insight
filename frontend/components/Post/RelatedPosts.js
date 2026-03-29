@@ -14,31 +14,13 @@ const RelatedPosts = ({ posts = [], currentPostId, className = '' }) => {
 
   return (
     <div className={className}>
-      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
-        <p
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: '0.66rem',
-            fontWeight: 600,
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-            color: 'var(--text-faint)',
-            margin: 0,
-          }}
-        >
+      <div className="flex items-baseline justify-between mb-5">
+        <p className="ui-section-header">
           {t('post.relatedReading')}
         </p>
         <Link
           href="/search"
-          style={{
-            fontFamily: 'var(--font-display)',
-            fontSize: '0.75rem',
-            fontWeight: 500,
-            color: 'var(--text-faint)',
-            letterSpacing: '-0.01em',
-            transition: 'color 0.2s',
-          }}
-          className="hover:text-[var(--accent)]"
+          className="font-display text-[0.75rem] font-medium tracking-tight text-[var(--text-faint)] transition-colors duration-200 hover:text-[var(--accent)]"
         >
           {t('post.browseAll')}
         </Link>

@@ -28,14 +28,11 @@ const StickyCategoryBar = ({ categories = [] }) => {
         className="sticky z-30 px-4 md:px-6"
         style={{
           top: 'var(--nav-height)',
-          background: isStuck ? 'rgba(242, 237, 228, 0.96)' : 'transparent',
+          background: isStuck ? 'var(--bg)' : 'transparent',
           backdropFilter: isStuck ? 'blur(16px)' : 'none',
           WebkitBackdropFilter: isStuck ? 'blur(16px)' : 'none',
-          borderBottom: isStuck
-            ? '1px solid var(--border)'
-            : '1px solid transparent',
           transition:
-            'background 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s, backdrop-filter 0.3s',
+            'background 0.4s cubic-bezier(0.16, 1, 0.3, 1), backdrop-filter 0.3s',
         }}
       >
         <div
@@ -46,19 +43,18 @@ const StickyCategoryBar = ({ categories = [] }) => {
             <Link
               key={cat.id}
               href={`/category/${cat.name.toLowerCase()}`}
-              className="flex-shrink-0 hover:border-[var(--accent)] hover:text-[var(--accent)]"
+              className="flex-shrink-0 hover:bg-[var(--bg-elevated)] hover:text-[var(--accent)]"
               style={{
                 display: 'inline-block',
                 padding: '0.3rem 0.85rem',
-                border: '1px solid var(--border)',
                 borderRadius: '9999px',
                 fontFamily: 'var(--font-body)',
                 fontSize: '0.8rem',
                 color: 'var(--text-muted)',
                 textDecoration: 'none',
-                background: 'var(--bg)',
+                background: 'var(--bg-surface)',
                 whiteSpace: 'nowrap',
-                transition: 'border-color 0.2s, color 0.2s',
+                transition: 'background 0.2s, color 0.2s',
               }}
             >
               {cat.name}

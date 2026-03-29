@@ -8,7 +8,6 @@ import { useRouter } from 'next/navigation';
 import DOMPurify from 'isomorphic-dompurify';
 import TextUtils from '../../utils/TextUtils';
 import TimeAgo from '../UI/TimeAgo';
-import { useUser } from '../../context/UserContext';
 import { deletePost } from '../../services/postService';
 import { useTranslations } from 'next-intl';
 
@@ -18,11 +17,10 @@ const BasePostItem = ({
   variant = 'default',
   showOwnerActions = false,
 }) => {
-  if (!post) return null;
-
   const router = useRouter();
-  const { user } = useUser();
   const t = useTranslations();
+
+  if (!post) return null;
 
   const isPostOwner = showOwnerActions;
 
@@ -136,14 +134,14 @@ const BasePostItem = ({
         {/* Meta row */}
         <div className="flex items-center gap-5 mb-6">
           <span className="flex items-center gap-[0.35rem] ui-label">
-            <Clock weight="regular" style={{ width: 13, height: 13 }} />
+            <Clock size={13} weight="regular" />
             <TimeAgo timestamp={post.created_at} />
           </span>
           <Link
             href={`/p/${post.slug}#comments`}
             className="flex items-center gap-[0.35rem] ui-label-caps hover:text-[var(--accent)]"
           >
-            <ChatCircle weight="regular" style={{ width: 13, height: 13 }} />
+            <ChatCircle size={13} weight="regular" />
             {t('post.leaveComment')}
           </Link>
         </div>
@@ -175,11 +173,11 @@ const BasePostItem = ({
         {/* Owner actions */}
         {isPostOwner && (
           <div className="flex gap-2 mt-4">
-            <Link href={`/edit/${post.slug}`} className="action-btn hover:text-[var(--text)] hover:border-[var(--border-mid)]">
-              <PencilSimple style={{ width: 10, height: 10 }} />{t('common.edit')}
+            <Link href={`/edit/${post.slug}`} className="action-btn hover:text-[var(--text)] hover:bg-[var(--bg-elevated)]">
+              <PencilSimple size={10} />{t('common.edit')}
             </Link>
-            <button onClick={handleDelete} className="action-btn hover:text-[#DC2626] hover:border-[#DC2626]/30">
-              <Trash style={{ width: 10, height: 10 }} />{t('common.delete')}
+            <button onClick={handleDelete} className="action-btn hover:text-[#DC2626] hover:bg-[#DC2626]/10">
+              <Trash size={10} />{t('common.delete')}
             </button>
           </div>
         )}
