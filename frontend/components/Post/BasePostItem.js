@@ -24,7 +24,7 @@ const BasePostItem = ({
   const { user } = useUser();
   const t = useTranslations();
 
-  const isPostOwner = showOwnerActions || (user?.id != null && user.id === post.user?.id);
+  const isPostOwner = showOwnerActions;
 
   const handleDelete = async () => {
     if (!window.confirm(t('common.confirmDelete'))) return;
