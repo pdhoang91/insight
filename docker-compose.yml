@@ -22,7 +22,6 @@ services:
    depends_on:
      - frontend
      - application
-     - search-service
    networks:
      - app-network
 
@@ -126,7 +125,6 @@ services:
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - GOOGLE_REDIRECT_URL=${GOOGLE_REDIRECT_URL}
-      - BASE_SEARCH_API_URL=http://search_service:83
       - BASE_API_URL=${BASE_API_URL}
       - BASE_FE_URL=${BASE_FE_URL}
       - BASE_API_URL=${BASE_API_URL}
@@ -146,46 +144,6 @@ services:
     #   options:
     #     fluentd-address: localhost:24224
     #     tag: docker.application
-
-
-  search-service:
-    container_name: search_service
-    build:
-      context: ./backend/search-service
-      cache_from:
-        - golang:1.23-alpine
-        - alpine:3.19
-      target: runner
-    expose:                           # Internal port only, accessed via nginx
-      - "83"
-    ports:                           # Internal port only, accessed via nginx
-      - "83:83"
-    # volumes:
-    #   - ./search-service/images:/app/images/uploads  # Mount thư mục uploads của image-service
-    depends_on:
-      db:
-        condition: service_healthy
-      db-migrate:
-        condition: service_completed_successfully
-      #- fluentd
-    environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_USER=${POSTGRES_USER}
-      - DB_PASSWORD=${POSTGRES_PASSWORD}
-      - DB_NAME=${POSTGRES_DB}
-      - MAX_OPEN_CONNS=10
-      - MAX_IDLE_CONNS=5
-
-      - BASE_API_URL=${BASE_API_URL}
-      - LOG_LEVEL=DEBUG
-    networks:
-      - app-network
-    # logging:
-    #   driver: "fluentd"
-    #   options:
-    #     fluentd-address: localhost:24224
-    #     tag: docker.search_service
 
 
   frontend:

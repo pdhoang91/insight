@@ -79,7 +79,9 @@
       "Bash(go version:*)",
       "Bash(/opt/homebrew/bin/go build:*)",
       "Bash(/opt/homebrew/bin/go vet:*)",
-      "Bash(/opt/homebrew/bin/go mod:*)"
+      "Bash(/opt/homebrew/bin/go mod:*)",
+      "Bash(grep -rn \"search\" /Users/anhoaian/Documents/pdhoang91/insight/frontend/.env*)",
+      "Bash(grep -rn \"search\" /Users/anhoaian/Documents/pdhoang91/insight/.env*)"
     ]
   }
 }

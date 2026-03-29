@@ -76,12 +76,12 @@ const Layout = ({
   ...props
 }) => {
   const containerVariants = {
-    container: 'max-w-[1192px] mx-auto px-4 md:px-6 lg:px-8',
-    article: 'max-w-[680px] mx-auto px-4 md:px-6',
-    reading: 'max-w-[800px] mx-auto px-4 md:px-6',
-    wide: 'max-w-[1400px] mx-auto px-4 md:px-6 lg:px-8',
-    compact: 'max-w-[600px] mx-auto px-4 md:px-6',
-    full: 'w-full px-4 md:px-6 lg:px-8',
+    container: 'max-w-[1280px] mx-auto px-3 md:px-5 lg:px-6',
+    article: 'max-w-[680px] mx-auto px-3 md:px-5',
+    reading: 'max-w-[800px] mx-auto px-3 md:px-5',
+    wide: 'max-w-[1440px] mx-auto px-3 md:px-5 lg:px-6',
+    compact: 'max-w-[600px] mx-auto px-3 md:px-5',
+    full: 'w-full px-3 md:px-5 lg:px-6',
   };
 
   const containerClass = containerVariants[variant] || containerVariants.container;
