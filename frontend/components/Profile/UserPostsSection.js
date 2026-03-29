@@ -18,7 +18,7 @@ const UserPostsSection = ({ posts, isLoading, isError, setSize, isReachingEnd, i
     if (!post || !post.id) return null;
     return (
       <div key={post.id} className="pb-20">
-        <BasePostItem post={post} showOwnerActions={isOwner} />
+        <BasePostItem post={post} showOwnerActions />
       </div>
     );
   };
