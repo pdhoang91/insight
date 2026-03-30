@@ -19,13 +19,14 @@ import (
 // It is an internal value object – not a domain entity – because it is a
 // projection used only by the search feature.
 type SearchPostRow struct {
-	ID        uuid.UUID
-	Title     string
-	Slug      string
-	Excerpt   string
-	UserID    uuid.UUID
-	CreatedAt time.Time
-	Views     uint64
+	ID         uuid.UUID
+	Title      string
+	Slug       string
+	Excerpt    string
+	CoverImage string
+	UserID     uuid.UUID
+	CreatedAt  time.Time
+	Views      uint64
 }
 
 // SearchRepository encapsulates all database operations needed by the search feature.
@@ -144,20 +145,21 @@ func (r *pgSearchRepository) InitializeIndexes() error {
 
 // rawSearchRow mirrors exactly the columns selected in Search.
 type rawSearchRow struct {
-	ID        uuid.UUID `gorm:"column:id"`
-	Title     string    `gorm:"column:title"`
-	Slug      string    `gorm:"column:slug"`
-	Excerpt   string    `gorm:"column:excerpt"`
-	UserID    uuid.UUID `gorm:"column:user_id"`
-	CreatedAt time.Time `gorm:"column:created_at"`
-	Views     uint64    `gorm:"column:views"`
+	ID         uuid.UUID `gorm:"column:id"`
+	Title      string    `gorm:"column:title"`
+	Slug       string    `gorm:"column:slug"`
+	Excerpt    string    `gorm:"column:excerpt"`
+	CoverImage string    `gorm:"column:cover_image"`
+	UserID     uuid.UUID `gorm:"column:user_id"`
+	CreatedAt  time.Time `gorm:"column:created_at"`
+	Views      uint64    `gorm:"column:views"`
 }
 
 // Search implements SearchRepository.
 func (r *pgSearchRepository) Search(normalizedQuery, rawQuery string, limit, offset int) ([]SearchPostRow, int64, error) {
 	base := r.db.Table("posts").
 		Joins("LEFT JOIN post_contents ON post_contents.post_id = posts.id AND post_contents.deleted_at IS NULL").
-		Select("DISTINCT posts.id, posts.title, posts.slug, posts.excerpt, posts.user_id, posts.created_at, posts.views").
+		Select("DISTINCT posts.id, posts.title, posts.slug, posts.excerpt, posts.cover_image, posts.user_id, posts.created_at, posts.views").
 		Where("posts.deleted_at IS NULL").
 		Order("posts.created_at DESC")
 
@@ -193,13 +195,14 @@ func (r *pgSearchRepository) Search(normalizedQuery, rawQuery string, limit, off
 	result := make([]SearchPostRow, len(rows))
 	for i, row := range rows {
 		result[i] = SearchPostRow{
-			ID:        row.ID,
-			Title:     row.Title,
-			Slug:      row.Slug,
-			Excerpt:   row.Excerpt,
-			UserID:    row.UserID,
-			CreatedAt: row.CreatedAt,
-			Views:     row.Views,
+			ID:         row.ID,
+			Title:      row.Title,
+			Slug:       row.Slug,
+			Excerpt:    row.Excerpt,
+			CoverImage: row.CoverImage,
+			UserID:     row.UserID,
+			CreatedAt:  row.CreatedAt,
+			Views:      row.Views,
 		}
 	}
 	return result, total, nil

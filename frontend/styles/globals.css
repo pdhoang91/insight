@@ -1025,6 +1025,10 @@ a {
     padding: 2rem 1.25rem 2.75rem;
   }
 }
+/* No cover image — panel starts at top, no overlap needed */
+.post-card-panel--no-image {
+  margin-top: 0;
+}
 
 /* ── Tag chip: pentagon shape (arrow pointing right) ── */
 .tag-chip {

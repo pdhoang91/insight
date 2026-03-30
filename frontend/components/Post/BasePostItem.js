@@ -91,7 +91,7 @@ const BasePostItem = ({
     <article className="group bg-[var(--bg)]">
 
       {/* ── Layer 1: image strip (top ~1/3 of card) ── */}
-      {post.cover_image ? (
+      {post.cover_image && (
         <Link href={`/p/${post.slug}`} className="block">
           <div className="post-card-img">
             <Image
@@ -106,13 +106,10 @@ const BasePostItem = ({
             />
           </div>
         </Link>
-      ) : (
-        /* No image — thin accent bar so panel still has something to overlap */
-        <div style={{ height: '0.5rem', background: 'var(--accent)', opacity: 0.15 }} />
       )}
 
-      {/* ── Layer 2: floating content panel (overlaps image) ── */}
-      <div className="post-card-panel">
+      {/* ── Layer 2: floating content panel (overlaps image when present) ── */}
+      <div className={`post-card-panel${post.cover_image ? '' : ' post-card-panel--no-image'}`}>
 
         {/* Categories */}
         {post.categories?.length > 0 && (

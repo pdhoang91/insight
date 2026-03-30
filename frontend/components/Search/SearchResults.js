@@ -65,7 +65,9 @@ const SearchResults = ({ query }) => {
       >
         <div>
           {stories.map((story, index) => (
-            <BasePostItem key={`${story?.id || index}-${index}`} post={story} />
+            <div key={`${story?.id || index}-${index}`} className="pb-20">
+              <BasePostItem post={story} />
+            </div>
           ))}
         </div>
       </InfiniteScroll>

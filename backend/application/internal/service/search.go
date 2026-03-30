@@ -117,13 +117,14 @@ func buildPostResponse(
 	userMap map[uuid.UUID]entities.User,
 ) *dto.PostResponse {
 	resp := &dto.PostResponse{
-		ID:        row.ID,
-		Title:     row.Title,
-		Slug:      row.Slug,
-		Excerpt:   row.Excerpt,
-		Views:     row.Views,
-		CreatedAt: row.CreatedAt,
-		UpdatedAt: row.CreatedAt,
+		ID:         row.ID,
+		Title:      row.Title,
+		Slug:       row.Slug,
+		Excerpt:    row.Excerpt,
+		CoverImage: row.CoverImage,
+		Views:      row.Views,
+		CreatedAt:  row.CreatedAt,
+		UpdatedAt:  row.CreatedAt,
 	}
 
 	for _, t := range tags {
