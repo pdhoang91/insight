@@ -50,6 +50,7 @@ func DefineAPIRoutes(r *gin.Engine, ctrl *controller.Controller) {
 		// Tags
 		public.GET("/tags", ctrl.Tag.ListTags)
 		public.GET("/tags/popular", ctrl.Tag.GetPopularTags)
+		public.GET("/tags/search", ctrl.Tag.SearchTags)
 		public.GET("/tags/:name/posts", ctrl.Post.GetPostsByTag)
 
 		// Users

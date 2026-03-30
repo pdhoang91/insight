@@ -100,3 +100,25 @@ func (c *TagController) GetPopularTags(ctx *gin.Context) {
 		"limit": req.Limit, "offset": req.Offset,
 	})
 }
+
+func (c *TagController) SearchTags(ctx *gin.Context) {
+	query := ctx.Query("q")
+	if query == "" {
+		ctx.JSON(http.StatusOK, gin.H{"data": []interface{}{}})
+		return
+	}
+
+	req, err := parsePagination(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid query parameters"})
+		return
+	}
+
+	responses, err := c.svc.SearchTags(query, req.Limit)
+	if err != nil {
+		respondError(ctx, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"data": ensureNotNil(responses)})
+}

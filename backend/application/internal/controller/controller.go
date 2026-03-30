@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -43,7 +44,11 @@ func NewController(svc service.Service) *Controller {
 // --- Shared helpers ---
 
 func respondError(ctx *gin.Context, err error) {
-	ctx.JSON(apperror.HTTPCode(err), gin.H{"error": apperror.UserMessage(err)})
+	code := apperror.HTTPCode(err)
+	if code >= 500 {
+		log.Printf("ERROR %s %s → %v", ctx.Request.Method, ctx.Request.URL.Path, err)
+	}
+	ctx.JSON(code, gin.H{"error": apperror.UserMessage(err)})
 }
 
 // respondOK returns a 200 response with `{"data": data}`.

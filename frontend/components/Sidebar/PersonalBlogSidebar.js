@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import useSWR from 'swr';
 import { useHomeData } from '../../hooks/useHomeData';
 import { useArchiveSummary } from '../../hooks/useArchiveSummary';
@@ -29,9 +29,66 @@ const AuthorBio = () => (
   </div>
 );
 
+/* ─── Recent Posts widget ─── */
+const RecentPosts = ({ posts, isLoading }) => {
+  const t = useTranslations();
+  const locale = useLocale();
+
+  if (isLoading) {
+    return (
+      <div className="space-y-3">
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="flex flex-col gap-1.5 py-1">
+            <div className="h-3 bg-[var(--bg-surface)] rounded animate-pulse w-full" />
+            <div className="h-3 bg-[var(--bg-surface)] rounded animate-pulse w-3/4" />
+            <div className="h-2.5 bg-[var(--bg-surface)] rounded animate-pulse w-1/3 mt-0.5" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (!posts?.length) return null;
+
+  return (
+    <div className="space-y-0">
+      {posts.slice(0, 6).map((post, i) => (
+        <article
+          key={post.id}
+          className="group flex gap-3 py-[0.7rem] border-b border-[var(--border)] last:border-0"
+        >
+          {/* Index number */}
+          <span
+            className="flex-shrink-0 font-display font-800 text-[1.1rem] leading-none mt-[2px] w-5 text-right"
+            style={{ color: 'var(--accent)', opacity: 0.5, fontWeight: 800 }}
+            aria-hidden="true"
+          >
+            {String(i + 1).padStart(2, '0')}
+          </span>
+
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            <Link href={`/p/${post.slug}`} className="block">
+              <h4 className="post-card-title-sm post-title-hover line-clamp-2 mb-1">
+                {post.title}
+              </h4>
+            </Link>
+            <span className="ui-label">
+              {new Date(post.created_at).toLocaleDateString(
+                locale === 'vi' ? 'vi-VN' : 'en-US',
+                { day: 'numeric', month: 'short', year: 'numeric' }
+              )}
+            </span>
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+};
+
 const PersonalBlogSidebar = ({ initialHomeData }) => {
   const t = useTranslations();
-  const { categories, popularPosts, isLoading: homeLoading } = useHomeData(initialHomeData);
+  const { categories, popularPosts, latestPosts, isLoading: homeLoading } = useHomeData(initialHomeData);
   const { archiveList } = useArchiveSummary();
   const { data: popularTags, isLoading: tagsLoading } = useSWR(
     '/tags/popular',
@@ -45,6 +102,10 @@ const PersonalBlogSidebar = ({ initialHomeData }) => {
   return (
     <div>
       <AuthorBio />
+
+      <SidebarSection title={t('sidebar.recentPosts')}>
+        <RecentPosts posts={latestPosts} isLoading={postsLoading} />
+      </SidebarSection>
 
       <SidebarSection title={t('sidebar.popularPosts')}>
         {postsLoading ? (

@@ -70,6 +70,24 @@ func (s *InsightService) GetPopularTags(limit int) ([]*dto.TagResponse, error) {
 	return responses, nil
 }
 
+// SearchTags searches tags by name prefix
+func (s *InsightService) SearchTags(query string, limit int) ([]*dto.TagResponse, error) {
+	if limit == 0 {
+		limit = 10
+	}
+
+	tags, err := s.tagRepo.Search(query, limit)
+	if err != nil {
+		return nil, apperror.NewInternal("failed to search tags", err)
+	}
+
+	responses := make([]*dto.TagResponse, 0, len(tags))
+	for _, tag := range tags {
+		responses = append(responses, dto.NewTagResponse(tag))
+	}
+	return responses, nil
+}
+
 func (s *InsightService) invalidateTagCache() {
 	s.cache.DeletePrefix("tags:")
 	s.cache.DeletePrefix("popular_tags:")

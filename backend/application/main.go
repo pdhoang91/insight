@@ -49,10 +49,32 @@ func main() {
 	r.Use(gin.Recovery())
 	ConfigureCORS(r)
 
-	storageManager := storage.NewManager("s3", db)
-	bucket, region, cdnDomain := config.GetS3Config()
-	s3Provider := storage.NewS3Provider(config.S3Client, bucket, region, "uploads", cdnDomain)
-	storageManager.RegisterProvider("s3", s3Provider)
+	var storageManager *storage.Manager
+	if config.S3Client != nil {
+		storageManager = storage.NewManager("s3", db)
+		bucket, region, cdnDomain := config.GetS3Config()
+		s3Provider := storage.NewS3Provider(config.S3Client, bucket, region, "uploads", cdnDomain)
+		storageManager.RegisterProvider("s3", s3Provider)
+		log.Println("Storage: using S3")
+	} else {
+		localUploadDir := os.Getenv("LOCAL_UPLOAD_DIR")
+		if localUploadDir == "" {
+			localUploadDir = "/app/local-uploads"
+		}
+		baseAPIURL := os.Getenv("BASE_API_URL")
+		if baseAPIURL == "" {
+			baseAPIURL = "http://localhost:81"
+		}
+		localProvider, err := storage.NewLocalProvider(localUploadDir, baseAPIURL+"/local-uploads")
+		if err != nil {
+			log.Fatalf("Failed to init local storage: %v", err)
+		}
+		storageManager = storage.NewManager("local", db)
+		storageManager.RegisterProvider("local", localProvider)
+		// Serve uploaded files under /local-uploads/*
+		r.Static("/local-uploads", localUploadDir)
+		log.Printf("Storage: using local filesystem at %s (no AWS credentials)", localUploadDir)
+	}
 
 	memCache := cache.New()
 	var appCache cache.Cache = memCache

@@ -83,7 +83,13 @@
       "Bash(grep -rn \"search\" /Users/anhoaian/Documents/pdhoang91/insight/frontend/.env*)",
       "Bash(grep -rn \"search\" /Users/anhoaian/Documents/pdhoang91/insight/.env*)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "Bash(git:*)"
+      "Bash(git:*)",
+      "Bash(cat /Users/anhoaian/Documents/pdhoang91/insight/frontend/.env*)",
+      "Bash(grep -n \"NewInsightService\\\\|NewBaseService\\\\|storageManager\\\\|InsightService\\\\|BaseService\" /Users/anhoaian/Documents/pdhoang91/insight/backend/application/internal/service/*.go)",
+      "Bash(grep:*)",
+      "Bash(sed -n '77,90p' /Users/anhoaian/Documents/pdhoang91/insight/backend/application/internal/service/interfaces.go)",
+      "Bash(sed -n '100,115p' /Users/anhoaian/Documents/pdhoang91/insight/backend/application/internal/repository/interfaces.go)",
+      "Bash(kill %1)"
     ]
   }
 }

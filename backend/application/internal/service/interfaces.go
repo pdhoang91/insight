@@ -80,6 +80,7 @@ type TagService interface {
 	UpdateTag(id uuid.UUID, req *dto.UpdateTagRequest) (*dto.TagResponse, error)
 	DeleteTag(id uuid.UUID) error
 	GetPopularTags(limit int) ([]*dto.TagResponse, error)
+	SearchTags(query string, limit int) ([]*dto.TagResponse, error)
 }
 
 type ImageService interface {
