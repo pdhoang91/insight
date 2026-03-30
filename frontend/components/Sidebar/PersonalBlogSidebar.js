@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import useSWR from 'swr';
 import { useHomeData } from '../../hooks/useHomeData';
 import { useArchiveSummary } from '../../hooks/useArchiveSummary';
@@ -31,17 +31,17 @@ const AuthorBio = () => (
 
 /* ─── Recent Posts widget ─── */
 const RecentPosts = ({ posts, isLoading }) => {
-  const t = useTranslations();
-  const locale = useLocale();
-
   if (isLoading) {
     return (
       <div className="space-y-3">
         {[...Array(5)].map((_, i) => (
-          <div key={i} className="flex flex-col gap-1.5 py-1">
-            <div className="h-3 bg-[var(--bg-surface)] rounded animate-pulse w-full" />
-            <div className="h-3 bg-[var(--bg-surface)] rounded animate-pulse w-3/4" />
-            <div className="h-2.5 bg-[var(--bg-surface)] rounded animate-pulse w-1/3 mt-0.5" />
+          <div key={i} className="flex gap-3 py-2">
+            <div className="flex-shrink-0 w-[64px] h-[64px] bg-[var(--bg-surface)] rounded animate-pulse" />
+            <div className="flex-1 space-y-2 pt-1">
+              <div className="h-3 bg-[var(--bg-surface)] rounded animate-pulse w-full" />
+              <div className="h-3 bg-[var(--bg-surface)] rounded animate-pulse w-4/5" />
+              <div className="h-3 bg-[var(--bg-surface)] rounded animate-pulse w-2/3" />
+            </div>
           </div>
         ))}
       </div>
@@ -51,35 +51,34 @@ const RecentPosts = ({ posts, isLoading }) => {
   if (!posts?.length) return null;
 
   return (
-    <div className="space-y-0">
-      {posts.slice(0, 6).map((post, i) => (
-        <article
-          key={post.id}
-          className="group flex gap-3 py-[0.7rem] border-b border-[var(--border)] last:border-0"
-        >
-          {/* Index number */}
-          <span
-            className="flex-shrink-0 font-display font-800 text-[1.1rem] leading-none mt-[2px] w-5 text-right"
-            style={{ color: 'var(--accent)', opacity: 0.5, fontWeight: 800 }}
-            aria-hidden="true"
-          >
-            {String(i + 1).padStart(2, '0')}
-          </span>
-
-          {/* Content */}
-          <div className="flex-1 min-w-0">
-            <Link href={`/p/${post.slug}`} className="block">
-              <h4 className="post-card-title-sm post-title-hover line-clamp-2 mb-1">
-                {post.title}
-              </h4>
-            </Link>
-            <span className="ui-label">
-              {new Date(post.created_at).toLocaleDateString(
-                locale === 'vi' ? 'vi-VN' : 'en-US',
-                { day: 'numeric', month: 'short', year: 'numeric' }
+    <div className="space-y-1">
+      {posts.slice(0, 6).map((post) => (
+        <article key={post.id}>
+          <Link href={`/p/${post.slug}`} className="flex gap-3 py-3 group">
+            {/* Thumbnail */}
+            <div className="flex-shrink-0 w-[64px] h-[64px] overflow-hidden bg-[var(--bg-surface)] relative">
+              {post.cover_image ? (
+                <Image
+                  src={post.cover_image}
+                  alt={post.title}
+                  fill
+                  sizes="64px"
+                  style={{ objectFit: 'cover' }}
+                  unoptimized={isLocalImage(post.cover_image)}
+                />
+              ) : (
+                <div className="w-full h-full bg-[var(--bg-surface)] flex items-center justify-center">
+                  <span className="text-[var(--text-faint)] text-xs font-bold uppercase tracking-wider">
+                    {post.title?.charAt(0)}
+                  </span>
+                </div>
               )}
-            </span>
-          </div>
+            </div>
+            {/* Title */}
+            <h4 className="flex-1 text-[13px] font-medium leading-snug text-[var(--accent)] group-hover:underline line-clamp-3 pt-0.5">
+              {post.title}
+            </h4>
+          </Link>
         </article>
       ))}
     </div>
