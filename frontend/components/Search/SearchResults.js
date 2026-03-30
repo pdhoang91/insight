@@ -40,13 +40,13 @@ const SearchResults = ({ query }) => {
   return (
     <>
       <header className="mb-8">
-        <h1 className="font-serif text-3xl font-bold text-[#292929] mb-2">
+        <h1 className="font-display font-bold text-[var(--text)] mb-2 tracking-[-0.02em] text-3xl">
           {t('search.results')}
         </h1>
-        <p className="text-[#757575]">
+        <p className="font-body text-[0.95rem] text-[var(--text-muted)]">
           {t('search.foundResults', { count: totalCount || 0, query })}
           {stories.length < (totalCount || 0) && (
-            <span className="text-[#b3b3b1] ml-2">({t('search.showing')} {stories.length})</span>
+            <span className="text-[var(--text-faint)] ml-2">({t('search.showing')} {stories.length})</span>
           )}
         </p>
       </header>

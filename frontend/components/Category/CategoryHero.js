@@ -155,7 +155,7 @@ const CategoryHero = ({ totalCategories = null, totalArticles = null }) => {
           {/* Visual Element - Right side for asymmetry */}
           <div className="lg:col-span-4 flex justify-center lg:justify-end">
             <motion.div
-              className="relative w-64 h-64 lg:w-80 lg:h-80"
+              className="relative w-64 h-64 md:w-72 md:h-72 lg:w-80 lg:h-80"
               initial={{ opacity: 0, scale: 0.8, rotateY: -15 }}
               animate={{ opacity: 1, scale: 1, rotateY: 0 }}
               transition={{

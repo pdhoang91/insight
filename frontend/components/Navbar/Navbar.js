@@ -1,17 +1,17 @@
 'use client';
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { SignOut, PencilSimple, List, Compass } from '@phosphor-icons/react';
 import { useUser } from '../../context/UserContext';
 import { usePostContext } from '../../context/PostContext';
-import { useOutsideClick } from '../../hooks/useOutsideClick';
 import { useScrollEffect } from '../../hooks/useScrollEffect';
 import SimpleSearchBar from '../Shared/SimpleSearchBar';
 import { canWritePosts } from '../../services/authService';
 import { useTranslations } from 'next-intl';
 import MobileSlidePanel from './MobileSlidePanel';
+import NavUserMenu from './NavUserMenu';
 import LanguageTogglePill from '../Shared/LanguageTogglePill';
 import Avatar from '../UI/Avatar';
 
@@ -84,10 +84,6 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const scrolled = useScrollEffect(20);
-  const userMenuRef = useRef();
-
-  const closeUserMenu = useCallback(() => setIsUserMenuOpen(false), []);
-  useOutsideClick(userMenuRef, closeUserMenu);
 
   React.useEffect(() => {
     setIsMobileMenuOpen(false);
@@ -135,48 +131,13 @@ const Navbar = () => {
             <LanguageTogglePill />
 
             {user ? (
-              <div className="relative" ref={userMenuRef}>
-                <button
-                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  aria-label={`${user.name} — user menu`}
-                  aria-expanded={isUserMenuOpen}
-                  className="flex items-center p-[2px] transition-opacity duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)] rounded-full"
-                >
-                  <Avatar src={user.avatar_url} name={user.name} size="sm" />
-                </button>
-
-                <AnimatePresence>
-                  {isUserMenuOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -6, scale: 0.97 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -6, scale: 0.97 }}
-                      transition={{ duration: 0.15, ease: [0.16, 1, 0.3, 1] }}
-                      className="absolute right-0 mt-[10px] w-[220px] bg-[var(--bg)] border border-[var(--border-mid)] rounded-[4px] shadow-[var(--shadow-lg)] overflow-hidden z-50"
-                    >
-                      <Link
-                        href={`/${user.username}`}
-                        className="flex items-center gap-[10px] px-4 py-3"
-                        onClick={() => setIsUserMenuOpen(false)}
-                      >
-                        <Avatar src={user.avatar_url} name={user.name} size="md" />
-                        <div className="min-w-0">
-                          <div className="font-display font-semibold text-sm tracking-tight text-[var(--text)] truncate">{user.name}</div>
-                          <div className="text-xs text-[var(--text-faint)] truncate">{user.email}</div>
-                        </div>
-                      </Link>
-
-                      <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center gap-2 px-4 py-[10px] bg-transparent border-none cursor-pointer font-display text-sm tracking-tight text-[var(--text-muted)] text-left transition-colors duration-150 hover:text-[var(--text)]"
-                      >
-                        <SignOut size={16} weight="regular" />
-                        {t('nav.logout')}
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+              <NavUserMenu
+                user={user}
+                isOpen={isUserMenuOpen}
+                onToggle={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                onClose={() => setIsUserMenuOpen(false)}
+                onLogout={handleLogout}
+              />
             ) : (
               <div className="flex items-center gap-4">
                 <button
@@ -199,14 +160,14 @@ const Navbar = () => {
             )}
             <Link
               href="/explore"
-              className="p-[6px] flex items-center text-[var(--text-muted)] transition-colors duration-200 hover:text-[var(--text)]"
+              className="p-2.5 flex items-center text-[var(--text-muted)] transition-colors duration-200 hover:text-[var(--text)]"
               aria-label="Explore"
             >
               <Compass size={20} weight="regular" />
             </Link>
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-[6px] text-[var(--text-muted)] bg-transparent border-none cursor-pointer transition-colors duration-200 hover:text-[var(--text)]"
+              className="p-2.5 text-[var(--text-muted)] bg-transparent border-none cursor-pointer transition-colors duration-200 hover:text-[var(--text)]"
               aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
             >
               <List size={20} weight="regular" />

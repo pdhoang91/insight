@@ -30,8 +30,7 @@ const LoginModal = ({ isOpen, onClose }) => {
       const userData = await getUserProfile();
       setUser(userData);
       onClose();
-    } catch (err) {
-      console.error('Auth failed:', err);
+    } catch {
       setError(t(errorKey));
     } finally {
       setIsLoading(false);
@@ -53,8 +52,7 @@ const LoginModal = ({ isOpen, onClose }) => {
     setError('');
     try {
       loginWithGoogle();
-    } catch (err) {
-      console.error('Google login failed:', err);
+    } catch {
       setError(t('auth.googleFailed'));
       setIsLoading(false);
     }

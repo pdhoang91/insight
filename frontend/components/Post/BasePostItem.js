@@ -30,8 +30,8 @@ const BasePostItem = ({
     try {
       await deletePost(post.id);
       router.refresh();
-    } catch (e) {
-      console.error('Delete failed:', e);
+    } catch {
+      // deletion failed — no-op; UI stays unchanged
     }
   };
 
@@ -165,7 +165,7 @@ const BasePostItem = ({
         {post.tags?.length > 0 && (
           <div className="flex flex-wrap gap-[0.4rem] mt-3">
             {post.tags.map((tag) => (
-              <Link key={tag.id || tag.name} href={`/tag/${tag.name}`} className="tag-chip">
+              <Link key={tag.name} href={`/tag/${tag.name}`} className="tag-chip">
                 • {tag.name}
               </Link>
             ))}

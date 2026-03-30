@@ -6,15 +6,7 @@ import { useTranslations } from 'next-intl';
 const FooterLink = ({ href, children }) => (
   <Link
     href={href}
-    style={{
-      fontFamily: 'var(--font-display)',
-      fontSize: '0.8rem',
-      fontWeight: 500,
-      letterSpacing: '-0.01em',
-      color: 'var(--text-muted)',
-      transition: 'color 0.2s',
-    }}
-    className="hover:text-[var(--text)]"
+    className="font-display text-[0.8rem] font-medium tracking-tight text-[var(--text-muted)] transition-colors hover:text-[var(--text)]"
   >
     {children}
   </Link>
@@ -25,74 +17,41 @@ const Footer = () => {
   const year = new Date().getFullYear();
 
   return (
-    <footer
-      style={{
-        background: 'var(--bg)',
-        marginTop: '6rem',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Large background wordmark — decorative */}
+    <footer className="relative mt-24 overflow-hidden bg-[var(--bg)]">
+      {/* Large decorative background wordmark */}
       <div
         aria-hidden="true"
+        className="pointer-events-none absolute bottom-[-0.15em] left-1/2 -translate-x-1/2 select-none whitespace-nowrap font-display font-extrabold leading-none"
         style={{
-          position: 'absolute',
-          bottom: '-0.15em',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          fontFamily: 'var(--font-display)',
-          fontWeight: 800,
           fontSize: 'clamp(5rem, 18vw, 14rem)',
           letterSpacing: '-0.04em',
-          lineHeight: 1,
-          color: 'rgba(0, 0, 0, 0.04)',
-          whiteSpace: 'nowrap',
-          userSelect: 'none',
-          pointerEvents: 'none',
+          color: 'rgba(255,255,255,0.03)',
         }}
       >
         Insight
       </div>
 
-      <div className="max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-16 pt-14 pb-10 relative z-[1]">
+      <div className="relative z-[1] max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-16 pt-14 pb-10">
         {/* Top row: logo + nav */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '2rem',
-            marginBottom: '3rem',
-          }}
-        >
+        <div className="flex flex-wrap items-start justify-between gap-8 mb-12">
           {/* Logo */}
           <Link
             href="/"
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 800,
-              fontSize: '1.5rem',
-              letterSpacing: '-0.03em',
-              color: 'var(--text)',
-              lineHeight: 1,
-            }}
-            className="hover:opacity-75 transition-opacity"
+            className="font-display font-extrabold text-[1.5rem] leading-none tracking-[-0.03em] text-[var(--text)] transition-opacity hover:opacity-75"
           >
             Insight
           </Link>
 
           {/* Nav columns */}
-          <div style={{ display: 'flex', gap: '3rem', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div className="flex flex-wrap gap-12">
+            <div className="flex flex-col gap-3">
               <p className="ui-section-header mb-1">{t('footer.navigate')}</p>
               <FooterLink href="/">{t('footer.writing')}</FooterLink>
               <FooterLink href="/category">{t('footer.topics')}</FooterLink>
               <FooterLink href="/archive">{t('sidebar.archive')}</FooterLink>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <div className="flex flex-col gap-3">
               <p className="ui-section-header mb-1">{t('footer.more')}</p>
               <FooterLink href="/search">{t('footer.search')}</FooterLink>
               <FooterLink href="/write">{t('footer.write')}</FooterLink>
@@ -101,20 +60,11 @@ const Footer = () => {
         </div>
 
         {/* Bottom row */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '0.75rem',
-            paddingTop: '1.25rem',
-          }}
-        >
-          <p style={{ fontFamily: 'var(--font-display)', fontSize: '0.75rem', color: 'var(--text-faint)', margin: 0, letterSpacing: '-0.01em' }}>
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-5 border-t border-[var(--border)]">
+          <p className="font-display text-[0.75rem] tracking-tight text-[var(--text-faint)] m-0">
             {t('footer.copyright', { year })}
           </p>
-          <span style={{ fontFamily: 'var(--font-display)', fontSize: '0.7rem', color: 'var(--text-faint)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+          <span className="font-display text-[0.7rem] uppercase tracking-[0.04em] text-[var(--text-faint)]">
             {t('footer.builtWith')}
           </span>
         </div>

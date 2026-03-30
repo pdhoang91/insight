@@ -2,6 +2,7 @@
 
 import React, { useEffect, useCallback, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight } from '@phosphor-icons/react';
 import { useTranslations, useLocale } from 'next-intl';
@@ -105,12 +106,14 @@ const PostCard = ({ post, index, locale, t }) => {
       <Link href={`/p/${post.slug}`} className="block p-7 no-underline">
         {/* Cover image */}
         {post.cover_image && (
-          <div className="w-full aspect-video rounded-[2px] overflow-hidden mb-5 bg-[var(--bg-elevated)]">
-            <img
+          <div className="w-full aspect-video rounded-[2px] overflow-hidden mb-5 bg-[var(--bg-elevated)] relative">
+            <Image
               src={post.cover_image}
               alt={post.title}
-              onError={(e) => { e.currentTarget.parentElement.style.display = 'none'; }}
-              className="w-full h-full object-cover block transition-transform duration-400 ease-out"
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="object-cover transition-transform duration-400 ease-out"
+              unoptimized={post.cover_image?.includes('localhost')}
             />
           </div>
         )}

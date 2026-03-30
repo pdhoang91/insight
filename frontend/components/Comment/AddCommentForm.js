@@ -14,6 +14,12 @@ const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId =
   const isReply = !!parentId;
   const placeholder = isReply ? t('comment.replyPlaceholder') : t('comment.placeholder');
 
+  const resetForm = () => {
+    setContent('');
+    setIsFocused(false);
+    if (textareaRef.current) textareaRef.current.style.height = 'auto';
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!content.trim()) return;
@@ -26,136 +32,87 @@ const AddCommentForm = ({ onAddComment, postId, user, onCommentAdded, parentId =
         await addComment(postId, content);
         onCommentAdded();
       }
-      setContent('');
-      setIsFocused(false);
-      if (textareaRef.current) textareaRef.current.style.height = 'auto';
-    } catch (error) {
-      console.error('Failed to add comment:', error);
+      resetForm();
+    } catch {
       alert(t('comment.addError'));
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleCancel = () => {
-    setContent('');
-    setIsFocused(false);
-    if (textareaRef.current) textareaRef.current.style.height = 'auto';
-  };
-
   if (!user) {
     return (
-      <div style={{
-        padding: '0.875rem 1rem',
-        background: 'var(--bg-surface)',
-        borderRadius: '2px',
-        border: '1px solid var(--border)',
-      }}>
-        <p style={{
-          fontFamily: 'var(--font-display)',
-          fontSize: '0.82rem',
-          color: 'var(--text-faint)',
-          margin: 0,
-          letterSpacing: '-0.01em',
-        }}>
-          {t('comment.loginToComment')}
-        </p>
+      <div className="px-4 py-3.5 bg-[var(--bg-surface)] border border-[var(--border)] rounded-[2px]">
+        <p className="ui-label m-0">{t('comment.loginToComment')}</p>
       </div>
     );
   }
 
   return (
     <form onSubmit={handleSubmit}>
-      <div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <textarea
-            ref={textareaRef}
-            placeholder={placeholder}
-            value={content}
-            onChange={(e) => {
-              setContent(e.target.value);
-              e.target.style.height = 'auto';
-              e.target.style.height = e.target.scrollHeight + 'px';
-            }}
-            onFocus={() => setIsFocused(true)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                if (content.trim() && !isSubmitting) handleSubmit(e);
-              }
-            }}
-            rows={1}
-            style={{
-              width: '100%',
-              resize: 'none',
-              background: isFocused ? 'var(--bg-surface)' : 'transparent',
-              fontFamily: 'var(--font-body)',
-              fontSize: '0.9rem',
-              lineHeight: 1.65,
-              color: 'var(--text)',
-              outline: 'none',
-              border: 'none',
-              borderRadius: '2px',
-              padding: '0.35rem 0.5rem 0.5rem',
-              transition: 'background 0.2s',
-            }}
-          />
+      <div className="flex-1 min-w-0">
+        <textarea
+          ref={textareaRef}
+          placeholder={placeholder}
+          value={content}
+          onChange={(e) => {
+            setContent(e.target.value);
+            e.target.style.height = 'auto';
+            e.target.style.height = e.target.scrollHeight + 'px';
+          }}
+          onFocus={() => setIsFocused(true)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              if (content.trim() && !isSubmitting) handleSubmit(e);
+            }
+          }}
+          rows={1}
+          className="w-full resize-none outline-none border-none rounded-[2px] px-2 pb-2 pt-1.5 transition-colors"
+          style={{
+            background: isFocused ? 'var(--bg-surface)' : 'transparent',
+            fontFamily: 'var(--font-body)',
+            fontSize: '0.9rem',
+            lineHeight: 1.65,
+            color: 'var(--text)',
+          }}
+        />
 
-          <AnimatePresence>
-            {isFocused && (
-              <motion.div
-                initial={{ opacity: 0, y: -6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ type: 'spring', stiffness: 120, damping: 18 }}
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.75rem' }}
+        <AnimatePresence>
+          {isFocused && (
+            <motion.div
+              initial={{ opacity: 0, y: -6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ type: 'spring', stiffness: 120, damping: 18 }}
+              className="flex items-center justify-end gap-3 mt-3"
+            >
+              <motion.button
+                type="button"
+                onClick={resetForm}
+                whileTap={{ scale: 0.97 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                className="font-display text-[0.78rem] font-medium tracking-tight text-[var(--text-faint)] bg-transparent border-none cursor-pointer transition-colors hover:text-[var(--text-muted)]"
               >
-                <motion.button
-                  type="button"
-                  onClick={handleCancel}
-                  whileTap={{ scale: 0.97 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                  style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: '0.78rem',
-                    fontWeight: 500,
-                    letterSpacing: '-0.01em',
-                    color: 'var(--text-faint)',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    transition: 'color 0.2s',
-                  }}
-                  className="hover:text-[var(--text-muted)]"
-                >
-                  {t('editor.cancel')}
-                </motion.button>
-                <motion.button
-                  type="submit"
-                  disabled={isSubmitting || !content.trim()}
-                  whileTap={content.trim() ? { scale: 0.98 } : {}}
-                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                  style={{
-                    fontFamily: 'var(--font-display)',
-                    fontSize: '0.78rem',
-                    fontWeight: 600,
-                    letterSpacing: '0.01em',
-                    color: content.trim() ? 'var(--text-inverse)' : 'var(--text-faint)',
-                    background: content.trim() ? 'var(--accent)' : 'var(--bg-elevated)',
-                    border: 'none',
-                    borderRadius: '2px',
-                    padding: '0.4rem 1rem',
-                    cursor: content.trim() ? 'pointer' : 'not-allowed',
-                    transition: 'background 0.2s, color 0.2s, opacity 0.2s',
-                  }}
-                  className={content.trim() ? 'hover:opacity-90' : ''}
-                >
-                  {isSubmitting ? '...' : t('comment.respond')}
-                </motion.button>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
+                {t('editor.cancel')}
+              </motion.button>
+
+              <motion.button
+                type="submit"
+                disabled={isSubmitting || !content.trim()}
+                whileTap={content.trim() ? { scale: 0.98 } : {}}
+                transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                className={`font-display text-[0.78rem] font-semibold tracking-wide rounded-[2px] px-4 py-1.5 border-none transition-all ${
+                  content.trim()
+                    ? 'bg-[var(--accent)] text-[var(--text-inverse)] cursor-pointer hover:opacity-90'
+                    : 'bg-[var(--bg-elevated)] text-[var(--text-faint)] cursor-not-allowed'
+                }`}
+              >
+                {isSubmitting ? '...' : t('comment.respond')}
+              </motion.button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </form>
   );

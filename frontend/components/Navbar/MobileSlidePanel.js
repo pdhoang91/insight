@@ -65,7 +65,7 @@ export default function MobileSlidePanel({ isOpen, onClose, children }) {
               right: 0,
               bottom: 0,
               width: '85vw',
-              maxWidth: '380px',
+              maxWidth: 'min(85vw, 380px)',
               zIndex: 50,
               background: 'var(--bg)',
               boxShadow: 'var(--shadow-xl)',

@@ -49,8 +49,7 @@ const AvatarUpdateModal = ({ userProfile, onUpdate, onCancel }) => {
       };
       const response = await updateProfileWithAvatar(profileData, usingGooglePhoto ? null : avatarFile);
       onUpdate(response.data);
-    } catch (err) {
-      console.error('Failed to update avatar:', err);
+    } catch {
       setError(t('profile.avatarUpdateFailed'));
     } finally {
       setIsUploading(false);

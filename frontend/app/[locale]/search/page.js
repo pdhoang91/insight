@@ -10,19 +10,17 @@ import PersonalBlogSidebar from '../../../components/Sidebar/PersonalBlogSidebar
 const SearchHeader = () => {
   const t = useTranslations();
   return (
-    <div className="text-center py-12">
-      <h1 className="font-serif text-3xl font-bold text-[var(--text)] mb-3">{t('search.title')}</h1>
-      <p className="text-[var(--text-muted)] max-w-md mx-auto mb-8">
-        {t('search.subtitle')}
+    <div className="pb-8">
+      <p className="ui-section-header mb-3" style={{ color: 'var(--accent)', letterSpacing: '0.12em' }}>
+        {t('search.title')}
       </p>
-
-      <div className="w-16 h-16 mx-auto mb-6 bg-[var(--accent-light)] rounded-full flex items-center justify-center">
-        <svg className="w-8 h-8 text-[var(--accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-      </div>
-
-      <div className="max-w-sm mx-auto text-[13px] text-[var(--text-faint)] space-y-1.5">
+      <h1
+        className="font-display font-extrabold text-[var(--text)] mb-4"
+        style={{ fontSize: 'clamp(2rem, 5vw, 3.25rem)', letterSpacing: '-0.04em', lineHeight: 1.08 }}
+      >
+        {t('search.subtitle')}
+      </h1>
+      <div className="text-[0.8rem] text-[var(--text-faint)] space-y-1 font-display">
         <p>{t('search.tipTitles')}</p>
         <p>{t('search.tipQuotes')}</p>
         <p>{t('search.tipRelevance')}</p>

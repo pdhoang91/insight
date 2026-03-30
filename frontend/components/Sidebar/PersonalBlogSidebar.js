@@ -9,6 +9,7 @@ import { useHomeData } from '../../hooks/useHomeData';
 import { useArchiveSummary } from '../../hooks/useArchiveSummary';
 import { fetchPopularTags } from '../../app/lib/api';
 import Archive from '../Archive/Archive';
+import TagCloud from '../Shared/TagCloud';
 
 const isLocalImage = (src) => src?.includes('localhost');
 
@@ -182,42 +183,7 @@ const PersonalBlogSidebar = ({ initialHomeData }) => {
       </SidebarSection>
 
       <SidebarSection title={t('sidebar.tags')}>
-        {tagsLoading ? (
-          <div className="flex flex-wrap gap-x-3 gap-y-2">
-            {[...Array(12)].map((_, i) => (
-              <div
-                key={i}
-                className="skeleton-warm"
-                style={{ height: `${14 + (i % 4) * 4}px`, width: `${45 + (i % 5) * 18}px`, borderRadius: '2px' }}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="leading-loose">
-            {(popularTags || []).slice(0, 40).map((tag, i) => {
-              const total = Math.min((popularTags || []).length, 40);
-              const rank = i / total; // 0 = most popular, 1 = least
-              // 5 size tiers: largest for top tags, smallest for tail
-              const fontSize =
-                rank < 0.1 ? '1.6rem' :
-                rank < 0.2 ? '1.25rem' :
-                rank < 0.4 ? '1rem' :
-                rank < 0.65 ? '0.85rem' :
-                '0.75rem';
-              const fontWeight = rank < 0.2 ? 700 : rank < 0.4 ? 600 : 400;
-              return (
-                <Link
-                  key={tag.id || tag.name}
-                  href={`/tag/${tag.name}`}
-                  style={{ fontSize, fontWeight, lineHeight: 1.6 }}
-                  className="inline-block mr-2 text-[var(--accent)] hover:underline"
-                >
-                  {tag.name}
-                </Link>
-              );
-            })}
-          </div>
-        )}
+        <TagCloud tags={popularTags} isLoading={tagsLoading} />
       </SidebarSection>
 
       <SidebarSection title={t('sidebar.archive')}>

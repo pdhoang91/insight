@@ -1,7 +1,6 @@
 import { setRequestLocale } from 'next-intl/server';
 import ExplorePanelContent from '../../../components/Sidebar/ExplorePanelContent';
-import { HomeLayout } from '../../../components/Layout/Layout';
-import PersonalBlogSidebar from '../../../components/Sidebar/PersonalBlogSidebar';
+import Layout from '../../../components/Layout/Layout';
 
 export const metadata = {
   title: 'Explore',
@@ -13,8 +12,8 @@ export default async function ExplorePage({ params }) {
   setRequestLocale(locale);
 
   return (
-    <HomeLayout sidebar={<PersonalBlogSidebar />}>
+    <Layout showSidebar={false}>
       <ExplorePanelContent />
-    </HomeLayout>
+    </Layout>
   );
 }
