@@ -79,6 +79,7 @@ const LoginModal = ({ isOpen, onClose }) => {
           background: 'rgba(26, 20, 16, 0.75)',
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
+          overscrollBehavior: 'contain',
         }}
         onClick={onClose}
       >
@@ -102,6 +103,7 @@ const LoginModal = ({ isOpen, onClose }) => {
         >
           <button
             onClick={onClose}
+            aria-label={t('common.close')}
             style={{
               position: 'absolute',
               top: '1rem',
@@ -113,7 +115,7 @@ const LoginModal = ({ isOpen, onClose }) => {
               cursor: 'pointer',
               transition: 'color 0.2s, transform 0.15s',
             }}
-            className="hover:text-[var(--text)] active:-translate-y-[1px]"
+            className="hover:text-[var(--text)] active:-translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] rounded"
           >
             <X style={{ width: 14, height: 14 }} />
           </button>
@@ -186,6 +188,10 @@ const LoginModal = ({ isOpen, onClose }) => {
                 <input
                   id="email-input"
                   type="email"
+                  name="email"
+                  autoComplete="email"
+                  spellCheck={false}
+                  autoCorrect="off"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isLoading}
@@ -206,7 +212,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                     outline: 'none',
                     transition: 'border-color 0.2s, background 0.2s',
                   }}
-                  className="focus:border-[var(--accent)] focus:bg-[var(--bg)]"
+                  className="focus:border-[var(--accent)] focus:bg-[var(--bg)] focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--bg)]"
                 />
               </div>
             </div>
@@ -241,6 +247,8 @@ const LoginModal = ({ isOpen, onClose }) => {
                 <input
                   id="password-input"
                   type="password"
+                  name="password"
+                  autoComplete={isSignUp ? 'new-password' : 'current-password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
@@ -261,7 +269,7 @@ const LoginModal = ({ isOpen, onClose }) => {
                     outline: 'none',
                     transition: 'border-color 0.2s, background 0.2s',
                   }}
-                  className="focus:border-[var(--accent)] focus:bg-[var(--bg)]"
+                  className="focus:border-[var(--accent)] focus:bg-[var(--bg)] focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--bg)]"
                 />
               </div>
             </div>
@@ -272,7 +280,7 @@ const LoginModal = ({ isOpen, onClose }) => {
               variant="primary"
               size="lg"
               onClick={isSignUp ? handleSignUp : handleLogin}
-              disabled={!email || !password}
+              disabled={isLoading}
               loading={isLoading}
               fullWidth
               style={{ fontSize: '0.9375rem', fontWeight: 600 }}

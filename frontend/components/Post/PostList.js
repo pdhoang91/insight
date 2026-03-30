@@ -109,7 +109,7 @@ const PostList = ({
               {index < prevCount ? (
                 // Already-visible items: plain div — no animation overhead
                 <div className="pb-20">
-                  <BasePostItem post={post} variant={variant} />
+                  <BasePostItem post={post} variant={variant} priority={index === 0} />
                 </div>
               ) : (
                 // New batch: animate in with stagger
@@ -120,7 +120,7 @@ const PostList = ({
                   animate="visible"
                   transition={{ delay: (index - prevCount) * 0.07 }}
                 >
-                  <BasePostItem post={post} variant={variant} />
+                  <BasePostItem post={post} variant={variant} priority={index === 0} />
                 </motion.div>
               )}
               {interstitial &&

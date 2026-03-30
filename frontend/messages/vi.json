@@ -222,7 +222,8 @@
     "cancel": "Hủy",
     "save": "Lưu",
     "saving": "Đang lưu...",
-    "remove": "Xóa"
+    "remove": "Xóa",
+    "close": "Đóng"
   },
   "highlights": {
     "empty": "Chưa có đánh dấu nào. Chọn văn bản để tạo đánh dấu.",

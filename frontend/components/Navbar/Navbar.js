@@ -51,24 +51,24 @@ const NavWriteAction = ({ isWritePage, onPublish, compact = false }) => {
 
   if (compact) {
     return (
-      <button
-        onClick={() => router.push('/write')}
-        className="p-[6px] text-[var(--text-muted)] bg-transparent border-none cursor-pointer transition-colors duration-200 hover:text-[var(--text)]"
-        aria-label="Write"
+      <Link
+        href="/write"
+        className="p-[6px] flex items-center text-[var(--text-muted)] transition-colors duration-200 hover:text-[var(--text)]"
+        aria-label={t('nav.write')}
       >
         <PencilSimple size={20} weight="regular" />
-      </button>
+      </Link>
     );
   }
 
   return (
-    <button
-      onClick={() => router.push('/write')}
-      className="flex items-center gap-[6px] font-display font-medium text-[0.875rem] tracking-tight text-[var(--text-muted)] bg-transparent border-none cursor-pointer transition-colors duration-200 hover:text-[var(--text)]"
+    <Link
+      href="/write"
+      className="flex items-center gap-[6px] font-display font-medium text-[0.875rem] tracking-tight text-[var(--text-muted)] transition-colors duration-200 hover:text-[var(--text)]"
     >
       <PencilSimple size={16} weight="regular" />
       {t('nav.write')}
-    </button>
+    </Link>
   );
 };
 
@@ -138,7 +138,9 @@ const Navbar = () => {
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center p-[2px] transition-opacity duration-200"
+                  aria-label={`${user.name} — user menu`}
+                  aria-expanded={isUserMenuOpen}
+                  className="flex items-center p-[2px] transition-opacity duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg)] rounded-full"
                 >
                   <Avatar src={user.avatar_url} name={user.name} size="sm" />
                 </button>

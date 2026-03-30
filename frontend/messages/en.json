@@ -222,7 +222,8 @@
     "cancel": "Cancel",
     "save": "Save",
     "saving": "Saving...",
-    "remove": "Remove"
+    "remove": "Remove",
+    "close": "Close"
   },
   "highlights": {
     "empty": "No highlights yet. Select text to create highlights.",

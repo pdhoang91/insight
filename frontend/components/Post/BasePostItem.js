@@ -16,6 +16,7 @@ const BasePostItem = ({
   post,
   variant = 'default',
   showOwnerActions = false,
+  priority = false,
 }) => {
   const router = useRouter();
   const t = useTranslations();
@@ -101,6 +102,7 @@ const BasePostItem = ({
               style={{ objectFit: 'cover', transition: 'transform 0.5s cubic-bezier(0.16, 1, 0.3, 1)' }}
               className="group-hover:scale-[1.03]"
               unoptimized={isLocalImage(post.cover_image)}
+              priority={priority}
             />
           </div>
         </Link>

@@ -41,14 +41,16 @@ export default async function LocaleLayout({ children, params }) {
   const messages = await getMessages();
 
   return (
-    <html lang={locale} className={`${sourceSerif4.variable} ${jetBrainsMono.variable}`}>
+    <html lang={locale} className={`${sourceSerif4.variable} ${jetBrainsMono.variable}`} style={{ colorScheme: 'dark' }}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        {/* Cabinet Grotesk via preconnect — eliminates @import waterfall */}
-        <link rel="preconnect" href="https://api.fontshare.com" />
+        <meta name="theme-color" content="#0D1117" />
+        {/* Cabinet Grotesk — preconnect + high-priority stylesheet */}
+        <link rel="preconnect" href="https://api.fontshare.com" crossOrigin="anonymous" />
         <link
           href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@800,700,500,400&display=swap"
           rel="stylesheet"
+          fetchPriority="high"
         />
       </head>
       <body className="min-h-screen" style={{ background: 'var(--bg)', color: 'var(--text)', fontFamily: 'var(--font-body)' }}>

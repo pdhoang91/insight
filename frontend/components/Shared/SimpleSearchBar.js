@@ -29,6 +29,7 @@ const SimpleSearchBar = ({ onClose, autoFocus = false, className = '', placehold
       <div className="relative">
         <input
           type="text"
+          name="q"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === 'Escape' && onClose?.()}
@@ -50,7 +51,7 @@ const SimpleSearchBar = ({ onClose, autoFocus = false, className = '', placehold
             outline: 'none',
             transition: 'border-color 0.2s',
           }}
-          className="placeholder:text-[var(--text-faint)] focus:border-[var(--border-mid)]"
+          className="placeholder:text-[var(--text-faint)] focus:border-[var(--accent)] focus-visible:ring-2 focus-visible:ring-[var(--accent)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--bg)]"
         />
 
         <div
