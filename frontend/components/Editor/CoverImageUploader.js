@@ -46,7 +46,6 @@ const CoverImageUploader = ({ imageTitle, setImageTitle }) => {
               onClick={handleUpload}
               disabled={isUploading}
               style={{
-                opacity: imgError ? 1 : 0,
                 padding: '0.5rem 1rem',
                 fontFamily: 'var(--font-display)',
                 fontSize: '0.8rem',
@@ -63,7 +62,7 @@ const CoverImageUploader = ({ imageTitle, setImageTitle }) => {
                 transition: 'opacity 0.2s',
                 backdropFilter: 'blur(4px)',
               }}
-              className={imgError ? undefined : 'group-hover:opacity-100'}
+              className={imgError ? undefined : 'opacity-0 group-hover:opacity-100'}
             >
               <ArrowCircleUp size={15} weight="regular" />
               Change
@@ -71,7 +70,6 @@ const CoverImageUploader = ({ imageTitle, setImageTitle }) => {
             <button
               onClick={() => setImageTitle(null)}
               style={{
-                opacity: imgError ? 1 : 0,
                 padding: '0.5rem 1rem',
                 fontFamily: 'var(--font-display)',
                 fontSize: '0.8rem',
@@ -88,7 +86,7 @@ const CoverImageUploader = ({ imageTitle, setImageTitle }) => {
                 transition: 'opacity 0.2s',
                 backdropFilter: 'blur(4px)',
               }}
-              className={imgError ? undefined : 'group-hover:opacity-100'}
+              className={imgError ? undefined : 'opacity-0 group-hover:opacity-100'}
             >
               <X size={14} weight="regular" />
               Remove
