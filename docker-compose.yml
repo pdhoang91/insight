@@ -137,6 +137,8 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       # AWS_SESSION_TOKEN only needed for temporary credentials
       - AWS_SESSION_TOKEN=${AWS_SESSION_TOKEN:-}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET:-insight.storage}
+      - AWS_CDN_DOMAIN=${AWS_CDN_DOMAIN:-}
     networks:
       - app-network
     # logging:

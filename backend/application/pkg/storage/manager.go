@@ -83,12 +83,16 @@ var browserDisplayableMIMETypes = map[string]bool{
 func detectMIMEType(filename string, openFn func() (io.Reader, error)) (string, error) {
 	ext := strings.ToLower(filepath.Ext(filename))
 
-	// HEIC/HEIF are not detectable by net/http — use extension
+	// Formats not detectable by net/http — use extension
 	switch ext {
 	case ".heic":
 		return "image/heic", nil
 	case ".heif":
 		return "image/heif", nil
+	case ".avif":
+		return "image/avif", nil
+	case ".webp":
+		return "image/webp", nil
 	}
 
 	r, err := openFn()
