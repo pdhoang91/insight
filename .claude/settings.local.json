@@ -82,7 +82,8 @@
       "Bash(/opt/homebrew/bin/go mod:*)",
       "Bash(grep -rn \"search\" /Users/anhoaian/Documents/pdhoang91/insight/frontend/.env*)",
       "Bash(grep -rn \"search\" /Users/anhoaian/Documents/pdhoang91/insight/.env*)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(git:*)"
     ]
   }
 }

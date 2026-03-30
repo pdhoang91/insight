@@ -66,4 +66,4 @@ insight_bk/
 certbot/
 .claude/settings.local.json
 .claude/*
-.claude
+.claude.claude/settings.local.json
